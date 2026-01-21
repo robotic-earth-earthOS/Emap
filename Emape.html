@@ -59,7 +59,7 @@
         import * as THREE from 'three';
         import { Canvas, useFrame } from '@react-three/fiber';
         import { OrbitControls, PerspectiveCamera, Grid, Text, Line, Edges, Box } from '@react-three/drei';
-        import { Settings, Calculator, Move3d, Eye, EyeOff, Plus, Trash2, Target, Rotate3D, Ruler, Box as BoxIcon, Move, Grid3X3, QrCode, Folder, ChevronRight, ChevronDown, Palette, CheckCircle, Axis3d, MousePointer2, Clapperboard, Image as ImageIcon, Upload, Play, SkipBack, SkipForward, LayoutTemplate, MonitorOff, Film, Timer, Activity, Layers, Workflow, Link, X, Cable, Maximize, AlertTriangle, HardDrive, Database, Youtube, Video, Blend } from 'lucide-react';
+        import { Settings, Calculator, Move3d, Eye, EyeOff, Plus, Trash2, Target, Rotate3D, Ruler, Box as BoxIcon, Move, Grid3X3, QrCode, Folder, ChevronRight, ChevronDown, Palette, CheckCircle, Axis3d, MousePointer2, Clapperboard, Image as ImageIcon, Upload, Play, SkipBack, SkipForward, LayoutTemplate, MonitorOff, Film, Timer, Activity, Layers, Workflow, Link, X, Cable, Maximize, AlertTriangle, HardDrive, Database, Video, Blend } from 'lucide-react';
 
         // --- ICONS & HELPERS ---
         const FolderPlus = ({size}) => ( <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 10v6M9 13h6"/><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></svg> );
@@ -253,8 +253,8 @@
             return { position, quaternion, fov, camToWorldMatrix: correctedCamToWorld, worldToCamMatrix: correctedWorldToCam };
         };
 
-        const getCssMatrix = (dstPoints, size = 1000) => {
-             const src = [{x:0, y:0}, {x:size, y:0}, {x:size, y:size}, {x:0, y:size}];
+        const getCssMatrix = (dstPoints, width, height) => {
+             const src = [{x:0, y:0}, {x:width, y:0}, {x:width, y:height}, {x:0, y:height}];
              const H = solveHomography(src, dstPoints);
              const m = H;
              return `matrix3d(${m[0][0]}, ${m[1][0]}, 0, ${m[2][0]},${m[0][1]}, ${m[1][1]}, 0, ${m[2][1]},0, 0, 1, 0,${m[0][2]}, ${m[1][2]}, 0, ${m[2][2]})`;
@@ -584,31 +584,15 @@
 
         // --- RENDER ENGINE V22 ---
 
-        const getYoutubeId = (url) => {
-            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
-            const match = url.match(regExp);
-            return (match && match[2].length === 11) ? match[2] : null;
-        };
-
         const RenderNode = ({ nodeId, nodes, connections, resolution }) => {
             const node = nodes.find(n => n.id === nodeId);
             if (!node) return null;
 
             const getStyle = () => {
-                const fit = node.data.fit || 'fill';
-                const scale = node.data.scale || 1;
-                const panX = node.data.panX || 50;
-                const panY = node.data.panY || 50;
-                const stretchX = node.data.stretchX || 1;
-                const stretchY = node.data.stretchY || 1;
-                
                 return {
                     width: '100%', 
                     height: '100%', 
-                    objectFit: fit,
-                    objectPosition: `${panX}% ${panY}%`,
-                    transform: `scale(${scale}) scaleX(${stretchX}) scaleY(${stretchY})`,
-                    transformOrigin: 'center center'
+                    objectFit: 'contain',
                 };
             };
 
@@ -622,25 +606,6 @@
 
             if (node.type === 'video') {
                 return node.data.value ? <video src={node.data.value} style={getStyle()} autoPlay loop muted playsInline /> : null;
-            }
-
-            if (node.type === 'youtube') {
-                const id = node.data.youtubeId || getYoutubeId(node.data.value || "");
-                if(!id) return <div className="flex items-center justify-center h-full text-red-500 bg-black">Invalid YT ID</div>;
-                // Auto-loop, mute, hide controls
-                return (
-                    <div style={{width: '100%', height: '100%', overflow:'hidden'}}>
-                        <iframe 
-                            width="100%" 
-                            height="100%" 
-                            src={`https://www.youtube.com/embed/${id}?autoplay=1&controls=0&showinfo=0&rel=0&modestbranding=1&mute=1&loop=1&playlist=${id}`} 
-                            title="YouTube video player" 
-                            frameBorder="0" 
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                            style={{...getStyle(), pointerEvents: 'none'}}
-                        ></iframe>
-                    </div>
-                );
             }
 
             if (node.type === 'noise') {
@@ -674,7 +639,7 @@
 
         const ProjectedContent = ({ cueState, walls }) => {
             if(!cueState || !walls) return null;
-            const resolution = 1000; 
+            const baseResolution = 1000; 
             return (
                 <div className="absolute inset-0 overflow-hidden pointer-events-none">
                     {walls.map(wall => {
@@ -682,10 +647,15 @@
                         if (!outputNode) return null;
                         const inputConn = cueState.connections?.find(c => c.to === outputNode.id);
                         if (!inputConn) return null;
-                        const cssM = getCssMatrix(wall.points, resolution);
+
+                        const aspect = wall.height > 0 ? wall.width / wall.height : 1;
+                        const width = baseResolution * aspect;
+                        const height = baseResolution;
+
+                        const cssM = getCssMatrix(wall.points, width, height);
                         return (
-                            <div key={wall.id} className="absolute left-0 top-0 origin-top-left will-change-transform" style={{ width: `${resolution}px`, height: `${resolution}px`, transform: cssM, overflow: 'hidden' }}>
-                                <RenderNode nodeId={inputConn.from} nodes={cueState.nodes} connections={cueState.connections} resolution={resolution} />
+                            <div key={wall.id} className="absolute left-0 top-0 origin-top-left will-change-transform" style={{ width: `${width}px`, height: `${height}px`, transform: cssM, overflow: 'hidden' }}>
+                                <RenderNode nodeId={inputConn.from} nodes={cueState.nodes} connections={cueState.connections} resolution={height} />
                             </div>
                         );
                     })}
@@ -712,7 +682,7 @@
             };
 
             const isMix = type === 'mix';
-            const isMedia = type === 'image' || type === 'video' || type === 'youtube';
+            const isMedia = type === 'image' || type === 'video';
             const isOutput = type === 'output';
             const isGenerator = type === 'noise';
 
@@ -729,7 +699,6 @@
                         <span className="flex items-center gap-2">
                             {type === 'image' && <ImageIcon size={14}/>}
                             {type === 'video' && <Video size={14}/>}
-                            {type === 'youtube' && <Youtube size={14}/>}
                             {type === 'color' && <Palette size={14}/>}
                             {type === 'noise' && <Activity size={14}/>}
                             {type === 'mix' && <Blend size={14}/>}
@@ -755,13 +724,6 @@
                             <input type="color" value={data?.value || '#ffffff'} onChange={(e) => updateData(id, { value: e.target.value })} className="w-full h-10 bg-transparent cursor-pointer border border-zinc-600 rounded" />
                         )}
 
-                        {type === 'youtube' && (
-                            <div>
-                                <input type="text" placeholder="Paste YouTube Link" className="w-full bg-zinc-900 text-sm p-2 border border-zinc-700 rounded text-gray-300 mb-1" value={data?.value || ''} onChange={(e) => updateData(id, { value: e.target.value })} />
-                                <div className="text-[10px] text-gray-500">Supported: youtube.com/watch?v=... or youtu.be/...</div>
-                            </div>
-                        )}
-
                         {type === 'mix' && (
                             <div>
                                 <select value={data?.blendMode || 'normal'} onChange={(e) => updateData(id, { blendMode: e.target.value })} className="w-full bg-zinc-950 text-sm p-3 border border-zinc-600 rounded text-white font-medium focus:ring-2 focus:ring-blue-500 outline-none cursor-pointer">
@@ -781,7 +743,7 @@
                             <div className="space-y-2">
                                 <div className="w-full h-24 bg-black border border-zinc-700 rounded overflow-hidden flex items-center justify-center relative group">
                                     {data?.value ? (
-                                        type === 'video' ? <video src={data.value} className="w-full h-full object-cover" muted /> : <img src={data.value} className="w-full h-full object-cover" />
+                                        type === 'video' ? <video src={data.value} className="w-full h-full object-contain" muted /> : <img src={data.value} className="w-full h-full object-contain" />
                                     ) : (
                                         <div className="text-gray-600 flex flex-col items-center"><Upload size={24}/></div>
                                     )}
@@ -790,43 +752,6 @@
                                     </button>
                                 </div>
                                 <input type="file" ref={fileInputRef} className="hidden" accept={type === 'video' ? "video/*" : "image/*"} onChange={handleFile} />
-                            </div>
-                        )}
-
-                        {isMedia && (
-                            <div className="border-t border-zinc-700 pt-3 mt-2">
-                                <div className="flex justify-between items-center mb-2">
-                                    <label className="text-xs text-gray-400 font-bold">Fit Mode</label>
-                                    <select value={data?.fit || 'fill'} onChange={(e) => updateData(id, { fit: e.target.value })} className="bg-zinc-900 text-xs p-1 px-2 border border-zinc-700 rounded text-gray-300 w-24">
-                                        <option value="fill">Stretch</option>
-                                        <option value="cover">Crop</option>
-                                        <option value="contain">Fit</option>
-                                    </select>
-                                </div>
-                                {data?.fit === 'cover' && (
-                                    <div className="grid grid-cols-2 gap-2 mt-2">
-                                         <div className="col-span-2">
-                                            <label className="text-[10px] text-gray-500 block mb-1">Scale: {data?.scale || 1}x</label>
-                                            <input type="range" min="1" max="5" step="0.1" value={data?.scale ?? 1} onChange={(e) => updateData(id, { scale: parseFloat(e.target.value) })} className="w-full h-2 bg-zinc-600 rounded appearance-none cursor-pointer" />
-                                         </div>
-                                         <div>
-                                            <label className="text-[10px] text-gray-500 block mb-1">Pan X: {data?.panX ?? 50}%</label>
-                                            <input type="range" min="0" max="100" step="1" value={data?.panX ?? 50} onChange={(e) => updateData(id, { panX: parseFloat(e.target.value) })} className="w-full h-2 bg-zinc-600 rounded appearance-none cursor-pointer" />
-                                         </div>
-                                         <div>
-                                            <label className="text-[10px] text-gray-500 block mb-1">Pan Y: {data?.panY ?? 50}%</label>
-                                            <input type="range" min="0" max="100" step="1" value={data?.panY ?? 50} onChange={(e) => updateData(id, { panY: parseFloat(e.target.value) })} className="w-full h-2 bg-zinc-600 rounded appearance-none cursor-pointer" />
-                                         </div>
-                                         <div className="col-span-2 pt-2 border-t border-zinc-700/50">
-                                            <label className="text-[10px] text-gray-500 block mb-1">Stretch X: {data?.stretchX || 1}x</label>
-                                            <input type="range" min="0.1" max="3" step="0.05" value={data?.stretchX ?? 1} onChange={(e) => updateData(id, { stretchX: parseFloat(e.target.value) })} className="w-full h-2 bg-zinc-600 rounded appearance-none cursor-pointer" />
-                                         </div>
-                                          <div className="col-span-2">
-                                            <label className="text-[10px] text-gray-500 block mb-1">Stretch Y: {data?.stretchY || 1}x</label>
-                                            <input type="range" min="0.1" max="3" step="0.05" value={data?.stretchY ?? 1} onChange={(e) => updateData(id, { stretchY: parseFloat(e.target.value) })} className="w-full h-2 bg-zinc-600 rounded appearance-none cursor-pointer" />
-                                         </div>
-                                    </div>
-                                )}
                             </div>
                         )}
 
@@ -1005,7 +930,7 @@
                 const id = `n-${Date.now()}`; 
                 const centerX = (window.innerWidth / 2 - pan.x) / zoom - 300; 
                 const centerY = (200 - pan.y) / zoom; 
-                setNodes(prev => [...prev, { id, type, x: centerX, y: centerY, label, data: type === 'color' ? { value: '#ffffff' } : type === 'noise' ? { noiseType: 'fbm', scale: 5, detail: 4, time: 0, distortion: 0, isAnimating: true, animSpeed: 0.05 } : type === 'image' || type === 'video' ? { fit: 'cover', scale: 1, panX: 50, panY: 50, stretchX: 1, stretchY: 1 } : {} }]); 
+                setNodes(prev => [...prev, { id, type, x: centerX, y: centerY, label, data: type === 'color' ? { value: '#ffffff' } : type === 'noise' ? { noiseType: 'fbm', scale: 5, detail: 4, time: 0, distortion: 0, isAnimating: true, animSpeed: 0.05 } : {} }]); 
                 setContextMenu(null); 
             };
             
@@ -1080,7 +1005,6 @@
                             <div className="px-2 py-1 text-[10px] text-gray-500 font-bold uppercase">Add Node</div>
                             <button onClick={() => addNode('image', 'Image Source')} className="w-full text-left px-3 py-1.5 text-xs text-white hover:bg-purple-600 flex gap-2"><ImageIcon size={12}/> Image</button>
                             <button onClick={() => addNode('video', 'Video Source')} className="w-full text-left px-3 py-1.5 text-xs text-white hover:bg-purple-600 flex gap-2"><Video size={12}/> Video</button>
-                            <button onClick={() => addNode('youtube', 'YouTube')} className="w-full text-left px-3 py-1.5 text-xs text-white hover:bg-purple-600 flex gap-2"><Youtube size={12}/> YouTube</button>
                             <button onClick={() => addNode('color', 'Color Source')} className="w-full text-left px-3 py-1.5 text-xs text-white hover:bg-purple-600 flex gap-2"><Palette size={12}/> Color</button>
                             <button onClick={() => addNode('noise', 'Noise Generator')} className="w-full text-left px-3 py-1.5 text-xs text-white hover:bg-purple-600 flex gap-2"><Activity size={12}/> Noise</button>
                             <div className="w-full h-px bg-zinc-700 my-1"></div>
