@@ -1232,6 +1232,14 @@
             const targetCueId = activeSelection.type === 'cue' ? activeSelection.cueId : activeSelection.nextCueId;
             const currentCueObj = useMemo(() => getCueData(activeSelection.sceneId, targetCueId), [activeSelection, scenes]);
 
+            const currentSceneIndex = useMemo(() => scenes.findIndex(s => s.id === activeSelection.sceneId), [scenes, activeSelection.sceneId]);
+            const currentCueIndex = useMemo(() => {
+                const scene = scenes[currentSceneIndex];
+                if (!scene) return -1;
+                return scene.cues.findIndex(c => c.id === targetCueId);
+            }, [currentSceneIndex, scenes, targetCueId]);
+
+
             const updateCueData = (newData) => {
                 setScenes(prev => prev.map(s => {
                     if(s.id !== activeSelection.sceneId) return s;
@@ -1274,11 +1282,13 @@
                     if (k === 'm' && viewMode !== 'live') setShowGuides(p => !p); 
                     if (k === 't' && viewMode === '2d') setShowTexture(p => !p); 
                     if (k === 'w' && viewMode === '2d') setMoveMode(p => !p);
-                    if (k === 'z' || k === 'v' || e.key === 'ArrowRight' || e.key === 'ArrowLeft') navigateCue((k === 'z' || e.key === 'ArrowRight') ? 1 : -1);
+                    if ((viewMode === 'live' || menuTab === 'scenes') && (k === 'z' || k === 'v' || e.key === 'ArrowRight' || e.key === 'ArrowLeft')) {
+                        navigateCue((k === 'z' || e.key === 'ArrowRight') ? 1 : -1);
+                    }
                 };
                 window.addEventListener('keydown', handleKeyDown);
                 return () => window.removeEventListener('keydown', handleKeyDown);
-            }, [viewMode, activeState, scenes, activeSelection]);
+            }, [viewMode, menuTab, activeState, scenes, activeSelection]);
 
             const navigateCue = (direction) => {
                 let flatList = [];
@@ -1401,13 +1411,20 @@
                             )}
                                 {renderSVG(false)}
                                 <div className="absolute top-4 left-4 pointer-events-none select-none drop-shadow-md z-50">
-                                    <h1 className={`text-xl font-bold tracking-wider ${showTexture ? 'text-zinc-600' : 'text-white'}`}>MAPPING STUDIO</h1>
-                                    <div className="flex gap-2 mt-1">
-                                        <span className={`text-xs px-1.5 py-0.5 rounded font-mono border transition-colors ${moveMode ? 'bg-orange-600 border-orange-400 text-white' : 'bg-zinc-800 border-zinc-600 text-gray-200'}`}>W: Move All</span>
-                                        <span className={`text-xs px-1.5 py-0.5 rounded font-mono border transition-colors ${showTexture ? 'bg-white text-black border-white font-bold' : 'bg-zinc-800 border-zinc-600 text-gray-200'}`}>T: Texture</span>
-                                        <span className={`text-xs px-1.5 py-0.5 rounded font-mono border transition-colors ${showGuides ? 'bg-blue-900 border-blue-500 text-blue-100' : 'bg-zinc-800 border-zinc-600 text-gray-200'}`}>M: Guides</span>
-                                        <span className="text-xs bg-zinc-800 px-1.5 py-0.5 rounded text-gray-200 font-mono border border-zinc-600">H: Menu</span>
-                                    </div>
+                                    {menuTab === 'scenes' ? (
+                                        <div className="bg-black/50 px-3 py-2 rounded-lg backdrop-blur-sm">
+                                            <div className="text-xs text-purple-300 font-bold">SCENE MODE</div>
+                                            <div className="text-lg font-bold text-white">Act {currentSceneIndex + 1} - Cue {currentCueIndex + 1}</div>
+                                        </div>
+                                    ) : (<>
+                                        <h1 className={`text-xl font-bold tracking-wider ${showTexture ? 'text-zinc-600' : 'text-white'}`}>MAPPING STUDIO</h1>
+                                        <div className="flex gap-2 mt-1">
+                                            <span className={`text-xs px-1.5 py-0.5 rounded font-mono border transition-colors ${moveMode ? 'bg-orange-600 border-orange-400 text-white' : 'bg-zinc-800 border-zinc-600 text-gray-200'}`}>W: Move All</span>
+                                            <span className={`text-xs px-1.5 py-0.5 rounded font-mono border transition-colors ${showTexture ? 'bg-white text-black border-white font-bold' : 'bg-zinc-800 border-zinc-600 text-gray-200'}`}>T: Texture</span>
+                                            <span className={`text-xs px-1.5 py-0.5 rounded font-mono border transition-colors ${showGuides ? 'bg-blue-900 border-blue-500 text-blue-200' : 'bg-zinc-800 border-zinc-600 text-gray-200'}`}>M: Guides</span>
+                                            <span className="text-xs bg-zinc-800 px-1.5 py-0.5 rounded text-gray-200 font-mono border border-zinc-600">H: Menu</span>
+                                        </div>
+                                    </>)}
                                 </div>
                             </div>
                         )}
