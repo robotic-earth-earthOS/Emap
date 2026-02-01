@@ -37,6 +37,12 @@
 
         /* YouTube Iframe pointer events fix for dragging */
         iframe { pointer-events: none; }
+
+        @keyframes zebraBlink { 0% { opacity: 0.2; } 50% { opacity: 0.5; } 100% { opacity: 0.2; } }
+        .zebra-pattern {
+            animation: zebraBlink 3s ease-in-out infinite;
+            pointer-events: none;
+        }
     </style>
 </head>
 <body>
@@ -267,6 +273,8 @@
              return `matrix3d(${m[0][0]}, ${m[1][0]}, 0, ${m[2][0]},${m[0][1]}, ${m[1][1]}, 0, ${m[2][1]},0, 0, 1, 0,${m[0][2]}, ${m[1][2]}, 0, ${m[2][2]})`;
         };
 
+        const getDistance = (p1, p2) => Math.sqrt(Math.pow(p2.x - p1.x, 2) + Math.pow(p2.y - p1.y, 2));
+
         // --- COMPONENTS ---
 
         const PointHandle = ({ x, y, index, color, isSelected, onDrag, isMoveMode }) => {
@@ -379,7 +387,7 @@
                         
                         // Hash for random point offset
                         // Simple sin-based pseudo random for deterministic position
-                        const n = neighborX * 31 + neighborY * 13;
+                        const n = (neighborX & 255) * 31 + (neighborY & 255) * 13;
                         let t = (n << 13) ^ n;
                         const randVal = (1.0 - ((t * (t * t * 15731 + 789221) + 1376312589) & 0x7fffffff) / 1073741824.0);
                         const randVal2 = (1.0 - (((t+1) * ((t+1) * (t+1) * 15731 + 789221) + 1376312589) & 0x7fffffff) / 1073741824.0);
@@ -519,20 +527,33 @@
                 ctx.putImageData(imgData, 0, 0);
             }, [type, scale, detail, time, distortion]);
 
-            return <canvas ref={canvasRef} width="256" height="256" style={{width: '100%', height: '100%', objectFit: 'cover', imageRendering: 'pixelated'}} />;
+            return <canvas ref={canvasRef} width="512" height="512" style={{width: '100%', height: '100%', objectFit: 'cover'}} />;
         };
 
         // --- RENDER ENGINE V22 ---
 
-        const RenderNode = ({ nodeId, nodes, connections, resolution }) => {
+        const RenderNode = ({ nodeId, nodes, connections, resolution, wallColor }) => {
             const node = nodes.find(n => n.id === nodeId);
             if (!node) return null;
 
             const getStyle = () => {
+                const fit = node.data.fit || 'cover';
+                const scale = node.data.scale || 1;
+                const rotate = node.data.rotate || 0;
+                const alignX = node.data.alignX ?? 50;
+                const alignY = node.data.alignY ?? 50;
+                
+                const isStretch = fit === 'fill';
+                const originX = isStretch ? 50 : alignX;
+                const originY = isStretch ? 50 : alignY;
+
                 return {
                     width: '100%', 
                     height: '100%', 
-                    objectFit: 'contain',
+                    objectFit: fit,
+                    objectPosition: isStretch ? 'center' : `${alignX}% ${alignY}%`,
+                    transform: `scale(${scale}) rotate(${rotate}deg)`,
+                    transformOrigin: `${originX}% ${originY}%`,
                 };
             };
 
@@ -540,12 +561,19 @@
                 return <div style={{width: '100%', height: '100%', backgroundColor: node.data.value || 'black'}}></div>;
             }
 
-            if (node.type === 'image') {
-                return node.data.value ? <img src={node.data.value} style={getStyle()} /> : null;
-            }
-
-            if (node.type === 'video') {
-                return node.data.value ? <video src={node.data.value} style={getStyle()} autoPlay loop muted playsInline /> : null;
+            if (node.type === 'image' || node.type === 'video') {
+                const style = getStyle();
+                return (
+                    <div style={{width: '100%', height: '100%', position: 'relative', backgroundColor: 'black'}}>
+                        {wallColor && (
+                            <div className="zebra-pattern absolute inset-0" style={{
+                                backgroundImage: `repeating-linear-gradient(45deg, ${wallColor} 0, ${wallColor} 10px, transparent 10px, transparent 20px)`
+                            }}></div>
+                        )}
+                        {node.type === 'image' && node.data.value && <img src={node.data.value} style={style} />}
+                        {node.type === 'video' && node.data.value && <video src={node.data.value} style={style} autoPlay loop muted playsInline />}
+                    </div>
+                );
             }
 
             if (node.type === 'noise') {
@@ -559,7 +587,7 @@
                 return (
                     <div style={{position: 'relative', width: '100%', height: '100%'}}>
                         <div style={{position: 'absolute', inset: 0}}>
-                            {baseConn && <RenderNode nodeId={baseConn.from} nodes={nodes} connections={connections} resolution={resolution} />}
+                            {baseConn && <RenderNode nodeId={baseConn.from} nodes={nodes} connections={connections} resolution={resolution} wallColor={wallColor} />}
                         </div>
                         {blendConn && (
                             <div style={{
@@ -567,7 +595,7 @@
                                 inset: 0, 
                                 mixBlendMode: node.data.blendMode || 'normal'
                             }}>
-                                 <RenderNode nodeId={blendConn.from} nodes={nodes} connections={connections} resolution={resolution} />
+                                 <RenderNode nodeId={blendConn.from} nodes={nodes} connections={connections} resolution={resolution} wallColor={wallColor} />
                             </div>
                         )}
                     </div>
@@ -579,8 +607,6 @@
 
         const ProjectedContent = ({ cueState, walls }) => {
             if(!cueState || !walls) return null;
-            const width = 1920;
-            const height = 1080;
             return (
                 <div className="absolute inset-0 overflow-hidden pointer-events-none">
                     {walls.map(wall => {
@@ -589,10 +615,14 @@
                         const inputConn = cueState.connections?.find(c => c.to === outputNode.id);
                         if (!inputConn) return null;
 
+                        const p = wall.points;
+                        const width = Math.max(getDistance(p[0], p[1]), getDistance(p[2], p[3]));
+                        const height = Math.max(getDistance(p[1], p[2]), getDistance(p[3], p[0]));
+
                         const cssM = getCssMatrix(wall.points, width, height);
                         return (
                             <div key={wall.id} className="absolute left-0 top-0 origin-top-left will-change-transform" style={{ width: `${width}px`, height: `${height}px`, transform: cssM, overflow: 'hidden' }}>
-                                <RenderNode nodeId={inputConn.from} nodes={cueState.nodes} connections={cueState.connections} resolution={height} />
+                                <RenderNode nodeId={inputConn.from} nodes={cueState.nodes} connections={cueState.connections} resolution={height} wallColor={wall.color} />
                             </div>
                         );
                     })}
@@ -689,6 +719,38 @@
                                     </button>
                                 </div>
                                 <input type="file" ref={fileInputRef} className="hidden" accept={type === 'video' ? "video/*" : "image/*"} onChange={handleFile} />
+                            </div>
+                        )}
+                        
+                        {(type === 'image' || type === 'video') && (
+                            <div className="space-y-2 border-t border-zinc-700 pt-2">
+                                <div className="grid grid-cols-2 gap-2">
+                                    <div>
+                                        <label className="text-[10px] text-gray-500 font-bold block mb-1">Mode</label>
+                                        <select value={data?.fit || 'cover'} onChange={(e) => updateData(id, { fit: e.target.value })} className="w-full bg-zinc-900 text-xs p-1 border border-zinc-700 rounded text-gray-300 outline-none">
+                                            <option value="cover">Cover (Zoom)</option>
+                                            <option value="contain">Contain (Fit)</option>
+                                            <option value="fill">Stretch</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label className="text-[10px] text-gray-500 font-bold block mb-1">Scale: {data?.scale || 1}</label>
+                                        <input type="range" min="0.1" max="5" step="0.01" value={data?.scale ?? 1} onChange={(e) => updateData(id, { scale: parseFloat(e.target.value) })} className="w-full h-2 bg-zinc-600 rounded appearance-none cursor-pointer" />
+                                    </div>
+                                </div>
+                                <div>
+                                    <label className="text-[10px] text-gray-500 font-bold block mb-1">Rotation: {data?.rotate || 0}°</label>
+                                    <input type="range" min="-180" max="180" step="1" value={data?.rotate ?? 0} onChange={(e) => updateData(id, { rotate: parseInt(e.target.value) })} className="w-full h-2 bg-zinc-600 rounded appearance-none cursor-pointer" />
+                                </div>
+                                {data?.fit !== 'fill' && (
+                                    <div>
+                                        <label className="text-[10px] text-gray-500 font-bold block mb-1">Position ({data?.alignX ?? 50}%, {data?.alignY ?? 50}%)</label>
+                                        <div className="flex gap-2">
+                                            <input type="range" min="0" max="100" value={data?.alignX ?? 50} onChange={(e) => updateData(id, { alignX: parseInt(e.target.value) })} className="w-full h-2 bg-zinc-600 rounded appearance-none cursor-pointer" title="Horizontal Position" />
+                                            <input type="range" min="0" max="100" value={data?.alignY ?? 50} onChange={(e) => updateData(id, { alignY: parseInt(e.target.value) })} className="w-full h-2 bg-zinc-600 rounded appearance-none cursor-pointer" title="Vertical Position" />
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                         )}
 
@@ -867,7 +929,7 @@
                 const id = `n-${Date.now()}`; 
                 const centerX = (window.innerWidth / 2 - pan.x) / zoom - 300; 
                 const centerY = (200 - pan.y) / zoom; 
-                setNodes(prev => [...prev, { id, type, x: centerX, y: centerY, label, data: type === 'color' ? { value: '#ffffff' } : type === 'noise' ? { noiseType: 'fbm', scale: 5, detail: 4, time: 0, distortion: 0, isAnimating: true, animSpeed: 0.05 } : {} }]); 
+                setNodes(prev => [...prev, { id, type, x: centerX, y: centerY, label, data: type === 'color' ? { value: '#ffffff' } : type === 'noise' ? { noiseType: 'fbm', scale: 5, detail: 4, time: 0, distortion: 0, isAnimating: false, animSpeed: 0.05 } : {} }]); 
                 setContextMenu(null); 
             };
             
