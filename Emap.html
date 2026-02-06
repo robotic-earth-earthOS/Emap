@@ -185,6 +185,37 @@
                 });
             }
 
+            async getAllAssets() {
+                await this.ready;
+                return new Promise((resolve, reject) => {
+                    const tx = this.db.transaction('assets', 'readonly');
+                    const store = tx.objectStore('assets');
+                    const request = store.openCursor();
+                    const assets = [];
+                    request.onsuccess = (e) => {
+                        const cursor = e.target.result;
+                        if (cursor) {
+                            assets.push({ id: cursor.key, file: cursor.value });
+                            cursor.continue();
+                        } else {
+                            resolve(assets);
+                        }
+                    };
+                    request.onerror = () => reject(request.error);
+                });
+            }
+
+            async deleteAsset(id) {
+                await this.ready;
+                return new Promise((resolve, reject) => {
+                    const tx = this.db.transaction('assets', 'readwrite');
+                    const store = tx.objectStore('assets');
+                    store.delete(id);
+                    tx.oncomplete = () => resolve();
+                    tx.onerror = () => reject(tx.error);
+                });
+            }
+
             async saveState(key, data) {
                 await this.ready;
                 return new Promise((resolve, reject) => {
@@ -319,6 +350,96 @@
                 return cells;
             }, [wallPoints]);
             return <g opacity="0.6">{grid}</g>;
+        };
+
+        const AssetBrowser = ({ isOpen, onClose, onSelect, initialTab = 'image' }) => {
+            const [activeTab, setActiveTab] = useState(initialTab);
+            const [assets, setAssets] = useState([]);
+            const fileInputRef = useRef(null);
+
+            useEffect(() => {
+                if (isOpen) {
+                    setActiveTab(initialTab);
+                    loadAssets();
+                }
+            }, [isOpen, initialTab]);
+
+            const loadAssets = async () => {
+                const all = await db.getAllAssets();
+                const withUrls = all.map(a => ({
+                    ...a,
+                    url: URL.createObjectURL(a.file),
+                    type: a.file.type.startsWith('video') ? 'video' : 'image'
+                }));
+                setAssets(withUrls);
+            };
+
+            const handleUpload = async (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                try {
+                    await db.saveAsset(file);
+                    await loadAssets();
+                } catch (err) {
+                    console.error(err);
+                }
+            };
+
+            const handleDelete = async (e, id) => {
+                e.stopPropagation();
+                if(confirm('Delete this asset?')) {
+                    await db.deleteAsset(id);
+                    await loadAssets();
+                }
+            };
+
+            const filteredAssets = assets.filter(a => a.type === activeTab);
+
+            if (!isOpen) return null;
+
+            return (
+                <div className="fixed inset-0 z-[200] bg-black/80 backdrop-blur-sm flex items-center justify-center p-8">
+                    <div className="bg-zinc-900 border border-zinc-700 rounded-xl w-full max-w-4xl h-[80vh] flex flex-col shadow-2xl overflow-hidden">
+                        <div className="p-4 border-b border-zinc-700 flex justify-between items-center bg-zinc-950">
+                            <h2 className="text-lg font-bold text-white flex items-center gap-2"><Folder size={20} className="text-blue-400"/> Asset Library</h2>
+                            <button onClick={onClose} className="text-gray-400 hover:text-white"><X size={24}/></button>
+                        </div>
+                        <div className="flex border-b border-zinc-800 bg-zinc-900">
+                            <button onClick={() => setActiveTab('image')} className={`flex-1 py-3 text-sm font-bold flex items-center justify-center gap-2 ${activeTab === 'image' ? 'text-blue-400 border-b-2 border-blue-400 bg-zinc-800/50' : 'text-gray-500 hover:text-gray-300'}`}>
+                                <ImageIcon size={16}/> Images
+                            </button>
+                            <button onClick={() => setActiveTab('video')} className={`flex-1 py-3 text-sm font-bold flex items-center justify-center gap-2 ${activeTab === 'video' ? 'text-pink-400 border-b-2 border-pink-400 bg-zinc-800/50' : 'text-gray-500 hover:text-gray-300'}`}>
+                                <Video size={16}/> Videos
+                            </button>
+                        </div>
+                        <div className="flex-1 overflow-y-auto p-4 bg-zinc-900/50">
+                            <div className="grid grid-cols-4 md:grid-cols-5 gap-4">
+                                <div onClick={() => fileInputRef.current.click()} className="aspect-square border-2 border-dashed border-zinc-700 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-blue-500 hover:bg-zinc-800 transition-colors group">
+                                    <div className="w-12 h-12 rounded-full bg-zinc-800 flex items-center justify-center mb-2 group-hover:bg-blue-600 transition-colors">
+                                        <Plus size={24} className="text-gray-400 group-hover:text-white"/>
+                                    </div>
+                                    <span className="text-xs font-bold text-gray-500 group-hover:text-gray-300">Upload New</span>
+                                    <input type="file" ref={fileInputRef} className="hidden" accept={activeTab === 'video' ? "video/*" : "image/*"} onChange={handleUpload} />
+                                </div>
+                                {filteredAssets.map(asset => (
+                                    <div key={asset.id} onClick={() => onSelect(asset)} className="aspect-square bg-black border border-zinc-700 rounded-lg overflow-hidden relative group cursor-pointer hover:ring-2 hover:ring-blue-500">
+                                        {asset.type === 'video' ? <video src={asset.url} className="w-full h-full object-cover pointer-events-none" /> : <img src={asset.url} className="w-full h-full object-cover" />}
+                                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
+                                            <div className="absolute top-2 right-2">
+                                                <button onClick={(e) => handleDelete(e, asset.id)} className="p-1.5 bg-red-600 rounded-md text-white hover:bg-red-500 shadow-lg" title="Delete Asset"><Trash2 size={14}/></button>
+                                            </div>
+                                            <span className="bg-blue-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg transform translate-y-4 group-hover:translate-y-0 transition-transform">Select</span>
+                                        </div>
+                                        <div className="absolute bottom-0 left-0 right-0 bg-black/60 backdrop-blur px-2 py-1">
+                                            <p className="text-[10px] text-gray-300 truncate">{asset.file.name}</p>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
         };
 
         // --- BLENDER-STYLE NOISE LIBRARY ---
@@ -692,22 +813,7 @@
 
         // --- NODE EDITOR COMPONENTS ---
 
-        const Node = ({ id, type, x, y, label, selected, onDragStart, onHandleClick, data, updateData, isConnecting, activeConnectionId, onDelete }) => {
-            const fileInputRef = useRef(null);
-
-            const handleFile = async (e) => {
-                const file = e.target.files[0];
-                if(file) {
-                    try {
-                        const assetId = await db.saveAsset(file);
-                        const url = URL.createObjectURL(file);
-                        updateData(id, { value: url, assetId: assetId, name: file.name });
-                    } catch (err) {
-                        console.error("Failed to save asset", err);
-                    }
-                }
-            };
-
+        const Node = ({ id, type, x, y, label, selected, onDragStart, onHandleClick, data, updateData, isConnecting, activeConnectionId, onDelete, onOpenAssetBrowser }) => {
             const isMix = type === 'mix';
             const isMedia = type === 'image' || type === 'video';
             const isOutput = type === 'output';
@@ -774,11 +880,10 @@
                                     ) : (
                                         <div className="text-gray-600 flex flex-col items-center"><Upload size={24}/></div>
                                     )}
-                                    <button onClick={() => fileInputRef.current.click()} className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center text-sm transition-opacity font-bold">
+                                    <button onClick={() => onOpenAssetBrowser(type, (asset) => updateData(id, { value: asset.url, assetId: asset.id, name: asset.file.name }))} className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center text-sm transition-opacity font-bold">
                                         <Upload size={16} className="mr-2"/> Load Media
                                     </button>
                                 </div>
-                                <input type="file" ref={fileInputRef} className="hidden" accept={type === 'video' ? "video/*" : "image/*"} onChange={handleFile} />
                             </div>
                         )}
                         
@@ -876,7 +981,7 @@
             );
         };
 
-        const NodeEditor = ({ activeSelection, currentCue, updateCueData, walls, setWalls }) => {
+        const NodeEditor = ({ activeSelection, currentCue, updateCueData, walls, setWalls, onOpenAssetBrowser }) => {
             const [nodes, setNodes] = useState([]);
             const [connections, setConnections] = useState([]);
             const [pan, setPan] = useState({ x: 0, y: 0 });
@@ -1114,7 +1219,7 @@
                                 })()
                             )}
                         </svg>
-                        {nodes.map(node => ( <div key={node.id}><Node id={node.id} {...node} selected={draggingId === node.id} isConnecting={!!connectSource} activeConnectionId={connectSource?.id} onDragStart={handleDragStart} onHandleClick={handleHandleClick} updateData={updateNodeData} onDelete={deleteNode} /></div>))}
+                        {nodes.map(node => ( <div key={node.id}><Node id={node.id} {...node} selected={draggingId === node.id} isConnecting={!!connectSource} activeConnectionId={connectSource?.id} onDragStart={handleDragStart} onHandleClick={handleHandleClick} updateData={updateNodeData} onDelete={deleteNode} onOpenAssetBrowser={onOpenAssetBrowser} /></div>))}
                     </div>
                 </div>
             );
@@ -1259,6 +1364,7 @@
             const [isFullscreen, setIsFullscreen] = useState(false);
             const [showNodeEditor, setShowNodeEditor] = useState(true);
             const [storageUsage, setStorageUsage] = useState(null);
+            const [assetBrowserState, setAssetBrowserState] = useState({ isOpen: false, type: 'image', callback: null });
             
             // --- SCENE & TRANSITION STATE ---
             const [menuTab, setMenuTab] = useState('config'); 
@@ -1565,6 +1671,15 @@
                 </svg>
             );
 
+            const handleOpenAssetBrowser = (type, callback) => {
+                setAssetBrowserState({ isOpen: true, type, callback });
+            };
+
+            const handleAssetSelect = (asset) => {
+                if (assetBrowserState.callback) assetBrowserState.callback(asset);
+                setAssetBrowserState(prev => ({ ...prev, isOpen: false }));
+            };
+
             return (
                 <div className="w-full h-full relative font-sans text-white bg-zinc-950 flex flex-col">
                     {!isFullscreen && (
@@ -1579,6 +1694,8 @@
                             </div>
                         </div>
                     )}
+
+                    <AssetBrowser isOpen={assetBrowserState.isOpen} onClose={() => setAssetBrowserState(prev => ({ ...prev, isOpen: false }))} onSelect={handleAssetSelect} initialTab={assetBrowserState.type} />
 
                     {viewMode !== 'live' && (
                         <div className="absolute top-16 right-4 pointer-events-none select-none z-50 flex flex-col items-end gap-1">
@@ -1626,7 +1743,7 @@
                     {menuTab === 'scenes' && viewMode !== 'live' && showNodeEditor && (
                         <div className="absolute bottom-0 left-0 right-0 h-[45%] z-30 border-t border-zinc-700/30 bg-zinc-900/50 backdrop-blur-md">
                             {activeSelection.type === 'cue' && (
-                                <NodeEditor activeSelection={activeSelection} currentCue={currentCueObj} updateCueData={updateCueData} walls={walls} setWalls={setWalls} />
+                                <NodeEditor activeSelection={activeSelection} currentCue={currentCueObj} updateCueData={updateCueData} walls={walls} setWalls={setWalls} onOpenAssetBrowser={handleOpenAssetBrowser} />
                             )}
                             {activeSelection.type === 'transition' && (
                                 <TransitionEditor cue={currentCueObj} updateCue={updateCueData} />
