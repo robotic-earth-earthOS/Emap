@@ -1,0 +1,25 @@
+/home/tristan/Documents/roboric earth/code/Emap/target/debug/deps/zerocopy-aa5ec78ecf29a939.d: /home/tristan/Documents/roboric\ earth/code/Emap/vendor/zerocopy/src/lib.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/zerocopy/src/util/mod.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/zerocopy/src/util/macros.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/zerocopy/src/util/macro_util.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/zerocopy/src/byte_slice.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/zerocopy/src/byteorder.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/zerocopy/src/deprecated.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/zerocopy/src/error.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/zerocopy/src/impls.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/zerocopy/src/layout.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/zerocopy/src/macros.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/zerocopy/src/pointer/mod.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/zerocopy/src/pointer/inner.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/zerocopy/src/pointer/invariant.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/zerocopy/src/pointer/ptr.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/zerocopy/src/pointer/transmute.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/zerocopy/src/ref.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/zerocopy/src/split_at.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/zerocopy/src/wrappers.rs
+
+/home/tristan/Documents/roboric earth/code/Emap/target/debug/deps/libzerocopy-aa5ec78ecf29a939.rmeta: /home/tristan/Documents/roboric\ earth/code/Emap/vendor/zerocopy/src/lib.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/zerocopy/src/util/mod.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/zerocopy/src/util/macros.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/zerocopy/src/util/macro_util.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/zerocopy/src/byte_slice.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/zerocopy/src/byteorder.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/zerocopy/src/deprecated.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/zerocopy/src/error.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/zerocopy/src/impls.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/zerocopy/src/layout.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/zerocopy/src/macros.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/zerocopy/src/pointer/mod.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/zerocopy/src/pointer/inner.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/zerocopy/src/pointer/invariant.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/zerocopy/src/pointer/ptr.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/zerocopy/src/pointer/transmute.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/zerocopy/src/ref.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/zerocopy/src/split_at.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/zerocopy/src/wrappers.rs
+
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/zerocopy/src/lib.rs:
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/zerocopy/src/util/mod.rs:
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/zerocopy/src/util/macros.rs:
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/zerocopy/src/util/macro_util.rs:
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/zerocopy/src/byte_slice.rs:
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/zerocopy/src/byteorder.rs:
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/zerocopy/src/deprecated.rs:
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/zerocopy/src/error.rs:
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/zerocopy/src/impls.rs:
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/zerocopy/src/layout.rs:
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/zerocopy/src/macros.rs:
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/zerocopy/src/pointer/mod.rs:
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/zerocopy/src/pointer/inner.rs:
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/zerocopy/src/pointer/invariant.rs:
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/zerocopy/src/pointer/ptr.rs:
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/zerocopy/src/pointer/transmute.rs:
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/zerocopy/src/ref.rs:
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/zerocopy/src/split_at.rs:
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/zerocopy/src/wrappers.rs:
+
+# env-dep:CARGO_PKG_VERSION=0.8.39

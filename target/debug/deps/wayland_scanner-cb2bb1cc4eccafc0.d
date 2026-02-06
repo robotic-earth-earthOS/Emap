@@ -1,0 +1,14 @@
+/home/tristan/Documents/roboric earth/code/Emap/target/debug/deps/wayland_scanner-cb2bb1cc4eccafc0.d: /home/tristan/Documents/roboric\ earth/code/Emap/vendor/wayland-scanner/src/lib.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/wayland-scanner/src/c_interfaces.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/wayland-scanner/src/client_gen.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/wayland-scanner/src/common.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/wayland-scanner/src/interfaces.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/wayland-scanner/src/parse.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/wayland-scanner/src/protocol.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/wayland-scanner/src/server_gen.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/wayland-scanner/src/token.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/wayland-scanner/src/util.rs
+
+/home/tristan/Documents/roboric earth/code/Emap/target/debug/deps/libwayland_scanner-cb2bb1cc4eccafc0.so: /home/tristan/Documents/roboric\ earth/code/Emap/vendor/wayland-scanner/src/lib.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/wayland-scanner/src/c_interfaces.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/wayland-scanner/src/client_gen.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/wayland-scanner/src/common.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/wayland-scanner/src/interfaces.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/wayland-scanner/src/parse.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/wayland-scanner/src/protocol.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/wayland-scanner/src/server_gen.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/wayland-scanner/src/token.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/wayland-scanner/src/util.rs
+
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/wayland-scanner/src/lib.rs:
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/wayland-scanner/src/c_interfaces.rs:
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/wayland-scanner/src/client_gen.rs:
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/wayland-scanner/src/common.rs:
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/wayland-scanner/src/interfaces.rs:
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/wayland-scanner/src/parse.rs:
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/wayland-scanner/src/protocol.rs:
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/wayland-scanner/src/server_gen.rs:
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/wayland-scanner/src/token.rs:
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/wayland-scanner/src/util.rs:

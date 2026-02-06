@@ -1,0 +1,15 @@
+/home/tristan/Documents/roboric earth/code/Emap/target/debug/deps/heck-97d689db605b5137.d: /home/tristan/Documents/roboric\ earth/code/Emap/vendor/heck/src/lib.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/heck/src/kebab.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/heck/src/lower_camel.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/heck/src/shouty_kebab.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/heck/src/shouty_snake.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/heck/src/snake.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/heck/src/title.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/heck/src/train.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/heck/src/upper_camel.rs
+
+/home/tristan/Documents/roboric earth/code/Emap/target/debug/deps/libheck-97d689db605b5137.rlib: /home/tristan/Documents/roboric\ earth/code/Emap/vendor/heck/src/lib.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/heck/src/kebab.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/heck/src/lower_camel.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/heck/src/shouty_kebab.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/heck/src/shouty_snake.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/heck/src/snake.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/heck/src/title.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/heck/src/train.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/heck/src/upper_camel.rs
+
+/home/tristan/Documents/roboric earth/code/Emap/target/debug/deps/libheck-97d689db605b5137.rmeta: /home/tristan/Documents/roboric\ earth/code/Emap/vendor/heck/src/lib.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/heck/src/kebab.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/heck/src/lower_camel.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/heck/src/shouty_kebab.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/heck/src/shouty_snake.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/heck/src/snake.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/heck/src/title.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/heck/src/train.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/heck/src/upper_camel.rs
+
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/heck/src/lib.rs:
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/heck/src/kebab.rs:
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/heck/src/lower_camel.rs:
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/heck/src/shouty_kebab.rs:
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/heck/src/shouty_snake.rs:
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/heck/src/snake.rs:
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/heck/src/title.rs:
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/heck/src/train.rs:
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/heck/src/upper_camel.rs:

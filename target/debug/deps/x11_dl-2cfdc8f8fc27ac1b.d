@@ -1,0 +1,35 @@
+/home/tristan/Documents/roboric earth/code/Emap/target/debug/deps/x11_dl-2cfdc8f8fc27ac1b.d: /home/tristan/Documents/roboric\ earth/code/Emap/vendor/x11-dl/src/lib.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/x11-dl/src/link.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/x11-dl/src/internal.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/x11-dl/src/error.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/x11-dl/src/xlib.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/x11-dl/src/dpms.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/x11-dl/src/glx.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/x11-dl/src/keysym.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/x11-dl/src/sync.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/x11-dl/src/xcursor.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/x11-dl/src/xf86vmode.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/x11-dl/src/xfixes.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/x11-dl/src/xft.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/x11-dl/src/xinerama.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/x11-dl/src/xinput.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/x11-dl/src/xinput2.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/x11-dl/src/xlib_xcb.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/x11-dl/src/xmd.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/x11-dl/src/xmu.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/x11-dl/src/xpresent.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/x11-dl/src/xrecord.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/x11-dl/src/xrender.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/x11-dl/src/xshm.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/x11-dl/src/xss.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/x11-dl/src/xt.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/x11-dl/src/xtest.rs /home/tristan/Documents/roboric\ earth/code/Emap/target/debug/build/x11-dl-cc4a2d201e9192c3/out/config.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/x11-dl/src/xrandr.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/x11-dl/src/old_xrandr.rs
+
+/home/tristan/Documents/roboric earth/code/Emap/target/debug/deps/libx11_dl-2cfdc8f8fc27ac1b.rmeta: /home/tristan/Documents/roboric\ earth/code/Emap/vendor/x11-dl/src/lib.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/x11-dl/src/link.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/x11-dl/src/internal.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/x11-dl/src/error.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/x11-dl/src/xlib.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/x11-dl/src/dpms.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/x11-dl/src/glx.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/x11-dl/src/keysym.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/x11-dl/src/sync.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/x11-dl/src/xcursor.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/x11-dl/src/xf86vmode.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/x11-dl/src/xfixes.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/x11-dl/src/xft.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/x11-dl/src/xinerama.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/x11-dl/src/xinput.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/x11-dl/src/xinput2.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/x11-dl/src/xlib_xcb.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/x11-dl/src/xmd.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/x11-dl/src/xmu.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/x11-dl/src/xpresent.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/x11-dl/src/xrecord.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/x11-dl/src/xrender.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/x11-dl/src/xshm.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/x11-dl/src/xss.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/x11-dl/src/xt.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/x11-dl/src/xtest.rs /home/tristan/Documents/roboric\ earth/code/Emap/target/debug/build/x11-dl-cc4a2d201e9192c3/out/config.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/x11-dl/src/xrandr.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/x11-dl/src/old_xrandr.rs
+
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/x11-dl/src/lib.rs:
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/x11-dl/src/link.rs:
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/x11-dl/src/internal.rs:
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/x11-dl/src/error.rs:
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/x11-dl/src/xlib.rs:
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/x11-dl/src/dpms.rs:
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/x11-dl/src/glx.rs:
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/x11-dl/src/keysym.rs:
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/x11-dl/src/sync.rs:
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/x11-dl/src/xcursor.rs:
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/x11-dl/src/xf86vmode.rs:
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/x11-dl/src/xfixes.rs:
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/x11-dl/src/xft.rs:
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/x11-dl/src/xinerama.rs:
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/x11-dl/src/xinput.rs:
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/x11-dl/src/xinput2.rs:
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/x11-dl/src/xlib_xcb.rs:
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/x11-dl/src/xmd.rs:
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/x11-dl/src/xmu.rs:
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/x11-dl/src/xpresent.rs:
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/x11-dl/src/xrecord.rs:
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/x11-dl/src/xrender.rs:
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/x11-dl/src/xshm.rs:
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/x11-dl/src/xss.rs:
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/x11-dl/src/xt.rs:
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/x11-dl/src/xtest.rs:
+/home/tristan/Documents/roboric\ earth/code/Emap/target/debug/build/x11-dl-cc4a2d201e9192c3/out/config.rs:
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/x11-dl/src/xrandr.rs:
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/x11-dl/src/old_xrandr.rs:
+
+# env-dep:OUT_DIR=/home/tristan/Documents/roboric earth/code/Emap/target/debug/build/x11-dl-cc4a2d201e9192c3/out

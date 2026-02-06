@@ -1,0 +1,16 @@
+/home/tristan/Documents/roboric earth/code/Emap/target/debug/deps/icu_properties-443fb0db2673fdf6.d: /home/tristan/Documents/roboric\ earth/code/Emap/vendor/icu_properties/src/lib.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/icu_properties/src/code_point_set.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/icu_properties/src/code_point_map.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/icu_properties/src/emoji.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/icu_properties/src/names.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/icu_properties/src/runtime.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/icu_properties/src/props.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/icu_properties/src/provider.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/icu_properties/src/provider/names.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/icu_properties/src/script.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/icu_properties/src/bidi.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/icu_properties/src/trievalue.rs
+
+/home/tristan/Documents/roboric earth/code/Emap/target/debug/deps/libicu_properties-443fb0db2673fdf6.rmeta: /home/tristan/Documents/roboric\ earth/code/Emap/vendor/icu_properties/src/lib.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/icu_properties/src/code_point_set.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/icu_properties/src/code_point_map.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/icu_properties/src/emoji.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/icu_properties/src/names.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/icu_properties/src/runtime.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/icu_properties/src/props.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/icu_properties/src/provider.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/icu_properties/src/provider/names.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/icu_properties/src/script.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/icu_properties/src/bidi.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/icu_properties/src/trievalue.rs
+
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/icu_properties/src/lib.rs:
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/icu_properties/src/code_point_set.rs:
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/icu_properties/src/code_point_map.rs:
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/icu_properties/src/emoji.rs:
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/icu_properties/src/names.rs:
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/icu_properties/src/runtime.rs:
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/icu_properties/src/props.rs:
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/icu_properties/src/provider.rs:
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/icu_properties/src/provider/names.rs:
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/icu_properties/src/script.rs:
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/icu_properties/src/bidi.rs:
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/icu_properties/src/trievalue.rs:

@@ -1,0 +1,17 @@
+/home/tristan/Documents/roboric earth/code/Emap/target/debug/deps/icu_provider-ef09effcdc71535b.d: /home/tristan/Documents/roboric\ earth/code/Emap/vendor/icu_provider/src/lib.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/icu_provider/src/baked.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/icu_provider/src/baked/zerotrie.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/icu_provider/src/buf.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/icu_provider/src/constructors.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/icu_provider/src/dynutil.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/icu_provider/src/data_provider.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/icu_provider/src/error.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/icu_provider/src/request.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/icu_provider/src/response.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/icu_provider/src/marker.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/icu_provider/src/varule_traits.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/icu_provider/src/fallback.rs
+
+/home/tristan/Documents/roboric earth/code/Emap/target/debug/deps/libicu_provider-ef09effcdc71535b.rmeta: /home/tristan/Documents/roboric\ earth/code/Emap/vendor/icu_provider/src/lib.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/icu_provider/src/baked.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/icu_provider/src/baked/zerotrie.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/icu_provider/src/buf.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/icu_provider/src/constructors.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/icu_provider/src/dynutil.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/icu_provider/src/data_provider.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/icu_provider/src/error.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/icu_provider/src/request.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/icu_provider/src/response.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/icu_provider/src/marker.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/icu_provider/src/varule_traits.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/icu_provider/src/fallback.rs
+
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/icu_provider/src/lib.rs:
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/icu_provider/src/baked.rs:
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/icu_provider/src/baked/zerotrie.rs:
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/icu_provider/src/buf.rs:
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/icu_provider/src/constructors.rs:
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/icu_provider/src/dynutil.rs:
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/icu_provider/src/data_provider.rs:
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/icu_provider/src/error.rs:
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/icu_provider/src/request.rs:
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/icu_provider/src/response.rs:
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/icu_provider/src/marker.rs:
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/icu_provider/src/varule_traits.rs:
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/icu_provider/src/fallback.rs:

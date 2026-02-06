@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Setup - Select Control Panel</title>
+    <script src="lib/tailwind.js"></script>
+    <style>
+        body { background-color: #18181b; color: white; font-family: sans-serif; }
+    </style>
+</head>
+<body class="flex flex-col items-center justify-center h-screen space-y-8">
+    <img src="robotic T M.png" alt="Logo" class="w-64">
+    <h1 class="text-2xl font-bold">Multi-Monitor Setup</h1>
+    <p class="text-gray-400">Select the monitor you want to be your Control Panel.</p>
+    
+    <div id="monitor-list" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="animate-pulse text-gray-500">Detecting monitors...</div>
+    </div>
+
+    <script>
+        async function loadMonitors() {
+            try {
+                const res = await fetch('/api/monitors');
+                const monitors = await res.json();
+                const list = document.getElementById('monitor-list');
+                list.innerHTML = '';
+
+                monitors.forEach((m, index) => {
+                    const btn = document.createElement('button');
+                    btn.className = "px-6 py-4 bg-zinc-800 hover:bg-blue-600 border border-zinc-700 rounded-xl transition-all flex flex-col items-center min-w-[200px] group";
+                    btn.innerHTML = `
+                        <span class="text-lg font-bold group-hover:text-white">Monitor ${index + 1}</span>
+                        <span class="text-xs text-gray-400 mt-1">${m.width}x${m.height} at ${m.x},${m.y}</span>
+                        <span class="text-[10px] text-gray-500 font-mono mt-2">ID: ${m.id}</span>
+                    `;
+                    btn.onclick = () => selectMonitor(m.id);
+                    list.appendChild(btn);
+                });
+            } catch (e) {
+                document.getElementById('monitor-list').innerHTML = '<div class="text-red-500">Failed to load monitors</div>';
+            }
+        }
+
+        async function selectMonitor(id) {
+            await fetch('/api/config/monitor', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ control_panel_monitor_id: id })
+            });
+            alert("Control Panel Monitor Saved!");
+            // You can uncomment this later to auto-redirect
+            // window.location.href = '/dashboard'; 
+        }
+
+        loadMonitors();
+    </script>
+</body>
+</html>

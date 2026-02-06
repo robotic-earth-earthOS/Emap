@@ -1,0 +1,24 @@
+/home/tristan/Documents/roboric earth/code/Emap/target/debug/deps/http-c06308cd655759c1.d: /home/tristan/Documents/roboric\ earth/code/Emap/vendor/http/src/lib.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/http/src/convert.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/http/src/header/mod.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/http/src/header/map.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/http/src/header/name.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/http/src/header/value.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/http/src/method.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/http/src/request.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/http/src/response.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/http/src/status.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/http/src/uri/mod.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/http/src/uri/authority.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/http/src/uri/builder.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/http/src/uri/path.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/http/src/uri/port.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/http/src/uri/scheme.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/http/src/version.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/http/src/byte_str.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/http/src/error.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/http/src/extensions.rs
+
+/home/tristan/Documents/roboric earth/code/Emap/target/debug/deps/libhttp-c06308cd655759c1.rmeta: /home/tristan/Documents/roboric\ earth/code/Emap/vendor/http/src/lib.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/http/src/convert.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/http/src/header/mod.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/http/src/header/map.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/http/src/header/name.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/http/src/header/value.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/http/src/method.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/http/src/request.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/http/src/response.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/http/src/status.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/http/src/uri/mod.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/http/src/uri/authority.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/http/src/uri/builder.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/http/src/uri/path.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/http/src/uri/port.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/http/src/uri/scheme.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/http/src/version.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/http/src/byte_str.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/http/src/error.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/http/src/extensions.rs
+
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/http/src/lib.rs:
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/http/src/convert.rs:
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/http/src/header/mod.rs:
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/http/src/header/map.rs:
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/http/src/header/name.rs:
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/http/src/header/value.rs:
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/http/src/method.rs:
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/http/src/request.rs:
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/http/src/response.rs:
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/http/src/status.rs:
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/http/src/uri/mod.rs:
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/http/src/uri/authority.rs:
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/http/src/uri/builder.rs:
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/http/src/uri/path.rs:
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/http/src/uri/port.rs:
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/http/src/uri/scheme.rs:
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/http/src/version.rs:
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/http/src/byte_str.rs:
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/http/src/error.rs:
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/http/src/extensions.rs:

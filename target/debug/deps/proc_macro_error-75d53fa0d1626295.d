@@ -1,0 +1,12 @@
+/home/tristan/Documents/roboric earth/code/Emap/target/debug/deps/proc_macro_error-75d53fa0d1626295.d: /home/tristan/Documents/roboric\ earth/code/Emap/vendor/proc-macro-error/src/lib.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/proc-macro-error/src/dummy.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/proc-macro-error/src/diagnostic.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/proc-macro-error/src/macros.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/proc-macro-error/src/sealed.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/proc-macro-error/src/imp/fallback.rs
+
+/home/tristan/Documents/roboric earth/code/Emap/target/debug/deps/libproc_macro_error-75d53fa0d1626295.rlib: /home/tristan/Documents/roboric\ earth/code/Emap/vendor/proc-macro-error/src/lib.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/proc-macro-error/src/dummy.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/proc-macro-error/src/diagnostic.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/proc-macro-error/src/macros.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/proc-macro-error/src/sealed.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/proc-macro-error/src/imp/fallback.rs
+
+/home/tristan/Documents/roboric earth/code/Emap/target/debug/deps/libproc_macro_error-75d53fa0d1626295.rmeta: /home/tristan/Documents/roboric\ earth/code/Emap/vendor/proc-macro-error/src/lib.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/proc-macro-error/src/dummy.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/proc-macro-error/src/diagnostic.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/proc-macro-error/src/macros.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/proc-macro-error/src/sealed.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/proc-macro-error/src/imp/fallback.rs
+
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/proc-macro-error/src/lib.rs:
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/proc-macro-error/src/dummy.rs:
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/proc-macro-error/src/diagnostic.rs:
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/proc-macro-error/src/macros.rs:
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/proc-macro-error/src/sealed.rs:
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/proc-macro-error/src/imp/fallback.rs:

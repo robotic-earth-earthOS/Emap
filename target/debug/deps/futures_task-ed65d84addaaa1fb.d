@@ -1,0 +1,13 @@
+/home/tristan/Documents/roboric earth/code/Emap/target/debug/deps/futures_task-ed65d84addaaa1fb.d: /home/tristan/Documents/roboric\ earth/code/Emap/vendor/futures-task/src/lib.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/futures-task/src/spawn.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/futures-task/src/arc_wake.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/futures-task/src/waker.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/futures-task/src/waker_ref.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/futures-task/src/future_obj.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/futures-task/src/noop_waker.rs
+
+/home/tristan/Documents/roboric earth/code/Emap/target/debug/deps/libfutures_task-ed65d84addaaa1fb.rlib: /home/tristan/Documents/roboric\ earth/code/Emap/vendor/futures-task/src/lib.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/futures-task/src/spawn.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/futures-task/src/arc_wake.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/futures-task/src/waker.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/futures-task/src/waker_ref.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/futures-task/src/future_obj.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/futures-task/src/noop_waker.rs
+
+/home/tristan/Documents/roboric earth/code/Emap/target/debug/deps/libfutures_task-ed65d84addaaa1fb.rmeta: /home/tristan/Documents/roboric\ earth/code/Emap/vendor/futures-task/src/lib.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/futures-task/src/spawn.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/futures-task/src/arc_wake.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/futures-task/src/waker.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/futures-task/src/waker_ref.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/futures-task/src/future_obj.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/futures-task/src/noop_waker.rs
+
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/futures-task/src/lib.rs:
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/futures-task/src/spawn.rs:
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/futures-task/src/arc_wake.rs:
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/futures-task/src/waker.rs:
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/futures-task/src/waker_ref.rs:
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/futures-task/src/future_obj.rs:
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/futures-task/src/noop_waker.rs:

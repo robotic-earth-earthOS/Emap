@@ -1,0 +1,14 @@
+/home/tristan/Documents/roboric earth/code/Emap/target/debug/deps/actix_router-5f08fe91fbf8911b.d: /home/tristan/Documents/roboric\ earth/code/Emap/vendor/actix-router/src/lib.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/actix-router/src/de.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/actix-router/src/path.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/actix-router/src/pattern.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/actix-router/src/quoter.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/actix-router/src/regex_set.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/actix-router/src/resource.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/actix-router/src/resource_path.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/actix-router/src/router.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/actix-router/src/url.rs
+
+/home/tristan/Documents/roboric earth/code/Emap/target/debug/deps/libactix_router-5f08fe91fbf8911b.rmeta: /home/tristan/Documents/roboric\ earth/code/Emap/vendor/actix-router/src/lib.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/actix-router/src/de.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/actix-router/src/path.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/actix-router/src/pattern.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/actix-router/src/quoter.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/actix-router/src/regex_set.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/actix-router/src/resource.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/actix-router/src/resource_path.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/actix-router/src/router.rs /home/tristan/Documents/roboric\ earth/code/Emap/vendor/actix-router/src/url.rs
+
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/actix-router/src/lib.rs:
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/actix-router/src/de.rs:
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/actix-router/src/path.rs:
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/actix-router/src/pattern.rs:
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/actix-router/src/quoter.rs:
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/actix-router/src/regex_set.rs:
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/actix-router/src/resource.rs:
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/actix-router/src/resource_path.rs:
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/actix-router/src/router.rs:
+/home/tristan/Documents/roboric\ earth/code/Emap/vendor/actix-router/src/url.rs:
