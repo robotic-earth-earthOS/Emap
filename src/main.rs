@@ -7,19 +7,15 @@ use display_info::DisplayInfo;
 
 #[get("/")]
 async fn index() -> impl Responder {
-    // Check monitor count
     let monitors = DisplayInfo::all().unwrap_or_default();
-    
-    if monitors.len() <= 1 {
-        // Single monitor: Load default Emap
-        HttpResponse::Ok()
-            .content_type("text/html")
-            .body(include_str!("../html/Emap.html"))
-    } else {
-        // Multi-monitor: Load Setup page
+    if monitors.len() > 1 {
         HttpResponse::Ok()
             .content_type("text/html")
             .body(include_str!("../html/setup.html"))
+    } else {
+        HttpResponse::Ok()
+            .content_type("text/html")
+            .body(include_str!("../html/Emap.html"))
     }
 }
 
@@ -83,6 +79,46 @@ struct AssetMeta {
     id: String,
     name: String,
     mime_type: String,
+}
+
+#[derive(Serialize, Deserialize)]
+struct AppConfig {
+    control_panel_monitor_id: u32,
+}
+
+#[derive(Serialize)]
+struct MonitorInfo {
+    id: u32,
+    x: i32,
+    y: i32,
+    width: u32,
+    height: u32,
+    is_primary: bool,
+}
+
+#[get("/api/monitors")]
+async fn get_monitors() -> impl Responder {
+    let monitors = DisplayInfo::all().unwrap_or_default();
+    let info: Vec<MonitorInfo> = monitors.into_iter().map(|m| MonitorInfo {
+        id: m.id,
+        x: m.x,
+        y: m.y,
+        width: m.width,
+        height: m.height,
+        is_primary: m.is_primary,
+    }).collect();
+    HttpResponse::Ok().json(info)
+}
+
+#[post("/api/config/monitor")]
+async fn save_monitor_config(data: web::Data<AppState>, config: web::Json<AppConfig>) -> impl Responder {
+    let conn = data.db.lock().unwrap();
+    let config_str = serde_json::to_string(&*config).unwrap();
+    conn.execute(
+        "INSERT OR REPLACE INTO system_data (key, value) VALUES (?1, ?2)",
+        params!["monitor_config", config_str],
+    ).unwrap();
+    HttpResponse::Ok().finish()
 }
 
 #[get("/api/kv/{key}")]
@@ -205,6 +241,13 @@ async fn main() -> std::io::Result<()> {
         )",
         [],
     ).expect("Failed to create assets table");
+    conn.execute(
+        "CREATE TABLE IF NOT EXISTS system_data (
+            key TEXT PRIMARY KEY,
+            value TEXT
+        )",
+        [],
+    ).expect("Failed to create system_data table");
 
     let app_state = web::Data::new(AppState {
         db: Mutex::new(conn),
