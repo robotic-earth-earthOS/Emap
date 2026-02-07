@@ -2,8 +2,10 @@
 // from gir-files (https://github.com/gtk-rs/gir-files)
 // DO NOT EDIT
 
-use crate::{SelectionData, TreePath};
-use glib::{prelude::*, translate::*};
+use crate::SelectionData;
+use crate::TreePath;
+use glib::object::IsA;
+use glib::translate::*;
 use std::fmt;
 
 glib::wrapper! {
@@ -19,13 +21,19 @@ impl TreeDragDest {
     pub const NONE: Option<&'static TreeDragDest> = None;
 }
 
-mod sealed {
-    pub trait Sealed {}
-    impl<T: super::IsA<super::TreeDragDest>> Sealed for T {}
+pub trait TreeDragDestExt: 'static {
+    #[doc(alias = "gtk_tree_drag_dest_drag_data_received")]
+    fn drag_data_received(&self, dest: &mut TreePath, selection_data: &mut SelectionData) -> bool;
+
+    #[doc(alias = "gtk_tree_drag_dest_row_drop_possible")]
+    fn row_drop_possible(
+        &self,
+        dest_path: &mut TreePath,
+        selection_data: &mut SelectionData,
+    ) -> bool;
 }
 
-pub trait TreeDragDestExt: IsA<TreeDragDest> + sealed::Sealed + 'static {
-    #[doc(alias = "gtk_tree_drag_dest_drag_data_received")]
+impl<O: IsA<TreeDragDest>> TreeDragDestExt for O {
     fn drag_data_received(&self, dest: &mut TreePath, selection_data: &mut SelectionData) -> bool {
         unsafe {
             from_glib(ffi::gtk_tree_drag_dest_drag_data_received(
@@ -36,7 +44,6 @@ pub trait TreeDragDestExt: IsA<TreeDragDest> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_tree_drag_dest_row_drop_possible")]
     fn row_drop_possible(
         &self,
         dest_path: &mut TreePath,
@@ -51,8 +58,6 @@ pub trait TreeDragDestExt: IsA<TreeDragDest> + sealed::Sealed + 'static {
         }
     }
 }
-
-impl<O: IsA<TreeDragDest>> TreeDragDestExt for O {}
 
 impl fmt::Display for TreeDragDest {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {

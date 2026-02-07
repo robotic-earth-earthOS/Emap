@@ -1,22 +1,21 @@
 // Take a look at the license at the top of the repository in the LICENSE file.
 
-use std::{cell::RefCell, io, mem::transmute, pin::Pin, ptr};
-
-use futures_core::{
-    stream::Stream,
-    task::{Context, Poll},
-};
+use crate::prelude::*;
+use crate::Cancellable;
+use crate::PollableInputStream;
+use futures_core::task::{Context, Poll};
 use futures_io::AsyncRead;
-use glib::{prelude::*, translate::*};
+use glib::object::{Cast, IsA};
+use glib::translate::*;
+use std::cell::RefCell;
+use std::io;
+use std::mem::transmute;
+use std::ptr;
 
-use crate::{prelude::*, Cancellable, PollableInputStream};
+use futures_core::stream::Stream;
+use std::pin::Pin;
 
-mod sealed {
-    pub trait Sealed {}
-    impl<T: super::IsA<super::PollableInputStream>> Sealed for T {}
-}
-
-pub trait PollableInputStreamExtManual: sealed::Sealed + IsA<PollableInputStream> + Sized {
+pub trait PollableInputStreamExtManual: Sized {
     #[doc(alias = "g_pollable_input_stream_create_source")]
     fn create_source<F, C>(
         &self,
@@ -26,12 +25,55 @@ pub trait PollableInputStreamExtManual: sealed::Sealed + IsA<PollableInputStream
         func: F,
     ) -> glib::Source
     where
-        F: FnMut(&Self) -> glib::ControlFlow + 'static,
+        F: FnMut(&Self) -> glib::Continue + 'static,
+        C: IsA<Cancellable>;
+
+    fn create_source_future<C: IsA<Cancellable>>(
+        &self,
+        cancellable: Option<&C>,
+        priority: glib::Priority,
+    ) -> Pin<Box<dyn std::future::Future<Output = ()> + 'static>>;
+
+    fn create_source_stream<C: IsA<Cancellable>>(
+        &self,
+        cancellable: Option<&C>,
+        priority: glib::Priority,
+    ) -> Pin<Box<dyn Stream<Item = ()> + 'static>>;
+
+    #[doc(alias = "g_pollable_input_stream_read_nonblocking")]
+    fn read_nonblocking<C: IsA<Cancellable>>(
+        &self,
+        buffer: &mut [u8],
+        cancellable: Option<&C>,
+    ) -> Result<isize, glib::Error>;
+
+    fn into_async_read(self) -> Result<InputStreamAsyncRead<Self>, Self>
+    where
+        Self: IsA<PollableInputStream>,
+    {
+        if self.can_poll() {
+            Ok(InputStreamAsyncRead(self))
+        } else {
+            Err(self)
+        }
+    }
+}
+
+impl<O: IsA<PollableInputStream>> PollableInputStreamExtManual for O {
+    fn create_source<F, C>(
+        &self,
+        cancellable: Option<&C>,
+        name: Option<&str>,
+        priority: glib::Priority,
+        func: F,
+    ) -> glib::Source
+    where
+        F: FnMut(&Self) -> glib::Continue + 'static,
         C: IsA<Cancellable>,
     {
         unsafe extern "C" fn trampoline<
             O: IsA<PollableInputStream>,
-            F: FnMut(&O) -> glib::ControlFlow + 'static,
+            F: FnMut(&O) -> glib::Continue + 'static,
         >(
             stream: *mut ffi::GPollableInputStream,
             func: glib::ffi::gpointer,
@@ -40,8 +82,8 @@ pub trait PollableInputStreamExtManual: sealed::Sealed + IsA<PollableInputStream
             let mut func = func.borrow_mut();
             (*func)(PollableInputStream::from_glib_borrow(stream).unsafe_cast_ref()).into_glib()
         }
-        unsafe extern "C" fn destroy_closure<F>(ptr: glib::ffi::gpointer) {
-            let _ = Box::<RefCell<F>>::from_raw(ptr as *mut _);
+        unsafe extern "C" fn destroy_closure<O, F>(ptr: glib::ffi::gpointer) {
+            Box::<RefCell<F>>::from_raw(ptr as *mut _);
         }
         let cancellable = cancellable.map(|c| c.as_ref());
         let gcancellable = cancellable.to_glib_none();
@@ -59,7 +101,7 @@ pub trait PollableInputStreamExtManual: sealed::Sealed + IsA<PollableInputStream
                     unsafe extern "C" fn(glib::ffi::gpointer) -> glib::ffi::gboolean,
                 >(trampoline)),
                 Box::into_raw(Box::new(RefCell::new(func))) as glib::ffi::gpointer,
-                Some(destroy_closure::<F>),
+                Some(destroy_closure::<Self, F>),
             );
             glib::ffi::g_source_set_priority(source, priority.into_glib());
 
@@ -71,43 +113,6 @@ pub trait PollableInputStreamExtManual: sealed::Sealed + IsA<PollableInputStream
         }
     }
 
-    fn create_source_future<C: IsA<Cancellable>>(
-        &self,
-        cancellable: Option<&C>,
-        priority: glib::Priority,
-    ) -> Pin<Box<dyn std::future::Future<Output = ()> + 'static>> {
-        let cancellable: Option<Cancellable> = cancellable.map(|c| c.as_ref()).cloned();
-
-        let obj = self.clone();
-        Box::pin(glib::SourceFuture::new(move |send| {
-            let mut send = Some(send);
-            obj.create_source(cancellable.as_ref(), None, priority, move |_| {
-                let _ = send.take().unwrap().send(());
-                glib::ControlFlow::Break
-            })
-        }))
-    }
-
-    fn create_source_stream<C: IsA<Cancellable>>(
-        &self,
-        cancellable: Option<&C>,
-        priority: glib::Priority,
-    ) -> Pin<Box<dyn Stream<Item = ()> + 'static>> {
-        let cancellable: Option<Cancellable> = cancellable.map(|c| c.as_ref()).cloned();
-
-        let obj = self.clone();
-        Box::pin(glib::SourceStream::new(move |send| {
-            obj.create_source(cancellable.as_ref(), None, priority, move |_| {
-                if send.unbounded_send(()).is_err() {
-                    glib::ControlFlow::Break
-                } else {
-                    glib::ControlFlow::Continue
-                }
-            })
-        }))
-    }
-
-    #[doc(alias = "g_pollable_input_stream_read_nonblocking")]
     fn read_nonblocking<C: IsA<Cancellable>>(
         &self,
         buffer: &mut [u8],
@@ -115,7 +120,7 @@ pub trait PollableInputStreamExtManual: sealed::Sealed + IsA<PollableInputStream
     ) -> Result<isize, glib::Error> {
         let cancellable = cancellable.map(|c| c.as_ref());
         let gcancellable = cancellable.to_glib_none();
-        let count = buffer.len();
+        let count = buffer.len() as usize;
         unsafe {
             let mut error = ptr::null_mut();
             let ret = ffi::g_pollable_input_stream_read_nonblocking(
@@ -133,19 +138,42 @@ pub trait PollableInputStreamExtManual: sealed::Sealed + IsA<PollableInputStream
         }
     }
 
-    fn into_async_read(self) -> Result<InputStreamAsyncRead<Self>, Self>
-    where
-        Self: IsA<PollableInputStream>,
-    {
-        if self.can_poll() {
-            Ok(InputStreamAsyncRead(self))
-        } else {
-            Err(self)
-        }
+    fn create_source_future<C: IsA<Cancellable>>(
+        &self,
+        cancellable: Option<&C>,
+        priority: glib::Priority,
+    ) -> Pin<Box<dyn std::future::Future<Output = ()> + 'static>> {
+        let cancellable: Option<Cancellable> = cancellable.map(|c| c.as_ref()).cloned();
+
+        let obj = self.clone();
+        Box::pin(glib::SourceFuture::new(move |send| {
+            let mut send = Some(send);
+            obj.create_source(cancellable.as_ref(), None, priority, move |_| {
+                let _ = send.take().unwrap().send(());
+                glib::Continue(false)
+            })
+        }))
+    }
+
+    fn create_source_stream<C: IsA<Cancellable>>(
+        &self,
+        cancellable: Option<&C>,
+        priority: glib::Priority,
+    ) -> Pin<Box<dyn Stream<Item = ()> + 'static>> {
+        let cancellable: Option<Cancellable> = cancellable.map(|c| c.as_ref()).cloned();
+
+        let obj = self.clone();
+        Box::pin(glib::SourceStream::new(move |send| {
+            obj.create_source(cancellable.as_ref(), None, priority, move |_| {
+                if send.unbounded_send(()).is_err() {
+                    glib::Continue(false)
+                } else {
+                    glib::Continue(true)
+                }
+            })
+        }))
     }
 }
-
-impl<O: IsA<PollableInputStream>> PollableInputStreamExtManual for O {}
 
 #[derive(Debug)]
 pub struct InputStreamAsyncRead<T: IsA<PollableInputStream>>(T);
@@ -175,20 +203,18 @@ impl<T: IsA<PollableInputStream>> AsyncRead for InputStreamAsyncRead<T> {
         match gio_result {
             Ok(size) => Poll::Ready(Ok(size as usize)),
             Err(err) => {
-                let kind = err
-                    .kind::<crate::IOErrorEnum>()
-                    .unwrap_or(crate::IOErrorEnum::Failed);
+                let kind = err.kind::<crate::IOErrorEnum>().unwrap();
                 if kind == crate::IOErrorEnum::WouldBlock {
                     let mut waker = Some(cx.waker().clone());
                     let source = stream.0.as_ref().create_source(
                         crate::Cancellable::NONE,
                         None,
-                        glib::Priority::default(),
+                        glib::PRIORITY_DEFAULT,
                         move |_| {
                             if let Some(waker) = waker.take() {
                                 waker.wake();
                             }
-                            glib::ControlFlow::Break
+                            glib::Continue(false)
                         },
                     );
                     let main_context = glib::MainContext::ref_thread_default();

@@ -2,17 +2,38 @@
 // from gir-files (https://github.com/gtk-rs/gir-files)
 // DO NOT EDIT
 
-use crate::{
-    Adjustment, Align, Buildable, CellRenderer, Container, Entry, MovementStep, ResizeMode,
-    Scrollable, ScrollablePolicy, Tooltip, TreeIter, TreeModel, TreePath, TreeSelection,
-    TreeViewColumn, TreeViewDropPosition, TreeViewGridLines, Widget,
-};
-use glib::{
-    prelude::*,
-    signal::{connect_raw, SignalHandlerId},
-    translate::*,
-};
-use std::{boxed::Box as Box_, fmt, mem, mem::transmute, ptr};
+use crate::Adjustment;
+use crate::Align;
+use crate::Buildable;
+use crate::CellRenderer;
+use crate::Container;
+use crate::Entry;
+use crate::MovementStep;
+use crate::ResizeMode;
+use crate::Scrollable;
+use crate::ScrollablePolicy;
+use crate::Tooltip;
+use crate::TreeIter;
+use crate::TreeModel;
+use crate::TreePath;
+use crate::TreeSelection;
+use crate::TreeViewColumn;
+use crate::TreeViewDropPosition;
+use crate::TreeViewGridLines;
+use crate::Widget;
+use glib::object::Cast;
+use glib::object::IsA;
+use glib::object::ObjectExt;
+use glib::signal::connect_raw;
+use glib::signal::SignalHandlerId;
+use glib::translate::*;
+use glib::StaticType;
+use glib::ToValue;
+use std::boxed::Box as Box_;
+use std::fmt;
+use std::mem;
+use std::mem::transmute;
+use std::ptr;
 
 glib::wrapper! {
     #[doc(alias = "GtkTreeView")]
@@ -49,7 +70,7 @@ impl TreeView {
     ///
     /// This method returns an instance of [`TreeViewBuilder`](crate::builders::TreeViewBuilder) which can be used to create [`TreeView`] objects.
     pub fn builder() -> TreeViewBuilder {
-        TreeViewBuilder::new()
+        TreeViewBuilder::default()
     }
 }
 
@@ -59,393 +80,1079 @@ impl Default for TreeView {
     }
 }
 
+#[derive(Clone, Default)]
 // rustdoc-stripper-ignore-next
 /// A [builder-pattern] type to construct [`TreeView`] objects.
 ///
 /// [builder-pattern]: https://doc.rust-lang.org/1.0.0/style/ownership/builders.html
 #[must_use = "The builder must be built to be used"]
 pub struct TreeViewBuilder {
-    builder: glib::object::ObjectBuilder<'static, TreeView>,
+    activate_on_single_click: Option<bool>,
+    enable_grid_lines: Option<TreeViewGridLines>,
+    enable_search: Option<bool>,
+    enable_tree_lines: Option<bool>,
+    expander_column: Option<TreeViewColumn>,
+    fixed_height_mode: Option<bool>,
+    headers_clickable: Option<bool>,
+    headers_visible: Option<bool>,
+    hover_expand: Option<bool>,
+    hover_selection: Option<bool>,
+    level_indentation: Option<i32>,
+    model: Option<TreeModel>,
+    reorderable: Option<bool>,
+    rubber_banding: Option<bool>,
+    search_column: Option<i32>,
+    show_expanders: Option<bool>,
+    tooltip_column: Option<i32>,
+    border_width: Option<u32>,
+    child: Option<Widget>,
+    resize_mode: Option<ResizeMode>,
+    app_paintable: Option<bool>,
+    can_default: Option<bool>,
+    can_focus: Option<bool>,
+    events: Option<gdk::EventMask>,
+    expand: Option<bool>,
+    #[cfg(any(feature = "v3_20", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
+    focus_on_click: Option<bool>,
+    halign: Option<Align>,
+    has_default: Option<bool>,
+    has_focus: Option<bool>,
+    has_tooltip: Option<bool>,
+    height_request: Option<i32>,
+    hexpand: Option<bool>,
+    hexpand_set: Option<bool>,
+    is_focus: Option<bool>,
+    margin: Option<i32>,
+    margin_bottom: Option<i32>,
+    margin_end: Option<i32>,
+    margin_start: Option<i32>,
+    margin_top: Option<i32>,
+    name: Option<String>,
+    no_show_all: Option<bool>,
+    opacity: Option<f64>,
+    parent: Option<Container>,
+    receives_default: Option<bool>,
+    sensitive: Option<bool>,
+    tooltip_markup: Option<String>,
+    tooltip_text: Option<String>,
+    valign: Option<Align>,
+    vexpand: Option<bool>,
+    vexpand_set: Option<bool>,
+    visible: Option<bool>,
+    width_request: Option<i32>,
+    hadjustment: Option<Adjustment>,
+    hscroll_policy: Option<ScrollablePolicy>,
+    vadjustment: Option<Adjustment>,
+    vscroll_policy: Option<ScrollablePolicy>,
 }
 
 impl TreeViewBuilder {
-    fn new() -> Self {
-        Self {
-            builder: glib::object::Object::builder(),
-        }
-    }
-
-    pub fn activate_on_single_click(self, activate_on_single_click: bool) -> Self {
-        Self {
-            builder: self
-                .builder
-                .property("activate-on-single-click", activate_on_single_click),
-        }
-    }
-
-    pub fn enable_grid_lines(self, enable_grid_lines: TreeViewGridLines) -> Self {
-        Self {
-            builder: self
-                .builder
-                .property("enable-grid-lines", enable_grid_lines),
-        }
-    }
-
-    pub fn enable_search(self, enable_search: bool) -> Self {
-        Self {
-            builder: self.builder.property("enable-search", enable_search),
-        }
-    }
-
-    pub fn enable_tree_lines(self, enable_tree_lines: bool) -> Self {
-        Self {
-            builder: self
-                .builder
-                .property("enable-tree-lines", enable_tree_lines),
-        }
-    }
-
-    pub fn expander_column(self, expander_column: &impl IsA<TreeViewColumn>) -> Self {
-        Self {
-            builder: self
-                .builder
-                .property("expander-column", expander_column.clone().upcast()),
-        }
-    }
-
-    pub fn fixed_height_mode(self, fixed_height_mode: bool) -> Self {
-        Self {
-            builder: self
-                .builder
-                .property("fixed-height-mode", fixed_height_mode),
-        }
-    }
-
-    pub fn headers_clickable(self, headers_clickable: bool) -> Self {
-        Self {
-            builder: self
-                .builder
-                .property("headers-clickable", headers_clickable),
-        }
-    }
-
-    pub fn headers_visible(self, headers_visible: bool) -> Self {
-        Self {
-            builder: self.builder.property("headers-visible", headers_visible),
-        }
-    }
-
-    pub fn hover_expand(self, hover_expand: bool) -> Self {
-        Self {
-            builder: self.builder.property("hover-expand", hover_expand),
-        }
-    }
-
-    pub fn hover_selection(self, hover_selection: bool) -> Self {
-        Self {
-            builder: self.builder.property("hover-selection", hover_selection),
-        }
-    }
-
-    pub fn level_indentation(self, level_indentation: i32) -> Self {
-        Self {
-            builder: self
-                .builder
-                .property("level-indentation", level_indentation),
-        }
-    }
-
-    pub fn model(self, model: &impl IsA<TreeModel>) -> Self {
-        Self {
-            builder: self.builder.property("model", model.clone().upcast()),
-        }
-    }
-
-    pub fn reorderable(self, reorderable: bool) -> Self {
-        Self {
-            builder: self.builder.property("reorderable", reorderable),
-        }
-    }
-
-    pub fn rubber_banding(self, rubber_banding: bool) -> Self {
-        Self {
-            builder: self.builder.property("rubber-banding", rubber_banding),
-        }
-    }
-
-    pub fn search_column(self, search_column: i32) -> Self {
-        Self {
-            builder: self.builder.property("search-column", search_column),
-        }
-    }
-
-    pub fn show_expanders(self, show_expanders: bool) -> Self {
-        Self {
-            builder: self.builder.property("show-expanders", show_expanders),
-        }
-    }
-
-    pub fn tooltip_column(self, tooltip_column: i32) -> Self {
-        Self {
-            builder: self.builder.property("tooltip-column", tooltip_column),
-        }
-    }
-
-    pub fn border_width(self, border_width: u32) -> Self {
-        Self {
-            builder: self.builder.property("border-width", border_width),
-        }
-    }
-
-    pub fn child(self, child: &impl IsA<Widget>) -> Self {
-        Self {
-            builder: self.builder.property("child", child.clone().upcast()),
-        }
-    }
-
-    pub fn resize_mode(self, resize_mode: ResizeMode) -> Self {
-        Self {
-            builder: self.builder.property("resize-mode", resize_mode),
-        }
-    }
-
-    pub fn app_paintable(self, app_paintable: bool) -> Self {
-        Self {
-            builder: self.builder.property("app-paintable", app_paintable),
-        }
-    }
-
-    pub fn can_default(self, can_default: bool) -> Self {
-        Self {
-            builder: self.builder.property("can-default", can_default),
-        }
-    }
-
-    pub fn can_focus(self, can_focus: bool) -> Self {
-        Self {
-            builder: self.builder.property("can-focus", can_focus),
-        }
-    }
-
-    pub fn events(self, events: gdk::EventMask) -> Self {
-        Self {
-            builder: self.builder.property("events", events),
-        }
-    }
-
-    pub fn expand(self, expand: bool) -> Self {
-        Self {
-            builder: self.builder.property("expand", expand),
-        }
-    }
-
-    pub fn focus_on_click(self, focus_on_click: bool) -> Self {
-        Self {
-            builder: self.builder.property("focus-on-click", focus_on_click),
-        }
-    }
-
-    pub fn halign(self, halign: Align) -> Self {
-        Self {
-            builder: self.builder.property("halign", halign),
-        }
-    }
-
-    pub fn has_default(self, has_default: bool) -> Self {
-        Self {
-            builder: self.builder.property("has-default", has_default),
-        }
-    }
-
-    pub fn has_focus(self, has_focus: bool) -> Self {
-        Self {
-            builder: self.builder.property("has-focus", has_focus),
-        }
-    }
-
-    pub fn has_tooltip(self, has_tooltip: bool) -> Self {
-        Self {
-            builder: self.builder.property("has-tooltip", has_tooltip),
-        }
-    }
-
-    pub fn height_request(self, height_request: i32) -> Self {
-        Self {
-            builder: self.builder.property("height-request", height_request),
-        }
-    }
-
-    pub fn hexpand(self, hexpand: bool) -> Self {
-        Self {
-            builder: self.builder.property("hexpand", hexpand),
-        }
-    }
-
-    pub fn hexpand_set(self, hexpand_set: bool) -> Self {
-        Self {
-            builder: self.builder.property("hexpand-set", hexpand_set),
-        }
-    }
-
-    pub fn is_focus(self, is_focus: bool) -> Self {
-        Self {
-            builder: self.builder.property("is-focus", is_focus),
-        }
-    }
-
-    pub fn margin(self, margin: i32) -> Self {
-        Self {
-            builder: self.builder.property("margin", margin),
-        }
-    }
-
-    pub fn margin_bottom(self, margin_bottom: i32) -> Self {
-        Self {
-            builder: self.builder.property("margin-bottom", margin_bottom),
-        }
-    }
-
-    pub fn margin_end(self, margin_end: i32) -> Self {
-        Self {
-            builder: self.builder.property("margin-end", margin_end),
-        }
-    }
-
-    pub fn margin_start(self, margin_start: i32) -> Self {
-        Self {
-            builder: self.builder.property("margin-start", margin_start),
-        }
-    }
-
-    pub fn margin_top(self, margin_top: i32) -> Self {
-        Self {
-            builder: self.builder.property("margin-top", margin_top),
-        }
-    }
-
-    pub fn name(self, name: impl Into<glib::GString>) -> Self {
-        Self {
-            builder: self.builder.property("name", name.into()),
-        }
-    }
-
-    pub fn no_show_all(self, no_show_all: bool) -> Self {
-        Self {
-            builder: self.builder.property("no-show-all", no_show_all),
-        }
-    }
-
-    pub fn opacity(self, opacity: f64) -> Self {
-        Self {
-            builder: self.builder.property("opacity", opacity),
-        }
-    }
-
-    pub fn parent(self, parent: &impl IsA<Container>) -> Self {
-        Self {
-            builder: self.builder.property("parent", parent.clone().upcast()),
-        }
-    }
-
-    pub fn receives_default(self, receives_default: bool) -> Self {
-        Self {
-            builder: self.builder.property("receives-default", receives_default),
-        }
-    }
-
-    pub fn sensitive(self, sensitive: bool) -> Self {
-        Self {
-            builder: self.builder.property("sensitive", sensitive),
-        }
-    }
-
-    pub fn tooltip_markup(self, tooltip_markup: impl Into<glib::GString>) -> Self {
-        Self {
-            builder: self
-                .builder
-                .property("tooltip-markup", tooltip_markup.into()),
-        }
-    }
-
-    pub fn tooltip_text(self, tooltip_text: impl Into<glib::GString>) -> Self {
-        Self {
-            builder: self.builder.property("tooltip-text", tooltip_text.into()),
-        }
-    }
-
-    pub fn valign(self, valign: Align) -> Self {
-        Self {
-            builder: self.builder.property("valign", valign),
-        }
-    }
-
-    pub fn vexpand(self, vexpand: bool) -> Self {
-        Self {
-            builder: self.builder.property("vexpand", vexpand),
-        }
-    }
-
-    pub fn vexpand_set(self, vexpand_set: bool) -> Self {
-        Self {
-            builder: self.builder.property("vexpand-set", vexpand_set),
-        }
-    }
-
-    pub fn visible(self, visible: bool) -> Self {
-        Self {
-            builder: self.builder.property("visible", visible),
-        }
-    }
-
-    pub fn width_request(self, width_request: i32) -> Self {
-        Self {
-            builder: self.builder.property("width-request", width_request),
-        }
-    }
-
-    pub fn hadjustment(self, hadjustment: &impl IsA<Adjustment>) -> Self {
-        Self {
-            builder: self
-                .builder
-                .property("hadjustment", hadjustment.clone().upcast()),
-        }
-    }
-
-    pub fn hscroll_policy(self, hscroll_policy: ScrollablePolicy) -> Self {
-        Self {
-            builder: self.builder.property("hscroll-policy", hscroll_policy),
-        }
-    }
-
-    pub fn vadjustment(self, vadjustment: &impl IsA<Adjustment>) -> Self {
-        Self {
-            builder: self
-                .builder
-                .property("vadjustment", vadjustment.clone().upcast()),
-        }
-    }
-
-    pub fn vscroll_policy(self, vscroll_policy: ScrollablePolicy) -> Self {
-        Self {
-            builder: self.builder.property("vscroll-policy", vscroll_policy),
-        }
+    // rustdoc-stripper-ignore-next
+    /// Create a new [`TreeViewBuilder`].
+    pub fn new() -> Self {
+        Self::default()
     }
 
     // rustdoc-stripper-ignore-next
     /// Build the [`TreeView`].
     #[must_use = "Building the object from the builder is usually expensive and is not expected to have side effects"]
     pub fn build(self) -> TreeView {
-        self.builder.build()
+        let mut properties: Vec<(&str, &dyn ToValue)> = vec![];
+        if let Some(ref activate_on_single_click) = self.activate_on_single_click {
+            properties.push(("activate-on-single-click", activate_on_single_click));
+        }
+        if let Some(ref enable_grid_lines) = self.enable_grid_lines {
+            properties.push(("enable-grid-lines", enable_grid_lines));
+        }
+        if let Some(ref enable_search) = self.enable_search {
+            properties.push(("enable-search", enable_search));
+        }
+        if let Some(ref enable_tree_lines) = self.enable_tree_lines {
+            properties.push(("enable-tree-lines", enable_tree_lines));
+        }
+        if let Some(ref expander_column) = self.expander_column {
+            properties.push(("expander-column", expander_column));
+        }
+        if let Some(ref fixed_height_mode) = self.fixed_height_mode {
+            properties.push(("fixed-height-mode", fixed_height_mode));
+        }
+        if let Some(ref headers_clickable) = self.headers_clickable {
+            properties.push(("headers-clickable", headers_clickable));
+        }
+        if let Some(ref headers_visible) = self.headers_visible {
+            properties.push(("headers-visible", headers_visible));
+        }
+        if let Some(ref hover_expand) = self.hover_expand {
+            properties.push(("hover-expand", hover_expand));
+        }
+        if let Some(ref hover_selection) = self.hover_selection {
+            properties.push(("hover-selection", hover_selection));
+        }
+        if let Some(ref level_indentation) = self.level_indentation {
+            properties.push(("level-indentation", level_indentation));
+        }
+        if let Some(ref model) = self.model {
+            properties.push(("model", model));
+        }
+        if let Some(ref reorderable) = self.reorderable {
+            properties.push(("reorderable", reorderable));
+        }
+        if let Some(ref rubber_banding) = self.rubber_banding {
+            properties.push(("rubber-banding", rubber_banding));
+        }
+        if let Some(ref search_column) = self.search_column {
+            properties.push(("search-column", search_column));
+        }
+        if let Some(ref show_expanders) = self.show_expanders {
+            properties.push(("show-expanders", show_expanders));
+        }
+        if let Some(ref tooltip_column) = self.tooltip_column {
+            properties.push(("tooltip-column", tooltip_column));
+        }
+        if let Some(ref border_width) = self.border_width {
+            properties.push(("border-width", border_width));
+        }
+        if let Some(ref child) = self.child {
+            properties.push(("child", child));
+        }
+        if let Some(ref resize_mode) = self.resize_mode {
+            properties.push(("resize-mode", resize_mode));
+        }
+        if let Some(ref app_paintable) = self.app_paintable {
+            properties.push(("app-paintable", app_paintable));
+        }
+        if let Some(ref can_default) = self.can_default {
+            properties.push(("can-default", can_default));
+        }
+        if let Some(ref can_focus) = self.can_focus {
+            properties.push(("can-focus", can_focus));
+        }
+        if let Some(ref events) = self.events {
+            properties.push(("events", events));
+        }
+        if let Some(ref expand) = self.expand {
+            properties.push(("expand", expand));
+        }
+        #[cfg(any(feature = "v3_20", feature = "dox"))]
+        if let Some(ref focus_on_click) = self.focus_on_click {
+            properties.push(("focus-on-click", focus_on_click));
+        }
+        if let Some(ref halign) = self.halign {
+            properties.push(("halign", halign));
+        }
+        if let Some(ref has_default) = self.has_default {
+            properties.push(("has-default", has_default));
+        }
+        if let Some(ref has_focus) = self.has_focus {
+            properties.push(("has-focus", has_focus));
+        }
+        if let Some(ref has_tooltip) = self.has_tooltip {
+            properties.push(("has-tooltip", has_tooltip));
+        }
+        if let Some(ref height_request) = self.height_request {
+            properties.push(("height-request", height_request));
+        }
+        if let Some(ref hexpand) = self.hexpand {
+            properties.push(("hexpand", hexpand));
+        }
+        if let Some(ref hexpand_set) = self.hexpand_set {
+            properties.push(("hexpand-set", hexpand_set));
+        }
+        if let Some(ref is_focus) = self.is_focus {
+            properties.push(("is-focus", is_focus));
+        }
+        if let Some(ref margin) = self.margin {
+            properties.push(("margin", margin));
+        }
+        if let Some(ref margin_bottom) = self.margin_bottom {
+            properties.push(("margin-bottom", margin_bottom));
+        }
+        if let Some(ref margin_end) = self.margin_end {
+            properties.push(("margin-end", margin_end));
+        }
+        if let Some(ref margin_start) = self.margin_start {
+            properties.push(("margin-start", margin_start));
+        }
+        if let Some(ref margin_top) = self.margin_top {
+            properties.push(("margin-top", margin_top));
+        }
+        if let Some(ref name) = self.name {
+            properties.push(("name", name));
+        }
+        if let Some(ref no_show_all) = self.no_show_all {
+            properties.push(("no-show-all", no_show_all));
+        }
+        if let Some(ref opacity) = self.opacity {
+            properties.push(("opacity", opacity));
+        }
+        if let Some(ref parent) = self.parent {
+            properties.push(("parent", parent));
+        }
+        if let Some(ref receives_default) = self.receives_default {
+            properties.push(("receives-default", receives_default));
+        }
+        if let Some(ref sensitive) = self.sensitive {
+            properties.push(("sensitive", sensitive));
+        }
+        if let Some(ref tooltip_markup) = self.tooltip_markup {
+            properties.push(("tooltip-markup", tooltip_markup));
+        }
+        if let Some(ref tooltip_text) = self.tooltip_text {
+            properties.push(("tooltip-text", tooltip_text));
+        }
+        if let Some(ref valign) = self.valign {
+            properties.push(("valign", valign));
+        }
+        if let Some(ref vexpand) = self.vexpand {
+            properties.push(("vexpand", vexpand));
+        }
+        if let Some(ref vexpand_set) = self.vexpand_set {
+            properties.push(("vexpand-set", vexpand_set));
+        }
+        if let Some(ref visible) = self.visible {
+            properties.push(("visible", visible));
+        }
+        if let Some(ref width_request) = self.width_request {
+            properties.push(("width-request", width_request));
+        }
+        if let Some(ref hadjustment) = self.hadjustment {
+            properties.push(("hadjustment", hadjustment));
+        }
+        if let Some(ref hscroll_policy) = self.hscroll_policy {
+            properties.push(("hscroll-policy", hscroll_policy));
+        }
+        if let Some(ref vadjustment) = self.vadjustment {
+            properties.push(("vadjustment", vadjustment));
+        }
+        if let Some(ref vscroll_policy) = self.vscroll_policy {
+            properties.push(("vscroll-policy", vscroll_policy));
+        }
+        glib::Object::new::<TreeView>(&properties)
+            .expect("Failed to create an instance of TreeView")
+    }
+
+    pub fn activate_on_single_click(mut self, activate_on_single_click: bool) -> Self {
+        self.activate_on_single_click = Some(activate_on_single_click);
+        self
+    }
+
+    pub fn enable_grid_lines(mut self, enable_grid_lines: TreeViewGridLines) -> Self {
+        self.enable_grid_lines = Some(enable_grid_lines);
+        self
+    }
+
+    pub fn enable_search(mut self, enable_search: bool) -> Self {
+        self.enable_search = Some(enable_search);
+        self
+    }
+
+    pub fn enable_tree_lines(mut self, enable_tree_lines: bool) -> Self {
+        self.enable_tree_lines = Some(enable_tree_lines);
+        self
+    }
+
+    pub fn expander_column(mut self, expander_column: &impl IsA<TreeViewColumn>) -> Self {
+        self.expander_column = Some(expander_column.clone().upcast());
+        self
+    }
+
+    pub fn fixed_height_mode(mut self, fixed_height_mode: bool) -> Self {
+        self.fixed_height_mode = Some(fixed_height_mode);
+        self
+    }
+
+    pub fn headers_clickable(mut self, headers_clickable: bool) -> Self {
+        self.headers_clickable = Some(headers_clickable);
+        self
+    }
+
+    pub fn headers_visible(mut self, headers_visible: bool) -> Self {
+        self.headers_visible = Some(headers_visible);
+        self
+    }
+
+    pub fn hover_expand(mut self, hover_expand: bool) -> Self {
+        self.hover_expand = Some(hover_expand);
+        self
+    }
+
+    pub fn hover_selection(mut self, hover_selection: bool) -> Self {
+        self.hover_selection = Some(hover_selection);
+        self
+    }
+
+    pub fn level_indentation(mut self, level_indentation: i32) -> Self {
+        self.level_indentation = Some(level_indentation);
+        self
+    }
+
+    pub fn model(mut self, model: &impl IsA<TreeModel>) -> Self {
+        self.model = Some(model.clone().upcast());
+        self
+    }
+
+    pub fn reorderable(mut self, reorderable: bool) -> Self {
+        self.reorderable = Some(reorderable);
+        self
+    }
+
+    pub fn rubber_banding(mut self, rubber_banding: bool) -> Self {
+        self.rubber_banding = Some(rubber_banding);
+        self
+    }
+
+    pub fn search_column(mut self, search_column: i32) -> Self {
+        self.search_column = Some(search_column);
+        self
+    }
+
+    pub fn show_expanders(mut self, show_expanders: bool) -> Self {
+        self.show_expanders = Some(show_expanders);
+        self
+    }
+
+    pub fn tooltip_column(mut self, tooltip_column: i32) -> Self {
+        self.tooltip_column = Some(tooltip_column);
+        self
+    }
+
+    pub fn border_width(mut self, border_width: u32) -> Self {
+        self.border_width = Some(border_width);
+        self
+    }
+
+    pub fn child(mut self, child: &impl IsA<Widget>) -> Self {
+        self.child = Some(child.clone().upcast());
+        self
+    }
+
+    pub fn resize_mode(mut self, resize_mode: ResizeMode) -> Self {
+        self.resize_mode = Some(resize_mode);
+        self
+    }
+
+    pub fn app_paintable(mut self, app_paintable: bool) -> Self {
+        self.app_paintable = Some(app_paintable);
+        self
+    }
+
+    pub fn can_default(mut self, can_default: bool) -> Self {
+        self.can_default = Some(can_default);
+        self
+    }
+
+    pub fn can_focus(mut self, can_focus: bool) -> Self {
+        self.can_focus = Some(can_focus);
+        self
+    }
+
+    pub fn events(mut self, events: gdk::EventMask) -> Self {
+        self.events = Some(events);
+        self
+    }
+
+    pub fn expand(mut self, expand: bool) -> Self {
+        self.expand = Some(expand);
+        self
+    }
+
+    #[cfg(any(feature = "v3_20", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
+    pub fn focus_on_click(mut self, focus_on_click: bool) -> Self {
+        self.focus_on_click = Some(focus_on_click);
+        self
+    }
+
+    pub fn halign(mut self, halign: Align) -> Self {
+        self.halign = Some(halign);
+        self
+    }
+
+    pub fn has_default(mut self, has_default: bool) -> Self {
+        self.has_default = Some(has_default);
+        self
+    }
+
+    pub fn has_focus(mut self, has_focus: bool) -> Self {
+        self.has_focus = Some(has_focus);
+        self
+    }
+
+    pub fn has_tooltip(mut self, has_tooltip: bool) -> Self {
+        self.has_tooltip = Some(has_tooltip);
+        self
+    }
+
+    pub fn height_request(mut self, height_request: i32) -> Self {
+        self.height_request = Some(height_request);
+        self
+    }
+
+    pub fn hexpand(mut self, hexpand: bool) -> Self {
+        self.hexpand = Some(hexpand);
+        self
+    }
+
+    pub fn hexpand_set(mut self, hexpand_set: bool) -> Self {
+        self.hexpand_set = Some(hexpand_set);
+        self
+    }
+
+    pub fn is_focus(mut self, is_focus: bool) -> Self {
+        self.is_focus = Some(is_focus);
+        self
+    }
+
+    pub fn margin(mut self, margin: i32) -> Self {
+        self.margin = Some(margin);
+        self
+    }
+
+    pub fn margin_bottom(mut self, margin_bottom: i32) -> Self {
+        self.margin_bottom = Some(margin_bottom);
+        self
+    }
+
+    pub fn margin_end(mut self, margin_end: i32) -> Self {
+        self.margin_end = Some(margin_end);
+        self
+    }
+
+    pub fn margin_start(mut self, margin_start: i32) -> Self {
+        self.margin_start = Some(margin_start);
+        self
+    }
+
+    pub fn margin_top(mut self, margin_top: i32) -> Self {
+        self.margin_top = Some(margin_top);
+        self
+    }
+
+    pub fn name(mut self, name: &str) -> Self {
+        self.name = Some(name.to_string());
+        self
+    }
+
+    pub fn no_show_all(mut self, no_show_all: bool) -> Self {
+        self.no_show_all = Some(no_show_all);
+        self
+    }
+
+    pub fn opacity(mut self, opacity: f64) -> Self {
+        self.opacity = Some(opacity);
+        self
+    }
+
+    pub fn parent(mut self, parent: &impl IsA<Container>) -> Self {
+        self.parent = Some(parent.clone().upcast());
+        self
+    }
+
+    pub fn receives_default(mut self, receives_default: bool) -> Self {
+        self.receives_default = Some(receives_default);
+        self
+    }
+
+    pub fn sensitive(mut self, sensitive: bool) -> Self {
+        self.sensitive = Some(sensitive);
+        self
+    }
+
+    pub fn tooltip_markup(mut self, tooltip_markup: &str) -> Self {
+        self.tooltip_markup = Some(tooltip_markup.to_string());
+        self
+    }
+
+    pub fn tooltip_text(mut self, tooltip_text: &str) -> Self {
+        self.tooltip_text = Some(tooltip_text.to_string());
+        self
+    }
+
+    pub fn valign(mut self, valign: Align) -> Self {
+        self.valign = Some(valign);
+        self
+    }
+
+    pub fn vexpand(mut self, vexpand: bool) -> Self {
+        self.vexpand = Some(vexpand);
+        self
+    }
+
+    pub fn vexpand_set(mut self, vexpand_set: bool) -> Self {
+        self.vexpand_set = Some(vexpand_set);
+        self
+    }
+
+    pub fn visible(mut self, visible: bool) -> Self {
+        self.visible = Some(visible);
+        self
+    }
+
+    pub fn width_request(mut self, width_request: i32) -> Self {
+        self.width_request = Some(width_request);
+        self
+    }
+
+    pub fn hadjustment(mut self, hadjustment: &impl IsA<Adjustment>) -> Self {
+        self.hadjustment = Some(hadjustment.clone().upcast());
+        self
+    }
+
+    pub fn hscroll_policy(mut self, hscroll_policy: ScrollablePolicy) -> Self {
+        self.hscroll_policy = Some(hscroll_policy);
+        self
+    }
+
+    pub fn vadjustment(mut self, vadjustment: &impl IsA<Adjustment>) -> Self {
+        self.vadjustment = Some(vadjustment.clone().upcast());
+        self
+    }
+
+    pub fn vscroll_policy(mut self, vscroll_policy: ScrollablePolicy) -> Self {
+        self.vscroll_policy = Some(vscroll_policy);
+        self
     }
 }
 
-mod sealed {
-    pub trait Sealed {}
-    impl<T: super::IsA<super::TreeView>> Sealed for T {}
+pub trait TreeViewExt: 'static {
+    #[doc(alias = "gtk_tree_view_append_column")]
+    fn append_column(&self, column: &impl IsA<TreeViewColumn>) -> i32;
+
+    #[doc(alias = "gtk_tree_view_collapse_all")]
+    fn collapse_all(&self);
+
+    #[doc(alias = "gtk_tree_view_collapse_row")]
+    fn collapse_row(&self, path: &TreePath) -> bool;
+
+    #[doc(alias = "gtk_tree_view_columns_autosize")]
+    fn columns_autosize(&self);
+
+    #[doc(alias = "gtk_tree_view_convert_bin_window_to_tree_coords")]
+    fn convert_bin_window_to_tree_coords(&self, bx: i32, by: i32) -> (i32, i32);
+
+    #[doc(alias = "gtk_tree_view_convert_bin_window_to_widget_coords")]
+    fn convert_bin_window_to_widget_coords(&self, bx: i32, by: i32) -> (i32, i32);
+
+    #[doc(alias = "gtk_tree_view_convert_tree_to_bin_window_coords")]
+    fn convert_tree_to_bin_window_coords(&self, tx: i32, ty: i32) -> (i32, i32);
+
+    #[doc(alias = "gtk_tree_view_convert_tree_to_widget_coords")]
+    fn convert_tree_to_widget_coords(&self, tx: i32, ty: i32) -> (i32, i32);
+
+    #[doc(alias = "gtk_tree_view_convert_widget_to_bin_window_coords")]
+    fn convert_widget_to_bin_window_coords(&self, wx: i32, wy: i32) -> (i32, i32);
+
+    #[doc(alias = "gtk_tree_view_convert_widget_to_tree_coords")]
+    fn convert_widget_to_tree_coords(&self, wx: i32, wy: i32) -> (i32, i32);
+
+    #[doc(alias = "gtk_tree_view_create_row_drag_icon")]
+    fn create_row_drag_icon(&self, path: &TreePath) -> Option<cairo::Surface>;
+
+    #[doc(alias = "gtk_tree_view_expand_all")]
+    fn expand_all(&self);
+
+    #[doc(alias = "gtk_tree_view_expand_row")]
+    fn expand_row(&self, path: &TreePath, open_all: bool) -> bool;
+
+    #[doc(alias = "gtk_tree_view_expand_to_path")]
+    fn expand_to_path(&self, path: &TreePath);
+
+    #[doc(alias = "gtk_tree_view_get_activate_on_single_click")]
+    #[doc(alias = "get_activate_on_single_click")]
+    fn activates_on_single_click(&self) -> bool;
+
+    #[doc(alias = "gtk_tree_view_get_background_area")]
+    #[doc(alias = "get_background_area")]
+    fn background_area(
+        &self,
+        path: Option<&TreePath>,
+        column: Option<&impl IsA<TreeViewColumn>>,
+    ) -> gdk::Rectangle;
+
+    #[doc(alias = "gtk_tree_view_get_bin_window")]
+    #[doc(alias = "get_bin_window")]
+    fn bin_window(&self) -> Option<gdk::Window>;
+
+    #[doc(alias = "gtk_tree_view_get_cell_area")]
+    #[doc(alias = "get_cell_area")]
+    fn cell_area(
+        &self,
+        path: Option<&TreePath>,
+        column: Option<&impl IsA<TreeViewColumn>>,
+    ) -> gdk::Rectangle;
+
+    #[doc(alias = "gtk_tree_view_get_column")]
+    #[doc(alias = "get_column")]
+    fn column(&self, n: i32) -> Option<TreeViewColumn>;
+
+    #[doc(alias = "gtk_tree_view_get_columns")]
+    #[doc(alias = "get_columns")]
+    fn columns(&self) -> Vec<TreeViewColumn>;
+
+    #[doc(alias = "gtk_tree_view_get_cursor")]
+    #[doc(alias = "get_cursor")]
+    fn cursor(&self) -> (Option<TreePath>, Option<TreeViewColumn>);
+
+    #[doc(alias = "gtk_tree_view_get_dest_row_at_pos")]
+    #[doc(alias = "get_dest_row_at_pos")]
+    fn dest_row_at_pos(
+        &self,
+        drag_x: i32,
+        drag_y: i32,
+    ) -> Option<(Option<TreePath>, TreeViewDropPosition)>;
+
+    #[doc(alias = "gtk_tree_view_get_drag_dest_row")]
+    #[doc(alias = "get_drag_dest_row")]
+    fn drag_dest_row(&self) -> (Option<TreePath>, TreeViewDropPosition);
+
+    #[doc(alias = "gtk_tree_view_get_enable_search")]
+    #[doc(alias = "get_enable_search")]
+    fn enables_search(&self) -> bool;
+
+    #[doc(alias = "gtk_tree_view_get_enable_tree_lines")]
+    #[doc(alias = "get_enable_tree_lines")]
+    fn enables_tree_lines(&self) -> bool;
+
+    #[doc(alias = "gtk_tree_view_get_expander_column")]
+    #[doc(alias = "get_expander_column")]
+    fn expander_column(&self) -> Option<TreeViewColumn>;
+
+    #[doc(alias = "gtk_tree_view_get_fixed_height_mode")]
+    #[doc(alias = "get_fixed_height_mode")]
+    fn is_fixed_height_mode(&self) -> bool;
+
+    #[doc(alias = "gtk_tree_view_get_grid_lines")]
+    #[doc(alias = "get_grid_lines")]
+    fn grid_lines(&self) -> TreeViewGridLines;
+
+    #[doc(alias = "gtk_tree_view_get_headers_clickable")]
+    #[doc(alias = "get_headers_clickable")]
+    fn is_headers_clickable(&self) -> bool;
+
+    #[doc(alias = "gtk_tree_view_get_headers_visible")]
+    #[doc(alias = "get_headers_visible")]
+    fn is_headers_visible(&self) -> bool;
+
+    #[doc(alias = "gtk_tree_view_get_hover_expand")]
+    #[doc(alias = "get_hover_expand")]
+    fn hover_expands(&self) -> bool;
+
+    #[doc(alias = "gtk_tree_view_get_hover_selection")]
+    #[doc(alias = "get_hover_selection")]
+    fn is_hover_selection(&self) -> bool;
+
+    #[doc(alias = "gtk_tree_view_get_level_indentation")]
+    #[doc(alias = "get_level_indentation")]
+    fn level_indentation(&self) -> i32;
+
+    #[doc(alias = "gtk_tree_view_get_model")]
+    #[doc(alias = "get_model")]
+    fn model(&self) -> Option<TreeModel>;
+
+    #[doc(alias = "gtk_tree_view_get_n_columns")]
+    #[doc(alias = "get_n_columns")]
+    fn n_columns(&self) -> u32;
+
+    #[doc(alias = "gtk_tree_view_get_path_at_pos")]
+    #[doc(alias = "get_path_at_pos")]
+    fn path_at_pos(
+        &self,
+        x: i32,
+        y: i32,
+    ) -> Option<(Option<TreePath>, Option<TreeViewColumn>, i32, i32)>;
+
+    #[doc(alias = "gtk_tree_view_get_reorderable")]
+    #[doc(alias = "get_reorderable")]
+    fn is_reorderable(&self) -> bool;
+
+    //#[doc(alias = "gtk_tree_view_get_row_separator_func")]
+    //#[doc(alias = "get_row_separator_func")]
+    //fn row_separator_func(&self) -> Option<Box_<dyn Fn(&TreeModel, &TreeIter) -> bool + 'static>>;
+
+    #[doc(alias = "gtk_tree_view_get_rubber_banding")]
+    #[doc(alias = "get_rubber_banding")]
+    fn is_rubber_banding(&self) -> bool;
+
+    #[doc(alias = "gtk_tree_view_get_search_column")]
+    #[doc(alias = "get_search_column")]
+    fn search_column(&self) -> i32;
+
+    #[doc(alias = "gtk_tree_view_get_search_entry")]
+    #[doc(alias = "get_search_entry")]
+    fn search_entry(&self) -> Option<Entry>;
+
+    //#[doc(alias = "gtk_tree_view_get_search_equal_func")]
+    //#[doc(alias = "get_search_equal_func")]
+    //fn search_equal_func(&self) -> Option<Box_<dyn Fn(&TreeModel, i32, &str, &TreeIter) -> bool + 'static>>;
+
+    //#[doc(alias = "gtk_tree_view_get_search_position_func")]
+    //#[doc(alias = "get_search_position_func")]
+    //fn search_position_func(&self) -> Option<Box_<dyn Fn(&TreeView, &Widget) + 'static>>;
+
+    #[doc(alias = "gtk_tree_view_get_selection")]
+    #[doc(alias = "get_selection")]
+    fn selection(&self) -> TreeSelection;
+
+    #[doc(alias = "gtk_tree_view_get_show_expanders")]
+    #[doc(alias = "get_show_expanders")]
+    fn shows_expanders(&self) -> bool;
+
+    #[doc(alias = "gtk_tree_view_get_tooltip_column")]
+    #[doc(alias = "get_tooltip_column")]
+    fn tooltip_column(&self) -> i32;
+
+    #[doc(alias = "gtk_tree_view_get_tooltip_context")]
+    #[doc(alias = "get_tooltip_context")]
+    fn tooltip_context(
+        &self,
+        x: &mut i32,
+        y: &mut i32,
+        keyboard_tip: bool,
+    ) -> Option<(Option<TreeModel>, TreePath, TreeIter)>;
+
+    #[doc(alias = "gtk_tree_view_get_visible_range")]
+    #[doc(alias = "get_visible_range")]
+    fn visible_range(&self) -> Option<(TreePath, TreePath)>;
+
+    #[doc(alias = "gtk_tree_view_get_visible_rect")]
+    #[doc(alias = "get_visible_rect")]
+    fn visible_rect(&self) -> gdk::Rectangle;
+
+    #[doc(alias = "gtk_tree_view_insert_column")]
+    fn insert_column(&self, column: &impl IsA<TreeViewColumn>, position: i32) -> i32;
+
+    //#[doc(alias = "gtk_tree_view_insert_column_with_attributes")]
+    //fn insert_column_with_attributes(&self, position: i32, title: &str, cell: &impl IsA<CellRenderer>, : /*Unknown conversion*//*Unimplemented*/Fundamental: VarArgs) -> i32;
+
+    #[doc(alias = "gtk_tree_view_insert_column_with_data_func")]
+    fn insert_column_with_data_func<
+        P: Fn(&TreeViewColumn, &CellRenderer, &TreeModel, &TreeIter) + 'static,
+    >(
+        &self,
+        position: i32,
+        title: &str,
+        cell: &impl IsA<CellRenderer>,
+        func: P,
+    ) -> i32;
+
+    #[doc(alias = "gtk_tree_view_is_blank_at_pos")]
+    fn is_blank_at_pos(
+        &self,
+        x: i32,
+        y: i32,
+    ) -> Option<(Option<TreePath>, Option<TreeViewColumn>, i32, i32)>;
+
+    #[doc(alias = "gtk_tree_view_is_rubber_banding_active")]
+    fn is_rubber_banding_active(&self) -> bool;
+
+    #[doc(alias = "gtk_tree_view_map_expanded_rows")]
+    fn map_expanded_rows<P: FnMut(&TreeView, &TreePath)>(&self, func: P);
+
+    #[doc(alias = "gtk_tree_view_move_column_after")]
+    fn move_column_after(
+        &self,
+        column: &impl IsA<TreeViewColumn>,
+        base_column: Option<&impl IsA<TreeViewColumn>>,
+    );
+
+    #[doc(alias = "gtk_tree_view_remove_column")]
+    fn remove_column(&self, column: &impl IsA<TreeViewColumn>) -> i32;
+
+    #[doc(alias = "gtk_tree_view_row_activated")]
+    fn row_activated(&self, path: &TreePath, column: &impl IsA<TreeViewColumn>);
+
+    #[doc(alias = "gtk_tree_view_row_expanded")]
+    fn row_expanded(&self, path: &TreePath) -> bool;
+
+    #[doc(alias = "gtk_tree_view_scroll_to_cell")]
+    fn scroll_to_cell(
+        &self,
+        path: Option<&TreePath>,
+        column: Option<&impl IsA<TreeViewColumn>>,
+        use_align: bool,
+        row_align: f32,
+        col_align: f32,
+    );
+
+    #[doc(alias = "gtk_tree_view_scroll_to_point")]
+    fn scroll_to_point(&self, tree_x: i32, tree_y: i32);
+
+    #[doc(alias = "gtk_tree_view_set_activate_on_single_click")]
+    fn set_activate_on_single_click(&self, single: bool);
+
+    #[doc(alias = "gtk_tree_view_set_column_drag_function")]
+    fn set_column_drag_function(
+        &self,
+        func: Option<
+            Box_<
+                dyn Fn(&TreeView, &TreeViewColumn, &TreeViewColumn, &TreeViewColumn) -> bool
+                    + 'static,
+            >,
+        >,
+    );
+
+    #[doc(alias = "gtk_tree_view_set_cursor")]
+    fn set_cursor(
+        &self,
+        path: &TreePath,
+        focus_column: Option<&impl IsA<TreeViewColumn>>,
+        start_editing: bool,
+    );
+
+    #[doc(alias = "gtk_tree_view_set_cursor_on_cell")]
+    fn set_cursor_on_cell(
+        &self,
+        path: &TreePath,
+        focus_column: Option<&impl IsA<TreeViewColumn>>,
+        focus_cell: Option<&impl IsA<CellRenderer>>,
+        start_editing: bool,
+    );
+
+    #[doc(alias = "gtk_tree_view_set_drag_dest_row")]
+    fn set_drag_dest_row(&self, path: Option<&TreePath>, pos: TreeViewDropPosition);
+
+    #[doc(alias = "gtk_tree_view_set_enable_search")]
+    fn set_enable_search(&self, enable_search: bool);
+
+    #[doc(alias = "gtk_tree_view_set_enable_tree_lines")]
+    fn set_enable_tree_lines(&self, enabled: bool);
+
+    #[doc(alias = "gtk_tree_view_set_expander_column")]
+    fn set_expander_column(&self, column: Option<&impl IsA<TreeViewColumn>>);
+
+    #[doc(alias = "gtk_tree_view_set_fixed_height_mode")]
+    fn set_fixed_height_mode(&self, enable: bool);
+
+    #[doc(alias = "gtk_tree_view_set_grid_lines")]
+    fn set_grid_lines(&self, grid_lines: TreeViewGridLines);
+
+    #[doc(alias = "gtk_tree_view_set_headers_clickable")]
+    fn set_headers_clickable(&self, setting: bool);
+
+    #[doc(alias = "gtk_tree_view_set_headers_visible")]
+    fn set_headers_visible(&self, headers_visible: bool);
+
+    #[doc(alias = "gtk_tree_view_set_hover_expand")]
+    fn set_hover_expand(&self, expand: bool);
+
+    #[doc(alias = "gtk_tree_view_set_hover_selection")]
+    fn set_hover_selection(&self, hover: bool);
+
+    #[doc(alias = "gtk_tree_view_set_level_indentation")]
+    fn set_level_indentation(&self, indentation: i32);
+
+    #[doc(alias = "gtk_tree_view_set_model")]
+    fn set_model(&self, model: Option<&impl IsA<TreeModel>>);
+
+    #[doc(alias = "gtk_tree_view_set_reorderable")]
+    fn set_reorderable(&self, reorderable: bool);
+
+    #[doc(alias = "gtk_tree_view_set_row_separator_func")]
+    fn set_row_separator_func(
+        &self,
+        func: Option<Box_<dyn Fn(&TreeModel, &TreeIter) -> bool + 'static>>,
+    );
+
+    #[doc(alias = "gtk_tree_view_set_rubber_banding")]
+    fn set_rubber_banding(&self, enable: bool);
+
+    #[doc(alias = "gtk_tree_view_set_search_column")]
+    fn set_search_column(&self, column: i32);
+
+    #[doc(alias = "gtk_tree_view_set_search_entry")]
+    fn set_search_entry(&self, entry: Option<&impl IsA<Entry>>);
+
+    #[doc(alias = "gtk_tree_view_set_search_equal_func")]
+    fn set_search_equal_func<P: Fn(&TreeModel, i32, &str, &TreeIter) -> bool + 'static>(
+        &self,
+        search_equal_func: P,
+    );
+
+    #[doc(alias = "gtk_tree_view_set_search_position_func")]
+    fn set_search_position_func(&self, func: Option<Box_<dyn Fn(&TreeView, &Widget) + 'static>>);
+
+    #[doc(alias = "gtk_tree_view_set_show_expanders")]
+    fn set_show_expanders(&self, enabled: bool);
+
+    #[doc(alias = "gtk_tree_view_set_tooltip_cell")]
+    fn set_tooltip_cell(
+        &self,
+        tooltip: &Tooltip,
+        path: Option<&TreePath>,
+        column: Option<&impl IsA<TreeViewColumn>>,
+        cell: Option<&impl IsA<CellRenderer>>,
+    );
+
+    #[doc(alias = "gtk_tree_view_set_tooltip_column")]
+    fn set_tooltip_column(&self, column: i32);
+
+    #[doc(alias = "gtk_tree_view_set_tooltip_row")]
+    fn set_tooltip_row(&self, tooltip: &Tooltip, path: &TreePath);
+
+    #[doc(alias = "gtk_tree_view_unset_rows_drag_dest")]
+    fn unset_rows_drag_dest(&self);
+
+    #[doc(alias = "gtk_tree_view_unset_rows_drag_source")]
+    fn unset_rows_drag_source(&self);
+
+    #[doc(alias = "enable-grid-lines")]
+    fn enable_grid_lines(&self) -> TreeViewGridLines;
+
+    #[doc(alias = "enable-grid-lines")]
+    fn set_enable_grid_lines(&self, enable_grid_lines: TreeViewGridLines);
+
+    #[doc(alias = "columns-changed")]
+    fn connect_columns_changed<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "cursor-changed")]
+    fn connect_cursor_changed<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "expand-collapse-cursor-row")]
+    fn connect_expand_collapse_cursor_row<F: Fn(&Self, bool, bool, bool) -> bool + 'static>(
+        &self,
+        f: F,
+    ) -> SignalHandlerId;
+
+    fn emit_expand_collapse_cursor_row(&self, object: bool, p0: bool, p1: bool) -> bool;
+
+    #[doc(alias = "move-cursor")]
+    fn connect_move_cursor<F: Fn(&Self, MovementStep, i32) -> bool + 'static>(
+        &self,
+        f: F,
+    ) -> SignalHandlerId;
+
+    fn emit_move_cursor(&self, step: MovementStep, direction: i32) -> bool;
+
+    #[doc(alias = "row-activated")]
+    fn connect_row_activated<F: Fn(&Self, &TreePath, &TreeViewColumn) + 'static>(
+        &self,
+        f: F,
+    ) -> SignalHandlerId;
+
+    fn emit_row_activated(&self, path: &TreePath, column: &TreeViewColumn);
+
+    #[doc(alias = "row-collapsed")]
+    fn connect_row_collapsed<F: Fn(&Self, &TreeIter, &TreePath) + 'static>(
+        &self,
+        f: F,
+    ) -> SignalHandlerId;
+
+    #[doc(alias = "row-expanded")]
+    fn connect_row_expanded<F: Fn(&Self, &TreeIter, &TreePath) + 'static>(
+        &self,
+        f: F,
+    ) -> SignalHandlerId;
+
+    #[doc(alias = "select-all")]
+    fn connect_select_all<F: Fn(&Self) -> bool + 'static>(&self, f: F) -> SignalHandlerId;
+
+    fn emit_select_all(&self) -> bool;
+
+    #[doc(alias = "select-cursor-parent")]
+    fn connect_select_cursor_parent<F: Fn(&Self) -> bool + 'static>(&self, f: F)
+        -> SignalHandlerId;
+
+    fn emit_select_cursor_parent(&self) -> bool;
+
+    #[doc(alias = "select-cursor-row")]
+    fn connect_select_cursor_row<F: Fn(&Self, bool) -> bool + 'static>(
+        &self,
+        f: F,
+    ) -> SignalHandlerId;
+
+    fn emit_select_cursor_row(&self, object: bool) -> bool;
+
+    #[doc(alias = "start-interactive-search")]
+    fn connect_start_interactive_search<F: Fn(&Self) -> bool + 'static>(
+        &self,
+        f: F,
+    ) -> SignalHandlerId;
+
+    fn emit_start_interactive_search(&self) -> bool;
+
+    #[doc(alias = "test-collapse-row")]
+    fn connect_test_collapse_row<
+        F: Fn(&Self, &TreeIter, &TreePath) -> glib::signal::Inhibit + 'static,
+    >(
+        &self,
+        f: F,
+    ) -> SignalHandlerId;
+
+    #[doc(alias = "test-expand-row")]
+    fn connect_test_expand_row<
+        F: Fn(&Self, &TreeIter, &TreePath) -> glib::signal::Inhibit + 'static,
+    >(
+        &self,
+        f: F,
+    ) -> SignalHandlerId;
+
+    #[doc(alias = "toggle-cursor-row")]
+    fn connect_toggle_cursor_row<F: Fn(&Self) -> bool + 'static>(&self, f: F) -> SignalHandlerId;
+
+    fn emit_toggle_cursor_row(&self) -> bool;
+
+    #[doc(alias = "unselect-all")]
+    fn connect_unselect_all<F: Fn(&Self) -> bool + 'static>(&self, f: F) -> SignalHandlerId;
+
+    fn emit_unselect_all(&self) -> bool;
+
+    #[doc(alias = "activate-on-single-click")]
+    fn connect_activate_on_single_click_notify<F: Fn(&Self) + 'static>(
+        &self,
+        f: F,
+    ) -> SignalHandlerId;
+
+    #[doc(alias = "enable-grid-lines")]
+    fn connect_enable_grid_lines_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "enable-search")]
+    fn connect_enable_search_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "enable-tree-lines")]
+    fn connect_enable_tree_lines_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "expander-column")]
+    fn connect_expander_column_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "fixed-height-mode")]
+    fn connect_fixed_height_mode_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "headers-clickable")]
+    fn connect_headers_clickable_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "headers-visible")]
+    fn connect_headers_visible_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "hover-expand")]
+    fn connect_hover_expand_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "hover-selection")]
+    fn connect_hover_selection_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "level-indentation")]
+    fn connect_level_indentation_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "model")]
+    fn connect_model_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "reorderable")]
+    fn connect_reorderable_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "rubber-banding")]
+    fn connect_rubber_banding_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "search-column")]
+    fn connect_search_column_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "show-expanders")]
+    fn connect_show_expanders_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "tooltip-column")]
+    fn connect_tooltip_column_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
 }
 
-pub trait TreeViewExt: IsA<TreeView> + sealed::Sealed + 'static {
-    #[doc(alias = "gtk_tree_view_append_column")]
+impl<O: IsA<TreeView>> TreeViewExt for O {
     fn append_column(&self, column: &impl IsA<TreeViewColumn>) -> i32 {
         unsafe {
             ffi::gtk_tree_view_append_column(
@@ -455,14 +1162,12 @@ pub trait TreeViewExt: IsA<TreeView> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_tree_view_collapse_all")]
     fn collapse_all(&self) {
         unsafe {
             ffi::gtk_tree_view_collapse_all(self.as_ref().to_glib_none().0);
         }
     }
 
-    #[doc(alias = "gtk_tree_view_collapse_row")]
     fn collapse_row(&self, path: &TreePath) -> bool {
         unsafe {
             from_glib(ffi::gtk_tree_view_collapse_row(
@@ -472,14 +1177,12 @@ pub trait TreeViewExt: IsA<TreeView> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_tree_view_columns_autosize")]
     fn columns_autosize(&self) {
         unsafe {
             ffi::gtk_tree_view_columns_autosize(self.as_ref().to_glib_none().0);
         }
     }
 
-    #[doc(alias = "gtk_tree_view_convert_bin_window_to_tree_coords")]
     fn convert_bin_window_to_tree_coords(&self, bx: i32, by: i32) -> (i32, i32) {
         unsafe {
             let mut tx = mem::MaybeUninit::uninit();
@@ -491,11 +1194,12 @@ pub trait TreeViewExt: IsA<TreeView> + sealed::Sealed + 'static {
                 tx.as_mut_ptr(),
                 ty.as_mut_ptr(),
             );
-            (tx.assume_init(), ty.assume_init())
+            let tx = tx.assume_init();
+            let ty = ty.assume_init();
+            (tx, ty)
         }
     }
 
-    #[doc(alias = "gtk_tree_view_convert_bin_window_to_widget_coords")]
     fn convert_bin_window_to_widget_coords(&self, bx: i32, by: i32) -> (i32, i32) {
         unsafe {
             let mut wx = mem::MaybeUninit::uninit();
@@ -507,11 +1211,12 @@ pub trait TreeViewExt: IsA<TreeView> + sealed::Sealed + 'static {
                 wx.as_mut_ptr(),
                 wy.as_mut_ptr(),
             );
-            (wx.assume_init(), wy.assume_init())
+            let wx = wx.assume_init();
+            let wy = wy.assume_init();
+            (wx, wy)
         }
     }
 
-    #[doc(alias = "gtk_tree_view_convert_tree_to_bin_window_coords")]
     fn convert_tree_to_bin_window_coords(&self, tx: i32, ty: i32) -> (i32, i32) {
         unsafe {
             let mut bx = mem::MaybeUninit::uninit();
@@ -523,11 +1228,12 @@ pub trait TreeViewExt: IsA<TreeView> + sealed::Sealed + 'static {
                 bx.as_mut_ptr(),
                 by.as_mut_ptr(),
             );
-            (bx.assume_init(), by.assume_init())
+            let bx = bx.assume_init();
+            let by = by.assume_init();
+            (bx, by)
         }
     }
 
-    #[doc(alias = "gtk_tree_view_convert_tree_to_widget_coords")]
     fn convert_tree_to_widget_coords(&self, tx: i32, ty: i32) -> (i32, i32) {
         unsafe {
             let mut wx = mem::MaybeUninit::uninit();
@@ -539,11 +1245,12 @@ pub trait TreeViewExt: IsA<TreeView> + sealed::Sealed + 'static {
                 wx.as_mut_ptr(),
                 wy.as_mut_ptr(),
             );
-            (wx.assume_init(), wy.assume_init())
+            let wx = wx.assume_init();
+            let wy = wy.assume_init();
+            (wx, wy)
         }
     }
 
-    #[doc(alias = "gtk_tree_view_convert_widget_to_bin_window_coords")]
     fn convert_widget_to_bin_window_coords(&self, wx: i32, wy: i32) -> (i32, i32) {
         unsafe {
             let mut bx = mem::MaybeUninit::uninit();
@@ -555,11 +1262,12 @@ pub trait TreeViewExt: IsA<TreeView> + sealed::Sealed + 'static {
                 bx.as_mut_ptr(),
                 by.as_mut_ptr(),
             );
-            (bx.assume_init(), by.assume_init())
+            let bx = bx.assume_init();
+            let by = by.assume_init();
+            (bx, by)
         }
     }
 
-    #[doc(alias = "gtk_tree_view_convert_widget_to_tree_coords")]
     fn convert_widget_to_tree_coords(&self, wx: i32, wy: i32) -> (i32, i32) {
         unsafe {
             let mut tx = mem::MaybeUninit::uninit();
@@ -571,11 +1279,12 @@ pub trait TreeViewExt: IsA<TreeView> + sealed::Sealed + 'static {
                 tx.as_mut_ptr(),
                 ty.as_mut_ptr(),
             );
-            (tx.assume_init(), ty.assume_init())
+            let tx = tx.assume_init();
+            let ty = ty.assume_init();
+            (tx, ty)
         }
     }
 
-    #[doc(alias = "gtk_tree_view_create_row_drag_icon")]
     fn create_row_drag_icon(&self, path: &TreePath) -> Option<cairo::Surface> {
         unsafe {
             from_glib_full(ffi::gtk_tree_view_create_row_drag_icon(
@@ -585,14 +1294,12 @@ pub trait TreeViewExt: IsA<TreeView> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_tree_view_expand_all")]
     fn expand_all(&self) {
         unsafe {
             ffi::gtk_tree_view_expand_all(self.as_ref().to_glib_none().0);
         }
     }
 
-    #[doc(alias = "gtk_tree_view_expand_row")]
     fn expand_row(&self, path: &TreePath, open_all: bool) -> bool {
         unsafe {
             from_glib(ffi::gtk_tree_view_expand_row(
@@ -603,7 +1310,6 @@ pub trait TreeViewExt: IsA<TreeView> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_tree_view_expand_to_path")]
     fn expand_to_path(&self, path: &TreePath) {
         unsafe {
             ffi::gtk_tree_view_expand_to_path(
@@ -613,8 +1319,6 @@ pub trait TreeViewExt: IsA<TreeView> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_tree_view_get_activate_on_single_click")]
-    #[doc(alias = "get_activate_on_single_click")]
     fn activates_on_single_click(&self) -> bool {
         unsafe {
             from_glib(ffi::gtk_tree_view_get_activate_on_single_click(
@@ -623,8 +1327,6 @@ pub trait TreeViewExt: IsA<TreeView> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_tree_view_get_background_area")]
-    #[doc(alias = "get_background_area")]
     fn background_area(
         &self,
         path: Option<&TreePath>,
@@ -642,8 +1344,6 @@ pub trait TreeViewExt: IsA<TreeView> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_tree_view_get_bin_window")]
-    #[doc(alias = "get_bin_window")]
     fn bin_window(&self) -> Option<gdk::Window> {
         unsafe {
             from_glib_none(ffi::gtk_tree_view_get_bin_window(
@@ -652,8 +1352,6 @@ pub trait TreeViewExt: IsA<TreeView> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_tree_view_get_cell_area")]
-    #[doc(alias = "get_cell_area")]
     fn cell_area(
         &self,
         path: Option<&TreePath>,
@@ -671,8 +1369,6 @@ pub trait TreeViewExt: IsA<TreeView> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_tree_view_get_column")]
-    #[doc(alias = "get_column")]
     fn column(&self, n: i32) -> Option<TreeViewColumn> {
         unsafe {
             from_glib_none(ffi::gtk_tree_view_get_column(
@@ -682,8 +1378,6 @@ pub trait TreeViewExt: IsA<TreeView> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_tree_view_get_columns")]
-    #[doc(alias = "get_columns")]
     fn columns(&self) -> Vec<TreeViewColumn> {
         unsafe {
             FromGlibPtrContainer::from_glib_container(ffi::gtk_tree_view_get_columns(
@@ -692,8 +1386,6 @@ pub trait TreeViewExt: IsA<TreeView> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_tree_view_get_cursor")]
-    #[doc(alias = "get_cursor")]
     fn cursor(&self) -> (Option<TreePath>, Option<TreeViewColumn>) {
         unsafe {
             let mut path = ptr::null_mut();
@@ -707,8 +1399,6 @@ pub trait TreeViewExt: IsA<TreeView> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_tree_view_get_dest_row_at_pos")]
-    #[doc(alias = "get_dest_row_at_pos")]
     fn dest_row_at_pos(
         &self,
         drag_x: i32,
@@ -724,16 +1414,15 @@ pub trait TreeViewExt: IsA<TreeView> + sealed::Sealed + 'static {
                 &mut path,
                 pos.as_mut_ptr(),
             ));
+            let pos = pos.assume_init();
             if ret {
-                Some((from_glib_full(path), from_glib(pos.assume_init())))
+                Some((from_glib_full(path), from_glib(pos)))
             } else {
                 None
             }
         }
     }
 
-    #[doc(alias = "gtk_tree_view_get_drag_dest_row")]
-    #[doc(alias = "get_drag_dest_row")]
     fn drag_dest_row(&self) -> (Option<TreePath>, TreeViewDropPosition) {
         unsafe {
             let mut path = ptr::null_mut();
@@ -743,12 +1432,11 @@ pub trait TreeViewExt: IsA<TreeView> + sealed::Sealed + 'static {
                 &mut path,
                 pos.as_mut_ptr(),
             );
-            (from_glib_full(path), from_glib(pos.assume_init()))
+            let pos = pos.assume_init();
+            (from_glib_full(path), from_glib(pos))
         }
     }
 
-    #[doc(alias = "gtk_tree_view_get_enable_search")]
-    #[doc(alias = "get_enable_search")]
     fn enables_search(&self) -> bool {
         unsafe {
             from_glib(ffi::gtk_tree_view_get_enable_search(
@@ -757,8 +1445,6 @@ pub trait TreeViewExt: IsA<TreeView> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_tree_view_get_enable_tree_lines")]
-    #[doc(alias = "get_enable_tree_lines")]
     fn enables_tree_lines(&self) -> bool {
         unsafe {
             from_glib(ffi::gtk_tree_view_get_enable_tree_lines(
@@ -767,8 +1453,6 @@ pub trait TreeViewExt: IsA<TreeView> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_tree_view_get_expander_column")]
-    #[doc(alias = "get_expander_column")]
     fn expander_column(&self) -> Option<TreeViewColumn> {
         unsafe {
             from_glib_none(ffi::gtk_tree_view_get_expander_column(
@@ -777,8 +1461,6 @@ pub trait TreeViewExt: IsA<TreeView> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_tree_view_get_fixed_height_mode")]
-    #[doc(alias = "get_fixed_height_mode")]
     fn is_fixed_height_mode(&self) -> bool {
         unsafe {
             from_glib(ffi::gtk_tree_view_get_fixed_height_mode(
@@ -787,8 +1469,6 @@ pub trait TreeViewExt: IsA<TreeView> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_tree_view_get_grid_lines")]
-    #[doc(alias = "get_grid_lines")]
     fn grid_lines(&self) -> TreeViewGridLines {
         unsafe {
             from_glib(ffi::gtk_tree_view_get_grid_lines(
@@ -797,8 +1477,6 @@ pub trait TreeViewExt: IsA<TreeView> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_tree_view_get_headers_clickable")]
-    #[doc(alias = "get_headers_clickable")]
     fn is_headers_clickable(&self) -> bool {
         unsafe {
             from_glib(ffi::gtk_tree_view_get_headers_clickable(
@@ -807,8 +1485,6 @@ pub trait TreeViewExt: IsA<TreeView> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_tree_view_get_headers_visible")]
-    #[doc(alias = "get_headers_visible")]
     fn is_headers_visible(&self) -> bool {
         unsafe {
             from_glib(ffi::gtk_tree_view_get_headers_visible(
@@ -817,8 +1493,6 @@ pub trait TreeViewExt: IsA<TreeView> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_tree_view_get_hover_expand")]
-    #[doc(alias = "get_hover_expand")]
     fn hover_expands(&self) -> bool {
         unsafe {
             from_glib(ffi::gtk_tree_view_get_hover_expand(
@@ -827,8 +1501,6 @@ pub trait TreeViewExt: IsA<TreeView> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_tree_view_get_hover_selection")]
-    #[doc(alias = "get_hover_selection")]
     fn is_hover_selection(&self) -> bool {
         unsafe {
             from_glib(ffi::gtk_tree_view_get_hover_selection(
@@ -837,26 +1509,18 @@ pub trait TreeViewExt: IsA<TreeView> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_tree_view_get_level_indentation")]
-    #[doc(alias = "get_level_indentation")]
     fn level_indentation(&self) -> i32 {
         unsafe { ffi::gtk_tree_view_get_level_indentation(self.as_ref().to_glib_none().0) }
     }
 
-    #[doc(alias = "gtk_tree_view_get_model")]
-    #[doc(alias = "get_model")]
     fn model(&self) -> Option<TreeModel> {
         unsafe { from_glib_none(ffi::gtk_tree_view_get_model(self.as_ref().to_glib_none().0)) }
     }
 
-    #[doc(alias = "gtk_tree_view_get_n_columns")]
-    #[doc(alias = "get_n_columns")]
     fn n_columns(&self) -> u32 {
         unsafe { ffi::gtk_tree_view_get_n_columns(self.as_ref().to_glib_none().0) }
     }
 
-    #[doc(alias = "gtk_tree_view_get_path_at_pos")]
-    #[doc(alias = "get_path_at_pos")]
     fn path_at_pos(
         &self,
         x: i32,
@@ -876,21 +1540,16 @@ pub trait TreeViewExt: IsA<TreeView> + sealed::Sealed + 'static {
                 cell_x.as_mut_ptr(),
                 cell_y.as_mut_ptr(),
             ));
+            let cell_x = cell_x.assume_init();
+            let cell_y = cell_y.assume_init();
             if ret {
-                Some((
-                    from_glib_full(path),
-                    from_glib_none(column),
-                    cell_x.assume_init(),
-                    cell_y.assume_init(),
-                ))
+                Some((from_glib_full(path), from_glib_none(column), cell_x, cell_y))
             } else {
                 None
             }
         }
     }
 
-    #[doc(alias = "gtk_tree_view_get_reorderable")]
-    #[doc(alias = "get_reorderable")]
     fn is_reorderable(&self) -> bool {
         unsafe {
             from_glib(ffi::gtk_tree_view_get_reorderable(
@@ -899,14 +1558,10 @@ pub trait TreeViewExt: IsA<TreeView> + sealed::Sealed + 'static {
         }
     }
 
-    //#[doc(alias = "gtk_tree_view_get_row_separator_func")]
-    //#[doc(alias = "get_row_separator_func")]
     //fn row_separator_func(&self) -> Option<Box_<dyn Fn(&TreeModel, &TreeIter) -> bool + 'static>> {
     //    unsafe { TODO: call ffi:gtk_tree_view_get_row_separator_func() }
     //}
 
-    #[doc(alias = "gtk_tree_view_get_rubber_banding")]
-    #[doc(alias = "get_rubber_banding")]
     fn is_rubber_banding(&self) -> bool {
         unsafe {
             from_glib(ffi::gtk_tree_view_get_rubber_banding(
@@ -915,14 +1570,10 @@ pub trait TreeViewExt: IsA<TreeView> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_tree_view_get_search_column")]
-    #[doc(alias = "get_search_column")]
     fn search_column(&self) -> i32 {
         unsafe { ffi::gtk_tree_view_get_search_column(self.as_ref().to_glib_none().0) }
     }
 
-    #[doc(alias = "gtk_tree_view_get_search_entry")]
-    #[doc(alias = "get_search_entry")]
     fn search_entry(&self) -> Option<Entry> {
         unsafe {
             from_glib_none(ffi::gtk_tree_view_get_search_entry(
@@ -931,20 +1582,14 @@ pub trait TreeViewExt: IsA<TreeView> + sealed::Sealed + 'static {
         }
     }
 
-    //#[doc(alias = "gtk_tree_view_get_search_equal_func")]
-    //#[doc(alias = "get_search_equal_func")]
     //fn search_equal_func(&self) -> Option<Box_<dyn Fn(&TreeModel, i32, &str, &TreeIter) -> bool + 'static>> {
     //    unsafe { TODO: call ffi:gtk_tree_view_get_search_equal_func() }
     //}
 
-    //#[doc(alias = "gtk_tree_view_get_search_position_func")]
-    //#[doc(alias = "get_search_position_func")]
     //fn search_position_func(&self) -> Option<Box_<dyn Fn(&TreeView, &Widget) + 'static>> {
     //    unsafe { TODO: call ffi:gtk_tree_view_get_search_position_func() }
     //}
 
-    #[doc(alias = "gtk_tree_view_get_selection")]
-    #[doc(alias = "get_selection")]
     fn selection(&self) -> TreeSelection {
         unsafe {
             from_glib_none(ffi::gtk_tree_view_get_selection(
@@ -953,8 +1598,6 @@ pub trait TreeViewExt: IsA<TreeView> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_tree_view_get_show_expanders")]
-    #[doc(alias = "get_show_expanders")]
     fn shows_expanders(&self) -> bool {
         unsafe {
             from_glib(ffi::gtk_tree_view_get_show_expanders(
@@ -963,14 +1606,10 @@ pub trait TreeViewExt: IsA<TreeView> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_tree_view_get_tooltip_column")]
-    #[doc(alias = "get_tooltip_column")]
     fn tooltip_column(&self) -> i32 {
         unsafe { ffi::gtk_tree_view_get_tooltip_column(self.as_ref().to_glib_none().0) }
     }
 
-    #[doc(alias = "gtk_tree_view_get_tooltip_context")]
-    #[doc(alias = "get_tooltip_context")]
     fn tooltip_context(
         &self,
         x: &mut i32,
@@ -998,8 +1637,6 @@ pub trait TreeViewExt: IsA<TreeView> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_tree_view_get_visible_range")]
-    #[doc(alias = "get_visible_range")]
     fn visible_range(&self) -> Option<(TreePath, TreePath)> {
         unsafe {
             let mut start_path = ptr::null_mut();
@@ -1017,8 +1654,6 @@ pub trait TreeViewExt: IsA<TreeView> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_tree_view_get_visible_rect")]
-    #[doc(alias = "get_visible_rect")]
     fn visible_rect(&self) -> gdk::Rectangle {
         unsafe {
             let mut visible_rect = gdk::Rectangle::uninitialized();
@@ -1030,7 +1665,6 @@ pub trait TreeViewExt: IsA<TreeView> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_tree_view_insert_column")]
     fn insert_column(&self, column: &impl IsA<TreeViewColumn>, position: i32) -> i32 {
         unsafe {
             ffi::gtk_tree_view_insert_column(
@@ -1041,12 +1675,10 @@ pub trait TreeViewExt: IsA<TreeView> + sealed::Sealed + 'static {
         }
     }
 
-    //#[doc(alias = "gtk_tree_view_insert_column_with_attributes")]
-    //fn insert_column_with_attributes(&self, position: i32, title: &str, cell: &impl IsA<CellRenderer>, : /*Unknown conversion*//*Unimplemented*/Basic: VarArgs) -> i32 {
+    //fn insert_column_with_attributes(&self, position: i32, title: &str, cell: &impl IsA<CellRenderer>, : /*Unknown conversion*//*Unimplemented*/Fundamental: VarArgs) -> i32 {
     //    unsafe { TODO: call ffi:gtk_tree_view_insert_column_with_attributes() }
     //}
 
-    #[doc(alias = "gtk_tree_view_insert_column_with_data_func")]
     fn insert_column_with_data_func<
         P: Fn(&TreeViewColumn, &CellRenderer, &TreeModel, &TreeIter) + 'static,
     >(
@@ -1071,7 +1703,7 @@ pub trait TreeViewExt: IsA<TreeView> + sealed::Sealed + 'static {
             let tree_model = from_glib_borrow(tree_model);
             let iter = from_glib_borrow(iter);
             let callback: &P = &*(data as *mut _);
-            (*callback)(&tree_column, &cell, &tree_model, &iter)
+            (*callback)(&tree_column, &cell, &tree_model, &iter);
         }
         let func = Some(func_func::<P> as _);
         unsafe extern "C" fn dnotify_func<
@@ -1096,7 +1728,6 @@ pub trait TreeViewExt: IsA<TreeView> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_tree_view_is_blank_at_pos")]
     fn is_blank_at_pos(
         &self,
         x: i32,
@@ -1116,20 +1747,16 @@ pub trait TreeViewExt: IsA<TreeView> + sealed::Sealed + 'static {
                 cell_x.as_mut_ptr(),
                 cell_y.as_mut_ptr(),
             ));
+            let cell_x = cell_x.assume_init();
+            let cell_y = cell_y.assume_init();
             if ret {
-                Some((
-                    from_glib_full(path),
-                    from_glib_none(column),
-                    cell_x.assume_init(),
-                    cell_y.assume_init(),
-                ))
+                Some((from_glib_full(path), from_glib_none(column), cell_x, cell_y))
             } else {
                 None
             }
         }
     }
 
-    #[doc(alias = "gtk_tree_view_is_rubber_banding_active")]
     fn is_rubber_banding_active(&self) -> bool {
         unsafe {
             from_glib(ffi::gtk_tree_view_is_rubber_banding_active(
@@ -1138,7 +1765,6 @@ pub trait TreeViewExt: IsA<TreeView> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_tree_view_map_expanded_rows")]
     fn map_expanded_rows<P: FnMut(&TreeView, &TreePath)>(&self, func: P) {
         let func_data: P = func;
         unsafe extern "C" fn func_func<P: FnMut(&TreeView, &TreePath)>(
@@ -1149,7 +1775,7 @@ pub trait TreeViewExt: IsA<TreeView> + sealed::Sealed + 'static {
             let tree_view = from_glib_borrow(tree_view);
             let path = from_glib_borrow(path);
             let callback: *mut P = user_data as *const _ as usize as *mut P;
-            (*callback)(&tree_view, &path)
+            (*callback)(&tree_view, &path);
         }
         let func = Some(func_func::<P> as _);
         let super_callback0: &P = &func_data;
@@ -1162,7 +1788,6 @@ pub trait TreeViewExt: IsA<TreeView> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_tree_view_move_column_after")]
     fn move_column_after(
         &self,
         column: &impl IsA<TreeViewColumn>,
@@ -1177,7 +1802,6 @@ pub trait TreeViewExt: IsA<TreeView> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_tree_view_remove_column")]
     fn remove_column(&self, column: &impl IsA<TreeViewColumn>) -> i32 {
         unsafe {
             ffi::gtk_tree_view_remove_column(
@@ -1187,7 +1811,6 @@ pub trait TreeViewExt: IsA<TreeView> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_tree_view_row_activated")]
     fn row_activated(&self, path: &TreePath, column: &impl IsA<TreeViewColumn>) {
         unsafe {
             ffi::gtk_tree_view_row_activated(
@@ -1198,7 +1821,6 @@ pub trait TreeViewExt: IsA<TreeView> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_tree_view_row_expanded")]
     fn row_expanded(&self, path: &TreePath) -> bool {
         unsafe {
             from_glib(ffi::gtk_tree_view_row_expanded(
@@ -1208,7 +1830,6 @@ pub trait TreeViewExt: IsA<TreeView> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_tree_view_scroll_to_cell")]
     fn scroll_to_cell(
         &self,
         path: Option<&TreePath>,
@@ -1229,14 +1850,12 @@ pub trait TreeViewExt: IsA<TreeView> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_tree_view_scroll_to_point")]
     fn scroll_to_point(&self, tree_x: i32, tree_y: i32) {
         unsafe {
             ffi::gtk_tree_view_scroll_to_point(self.as_ref().to_glib_none().0, tree_x, tree_y);
         }
     }
 
-    #[doc(alias = "gtk_tree_view_set_activate_on_single_click")]
     fn set_activate_on_single_click(&self, single: bool) {
         unsafe {
             ffi::gtk_tree_view_set_activate_on_single_click(
@@ -1246,7 +1865,6 @@ pub trait TreeViewExt: IsA<TreeView> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_tree_view_set_column_drag_function")]
     fn set_column_drag_function(
         &self,
         func: Option<
@@ -1281,12 +1899,12 @@ pub trait TreeViewExt: IsA<TreeView> + sealed::Sealed + 'static {
                         + 'static,
                 >,
             > = &*(data as *mut _);
-            if let Some(ref callback) = *callback {
+            let res = if let Some(ref callback) = *callback {
                 callback(&tree_view, &column, &prev_column, &next_column)
             } else {
                 panic!("cannot get closure...")
-            }
-            .into_glib()
+            };
+            res.into_glib()
         }
         let func = if func_data.is_some() {
             Some(func_func as _)
@@ -1322,7 +1940,6 @@ pub trait TreeViewExt: IsA<TreeView> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_tree_view_set_cursor")]
     fn set_cursor(
         &self,
         path: &TreePath,
@@ -1339,7 +1956,6 @@ pub trait TreeViewExt: IsA<TreeView> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_tree_view_set_cursor_on_cell")]
     fn set_cursor_on_cell(
         &self,
         path: &TreePath,
@@ -1358,7 +1974,6 @@ pub trait TreeViewExt: IsA<TreeView> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_tree_view_set_drag_dest_row")]
     fn set_drag_dest_row(&self, path: Option<&TreePath>, pos: TreeViewDropPosition) {
         unsafe {
             ffi::gtk_tree_view_set_drag_dest_row(
@@ -1369,7 +1984,6 @@ pub trait TreeViewExt: IsA<TreeView> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_tree_view_set_enable_search")]
     fn set_enable_search(&self, enable_search: bool) {
         unsafe {
             ffi::gtk_tree_view_set_enable_search(
@@ -1379,7 +1993,6 @@ pub trait TreeViewExt: IsA<TreeView> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_tree_view_set_enable_tree_lines")]
     fn set_enable_tree_lines(&self, enabled: bool) {
         unsafe {
             ffi::gtk_tree_view_set_enable_tree_lines(
@@ -1389,7 +2002,6 @@ pub trait TreeViewExt: IsA<TreeView> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_tree_view_set_expander_column")]
     fn set_expander_column(&self, column: Option<&impl IsA<TreeViewColumn>>) {
         unsafe {
             ffi::gtk_tree_view_set_expander_column(
@@ -1399,7 +2011,6 @@ pub trait TreeViewExt: IsA<TreeView> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_tree_view_set_fixed_height_mode")]
     fn set_fixed_height_mode(&self, enable: bool) {
         unsafe {
             ffi::gtk_tree_view_set_fixed_height_mode(
@@ -1409,7 +2020,6 @@ pub trait TreeViewExt: IsA<TreeView> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_tree_view_set_grid_lines")]
     fn set_grid_lines(&self, grid_lines: TreeViewGridLines) {
         unsafe {
             ffi::gtk_tree_view_set_grid_lines(
@@ -1419,7 +2029,6 @@ pub trait TreeViewExt: IsA<TreeView> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_tree_view_set_headers_clickable")]
     fn set_headers_clickable(&self, setting: bool) {
         unsafe {
             ffi::gtk_tree_view_set_headers_clickable(
@@ -1429,7 +2038,6 @@ pub trait TreeViewExt: IsA<TreeView> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_tree_view_set_headers_visible")]
     fn set_headers_visible(&self, headers_visible: bool) {
         unsafe {
             ffi::gtk_tree_view_set_headers_visible(
@@ -1439,14 +2047,12 @@ pub trait TreeViewExt: IsA<TreeView> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_tree_view_set_hover_expand")]
     fn set_hover_expand(&self, expand: bool) {
         unsafe {
             ffi::gtk_tree_view_set_hover_expand(self.as_ref().to_glib_none().0, expand.into_glib());
         }
     }
 
-    #[doc(alias = "gtk_tree_view_set_hover_selection")]
     fn set_hover_selection(&self, hover: bool) {
         unsafe {
             ffi::gtk_tree_view_set_hover_selection(
@@ -1456,14 +2062,12 @@ pub trait TreeViewExt: IsA<TreeView> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_tree_view_set_level_indentation")]
     fn set_level_indentation(&self, indentation: i32) {
         unsafe {
             ffi::gtk_tree_view_set_level_indentation(self.as_ref().to_glib_none().0, indentation);
         }
     }
 
-    #[doc(alias = "gtk_tree_view_set_model")]
     fn set_model(&self, model: Option<&impl IsA<TreeModel>>) {
         unsafe {
             ffi::gtk_tree_view_set_model(
@@ -1473,7 +2077,6 @@ pub trait TreeViewExt: IsA<TreeView> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_tree_view_set_reorderable")]
     fn set_reorderable(&self, reorderable: bool) {
         unsafe {
             ffi::gtk_tree_view_set_reorderable(
@@ -1483,7 +2086,6 @@ pub trait TreeViewExt: IsA<TreeView> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_tree_view_set_row_separator_func")]
     fn set_row_separator_func(
         &self,
         func: Option<Box_<dyn Fn(&TreeModel, &TreeIter) -> bool + 'static>>,
@@ -1499,12 +2101,12 @@ pub trait TreeViewExt: IsA<TreeView> + sealed::Sealed + 'static {
             let iter = from_glib_borrow(iter);
             let callback: &Option<Box_<dyn Fn(&TreeModel, &TreeIter) -> bool + 'static>> =
                 &*(data as *mut _);
-            if let Some(ref callback) = *callback {
+            let res = if let Some(ref callback) = *callback {
                 callback(&model, &iter)
             } else {
                 panic!("cannot get closure...")
-            }
-            .into_glib()
+            };
+            res.into_glib()
         }
         let func = if func_data.is_some() {
             Some(func_func as _)
@@ -1528,7 +2130,6 @@ pub trait TreeViewExt: IsA<TreeView> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_tree_view_set_rubber_banding")]
     fn set_rubber_banding(&self, enable: bool) {
         unsafe {
             ffi::gtk_tree_view_set_rubber_banding(
@@ -1538,14 +2139,12 @@ pub trait TreeViewExt: IsA<TreeView> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_tree_view_set_search_column")]
     fn set_search_column(&self, column: i32) {
         unsafe {
             ffi::gtk_tree_view_set_search_column(self.as_ref().to_glib_none().0, column);
         }
     }
 
-    #[doc(alias = "gtk_tree_view_set_search_entry")]
     fn set_search_entry(&self, entry: Option<&impl IsA<Entry>>) {
         unsafe {
             ffi::gtk_tree_view_set_search_entry(
@@ -1555,7 +2154,6 @@ pub trait TreeViewExt: IsA<TreeView> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_tree_view_set_search_equal_func")]
     fn set_search_equal_func<P: Fn(&TreeModel, i32, &str, &TreeIter) -> bool + 'static>(
         &self,
         search_equal_func: P,
@@ -1574,7 +2172,8 @@ pub trait TreeViewExt: IsA<TreeView> + sealed::Sealed + 'static {
             let key: Borrowed<glib::GString> = from_glib_borrow(key);
             let iter = from_glib_borrow(iter);
             let callback: &P = &*(search_data as *mut _);
-            (*callback)(&model, column, key.as_str(), &iter).into_glib()
+            let res = (*callback)(&model, column, key.as_str(), &iter);
+            res.into_glib()
         }
         let search_equal_func = Some(search_equal_func_func::<P> as _);
         unsafe extern "C" fn search_destroy_func<
@@ -1596,7 +2195,6 @@ pub trait TreeViewExt: IsA<TreeView> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_tree_view_set_search_position_func")]
     fn set_search_position_func(&self, func: Option<Box_<dyn Fn(&TreeView, &Widget) + 'static>>) {
         let func_data: Box_<Option<Box_<dyn Fn(&TreeView, &Widget) + 'static>>> = Box_::new(func);
         unsafe extern "C" fn func_func(
@@ -1612,7 +2210,7 @@ pub trait TreeViewExt: IsA<TreeView> + sealed::Sealed + 'static {
                 callback(&tree_view, &search_dialog)
             } else {
                 panic!("cannot get closure...")
-            }
+            };
         }
         let func = if func_data.is_some() {
             Some(func_func as _)
@@ -1635,7 +2233,6 @@ pub trait TreeViewExt: IsA<TreeView> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_tree_view_set_show_expanders")]
     fn set_show_expanders(&self, enabled: bool) {
         unsafe {
             ffi::gtk_tree_view_set_show_expanders(
@@ -1645,7 +2242,6 @@ pub trait TreeViewExt: IsA<TreeView> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_tree_view_set_tooltip_cell")]
     fn set_tooltip_cell(
         &self,
         tooltip: &Tooltip,
@@ -1664,14 +2260,12 @@ pub trait TreeViewExt: IsA<TreeView> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_tree_view_set_tooltip_column")]
     fn set_tooltip_column(&self, column: i32) {
         unsafe {
             ffi::gtk_tree_view_set_tooltip_column(self.as_ref().to_glib_none().0, column);
         }
     }
 
-    #[doc(alias = "gtk_tree_view_set_tooltip_row")]
     fn set_tooltip_row(&self, tooltip: &Tooltip, path: &TreePath) {
         unsafe {
             ffi::gtk_tree_view_set_tooltip_row(
@@ -1682,31 +2276,26 @@ pub trait TreeViewExt: IsA<TreeView> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_tree_view_unset_rows_drag_dest")]
     fn unset_rows_drag_dest(&self) {
         unsafe {
             ffi::gtk_tree_view_unset_rows_drag_dest(self.as_ref().to_glib_none().0);
         }
     }
 
-    #[doc(alias = "gtk_tree_view_unset_rows_drag_source")]
     fn unset_rows_drag_source(&self) {
         unsafe {
             ffi::gtk_tree_view_unset_rows_drag_source(self.as_ref().to_glib_none().0);
         }
     }
 
-    #[doc(alias = "enable-grid-lines")]
     fn enable_grid_lines(&self) -> TreeViewGridLines {
-        ObjectExt::property(self.as_ref(), "enable-grid-lines")
+        glib::ObjectExt::property(self.as_ref(), "enable-grid-lines")
     }
 
-    #[doc(alias = "enable-grid-lines")]
     fn set_enable_grid_lines(&self, enable_grid_lines: TreeViewGridLines) {
-        ObjectExt::set_property(self.as_ref(), "enable-grid-lines", enable_grid_lines)
+        glib::ObjectExt::set_property(self.as_ref(), "enable-grid-lines", &enable_grid_lines)
     }
 
-    #[doc(alias = "columns-changed")]
     fn connect_columns_changed<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn columns_changed_trampoline<P: IsA<TreeView>, F: Fn(&P) + 'static>(
             this: *mut ffi::GtkTreeView,
@@ -1728,7 +2317,6 @@ pub trait TreeViewExt: IsA<TreeView> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "cursor-changed")]
     fn connect_cursor_changed<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn cursor_changed_trampoline<P: IsA<TreeView>, F: Fn(&P) + 'static>(
             this: *mut ffi::GtkTreeView,
@@ -1750,7 +2338,6 @@ pub trait TreeViewExt: IsA<TreeView> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "expand-collapse-cursor-row")]
     fn connect_expand_collapse_cursor_row<F: Fn(&Self, bool, bool, bool) -> bool + 'static>(
         &self,
         f: F,
@@ -1791,7 +2378,6 @@ pub trait TreeViewExt: IsA<TreeView> + sealed::Sealed + 'static {
         self.emit_by_name("expand-collapse-cursor-row", &[&object, &p0, &p1])
     }
 
-    #[doc(alias = "move-cursor")]
     fn connect_move_cursor<F: Fn(&Self, MovementStep, i32) -> bool + 'static>(
         &self,
         f: F,
@@ -1830,7 +2416,6 @@ pub trait TreeViewExt: IsA<TreeView> + sealed::Sealed + 'static {
         self.emit_by_name("move-cursor", &[&step, &direction])
     }
 
-    #[doc(alias = "row-activated")]
     fn connect_row_activated<F: Fn(&Self, &TreePath, &TreeViewColumn) + 'static>(
         &self,
         f: F,
@@ -1868,7 +2453,6 @@ pub trait TreeViewExt: IsA<TreeView> + sealed::Sealed + 'static {
         self.emit_by_name::<()>("row-activated", &[&path, &column]);
     }
 
-    #[doc(alias = "row-collapsed")]
     fn connect_row_collapsed<F: Fn(&Self, &TreeIter, &TreePath) + 'static>(
         &self,
         f: F,
@@ -1902,7 +2486,6 @@ pub trait TreeViewExt: IsA<TreeView> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "row-expanded")]
     fn connect_row_expanded<F: Fn(&Self, &TreeIter, &TreePath) + 'static>(
         &self,
         f: F,
@@ -1936,7 +2519,6 @@ pub trait TreeViewExt: IsA<TreeView> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "select-all")]
     fn connect_select_all<F: Fn(&Self) -> bool + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn select_all_trampoline<
             P: IsA<TreeView>,
@@ -1965,7 +2547,6 @@ pub trait TreeViewExt: IsA<TreeView> + sealed::Sealed + 'static {
         self.emit_by_name("select-all", &[])
     }
 
-    #[doc(alias = "select-cursor-parent")]
     fn connect_select_cursor_parent<F: Fn(&Self) -> bool + 'static>(
         &self,
         f: F,
@@ -1997,7 +2578,6 @@ pub trait TreeViewExt: IsA<TreeView> + sealed::Sealed + 'static {
         self.emit_by_name("select-cursor-parent", &[])
     }
 
-    #[doc(alias = "select-cursor-row")]
     fn connect_select_cursor_row<F: Fn(&Self, bool) -> bool + 'static>(
         &self,
         f: F,
@@ -2034,7 +2614,6 @@ pub trait TreeViewExt: IsA<TreeView> + sealed::Sealed + 'static {
         self.emit_by_name("select-cursor-row", &[&object])
     }
 
-    #[doc(alias = "start-interactive-search")]
     fn connect_start_interactive_search<F: Fn(&Self) -> bool + 'static>(
         &self,
         f: F,
@@ -2066,16 +2645,15 @@ pub trait TreeViewExt: IsA<TreeView> + sealed::Sealed + 'static {
         self.emit_by_name("start-interactive-search", &[])
     }
 
-    #[doc(alias = "test-collapse-row")]
     fn connect_test_collapse_row<
-        F: Fn(&Self, &TreeIter, &TreePath) -> glib::Propagation + 'static,
+        F: Fn(&Self, &TreeIter, &TreePath) -> glib::signal::Inhibit + 'static,
     >(
         &self,
         f: F,
     ) -> SignalHandlerId {
         unsafe extern "C" fn test_collapse_row_trampoline<
             P: IsA<TreeView>,
-            F: Fn(&P, &TreeIter, &TreePath) -> glib::Propagation + 'static,
+            F: Fn(&P, &TreeIter, &TreePath) -> glib::signal::Inhibit + 'static,
         >(
             this: *mut ffi::GtkTreeView,
             iter: *mut ffi::GtkTreeIter,
@@ -2103,16 +2681,15 @@ pub trait TreeViewExt: IsA<TreeView> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "test-expand-row")]
     fn connect_test_expand_row<
-        F: Fn(&Self, &TreeIter, &TreePath) -> glib::Propagation + 'static,
+        F: Fn(&Self, &TreeIter, &TreePath) -> glib::signal::Inhibit + 'static,
     >(
         &self,
         f: F,
     ) -> SignalHandlerId {
         unsafe extern "C" fn test_expand_row_trampoline<
             P: IsA<TreeView>,
-            F: Fn(&P, &TreeIter, &TreePath) -> glib::Propagation + 'static,
+            F: Fn(&P, &TreeIter, &TreePath) -> glib::signal::Inhibit + 'static,
         >(
             this: *mut ffi::GtkTreeView,
             iter: *mut ffi::GtkTreeIter,
@@ -2140,7 +2717,6 @@ pub trait TreeViewExt: IsA<TreeView> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "toggle-cursor-row")]
     fn connect_toggle_cursor_row<F: Fn(&Self) -> bool + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn toggle_cursor_row_trampoline<
             P: IsA<TreeView>,
@@ -2169,7 +2745,6 @@ pub trait TreeViewExt: IsA<TreeView> + sealed::Sealed + 'static {
         self.emit_by_name("toggle-cursor-row", &[])
     }
 
-    #[doc(alias = "unselect-all")]
     fn connect_unselect_all<F: Fn(&Self) -> bool + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn unselect_all_trampoline<
             P: IsA<TreeView>,
@@ -2198,7 +2773,6 @@ pub trait TreeViewExt: IsA<TreeView> + sealed::Sealed + 'static {
         self.emit_by_name("unselect-all", &[])
     }
 
-    #[doc(alias = "activate-on-single-click")]
     fn connect_activate_on_single_click_notify<F: Fn(&Self) + 'static>(
         &self,
         f: F,
@@ -2227,7 +2801,6 @@ pub trait TreeViewExt: IsA<TreeView> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "enable-grid-lines")]
     fn connect_enable_grid_lines_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_enable_grid_lines_trampoline<
             P: IsA<TreeView>,
@@ -2253,7 +2826,6 @@ pub trait TreeViewExt: IsA<TreeView> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "enable-search")]
     fn connect_enable_search_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_enable_search_trampoline<
             P: IsA<TreeView>,
@@ -2279,7 +2851,6 @@ pub trait TreeViewExt: IsA<TreeView> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "enable-tree-lines")]
     fn connect_enable_tree_lines_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_enable_tree_lines_trampoline<
             P: IsA<TreeView>,
@@ -2305,7 +2876,6 @@ pub trait TreeViewExt: IsA<TreeView> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "expander-column")]
     fn connect_expander_column_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_expander_column_trampoline<
             P: IsA<TreeView>,
@@ -2331,7 +2901,6 @@ pub trait TreeViewExt: IsA<TreeView> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "fixed-height-mode")]
     fn connect_fixed_height_mode_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_fixed_height_mode_trampoline<
             P: IsA<TreeView>,
@@ -2357,7 +2926,6 @@ pub trait TreeViewExt: IsA<TreeView> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "headers-clickable")]
     fn connect_headers_clickable_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_headers_clickable_trampoline<
             P: IsA<TreeView>,
@@ -2383,7 +2951,6 @@ pub trait TreeViewExt: IsA<TreeView> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "headers-visible")]
     fn connect_headers_visible_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_headers_visible_trampoline<
             P: IsA<TreeView>,
@@ -2409,7 +2976,6 @@ pub trait TreeViewExt: IsA<TreeView> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "hover-expand")]
     fn connect_hover_expand_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_hover_expand_trampoline<
             P: IsA<TreeView>,
@@ -2435,7 +3001,6 @@ pub trait TreeViewExt: IsA<TreeView> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "hover-selection")]
     fn connect_hover_selection_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_hover_selection_trampoline<
             P: IsA<TreeView>,
@@ -2461,7 +3026,6 @@ pub trait TreeViewExt: IsA<TreeView> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "level-indentation")]
     fn connect_level_indentation_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_level_indentation_trampoline<
             P: IsA<TreeView>,
@@ -2487,7 +3051,6 @@ pub trait TreeViewExt: IsA<TreeView> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "model")]
     fn connect_model_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_model_trampoline<P: IsA<TreeView>, F: Fn(&P) + 'static>(
             this: *mut ffi::GtkTreeView,
@@ -2510,7 +3073,6 @@ pub trait TreeViewExt: IsA<TreeView> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "reorderable")]
     fn connect_reorderable_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_reorderable_trampoline<
             P: IsA<TreeView>,
@@ -2536,7 +3098,6 @@ pub trait TreeViewExt: IsA<TreeView> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "rubber-banding")]
     fn connect_rubber_banding_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_rubber_banding_trampoline<
             P: IsA<TreeView>,
@@ -2562,7 +3123,6 @@ pub trait TreeViewExt: IsA<TreeView> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "search-column")]
     fn connect_search_column_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_search_column_trampoline<
             P: IsA<TreeView>,
@@ -2588,7 +3148,6 @@ pub trait TreeViewExt: IsA<TreeView> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "show-expanders")]
     fn connect_show_expanders_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_show_expanders_trampoline<
             P: IsA<TreeView>,
@@ -2614,7 +3173,6 @@ pub trait TreeViewExt: IsA<TreeView> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "tooltip-column")]
     fn connect_tooltip_column_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_tooltip_column_trampoline<
             P: IsA<TreeView>,
@@ -2640,8 +3198,6 @@ pub trait TreeViewExt: IsA<TreeView> + sealed::Sealed + 'static {
         }
     }
 }
-
-impl<O: IsA<TreeView>> TreeViewExt for O {}
 
 impl fmt::Display for TreeView {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {

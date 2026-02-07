@@ -2,7 +2,7 @@
 work_mode = "sys"
 library = "Gio"
 version = "2.0"
-min_cfg_version = "2.56"
+min_cfg_version = "2.48"
 single_version_file = "."
 girs_directories = ["../../gir-files"]
 
@@ -10,13 +10,6 @@ external_libraries = [
     "GLib",
     "GObject",
 ]
-
-[[object]]
-name = "Gio.FileInfo"
-status = "generate"
-    [[object.function]]
-    pattern = "[s|g]et_attribute_file_path"
-    version = "2.78"
 
 [[object]]
 name = "Gio.UnixMountEntry"
@@ -49,19 +42,3 @@ cfg_condition = "windows"
 name = "Gio.Win32OutputStream"
 status = "manual"
 cfg_condition = "windows"
-
-[[object]]
-name = "Gio.SubprocessLauncher"
-status = "generate"
-    [[object.function]]
-    pattern = "take_.*"
-    cfg_condition = "unix"
-    [[object.function]]
-    pattern = "set_std.*file_path"
-    cfg_condition = "unix"
-    [[object.function]]
-    name = "set_child_setup"
-    cfg_condition = "unix"
-    [[object.function]]
-    name = "close"
-    cfg_condition = "unix"

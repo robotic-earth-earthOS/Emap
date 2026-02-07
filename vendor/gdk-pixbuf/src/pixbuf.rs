@@ -1,9 +1,17 @@
 // Take a look at the license at the top of the repository in the LICENSE file.
 
-use std::{future::Future, io::Read, mem, path::Path, pin::Pin, ptr, slice};
-
-use glib::{object::IsA, translate::*, Error};
+use glib::object::IsA;
+use glib::translate::*;
+use glib::Error;
 use libc::{c_uchar, c_void};
+use std::io::Read;
+use std::mem;
+use std::path::Path;
+use std::pin::Pin;
+use std::ptr;
+use std::slice;
+
+use std::future::Future;
 
 use crate::{Colorspace, Pixbuf, PixbufFormat};
 
@@ -42,7 +50,7 @@ impl Pixbuf {
         let ptr = {
             let data: &mut [u8] = (*data).as_mut();
             assert!(
-                data.len() >= ((height - 1) * row_stride + last_row_len),
+                data.len() >= ((height - 1) * row_stride + last_row_len) as usize,
                 "data.len() must fit the width, height, and row_stride"
             );
             data.as_mut_ptr()
@@ -75,6 +83,83 @@ impl Pixbuf {
     /// ```
     pub fn from_read<R: Read + Send + 'static>(r: R) -> Result<Pixbuf, Error> {
         Pixbuf::from_stream(&gio::ReadInputStream::new(r), None::<&gio::Cancellable>)
+    }
+
+    #[doc(alias = "gdk_pixbuf_new_from_file")]
+    #[doc(alias = "gdk_pixbuf_new_from_file_utf8")]
+    pub fn from_file<T: AsRef<Path>>(filename: T) -> Result<Pixbuf, Error> {
+        #[cfg(not(windows))]
+        use ffi::gdk_pixbuf_new_from_file;
+        #[cfg(windows)]
+        use ffi::gdk_pixbuf_new_from_file_utf8 as gdk_pixbuf_new_from_file;
+
+        unsafe {
+            let mut error = ptr::null_mut();
+            let ptr = gdk_pixbuf_new_from_file(filename.as_ref().to_glib_none().0, &mut error);
+            if error.is_null() {
+                Ok(from_glib_full(ptr))
+            } else {
+                Err(from_glib_full(error))
+            }
+        }
+    }
+
+    #[doc(alias = "gdk_pixbuf_new_from_file_at_size")]
+    #[doc(alias = "gdk_pixbuf_new_from_file_at_size_utf8")]
+    pub fn from_file_at_size<T: AsRef<Path>>(
+        filename: T,
+        width: i32,
+        height: i32,
+    ) -> Result<Pixbuf, Error> {
+        #[cfg(not(windows))]
+        use ffi::gdk_pixbuf_new_from_file_at_size;
+        #[cfg(windows)]
+        use ffi::gdk_pixbuf_new_from_file_at_size_utf8 as gdk_pixbuf_new_from_file_at_size;
+
+        unsafe {
+            let mut error = ptr::null_mut();
+            let ptr = gdk_pixbuf_new_from_file_at_size(
+                filename.as_ref().to_glib_none().0,
+                width,
+                height,
+                &mut error,
+            );
+            if error.is_null() {
+                Ok(from_glib_full(ptr))
+            } else {
+                Err(from_glib_full(error))
+            }
+        }
+    }
+
+    #[doc(alias = "gdk_pixbuf_new_from_file_at_scale")]
+    #[doc(alias = "gdk_pixbuf_new_from_file_at_scale_utf8")]
+    pub fn from_file_at_scale<T: AsRef<Path>>(
+        filename: T,
+        width: i32,
+        height: i32,
+        preserve_aspect_ratio: bool,
+    ) -> Result<Pixbuf, Error> {
+        #[cfg(not(windows))]
+        use ffi::gdk_pixbuf_new_from_file_at_scale;
+        #[cfg(windows)]
+        use ffi::gdk_pixbuf_new_from_file_at_scale_utf8 as gdk_pixbuf_new_from_file_at_scale;
+
+        unsafe {
+            let mut error = ptr::null_mut();
+            let ptr = gdk_pixbuf_new_from_file_at_scale(
+                filename.as_ref().to_glib_none().0,
+                width,
+                height,
+                preserve_aspect_ratio.into_glib(),
+                &mut error,
+            );
+            if error.is_null() {
+                Ok(from_glib_full(ptr))
+            } else {
+                Err(from_glib_full(error))
+            }
+        }
     }
 
     #[doc(alias = "gdk_pixbuf_new_from_stream_async")]
@@ -398,7 +483,7 @@ impl Pixbuf {
             if error.is_null() {
                 Ok(FromGlibContainer::from_glib_full_num(
                     buffer,
-                    buffer_size.assume_init() as _,
+                    buffer_size.assume_init() as usize,
                 ))
             } else {
                 Err(from_glib_full(error))
@@ -406,6 +491,8 @@ impl Pixbuf {
         }
     }
 
+    #[cfg(any(feature = "v2_36", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v2_36")))]
     #[doc(alias = "gdk_pixbuf_save_to_streamv")]
     pub fn save_to_streamv<P: IsA<gio::OutputStream>, Q: IsA<gio::Cancellable>>(
         &self,
@@ -436,6 +523,8 @@ impl Pixbuf {
         }
     }
 
+    #[cfg(any(feature = "v2_36", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v2_36")))]
     #[doc(alias = "gdk_pixbuf_save_to_streamv_async")]
     pub fn save_to_streamv_async<
         P: IsA<gio::OutputStream>,
@@ -498,6 +587,8 @@ impl Pixbuf {
         }
     }
 
+    #[cfg(any(feature = "v2_36", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v2_36")))]
     pub fn save_to_streamv_future<P: IsA<gio::OutputStream> + Clone + 'static>(
         &self,
         stream: &P,
@@ -513,7 +604,7 @@ impl Pixbuf {
         Box::pin(gio::GioFuture::new(self, move |obj, cancellable, send| {
             let options = options
                 .iter()
-                .map(|(k, v)| (k.as_str(), v.as_str()))
+                .map(|&(ref k, ref v)| (k.as_str(), v.as_str()))
                 .collect::<Vec<(&str, &str)>>();
 
             obj.save_to_streamv_async(

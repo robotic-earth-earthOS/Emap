@@ -3,7 +3,8 @@
 // DO NOT EDIT
 
 use crate::StateType;
-use glib::{prelude::*, translate::*};
+use glib::object::IsA;
+use glib::translate::*;
 use std::fmt;
 
 glib::wrapper! {
@@ -31,13 +32,42 @@ impl Default for StateSet {
     }
 }
 
-mod sealed {
-    pub trait Sealed {}
-    impl<T: super::IsA<super::StateSet>> Sealed for T {}
+pub trait StateSetExt: 'static {
+    #[doc(alias = "atk_state_set_add_state")]
+    fn add_state(&self, type_: StateType) -> bool;
+
+    //#[doc(alias = "atk_state_set_add_states")]
+    //fn add_states(&self, types: /*Unimplemented*/&CArray TypeId { ns_id: 1, id: 68 });
+
+    #[doc(alias = "atk_state_set_and_sets")]
+    #[must_use]
+    fn and_sets(&self, compare_set: &impl IsA<StateSet>) -> Option<StateSet>;
+
+    #[doc(alias = "atk_state_set_clear_states")]
+    fn clear_states(&self);
+
+    #[doc(alias = "atk_state_set_contains_state")]
+    fn contains_state(&self, type_: StateType) -> bool;
+
+    //#[doc(alias = "atk_state_set_contains_states")]
+    //fn contains_states(&self, types: /*Unimplemented*/&CArray TypeId { ns_id: 1, id: 68 }) -> bool;
+
+    #[doc(alias = "atk_state_set_is_empty")]
+    fn is_empty(&self) -> bool;
+
+    #[doc(alias = "atk_state_set_or_sets")]
+    #[must_use]
+    fn or_sets(&self, compare_set: &impl IsA<StateSet>) -> Option<StateSet>;
+
+    #[doc(alias = "atk_state_set_remove_state")]
+    fn remove_state(&self, type_: StateType) -> bool;
+
+    #[doc(alias = "atk_state_set_xor_sets")]
+    #[must_use]
+    fn xor_sets(&self, compare_set: &impl IsA<StateSet>) -> Option<StateSet>;
 }
 
-pub trait StateSetExt: IsA<StateSet> + sealed::Sealed + 'static {
-    #[doc(alias = "atk_state_set_add_state")]
+impl<O: IsA<StateSet>> StateSetExt for O {
     fn add_state(&self, type_: StateType) -> bool {
         unsafe {
             from_glib(ffi::atk_state_set_add_state(
@@ -47,13 +77,10 @@ pub trait StateSetExt: IsA<StateSet> + sealed::Sealed + 'static {
         }
     }
 
-    //#[doc(alias = "atk_state_set_add_states")]
-    //fn add_states(&self, types: /*Unimplemented*/&CArray TypeId { ns_id: 1, id: 69 }) {
+    //fn add_states(&self, types: /*Unimplemented*/&CArray TypeId { ns_id: 1, id: 68 }) {
     //    unsafe { TODO: call ffi:atk_state_set_add_states() }
     //}
 
-    #[doc(alias = "atk_state_set_and_sets")]
-    #[must_use]
     fn and_sets(&self, compare_set: &impl IsA<StateSet>) -> Option<StateSet> {
         unsafe {
             from_glib_full(ffi::atk_state_set_and_sets(
@@ -63,14 +90,12 @@ pub trait StateSetExt: IsA<StateSet> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "atk_state_set_clear_states")]
     fn clear_states(&self) {
         unsafe {
             ffi::atk_state_set_clear_states(self.as_ref().to_glib_none().0);
         }
     }
 
-    #[doc(alias = "atk_state_set_contains_state")]
     fn contains_state(&self, type_: StateType) -> bool {
         unsafe {
             from_glib(ffi::atk_state_set_contains_state(
@@ -80,18 +105,14 @@ pub trait StateSetExt: IsA<StateSet> + sealed::Sealed + 'static {
         }
     }
 
-    //#[doc(alias = "atk_state_set_contains_states")]
-    //fn contains_states(&self, types: /*Unimplemented*/&CArray TypeId { ns_id: 1, id: 69 }) -> bool {
+    //fn contains_states(&self, types: /*Unimplemented*/&CArray TypeId { ns_id: 1, id: 68 }) -> bool {
     //    unsafe { TODO: call ffi:atk_state_set_contains_states() }
     //}
 
-    #[doc(alias = "atk_state_set_is_empty")]
     fn is_empty(&self) -> bool {
         unsafe { from_glib(ffi::atk_state_set_is_empty(self.as_ref().to_glib_none().0)) }
     }
 
-    #[doc(alias = "atk_state_set_or_sets")]
-    #[must_use]
     fn or_sets(&self, compare_set: &impl IsA<StateSet>) -> Option<StateSet> {
         unsafe {
             from_glib_full(ffi::atk_state_set_or_sets(
@@ -101,7 +122,6 @@ pub trait StateSetExt: IsA<StateSet> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "atk_state_set_remove_state")]
     fn remove_state(&self, type_: StateType) -> bool {
         unsafe {
             from_glib(ffi::atk_state_set_remove_state(
@@ -111,8 +131,6 @@ pub trait StateSetExt: IsA<StateSet> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "atk_state_set_xor_sets")]
-    #[must_use]
     fn xor_sets(&self, compare_set: &impl IsA<StateSet>) -> Option<StateSet> {
         unsafe {
             from_glib_full(ffi::atk_state_set_xor_sets(
@@ -122,8 +140,6 @@ pub trait StateSetExt: IsA<StateSet> + sealed::Sealed + 'static {
         }
     }
 }
-
-impl<O: IsA<StateSet>> StateSetExt for O {}
 
 impl fmt::Display for StateSet {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {

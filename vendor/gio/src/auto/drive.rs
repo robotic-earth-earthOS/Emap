@@ -2,16 +2,24 @@
 // from gir-files (https://github.com/gtk-rs/gir-files)
 // DO NOT EDIT
 
-use crate::{
-    AsyncResult, Cancellable, DriveStartFlags, DriveStartStopType, Icon, MountOperation,
-    MountUnmountFlags, Volume,
-};
-use glib::{
-    prelude::*,
-    signal::{connect_raw, SignalHandlerId},
-    translate::*,
-};
-use std::{boxed::Box as Box_, fmt, mem::transmute, pin::Pin, ptr};
+use crate::AsyncResult;
+use crate::Cancellable;
+use crate::DriveStartFlags;
+use crate::DriveStartStopType;
+use crate::Icon;
+use crate::MountOperation;
+use crate::MountUnmountFlags;
+use crate::Volume;
+use glib::object::Cast;
+use glib::object::IsA;
+use glib::signal::connect_raw;
+use glib::signal::SignalHandlerId;
+use glib::translate::*;
+use std::boxed::Box as Box_;
+use std::fmt;
+use std::mem::transmute;
+use std::pin::Pin;
+use std::ptr;
 
 glib::wrapper! {
     #[doc(alias = "GDrive")]
@@ -26,18 +34,144 @@ impl Drive {
     pub const NONE: Option<&'static Drive> = None;
 }
 
-mod sealed {
-    pub trait Sealed {}
-    impl<T: super::IsA<super::Drive>> Sealed for T {}
+pub trait DriveExt: 'static {
+    #[doc(alias = "g_drive_can_eject")]
+    fn can_eject(&self) -> bool;
+
+    #[doc(alias = "g_drive_can_poll_for_media")]
+    fn can_poll_for_media(&self) -> bool;
+
+    #[doc(alias = "g_drive_can_start")]
+    fn can_start(&self) -> bool;
+
+    #[doc(alias = "g_drive_can_start_degraded")]
+    fn can_start_degraded(&self) -> bool;
+
+    #[doc(alias = "g_drive_can_stop")]
+    fn can_stop(&self) -> bool;
+
+    #[doc(alias = "g_drive_eject_with_operation")]
+    fn eject_with_operation<P: FnOnce(Result<(), glib::Error>) + 'static>(
+        &self,
+        flags: MountUnmountFlags,
+        mount_operation: Option<&impl IsA<MountOperation>>,
+        cancellable: Option<&impl IsA<Cancellable>>,
+        callback: P,
+    );
+
+    fn eject_with_operation_future(
+        &self,
+        flags: MountUnmountFlags,
+        mount_operation: Option<&(impl IsA<MountOperation> + Clone + 'static)>,
+    ) -> Pin<Box_<dyn std::future::Future<Output = Result<(), glib::Error>> + 'static>>;
+
+    #[doc(alias = "g_drive_enumerate_identifiers")]
+    fn enumerate_identifiers(&self) -> Vec<glib::GString>;
+
+    #[doc(alias = "g_drive_get_icon")]
+    #[doc(alias = "get_icon")]
+    fn icon(&self) -> Icon;
+
+    #[doc(alias = "g_drive_get_identifier")]
+    #[doc(alias = "get_identifier")]
+    fn identifier(&self, kind: &str) -> Option<glib::GString>;
+
+    #[doc(alias = "g_drive_get_name")]
+    #[doc(alias = "get_name")]
+    fn name(&self) -> glib::GString;
+
+    #[doc(alias = "g_drive_get_sort_key")]
+    #[doc(alias = "get_sort_key")]
+    fn sort_key(&self) -> Option<glib::GString>;
+
+    #[doc(alias = "g_drive_get_start_stop_type")]
+    #[doc(alias = "get_start_stop_type")]
+    fn start_stop_type(&self) -> DriveStartStopType;
+
+    #[doc(alias = "g_drive_get_symbolic_icon")]
+    #[doc(alias = "get_symbolic_icon")]
+    fn symbolic_icon(&self) -> Icon;
+
+    #[doc(alias = "g_drive_get_volumes")]
+    #[doc(alias = "get_volumes")]
+    fn volumes(&self) -> Vec<Volume>;
+
+    #[doc(alias = "g_drive_has_media")]
+    fn has_media(&self) -> bool;
+
+    #[doc(alias = "g_drive_has_volumes")]
+    fn has_volumes(&self) -> bool;
+
+    #[doc(alias = "g_drive_is_media_check_automatic")]
+    fn is_media_check_automatic(&self) -> bool;
+
+    #[doc(alias = "g_drive_is_media_removable")]
+    fn is_media_removable(&self) -> bool;
+
+    #[cfg(any(feature = "v2_50", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v2_50")))]
+    #[doc(alias = "g_drive_is_removable")]
+    fn is_removable(&self) -> bool;
+
+    #[doc(alias = "g_drive_poll_for_media")]
+    fn poll_for_media<P: FnOnce(Result<(), glib::Error>) + 'static>(
+        &self,
+        cancellable: Option<&impl IsA<Cancellable>>,
+        callback: P,
+    );
+
+    fn poll_for_media_future(
+        &self,
+    ) -> Pin<Box_<dyn std::future::Future<Output = Result<(), glib::Error>> + 'static>>;
+
+    #[doc(alias = "g_drive_start")]
+    fn start<P: FnOnce(Result<(), glib::Error>) + 'static>(
+        &self,
+        flags: DriveStartFlags,
+        mount_operation: Option<&impl IsA<MountOperation>>,
+        cancellable: Option<&impl IsA<Cancellable>>,
+        callback: P,
+    );
+
+    fn start_future(
+        &self,
+        flags: DriveStartFlags,
+        mount_operation: Option<&(impl IsA<MountOperation> + Clone + 'static)>,
+    ) -> Pin<Box_<dyn std::future::Future<Output = Result<(), glib::Error>> + 'static>>;
+
+    #[doc(alias = "g_drive_stop")]
+    fn stop<P: FnOnce(Result<(), glib::Error>) + 'static>(
+        &self,
+        flags: MountUnmountFlags,
+        mount_operation: Option<&impl IsA<MountOperation>>,
+        cancellable: Option<&impl IsA<Cancellable>>,
+        callback: P,
+    );
+
+    fn stop_future(
+        &self,
+        flags: MountUnmountFlags,
+        mount_operation: Option<&(impl IsA<MountOperation> + Clone + 'static)>,
+    ) -> Pin<Box_<dyn std::future::Future<Output = Result<(), glib::Error>> + 'static>>;
+
+    #[doc(alias = "changed")]
+    fn connect_changed<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "disconnected")]
+    fn connect_disconnected<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "eject-button")]
+    fn connect_eject_button<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "stop-button")]
+    fn connect_stop_button<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
 }
 
-pub trait DriveExt: IsA<Drive> + sealed::Sealed + 'static {
-    #[doc(alias = "g_drive_can_eject")]
+impl<O: IsA<Drive>> DriveExt for O {
     fn can_eject(&self) -> bool {
         unsafe { from_glib(ffi::g_drive_can_eject(self.as_ref().to_glib_none().0)) }
     }
 
-    #[doc(alias = "g_drive_can_poll_for_media")]
     fn can_poll_for_media(&self) -> bool {
         unsafe {
             from_glib(ffi::g_drive_can_poll_for_media(
@@ -46,12 +180,10 @@ pub trait DriveExt: IsA<Drive> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_drive_can_start")]
     fn can_start(&self) -> bool {
         unsafe { from_glib(ffi::g_drive_can_start(self.as_ref().to_glib_none().0)) }
     }
 
-    #[doc(alias = "g_drive_can_start_degraded")]
     fn can_start_degraded(&self) -> bool {
         unsafe {
             from_glib(ffi::g_drive_can_start_degraded(
@@ -60,12 +192,10 @@ pub trait DriveExt: IsA<Drive> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_drive_can_stop")]
     fn can_stop(&self) -> bool {
         unsafe { from_glib(ffi::g_drive_can_stop(self.as_ref().to_glib_none().0)) }
     }
 
-    #[doc(alias = "g_drive_eject_with_operation")]
     fn eject_with_operation<P: FnOnce(Result<(), glib::Error>) + 'static>(
         &self,
         flags: MountUnmountFlags,
@@ -139,7 +269,6 @@ pub trait DriveExt: IsA<Drive> + sealed::Sealed + 'static {
         ))
     }
 
-    #[doc(alias = "g_drive_enumerate_identifiers")]
     fn enumerate_identifiers(&self) -> Vec<glib::GString> {
         unsafe {
             FromGlibPtrContainer::from_glib_full(ffi::g_drive_enumerate_identifiers(
@@ -148,14 +277,10 @@ pub trait DriveExt: IsA<Drive> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_drive_get_icon")]
-    #[doc(alias = "get_icon")]
     fn icon(&self) -> Icon {
         unsafe { from_glib_full(ffi::g_drive_get_icon(self.as_ref().to_glib_none().0)) }
     }
 
-    #[doc(alias = "g_drive_get_identifier")]
-    #[doc(alias = "get_identifier")]
     fn identifier(&self, kind: &str) -> Option<glib::GString> {
         unsafe {
             from_glib_full(ffi::g_drive_get_identifier(
@@ -165,20 +290,14 @@ pub trait DriveExt: IsA<Drive> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_drive_get_name")]
-    #[doc(alias = "get_name")]
     fn name(&self) -> glib::GString {
         unsafe { from_glib_full(ffi::g_drive_get_name(self.as_ref().to_glib_none().0)) }
     }
 
-    #[doc(alias = "g_drive_get_sort_key")]
-    #[doc(alias = "get_sort_key")]
     fn sort_key(&self) -> Option<glib::GString> {
         unsafe { from_glib_none(ffi::g_drive_get_sort_key(self.as_ref().to_glib_none().0)) }
     }
 
-    #[doc(alias = "g_drive_get_start_stop_type")]
-    #[doc(alias = "get_start_stop_type")]
     fn start_stop_type(&self) -> DriveStartStopType {
         unsafe {
             from_glib(ffi::g_drive_get_start_stop_type(
@@ -187,8 +306,6 @@ pub trait DriveExt: IsA<Drive> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_drive_get_symbolic_icon")]
-    #[doc(alias = "get_symbolic_icon")]
     fn symbolic_icon(&self) -> Icon {
         unsafe {
             from_glib_full(ffi::g_drive_get_symbolic_icon(
@@ -197,8 +314,6 @@ pub trait DriveExt: IsA<Drive> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_drive_get_volumes")]
-    #[doc(alias = "get_volumes")]
     fn volumes(&self) -> Vec<Volume> {
         unsafe {
             FromGlibPtrContainer::from_glib_full(ffi::g_drive_get_volumes(
@@ -207,17 +322,14 @@ pub trait DriveExt: IsA<Drive> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_drive_has_media")]
     fn has_media(&self) -> bool {
         unsafe { from_glib(ffi::g_drive_has_media(self.as_ref().to_glib_none().0)) }
     }
 
-    #[doc(alias = "g_drive_has_volumes")]
     fn has_volumes(&self) -> bool {
         unsafe { from_glib(ffi::g_drive_has_volumes(self.as_ref().to_glib_none().0)) }
     }
 
-    #[doc(alias = "g_drive_is_media_check_automatic")]
     fn is_media_check_automatic(&self) -> bool {
         unsafe {
             from_glib(ffi::g_drive_is_media_check_automatic(
@@ -226,7 +338,6 @@ pub trait DriveExt: IsA<Drive> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_drive_is_media_removable")]
     fn is_media_removable(&self) -> bool {
         unsafe {
             from_glib(ffi::g_drive_is_media_removable(
@@ -235,12 +346,12 @@ pub trait DriveExt: IsA<Drive> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_drive_is_removable")]
+    #[cfg(any(feature = "v2_50", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v2_50")))]
     fn is_removable(&self) -> bool {
         unsafe { from_glib(ffi::g_drive_is_removable(self.as_ref().to_glib_none().0)) }
     }
 
-    #[doc(alias = "g_drive_poll_for_media")]
     fn poll_for_media<P: FnOnce(Result<(), glib::Error>) + 'static>(
         &self,
         cancellable: Option<&impl IsA<Cancellable>>,
@@ -301,7 +412,6 @@ pub trait DriveExt: IsA<Drive> + sealed::Sealed + 'static {
         ))
     }
 
-    #[doc(alias = "g_drive_start")]
     fn start<P: FnOnce(Result<(), glib::Error>) + 'static>(
         &self,
         flags: DriveStartFlags,
@@ -372,7 +482,6 @@ pub trait DriveExt: IsA<Drive> + sealed::Sealed + 'static {
         ))
     }
 
-    #[doc(alias = "g_drive_stop")]
     fn stop<P: FnOnce(Result<(), glib::Error>) + 'static>(
         &self,
         flags: MountUnmountFlags,
@@ -443,7 +552,6 @@ pub trait DriveExt: IsA<Drive> + sealed::Sealed + 'static {
         ))
     }
 
-    #[doc(alias = "changed")]
     fn connect_changed<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn changed_trampoline<P: IsA<Drive>, F: Fn(&P) + 'static>(
             this: *mut ffi::GDrive,
@@ -465,7 +573,6 @@ pub trait DriveExt: IsA<Drive> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "disconnected")]
     fn connect_disconnected<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn disconnected_trampoline<P: IsA<Drive>, F: Fn(&P) + 'static>(
             this: *mut ffi::GDrive,
@@ -487,7 +594,6 @@ pub trait DriveExt: IsA<Drive> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "eject-button")]
     fn connect_eject_button<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn eject_button_trampoline<P: IsA<Drive>, F: Fn(&P) + 'static>(
             this: *mut ffi::GDrive,
@@ -509,7 +615,6 @@ pub trait DriveExt: IsA<Drive> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "stop-button")]
     fn connect_stop_button<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn stop_button_trampoline<P: IsA<Drive>, F: Fn(&P) + 'static>(
             this: *mut ffi::GDrive,
@@ -531,8 +636,6 @@ pub trait DriveExt: IsA<Drive> + sealed::Sealed + 'static {
         }
     }
 }
-
-impl<O: IsA<Drive>> DriveExt for O {}
 
 impl fmt::Display for Drive {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {

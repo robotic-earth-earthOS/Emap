@@ -2,16 +2,26 @@
 // from gir-files (https://github.com/gtk-rs/gir-files)
 // DO NOT EDIT
 
-use crate::{
-    AsyncResult, BufferedInputStream, Cancellable, DataStreamByteOrder, DataStreamNewlineType,
-    FilterInputStream, InputStream, Seekable,
-};
-use glib::{
-    prelude::*,
-    signal::{connect_raw, SignalHandlerId},
-    translate::*,
-};
-use std::{boxed::Box as Box_, fmt, mem, mem::transmute, ptr};
+use crate::AsyncResult;
+use crate::BufferedInputStream;
+use crate::Cancellable;
+use crate::DataStreamByteOrder;
+use crate::DataStreamNewlineType;
+use crate::FilterInputStream;
+use crate::InputStream;
+use crate::Seekable;
+use glib::object::Cast;
+use glib::object::IsA;
+use glib::signal::connect_raw;
+use glib::signal::SignalHandlerId;
+use glib::translate::*;
+use glib::StaticType;
+use glib::ToValue;
+use std::boxed::Box as Box_;
+use std::fmt;
+use std::mem;
+use std::mem::transmute;
+use std::ptr;
 
 glib::wrapper! {
     #[doc(alias = "GDataInputStream")]
@@ -39,82 +49,132 @@ impl DataInputStream {
     ///
     /// This method returns an instance of [`DataInputStreamBuilder`](crate::builders::DataInputStreamBuilder) which can be used to create [`DataInputStream`] objects.
     pub fn builder() -> DataInputStreamBuilder {
-        DataInputStreamBuilder::new()
+        DataInputStreamBuilder::default()
     }
 }
 
 impl Default for DataInputStream {
     fn default() -> Self {
-        glib::object::Object::new::<Self>()
+        glib::object::Object::new::<Self>(&[])
+            .expect("Can't construct DataInputStream object with default parameters")
     }
 }
 
+#[derive(Clone, Default)]
 // rustdoc-stripper-ignore-next
 /// A [builder-pattern] type to construct [`DataInputStream`] objects.
 ///
 /// [builder-pattern]: https://doc.rust-lang.org/1.0.0/style/ownership/builders.html
 #[must_use = "The builder must be built to be used"]
 pub struct DataInputStreamBuilder {
-    builder: glib::object::ObjectBuilder<'static, DataInputStream>,
+    byte_order: Option<DataStreamByteOrder>,
+    newline_type: Option<DataStreamNewlineType>,
+    buffer_size: Option<u32>,
+    base_stream: Option<InputStream>,
+    close_base_stream: Option<bool>,
 }
 
 impl DataInputStreamBuilder {
-    fn new() -> Self {
-        Self {
-            builder: glib::object::Object::builder(),
-        }
-    }
-
-    pub fn byte_order(self, byte_order: DataStreamByteOrder) -> Self {
-        Self {
-            builder: self.builder.property("byte-order", byte_order),
-        }
-    }
-
-    pub fn newline_type(self, newline_type: DataStreamNewlineType) -> Self {
-        Self {
-            builder: self.builder.property("newline-type", newline_type),
-        }
-    }
-
-    pub fn buffer_size(self, buffer_size: u32) -> Self {
-        Self {
-            builder: self.builder.property("buffer-size", buffer_size),
-        }
-    }
-
-    pub fn base_stream(self, base_stream: &impl IsA<InputStream>) -> Self {
-        Self {
-            builder: self
-                .builder
-                .property("base-stream", base_stream.clone().upcast()),
-        }
-    }
-
-    pub fn close_base_stream(self, close_base_stream: bool) -> Self {
-        Self {
-            builder: self
-                .builder
-                .property("close-base-stream", close_base_stream),
-        }
+    // rustdoc-stripper-ignore-next
+    /// Create a new [`DataInputStreamBuilder`].
+    pub fn new() -> Self {
+        Self::default()
     }
 
     // rustdoc-stripper-ignore-next
     /// Build the [`DataInputStream`].
     #[must_use = "Building the object from the builder is usually expensive and is not expected to have side effects"]
     pub fn build(self) -> DataInputStream {
-        self.builder.build()
+        let mut properties: Vec<(&str, &dyn ToValue)> = vec![];
+        if let Some(ref byte_order) = self.byte_order {
+            properties.push(("byte-order", byte_order));
+        }
+        if let Some(ref newline_type) = self.newline_type {
+            properties.push(("newline-type", newline_type));
+        }
+        if let Some(ref buffer_size) = self.buffer_size {
+            properties.push(("buffer-size", buffer_size));
+        }
+        if let Some(ref base_stream) = self.base_stream {
+            properties.push(("base-stream", base_stream));
+        }
+        if let Some(ref close_base_stream) = self.close_base_stream {
+            properties.push(("close-base-stream", close_base_stream));
+        }
+        glib::Object::new::<DataInputStream>(&properties)
+            .expect("Failed to create an instance of DataInputStream")
+    }
+
+    pub fn byte_order(mut self, byte_order: DataStreamByteOrder) -> Self {
+        self.byte_order = Some(byte_order);
+        self
+    }
+
+    pub fn newline_type(mut self, newline_type: DataStreamNewlineType) -> Self {
+        self.newline_type = Some(newline_type);
+        self
+    }
+
+    pub fn buffer_size(mut self, buffer_size: u32) -> Self {
+        self.buffer_size = Some(buffer_size);
+        self
+    }
+
+    pub fn base_stream(mut self, base_stream: &impl IsA<InputStream>) -> Self {
+        self.base_stream = Some(base_stream.clone().upcast());
+        self
+    }
+
+    pub fn close_base_stream(mut self, close_base_stream: bool) -> Self {
+        self.close_base_stream = Some(close_base_stream);
+        self
     }
 }
 
-mod sealed {
-    pub trait Sealed {}
-    impl<T: super::IsA<super::DataInputStream>> Sealed for T {}
-}
-
-pub trait DataInputStreamExt: IsA<DataInputStream> + sealed::Sealed + 'static {
+pub trait DataInputStreamExt: 'static {
     #[doc(alias = "g_data_input_stream_get_byte_order")]
     #[doc(alias = "get_byte_order")]
+    fn byte_order(&self) -> DataStreamByteOrder;
+
+    #[doc(alias = "g_data_input_stream_get_newline_type")]
+    #[doc(alias = "get_newline_type")]
+    fn newline_type(&self) -> DataStreamNewlineType;
+
+    #[doc(alias = "g_data_input_stream_read_byte")]
+    fn read_byte(&self, cancellable: Option<&impl IsA<Cancellable>>) -> Result<u8, glib::Error>;
+
+    #[doc(alias = "g_data_input_stream_read_int16")]
+    fn read_int16(&self, cancellable: Option<&impl IsA<Cancellable>>) -> Result<i16, glib::Error>;
+
+    #[doc(alias = "g_data_input_stream_read_int32")]
+    fn read_int32(&self, cancellable: Option<&impl IsA<Cancellable>>) -> Result<i32, glib::Error>;
+
+    #[doc(alias = "g_data_input_stream_read_int64")]
+    fn read_int64(&self, cancellable: Option<&impl IsA<Cancellable>>) -> Result<i64, glib::Error>;
+
+    #[doc(alias = "g_data_input_stream_read_uint16")]
+    fn read_uint16(&self, cancellable: Option<&impl IsA<Cancellable>>) -> Result<u16, glib::Error>;
+
+    #[doc(alias = "g_data_input_stream_read_uint32")]
+    fn read_uint32(&self, cancellable: Option<&impl IsA<Cancellable>>) -> Result<u32, glib::Error>;
+
+    #[doc(alias = "g_data_input_stream_read_uint64")]
+    fn read_uint64(&self, cancellable: Option<&impl IsA<Cancellable>>) -> Result<u64, glib::Error>;
+
+    #[doc(alias = "g_data_input_stream_set_byte_order")]
+    fn set_byte_order(&self, order: DataStreamByteOrder);
+
+    #[doc(alias = "g_data_input_stream_set_newline_type")]
+    fn set_newline_type(&self, type_: DataStreamNewlineType);
+
+    #[doc(alias = "byte-order")]
+    fn connect_byte_order_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "newline-type")]
+    fn connect_newline_type_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+}
+
+impl<O: IsA<DataInputStream>> DataInputStreamExt for O {
     fn byte_order(&self) -> DataStreamByteOrder {
         unsafe {
             from_glib(ffi::g_data_input_stream_get_byte_order(
@@ -123,8 +183,6 @@ pub trait DataInputStreamExt: IsA<DataInputStream> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_data_input_stream_get_newline_type")]
-    #[doc(alias = "get_newline_type")]
     fn newline_type(&self) -> DataStreamNewlineType {
         unsafe {
             from_glib(ffi::g_data_input_stream_get_newline_type(
@@ -133,7 +191,6 @@ pub trait DataInputStreamExt: IsA<DataInputStream> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_data_input_stream_read_byte")]
     fn read_byte(&self, cancellable: Option<&impl IsA<Cancellable>>) -> Result<u8, glib::Error> {
         unsafe {
             let mut error = ptr::null_mut();
@@ -150,7 +207,6 @@ pub trait DataInputStreamExt: IsA<DataInputStream> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_data_input_stream_read_int16")]
     fn read_int16(&self, cancellable: Option<&impl IsA<Cancellable>>) -> Result<i16, glib::Error> {
         unsafe {
             let mut error = ptr::null_mut();
@@ -167,7 +223,6 @@ pub trait DataInputStreamExt: IsA<DataInputStream> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_data_input_stream_read_int32")]
     fn read_int32(&self, cancellable: Option<&impl IsA<Cancellable>>) -> Result<i32, glib::Error> {
         unsafe {
             let mut error = ptr::null_mut();
@@ -184,7 +239,6 @@ pub trait DataInputStreamExt: IsA<DataInputStream> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_data_input_stream_read_int64")]
     fn read_int64(&self, cancellable: Option<&impl IsA<Cancellable>>) -> Result<i64, glib::Error> {
         unsafe {
             let mut error = ptr::null_mut();
@@ -201,7 +255,6 @@ pub trait DataInputStreamExt: IsA<DataInputStream> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_data_input_stream_read_uint16")]
     fn read_uint16(&self, cancellable: Option<&impl IsA<Cancellable>>) -> Result<u16, glib::Error> {
         unsafe {
             let mut error = ptr::null_mut();
@@ -218,7 +271,6 @@ pub trait DataInputStreamExt: IsA<DataInputStream> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_data_input_stream_read_uint32")]
     fn read_uint32(&self, cancellable: Option<&impl IsA<Cancellable>>) -> Result<u32, glib::Error> {
         unsafe {
             let mut error = ptr::null_mut();
@@ -235,7 +287,6 @@ pub trait DataInputStreamExt: IsA<DataInputStream> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_data_input_stream_read_uint64")]
     fn read_uint64(&self, cancellable: Option<&impl IsA<Cancellable>>) -> Result<u64, glib::Error> {
         unsafe {
             let mut error = ptr::null_mut();
@@ -252,7 +303,6 @@ pub trait DataInputStreamExt: IsA<DataInputStream> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_data_input_stream_set_byte_order")]
     fn set_byte_order(&self, order: DataStreamByteOrder) {
         unsafe {
             ffi::g_data_input_stream_set_byte_order(
@@ -262,7 +312,6 @@ pub trait DataInputStreamExt: IsA<DataInputStream> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_data_input_stream_set_newline_type")]
     fn set_newline_type(&self, type_: DataStreamNewlineType) {
         unsafe {
             ffi::g_data_input_stream_set_newline_type(
@@ -272,7 +321,6 @@ pub trait DataInputStreamExt: IsA<DataInputStream> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "byte-order")]
     fn connect_byte_order_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_byte_order_trampoline<
             P: IsA<DataInputStream>,
@@ -298,7 +346,6 @@ pub trait DataInputStreamExt: IsA<DataInputStream> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "newline-type")]
     fn connect_newline_type_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_newline_type_trampoline<
             P: IsA<DataInputStream>,
@@ -324,8 +371,6 @@ pub trait DataInputStreamExt: IsA<DataInputStream> + sealed::Sealed + 'static {
         }
     }
 }
-
-impl<O: IsA<DataInputStream>> DataInputStreamExt for O {}
 
 impl fmt::Display for DataInputStream {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {

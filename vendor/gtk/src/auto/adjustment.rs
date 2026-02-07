@@ -2,12 +2,16 @@
 // from gir-files (https://github.com/gtk-rs/gir-files)
 // DO NOT EDIT
 
-use glib::{
-    prelude::*,
-    signal::{connect_raw, SignalHandlerId},
-    translate::*,
-};
-use std::{boxed::Box as Box_, fmt, mem::transmute};
+use glib::object::Cast;
+use glib::object::IsA;
+use glib::signal::connect_raw;
+use glib::signal::SignalHandlerId;
+use glib::translate::*;
+use glib::StaticType;
+use glib::ToValue;
+use std::boxed::Box as Box_;
+use std::fmt;
+use std::mem::transmute;
 
 glib::wrapper! {
     #[doc(alias = "GtkAdjustment")]
@@ -48,90 +52,190 @@ impl Adjustment {
     ///
     /// This method returns an instance of [`AdjustmentBuilder`](crate::builders::AdjustmentBuilder) which can be used to create [`Adjustment`] objects.
     pub fn builder() -> AdjustmentBuilder {
-        AdjustmentBuilder::new()
+        AdjustmentBuilder::default()
     }
 }
 
 impl Default for Adjustment {
     fn default() -> Self {
-        glib::object::Object::new::<Self>()
+        glib::object::Object::new::<Self>(&[])
+            .expect("Can't construct Adjustment object with default parameters")
     }
 }
 
+#[derive(Clone, Default)]
 // rustdoc-stripper-ignore-next
 /// A [builder-pattern] type to construct [`Adjustment`] objects.
 ///
 /// [builder-pattern]: https://doc.rust-lang.org/1.0.0/style/ownership/builders.html
 #[must_use = "The builder must be built to be used"]
 pub struct AdjustmentBuilder {
-    builder: glib::object::ObjectBuilder<'static, Adjustment>,
+    lower: Option<f64>,
+    page_increment: Option<f64>,
+    page_size: Option<f64>,
+    step_increment: Option<f64>,
+    upper: Option<f64>,
+    value: Option<f64>,
 }
 
 impl AdjustmentBuilder {
-    fn new() -> Self {
-        Self {
-            builder: glib::object::Object::builder(),
-        }
-    }
-
-    pub fn lower(self, lower: f64) -> Self {
-        Self {
-            builder: self.builder.property("lower", lower),
-        }
-    }
-
-    pub fn page_increment(self, page_increment: f64) -> Self {
-        Self {
-            builder: self.builder.property("page-increment", page_increment),
-        }
-    }
-
-    pub fn page_size(self, page_size: f64) -> Self {
-        Self {
-            builder: self.builder.property("page-size", page_size),
-        }
-    }
-
-    pub fn step_increment(self, step_increment: f64) -> Self {
-        Self {
-            builder: self.builder.property("step-increment", step_increment),
-        }
-    }
-
-    pub fn upper(self, upper: f64) -> Self {
-        Self {
-            builder: self.builder.property("upper", upper),
-        }
-    }
-
-    pub fn value(self, value: f64) -> Self {
-        Self {
-            builder: self.builder.property("value", value),
-        }
+    // rustdoc-stripper-ignore-next
+    /// Create a new [`AdjustmentBuilder`].
+    pub fn new() -> Self {
+        Self::default()
     }
 
     // rustdoc-stripper-ignore-next
     /// Build the [`Adjustment`].
     #[must_use = "Building the object from the builder is usually expensive and is not expected to have side effects"]
     pub fn build(self) -> Adjustment {
-        self.builder.build()
+        let mut properties: Vec<(&str, &dyn ToValue)> = vec![];
+        if let Some(ref lower) = self.lower {
+            properties.push(("lower", lower));
+        }
+        if let Some(ref page_increment) = self.page_increment {
+            properties.push(("page-increment", page_increment));
+        }
+        if let Some(ref page_size) = self.page_size {
+            properties.push(("page-size", page_size));
+        }
+        if let Some(ref step_increment) = self.step_increment {
+            properties.push(("step-increment", step_increment));
+        }
+        if let Some(ref upper) = self.upper {
+            properties.push(("upper", upper));
+        }
+        if let Some(ref value) = self.value {
+            properties.push(("value", value));
+        }
+        glib::Object::new::<Adjustment>(&properties)
+            .expect("Failed to create an instance of Adjustment")
+    }
+
+    pub fn lower(mut self, lower: f64) -> Self {
+        self.lower = Some(lower);
+        self
+    }
+
+    pub fn page_increment(mut self, page_increment: f64) -> Self {
+        self.page_increment = Some(page_increment);
+        self
+    }
+
+    pub fn page_size(mut self, page_size: f64) -> Self {
+        self.page_size = Some(page_size);
+        self
+    }
+
+    pub fn step_increment(mut self, step_increment: f64) -> Self {
+        self.step_increment = Some(step_increment);
+        self
+    }
+
+    pub fn upper(mut self, upper: f64) -> Self {
+        self.upper = Some(upper);
+        self
+    }
+
+    pub fn value(mut self, value: f64) -> Self {
+        self.value = Some(value);
+        self
     }
 }
 
-mod sealed {
-    pub trait Sealed {}
-    impl<T: super::IsA<super::Adjustment>> Sealed for T {}
+pub trait AdjustmentExt: 'static {
+    #[doc(alias = "gtk_adjustment_clamp_page")]
+    fn clamp_page(&self, lower: f64, upper: f64);
+
+    #[doc(alias = "gtk_adjustment_configure")]
+    fn configure(
+        &self,
+        value: f64,
+        lower: f64,
+        upper: f64,
+        step_increment: f64,
+        page_increment: f64,
+        page_size: f64,
+    );
+
+    #[doc(alias = "gtk_adjustment_get_lower")]
+    #[doc(alias = "get_lower")]
+    fn lower(&self) -> f64;
+
+    #[doc(alias = "gtk_adjustment_get_minimum_increment")]
+    #[doc(alias = "get_minimum_increment")]
+    fn minimum_increment(&self) -> f64;
+
+    #[doc(alias = "gtk_adjustment_get_page_increment")]
+    #[doc(alias = "get_page_increment")]
+    fn page_increment(&self) -> f64;
+
+    #[doc(alias = "gtk_adjustment_get_page_size")]
+    #[doc(alias = "get_page_size")]
+    fn page_size(&self) -> f64;
+
+    #[doc(alias = "gtk_adjustment_get_step_increment")]
+    #[doc(alias = "get_step_increment")]
+    fn step_increment(&self) -> f64;
+
+    #[doc(alias = "gtk_adjustment_get_upper")]
+    #[doc(alias = "get_upper")]
+    fn upper(&self) -> f64;
+
+    #[doc(alias = "gtk_adjustment_get_value")]
+    #[doc(alias = "get_value")]
+    fn value(&self) -> f64;
+
+    #[doc(alias = "gtk_adjustment_set_lower")]
+    fn set_lower(&self, lower: f64);
+
+    #[doc(alias = "gtk_adjustment_set_page_increment")]
+    fn set_page_increment(&self, page_increment: f64);
+
+    #[doc(alias = "gtk_adjustment_set_page_size")]
+    fn set_page_size(&self, page_size: f64);
+
+    #[doc(alias = "gtk_adjustment_set_step_increment")]
+    fn set_step_increment(&self, step_increment: f64);
+
+    #[doc(alias = "gtk_adjustment_set_upper")]
+    fn set_upper(&self, upper: f64);
+
+    #[doc(alias = "gtk_adjustment_set_value")]
+    fn set_value(&self, value: f64);
+
+    #[doc(alias = "changed")]
+    fn connect_changed<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "value-changed")]
+    fn connect_value_changed<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "lower")]
+    fn connect_lower_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "page-increment")]
+    fn connect_page_increment_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "page-size")]
+    fn connect_page_size_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "step-increment")]
+    fn connect_step_increment_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "upper")]
+    fn connect_upper_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "value")]
+    fn connect_value_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
 }
 
-pub trait AdjustmentExt: IsA<Adjustment> + sealed::Sealed + 'static {
-    #[doc(alias = "gtk_adjustment_clamp_page")]
+impl<O: IsA<Adjustment>> AdjustmentExt for O {
     fn clamp_page(&self, lower: f64, upper: f64) {
         unsafe {
             ffi::gtk_adjustment_clamp_page(self.as_ref().to_glib_none().0, lower, upper);
         }
     }
 
-    #[doc(alias = "gtk_adjustment_configure")]
     fn configure(
         &self,
         value: f64,
@@ -154,91 +258,70 @@ pub trait AdjustmentExt: IsA<Adjustment> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_adjustment_get_lower")]
-    #[doc(alias = "get_lower")]
     fn lower(&self) -> f64 {
         unsafe { ffi::gtk_adjustment_get_lower(self.as_ref().to_glib_none().0) }
     }
 
-    #[doc(alias = "gtk_adjustment_get_minimum_increment")]
-    #[doc(alias = "get_minimum_increment")]
     fn minimum_increment(&self) -> f64 {
         unsafe { ffi::gtk_adjustment_get_minimum_increment(self.as_ref().to_glib_none().0) }
     }
 
-    #[doc(alias = "gtk_adjustment_get_page_increment")]
-    #[doc(alias = "get_page_increment")]
     fn page_increment(&self) -> f64 {
         unsafe { ffi::gtk_adjustment_get_page_increment(self.as_ref().to_glib_none().0) }
     }
 
-    #[doc(alias = "gtk_adjustment_get_page_size")]
-    #[doc(alias = "get_page_size")]
     fn page_size(&self) -> f64 {
         unsafe { ffi::gtk_adjustment_get_page_size(self.as_ref().to_glib_none().0) }
     }
 
-    #[doc(alias = "gtk_adjustment_get_step_increment")]
-    #[doc(alias = "get_step_increment")]
     fn step_increment(&self) -> f64 {
         unsafe { ffi::gtk_adjustment_get_step_increment(self.as_ref().to_glib_none().0) }
     }
 
-    #[doc(alias = "gtk_adjustment_get_upper")]
-    #[doc(alias = "get_upper")]
     fn upper(&self) -> f64 {
         unsafe { ffi::gtk_adjustment_get_upper(self.as_ref().to_glib_none().0) }
     }
 
-    #[doc(alias = "gtk_adjustment_get_value")]
-    #[doc(alias = "get_value")]
     fn value(&self) -> f64 {
         unsafe { ffi::gtk_adjustment_get_value(self.as_ref().to_glib_none().0) }
     }
 
-    #[doc(alias = "gtk_adjustment_set_lower")]
     fn set_lower(&self, lower: f64) {
         unsafe {
             ffi::gtk_adjustment_set_lower(self.as_ref().to_glib_none().0, lower);
         }
     }
 
-    #[doc(alias = "gtk_adjustment_set_page_increment")]
     fn set_page_increment(&self, page_increment: f64) {
         unsafe {
             ffi::gtk_adjustment_set_page_increment(self.as_ref().to_glib_none().0, page_increment);
         }
     }
 
-    #[doc(alias = "gtk_adjustment_set_page_size")]
     fn set_page_size(&self, page_size: f64) {
         unsafe {
             ffi::gtk_adjustment_set_page_size(self.as_ref().to_glib_none().0, page_size);
         }
     }
 
-    #[doc(alias = "gtk_adjustment_set_step_increment")]
     fn set_step_increment(&self, step_increment: f64) {
         unsafe {
             ffi::gtk_adjustment_set_step_increment(self.as_ref().to_glib_none().0, step_increment);
         }
     }
 
-    #[doc(alias = "gtk_adjustment_set_upper")]
     fn set_upper(&self, upper: f64) {
         unsafe {
             ffi::gtk_adjustment_set_upper(self.as_ref().to_glib_none().0, upper);
         }
     }
 
-    #[doc(alias = "gtk_adjustment_set_value")]
     fn set_value(&self, value: f64) {
         unsafe {
             ffi::gtk_adjustment_set_value(self.as_ref().to_glib_none().0, value);
         }
     }
 
-    #[doc(alias = "changed")]
     fn connect_changed<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn changed_trampoline<P: IsA<Adjustment>, F: Fn(&P) + 'static>(
             this: *mut ffi::GtkAdjustment,
@@ -260,7 +343,6 @@ pub trait AdjustmentExt: IsA<Adjustment> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "value-changed")]
     fn connect_value_changed<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn value_changed_trampoline<P: IsA<Adjustment>, F: Fn(&P) + 'static>(
             this: *mut ffi::GtkAdjustment,
@@ -282,7 +364,6 @@ pub trait AdjustmentExt: IsA<Adjustment> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "lower")]
     fn connect_lower_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_lower_trampoline<P: IsA<Adjustment>, F: Fn(&P) + 'static>(
             this: *mut ffi::GtkAdjustment,
@@ -305,7 +386,6 @@ pub trait AdjustmentExt: IsA<Adjustment> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "page-increment")]
     fn connect_page_increment_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_page_increment_trampoline<
             P: IsA<Adjustment>,
@@ -331,7 +411,6 @@ pub trait AdjustmentExt: IsA<Adjustment> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "page-size")]
     fn connect_page_size_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_page_size_trampoline<
             P: IsA<Adjustment>,
@@ -357,7 +436,6 @@ pub trait AdjustmentExt: IsA<Adjustment> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "step-increment")]
     fn connect_step_increment_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_step_increment_trampoline<
             P: IsA<Adjustment>,
@@ -383,7 +461,6 @@ pub trait AdjustmentExt: IsA<Adjustment> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "upper")]
     fn connect_upper_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_upper_trampoline<P: IsA<Adjustment>, F: Fn(&P) + 'static>(
             this: *mut ffi::GtkAdjustment,
@@ -406,7 +483,6 @@ pub trait AdjustmentExt: IsA<Adjustment> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "value")]
     fn connect_value_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_value_trampoline<P: IsA<Adjustment>, F: Fn(&P) + 'static>(
             this: *mut ffi::GtkAdjustment,
@@ -429,8 +505,6 @@ pub trait AdjustmentExt: IsA<Adjustment> + sealed::Sealed + 'static {
         }
     }
 }
-
-impl<O: IsA<Adjustment>> AdjustmentExt for O {}
 
 impl fmt::Display for Adjustment {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {

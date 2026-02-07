@@ -2,13 +2,18 @@
 // from gir-files (https://github.com/gtk-rs/gir-files)
 // DO NOT EDIT
 
-use crate::{EventController, IMContext, Widget};
-use glib::{
-    prelude::*,
-    signal::{connect_raw, SignalHandlerId},
-    translate::*,
-};
-use std::{boxed::Box as Box_, fmt, mem::transmute};
+use crate::EventController;
+use crate::IMContext;
+use crate::Widget;
+use glib::object::Cast;
+use glib::object::IsA;
+use glib::object::ObjectType as ObjectType_;
+use glib::signal::connect_raw;
+use glib::signal::SignalHandlerId;
+use glib::translate::*;
+use std::boxed::Box as Box_;
+use std::fmt;
+use std::mem::transmute;
 
 glib::wrapper! {
     #[doc(alias = "GtkEventControllerKey")]
@@ -133,8 +138,8 @@ impl EventControllerKey {
         }
     }
 
-    #[cfg(feature = "v3_24")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "v3_24")))]
+    #[cfg(any(feature = "v3_24", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_24")))]
     #[doc(alias = "key-pressed")]
     pub fn connect_key_pressed<F: Fn(&Self, u32, u32, gdk::ModifierType) -> bool + 'static>(
         &self,
@@ -165,8 +170,8 @@ impl EventControllerKey {
         }
     }
 
-    #[cfg(feature = "v3_24")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "v3_24")))]
+    #[cfg(any(feature = "v3_24", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_24")))]
     #[doc(alias = "key-released")]
     pub fn connect_key_released<F: Fn(&Self, u32, u32, gdk::ModifierType) + 'static>(
         &self,

@@ -17,65 +17,58 @@ pub use self::main_context::MainContext;
 mod main_loop;
 pub use self::main_loop::MainLoop;
 
-mod markup_parse_context;
-pub use self::markup_parse_context::MarkupParseContext;
-
 mod source;
 pub use self::source::Source;
 
 mod time_zone;
 pub use self::time_zone::TimeZone;
 
-#[cfg(feature = "v2_66")]
-#[cfg_attr(docsrs, doc(cfg(feature = "v2_66")))]
+#[cfg(any(feature = "v2_66", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v2_66")))]
 mod uri;
-#[cfg(feature = "v2_66")]
-#[cfg_attr(docsrs, doc(cfg(feature = "v2_66")))]
+#[cfg(any(feature = "v2_66", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v2_66")))]
 pub use self::uri::Uri;
 
 mod enums;
 pub use self::enums::ChecksumType;
-pub use self::enums::ConvertError;
 pub use self::enums::DateMonth;
 pub use self::enums::DateWeekday;
-pub use self::enums::FileError;
 pub use self::enums::KeyFileError;
+#[cfg(any(feature = "v2_50", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v2_50")))]
 pub use self::enums::LogWriterOutput;
-pub use self::enums::MarkupError;
-pub use self::enums::NormalizeMode;
 pub use self::enums::OptionArg;
 pub use self::enums::SeekType;
 pub use self::enums::TimeType;
-pub use self::enums::UnicodeBreakType;
 pub use self::enums::UnicodeScript;
-pub use self::enums::UnicodeType;
-#[cfg(feature = "v2_66")]
-#[cfg_attr(docsrs, doc(cfg(feature = "v2_66")))]
+#[cfg(any(feature = "v2_66", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v2_66")))]
 pub use self::enums::UriError;
 pub use self::enums::VariantClass;
 
 mod flags;
-#[cfg(feature = "v2_66")]
-#[cfg_attr(docsrs, doc(cfg(feature = "v2_66")))]
+#[cfg(any(feature = "v2_66", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v2_66")))]
 pub use self::flags::FileSetContentsFlags;
 pub(crate) use self::flags::FileTest;
 pub use self::flags::FormatSizeFlags;
 pub use self::flags::IOCondition;
 pub use self::flags::KeyFileFlags;
 pub use self::flags::LogLevelFlags;
-#[cfg(feature = "v2_72")]
-#[cfg_attr(docsrs, doc(cfg(feature = "v2_72")))]
+#[cfg(any(feature = "v2_72", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v2_72")))]
 pub use self::flags::MainContextFlags;
 pub use self::flags::OptionFlags;
 pub use self::flags::SpawnFlags;
-#[cfg(feature = "v2_66")]
-#[cfg_attr(docsrs, doc(cfg(feature = "v2_66")))]
+#[cfg(any(feature = "v2_66", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v2_66")))]
 pub use self::flags::UriFlags;
-#[cfg(feature = "v2_66")]
-#[cfg_attr(docsrs, doc(cfg(feature = "v2_66")))]
+#[cfg(any(feature = "v2_66", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v2_66")))]
 pub use self::flags::UriHideFlags;
-#[cfg(feature = "v2_66")]
-#[cfg_attr(docsrs, doc(cfg(feature = "v2_66")))]
+#[cfg(any(feature = "v2_66", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v2_66")))]
 pub use self::flags::UriParamsFlags;
 
 mod alias;
@@ -116,8 +109,8 @@ pub use self::constants::KEY_FILE_DESKTOP_TYPE_DIRECTORY;
 pub use self::constants::KEY_FILE_DESKTOP_TYPE_LINK;
 pub use self::constants::OPTION_REMAINING;
 pub use self::constants::STR_DELIMITERS;
-#[cfg(feature = "v2_60")]
-#[cfg_attr(docsrs, doc(cfg(feature = "v2_60")))]
+#[cfg(any(feature = "v2_60", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v2_60")))]
 pub use self::constants::TEST_OPTION_ISOLATE_DIRS;
 pub use self::constants::URI_RESERVED_CHARS_GENERIC_DELIMITERS;
 pub use self::constants::URI_RESERVED_CHARS_SUBCOMPONENT_DELIMITERS;

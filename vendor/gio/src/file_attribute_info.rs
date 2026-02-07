@@ -1,8 +1,10 @@
 // Take a look at the license at the top of the repository in the LICENSE file.
 
-use std::{fmt, mem, ptr};
-
 use glib::translate::*;
+
+use std::fmt;
+use std::mem;
+use std::ptr;
 
 glib::wrapper! {
     #[doc(alias = "GFileAttributeInfo")]
@@ -32,7 +34,6 @@ glib::wrapper! {
 }
 
 impl FileAttributeInfo {
-    #[inline]
     pub fn name(&self) -> &str {
         unsafe {
             use std::ffi::CStr;
@@ -43,12 +44,10 @@ impl FileAttributeInfo {
         }
     }
 
-    #[inline]
     pub fn type_(&self) -> crate::FileAttributeType {
         unsafe { from_glib(self.inner.type_) }
     }
 
-    #[inline]
     pub fn flags(&self) -> crate::FileAttributeInfoFlags {
         unsafe { from_glib(self.inner.flags) }
     }

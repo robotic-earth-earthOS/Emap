@@ -1,8 +1,9 @@
 use std::ops;
 
+use crate::document::Document;
 use crate::key::Key;
-use crate::DocumentMut;
-use crate::{value, InlineTable, Item, Table, Value};
+use crate::table::TableKeyValue;
+use crate::{value, InlineTable, InternalString, Item, Table, Value};
 
 // copied from
 // https://github.com/serde-rs/json/blob/master/src/value/index.rs
@@ -38,21 +39,34 @@ impl Index for str {
             Item::Value(ref v) => v
                 .as_inline_table()
                 .and_then(|t| t.items.get(self))
-                .and_then(|value| if !value.is_none() { Some(value) } else { None }),
+                .and_then(|kv| {
+                    if !kv.value.is_none() {
+                        Some(&kv.value)
+                    } else {
+                        None
+                    }
+                }),
             _ => None,
         }
     }
     fn index_mut<'v>(&self, v: &'v mut Item) -> Option<&'v mut Item> {
         if let Item::None = *v {
             let mut t = InlineTable::default();
-            t.items.insert(Key::new(self), Item::None);
+            t.items.insert(
+                InternalString::from(self),
+                TableKeyValue::new(Key::new(self), Item::None),
+            );
             *v = value(Value::InlineTable(t));
         }
         match *v {
             Item::Table(ref mut t) => Some(t.entry(self).or_insert(Item::None)),
-            Item::Value(ref mut v) => v
-                .as_inline_table_mut()
-                .map(|t| t.items.entry(Key::new(self)).or_insert_with(|| Item::None)),
+            Item::Value(ref mut v) => v.as_inline_table_mut().map(|t| {
+                &mut t
+                    .items
+                    .entry(InternalString::from(self))
+                    .or_insert_with(|| TableKeyValue::new(Key::new(self), Item::None))
+                    .value
+            }),
             _ => None,
         }
     }
@@ -67,7 +81,7 @@ impl Index for String {
     }
 }
 
-impl<T: ?Sized> Index for &T
+impl<'a, T: ?Sized> Index for &'a T
 where
     T: Index,
 {
@@ -83,9 +97,9 @@ impl<I> ops::Index<I> for Item
 where
     I: Index,
 {
-    type Output = Self;
+    type Output = Item;
 
-    fn index(&self, index: I) -> &Self {
+    fn index(&self, index: I) -> &Item {
         index.index(self).expect("index not found")
     }
 }
@@ -94,7 +108,7 @@ impl<I> ops::IndexMut<I> for Item
 where
     I: Index,
 {
-    fn index_mut(&mut self, index: I) -> &mut Self {
+    fn index_mut(&mut self, index: I) -> &mut Item {
         index.index_mut(self).expect("index not found")
     }
 }
@@ -127,7 +141,7 @@ impl<'s> ops::IndexMut<&'s str> for InlineTable {
     }
 }
 
-impl<'s> ops::Index<&'s str> for DocumentMut {
+impl<'s> ops::Index<&'s str> for Document {
     type Output = Item;
 
     fn index(&self, key: &'s str) -> &Item {
@@ -135,7 +149,7 @@ impl<'s> ops::Index<&'s str> for DocumentMut {
     }
 }
 
-impl<'s> ops::IndexMut<&'s str> for DocumentMut {
+impl<'s> ops::IndexMut<&'s str> for Document {
     fn index_mut(&mut self, key: &'s str) -> &mut Item {
         self.root.index_mut(key)
     }

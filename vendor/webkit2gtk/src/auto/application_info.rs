@@ -3,6 +3,7 @@
 // DO NOT EDIT
 
 use glib::translate::*;
+use std::mem;
 
 glib::wrapper! {
     #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -32,20 +33,19 @@ impl ApplicationInfo {
   #[doc(alias = "get_version")]
   pub fn version(&self) -> (u64, u64, u64) {
     unsafe {
-      let mut major = std::mem::MaybeUninit::uninit();
-      let mut minor = std::mem::MaybeUninit::uninit();
-      let mut micro = std::mem::MaybeUninit::uninit();
+      let mut major = mem::MaybeUninit::uninit();
+      let mut minor = mem::MaybeUninit::uninit();
+      let mut micro = mem::MaybeUninit::uninit();
       ffi::webkit_application_info_get_version(
         self.to_glib_none().0,
         major.as_mut_ptr(),
         minor.as_mut_ptr(),
         micro.as_mut_ptr(),
       );
-      (
-        major.assume_init(),
-        minor.assume_init(),
-        micro.assume_init(),
-      )
+      let major = major.assume_init();
+      let minor = minor.assume_init();
+      let micro = micro.assume_init();
+      (major, minor, micro)
     }
   }
 
@@ -64,8 +64,8 @@ impl ApplicationInfo {
   }
 }
 
-#[cfg(feature = "v2_18")]
-#[cfg_attr(docsrs, doc(cfg(feature = "v2_18")))]
+#[cfg(any(feature = "v2_18", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v2_18")))]
 impl Default for ApplicationInfo {
   fn default() -> Self {
     Self::new()

@@ -11,9 +11,9 @@
 
 [package]
 edition = "2021"
-rust-version = "1.70"
+rust-version = "1.56"
 name = "glib"
-version = "0.18.5"
+version = "0.15.12"
 authors = ["The gtk-rs Project Developers"]
 exclude = ["gir-files/*"]
 description = "Rust bindings for the GLib library"
@@ -30,33 +30,16 @@ license = "MIT"
 repository = "https://github.com/gtk-rs/gtk-rs-core"
 
 [package.metadata.docs.rs]
-all-features = true
-rustc-args = [
-    "--cfg",
-    "docsrs",
-]
-rustdoc-args = [
-    "--cfg",
-    "docsrs",
-    "--generate-link-to-definition",
-]
+features = ["dox"]
 
 [lib]
 name = "glib"
 
-[[test]]
-name = "subclass_compiletest"
-required-features = ["compiletests"]
-
-[[bench]]
-name = "gstring"
-harness = false
-
 [dependencies.bitflags]
-version = "2.3"
+version = "1.0"
 
 [dependencies.ffi]
-version = "0.18"
+version = "0.15.1"
 package = "glib-sys"
 
 [dependencies.futures-channel]
@@ -73,26 +56,15 @@ version = "0.3"
 version = "0.3"
 default-features = false
 
-[dependencies.futures-util]
-version = "0.3"
-
-[dependencies.gio_ffi]
-version = "0.18"
-optional = true
-package = "gio-sys"
-
 [dependencies.glib-macros]
-version = "0.18"
+version = "0.15.10"
 
 [dependencies.gobject_ffi]
-version = "0.18"
+version = "0.15.1"
 package = "gobject-sys"
 
 [dependencies.libc]
 version = "0.2"
-
-[dependencies.memchr]
-version = "2.5.0"
 
 [dependencies.once_cell]
 version = "1.0"
@@ -104,17 +76,12 @@ package = "log"
 
 [dependencies.smallvec]
 version = "1.0"
-features = [
-    "union",
-    "const_generics",
-    "const_new",
-]
 
 [dependencies.thiserror]
 version = "1"
 
-[dev-dependencies.criterion]
-version = "0.5.1"
+[dev-dependencies.futures-util]
+version = "0.3"
 
 [dev-dependencies.gir-format-check]
 version = "^0.1"
@@ -122,16 +89,30 @@ version = "^0.1"
 [dev-dependencies.tempfile]
 version = "3"
 
-[dev-dependencies.trybuild2]
-version = "1"
-
 [features]
-compiletests = []
-default = ["gio"]
-gio = ["gio_ffi"]
+dox = [
+    "ffi/dox",
+    "gobject_ffi/dox",
+    "log_macros",
+]
 log = ["rs-log"]
 log_macros = ["log"]
+v2_50 = ["ffi/v2_50"]
+v2_52 = [
+    "v2_50",
+    "ffi/v2_52",
+]
+v2_54 = [
+    "v2_52",
+    "ffi/v2_54",
+    "gobject_ffi/v2_54",
+]
+v2_56 = [
+    "v2_54",
+    "ffi/v2_56",
+]
 v2_58 = [
+    "v2_56",
     "ffi/v2_58",
     "gobject_ffi/v2_58",
 ]
@@ -167,19 +148,4 @@ v2_72 = [
     "v2_70",
     "ffi/v2_72",
     "gobject_ffi/v2_72",
-]
-v2_74 = [
-    "v2_72",
-    "ffi/v2_74",
-    "gobject_ffi/v2_74",
-]
-v2_76 = [
-    "v2_74",
-    "ffi/v2_76",
-    "gobject_ffi/v2_76",
-]
-v2_78 = [
-    "v2_76",
-    "ffi/v2_78",
-    "gobject_ffi/v2_78",
 ]

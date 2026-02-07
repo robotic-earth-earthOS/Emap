@@ -2,7 +2,7 @@
 girs_directories = ["../gir-files"]
 library = "Gio"
 version = "2.0"
-min_cfg_version = "2.56"
+min_cfg_version = "2.48"
 target_path = "."
 work_mode = "normal"
 single_version_file = true
@@ -11,8 +11,10 @@ trust_return_value_nullability = true
 
 generate = [
     "Gio.Action",
+    "Gio.ActionMap",
     "Gio.AppInfoCreateFlags",
     "Gio.AppInfoMonitor",
+    "Gio.ApplicationFlags",
     "Gio.AskPasswordFlags",
     "Gio.AsyncResult",
     "Gio.BusNameOwnerFlags",
@@ -28,6 +30,7 @@ generate = [
     "Gio.DBusAuthObserver",
     "Gio.DBusCallFlags",
     "Gio.DBusCapabilityFlags",
+    "Gio.DBusConnectionFlags",
     "Gio.DBusInterfaceGetPropertyFunc",
     "Gio.DBusInterfaceMethodCallFunc",
     "Gio.DBusInterfaceSetPropertyFunc",
@@ -42,8 +45,6 @@ generate = [
     "Gio.DBusMethodInfo",
     "Gio.DBusNodeInfo",
     "Gio.DBusObject",
-    "Gio.DBusObjectManager",
-    "Gio.DBusObjectManagerClientFlags",
     "Gio.DBusPropertyInfo",
     "Gio.DBusSendMessageFlags",
     "Gio.DBusServer",
@@ -74,6 +75,7 @@ generate = [
     "Gio.FileQueryInfoFlags",
     "Gio.FileType",
     "Gio.FilterInputStream",
+    "Gio.IOErrorEnum",
     "Gio.IOStreamSpliceFlags",
     "Gio.LoadableIcon",
     "Gio.MemoryMonitor",
@@ -93,7 +95,6 @@ generate = [
     "Gio.OutputStreamSpliceFlags",
     "Gio.PasswordSave",
     "Gio.Permission",
-    "Gio.PollableReturn",
     "Gio.PropertyAction",
     "Gio.Proxy",
     "Gio.ProxyResolver",
@@ -130,7 +131,9 @@ generate = [
     "Gio.TlsAuthenticationMode",
     "Gio.TlsBackend",
     "Gio.TlsCertificate",
+    "Gio.TlsCertificateFlags",
     "Gio.TlsCertificateRequestFlags",
+    "Gio.TlsChannelBindingType",
     "Gio.TlsClientConnection",
     "Gio.TlsDatabase",
     "Gio.TlsDatabaseLookupFlags",
@@ -152,12 +155,9 @@ ignore = [
 ]
 
 manual = [
-    "Gio.ActionEntry",
     "Gio.FileAttributeInfo",
-    "Gio.InputMessage",
     "Gio.IOExtension",
     "Gio.IOExtensionPoint",
-    "Gio.OutputMessage",
     "Gio.Task",
     "GLib.ByteArray",
     "GLib.Bytes",
@@ -191,9 +191,6 @@ status = "generate"
     [[object.function]]
     pattern = "io_scheduler_.*"
     ignore = true # Deprecated & dangerous
-    [[object.function]]
-    name = "io_error_from_file_error" # manually implemented against IOErrorEnum
-    manual = true
     [[object.function]]
     pattern = "unix_.+"
     cfg_condition = "unix"
@@ -244,17 +241,6 @@ status = "generate"
     ignore = true
 
 [[object]]
-name = "Gio.ActionMap"
-status = "generate"
-manual_traits = ["ActionMapExtManual"]
-    [[object.function]]
-    name = "add_action_entries"
-    manual = true # GActionEntry is manually implemented
-    [[object.function]]
-    name = "remove_action_entries"
-    ignore = true # TODO: Needs manual implementation
-
-[[object]]
 name = "Gio.AppInfo"
 status = "generate"
 manual_traits = ["AppInfoExtManual"]
@@ -297,26 +283,6 @@ generate_builder = true
     name = "run"
     manual = true
     doc_trait_name = "ApplicationExtManual"
-    [[object.function]]
-    name = "hold"
-    # Returns a value that releases on Drop.
-    manual = true
-    doc_trait_name = "ApplicationExtManual"
-    [[object.function]]
-    name = "release"
-    # Implemented via Drop on ApplicationHoldGuard.
-    manual = true
-    doc_trait_name = "ApplicationExtManual"
-    [[object.function]]
-    name = "mark_busy"
-    manual = true
-    # Returns a value that unmarks-busy on Drop.
-    doc_trait_name = "ApplicationExtManual"
-    [[object.function]]
-    name = "unmark_busy"
-    # Implemented via Drop on ApplicationBusyGuard.
-    manual = true
-    doc_trait_name = "ApplicationExtManual"
 
 [[object]]
 name = "Gio.ApplicationCommandLine"
@@ -339,13 +305,6 @@ status = "generate"
         [[object.function.parameter]]
         name = "name"
         string_type = "os_string"
-
-[[object]]
-name = "Gio.ApplicationFlags"
-status = "generate"
-    [[object.member]]
-    name = "default_flags"
-    ignore = true
 
 [[object]]
 name = "Gio.AsyncInitable"
@@ -385,30 +344,14 @@ generate_builder = true
 name = "Gio.Cancellable"
 status = "generate"
 concurrency = "send+sync"
-manual_traits = ["CancellableExtManual"]
-    [[object.function]]
-    name = "connect"
-    # Needs manual bindings for closures
-    ignore = true
-    [[object.function]]
-    name = "disconnect"
-    # Needs manual bindings for CancelledHandlerId
-    ignore = true
     [[object.function]]
     name = "reset"
     #undefined behaviour
     ignore = true
     [[object.function]]
     name = "source_new"
-    # Only for use with other souce implementations
+    # Needs manual bindings for setting callback, etc
     ignore = true
-    [[object.signal]]
-    name = "cancelled"
-    # Racy, use 'connect' and 'disconnect' instead
-    ignore = true
-    [[object.function]]
-    name = "set_error_if_cancelled"
-    manual = true
 
 [[object]]
 name = "Gio.CharsetConverter"
@@ -455,31 +398,6 @@ status = "generate"
     [[object.member]]
     name = "win32_pid"
     version = "2.72"
-
-[[object]]
-name = "Gio.DatagramBased"
-status = "generate"
-manual_traits = ["DatagramBasedExtManual"]
-    [[object.function]]
-    name = "condition_wait"
-    # needs Duration
-    manual = true
-    doc_trait_name = "DatagramBasedExtManual"
-    [[object.function]]
-    name = "create_source"
-    # manual source implementation
-    manual = true
-    doc_trait_name = "DatagramBasedExtManual"
-    [[object.function]]
-    name = "receive_messages"
-    # InputMessage is not a gtype
-    manual = true
-    doc_trait_name = "DatagramBasedExtManual"
-    [[object.function]]
-    name = "send_messages"
-    # OutputMessage is not a gtype
-    manual = true
-    doc_trait_name = "DatagramBasedExtManual"
 
 [[object]]
 name = "Gio.DataInputStream"
@@ -530,6 +448,7 @@ generate_builder = true
     #finish functions not needed
     manual = true
 
+
 [[object]]
 name = "Gio.DataOutputStream"
 status = "generate"
@@ -573,13 +492,6 @@ status = "generate"
     pattern = "signal_.*subscribe"
     #wrapped with newtype manually
     manual = true
-
-[[object]]
-name = "Gio.DBusConnectionFlags"
-status = "generate"
-    [[object.member]]
-    name = "cross_namespace"
-    version = "2.74"
 
 [[object]]
 name = "Gio.DBusInterface"
@@ -670,7 +582,6 @@ manual_traits = ["DebugControllerDBusExtManual"]
 [[object]]
 name = "Gio.DesktopAppInfo"
 status = "generate"
-manual_traits = ["DesktopAppInfoExtManual"]
 cfg_condition = "all(not(windows),not(target_os = \"macos\"))"
     [[object.function]]
     name = "get_boolean"
@@ -757,21 +668,6 @@ manual_traits = ["FileExtManual"]
     # Multiple callbacks
     manual = true
     doc_trait_name = "FileExtManual"
-    # bugged gen https://github.com/gtk-rs/gtk-rs-core/issues/731
-    [[object.function]]
-    name = "make_symbolic_link_async"
-    manual = true
-    doc_trait_name = "FileExtManual"
-    # bugged gen https://github.com/gtk-rs/gtk-rs-core/issues/731
-    [[object.function]]
-    name = "new_tmp_async"
-    manual = true
-    doc_trait_name = "FileExtManual"
-    # bugged gen https://github.com/gtk-rs/gtk-rs-core/issues/731
-    [[object.function]]
-    name = "new_tmp_dir_async"
-    manual = true
-    doc_trait_name = "FileExtManual"
 
 [[object]]
 name = "Gio.FileAttributeInfoList"
@@ -790,15 +686,8 @@ status = "generate"
     ignore = true
 
 [[object]]
-name = "Gio.FileDescriptorBased"
-status = "manual"
-cfg_condition = "unix"
-manual_traits = ["FileDescriptorBasedExtManual"]
-
-[[object]]
 name = "Gio.FileEnumerator"
 status = "generate"
-manual_traits = ["FileEnumeratorExtManual"]
     [[object.function]]
     name = "iterate"
     # better with rust iterators
@@ -819,26 +708,6 @@ status = "generate"
     name = "set_modification_time"
     # use SystemTime
     manual = true
-    [[object.function]]
-    name = "get_attribute_stringv"
-    # use strv
-    manual = true
-    [[object.function]]
-    name = "set_attribute_stringv"
-    # use strv
-    manual = true
-    [[object.function]]
-    name = "get_attribute_file_path"
-    version = "2.78"
-        [object.function.return]
-        nullable = true
-        type = "filename"
-    [[object.function]]
-    name = "set_attribute_file_path"
-    version = "2.78"
-        [[object.function.parameter]]
-        name = "attr_value"
-        string_type = "filename"
 
 [[object]]
 name = "Gio.FilterOutputStream"
@@ -863,7 +732,6 @@ concurrency = "send+sync"
 [[object]]
 name = "Gio.InetAddress"
 status = "generate"
-manual_traits = ["InetAddressExtManual"]
 concurrency = "send+sync"
     [[object.function]]
     name = "new_from_bytes"
@@ -907,13 +775,6 @@ manual_traits = ["InputStreamExtManual"]
     doc_trait_name = "InputStreamExtManual"
 
 [[object]]
-name = "Gio.IOErrorEnum"
-status = "generate"
-    [[object.member]]
-    name = "no_such_device"
-    version = "2.72"
-
-[[object]]
 name = "Gio.IOStream"
 status = "generate"
 manual_traits = ["IOStreamExtManual"]
@@ -947,9 +808,6 @@ name = "Gio.ListStore"
 status = "generate"
 generate_builder = true
     [[object.function]]
-    name = "new"
-    manual = true # Disable the generated constructors so we can use ones with type parameters
-    [[object.function]]
     name = "insert_sorted"
     manual = true
     [[object.function]]
@@ -961,15 +819,7 @@ generate_builder = true
     manual = true
     [[object.function]]
     name = "find_with_equal_func"
-    # calls find_with_equal_func_full
-    manual = true
-    [[object.function]]
-    name = "find_with_equal_func_full"
-    # see above
-    ignore = true
-    [[object.property]]
-    name = "n-items"
-    generate = [] # disable generated getter/notify, use the ones from GListModel iface
+    ignore = true # See https://gitlab.gnome.org/GNOME/glib/-/issues/2447
 
 [[object]]
 name = "Gio.MemoryInputStream"
@@ -1083,11 +933,6 @@ manual_traits = ["OutputStreamExtManual"]
     # special return value
     manual = true
     doc_trait_name = "OutputStreamExtManual"
-    [[object.function]]
-    pattern = "writev.*"
-    # OutputVector
-    manual = true
-    doc_trait_name = "OutputStreamExtManual"
 
 [[object]]
 name = "Gio.PollableInputStream"
@@ -1111,11 +956,6 @@ manual_traits = ["PollableOutputStreamExtManual"]
     [[object.function]]
     name = "create_source"
     # manual source implementation
-    manual = true
-    doc_trait_name = "PollableOutputStreamExtManual"
-    [[object.function]]
-    name = "writev_nonblocking"
-    # OutputVector
     manual = true
     doc_trait_name = "PollableOutputStreamExtManual"
 
@@ -1143,7 +983,6 @@ status = "generate"
 [[object]]
 name = "Gio.Settings"
 status = "generate"
-manual_traits = ["SettingsExtManual"]
     [[object.signal]]
     name = "writable-change-event"
     inhibit = true
@@ -1151,14 +990,6 @@ manual_traits = ["SettingsExtManual"]
     pattern="set_.*"
         [object.function.return]
         bool_return_is_error = "Can't set readonly key"
-    [[object.function]]
-    name = "get_strv"
-    # Use strv
-    manual = true
-    [[object.function]]
-    name = "set_strv"
-    # Use strv
-    manual = true
     [[object.function]]
     name = "bind"
     manual = true
@@ -1211,6 +1042,7 @@ manual_traits = ["SimpleProxyResolverExtManual"]
 [[object]]
 name = "Gio.Socket"
 status = "generate"
+concurrency = "send-unique"
 manual_traits = ["SocketExtManual"]
     [[object.function]]
     name = "new_from_fd"
@@ -1269,22 +1101,6 @@ status = "generate"
         # Glib MR: https://gitlab.gnome.org/GNOME/glib/-/merge_requests/2701
         [object.function.return]
         nullable = true
-
-[[object]]
-name = "Gio.SocketControlMessage"
-status = "generate"
-manual_traits = ["SocketControlMessageExtManual"]
-    [[object.function]]
-    name = "deserialize"
-        # NULL indicates deserialization failure
-        # Glib MR: https://gitlab.gnome.org/GNOME/glib/-/merge_requests/3099
-        [object.function.return]
-        nullable = true
-    [[object.function]]
-    name = "serialize"
-    # writes to a void pointer
-    manual = true
-    doc_trait_name = "SocketControlMessageExtManual"
 
 [[object]]
 name = "Gio.Subprocess"
@@ -1374,30 +1190,12 @@ status = "generate"
     manual = true
 
 [[object]]
-name = "Gio.TlsCertificateFlags"
-status = "generate"
-    [[object.member]]
-    name = "no_flags"
-    ignore = true
-
-[[object]]
-name = "Gio.TlsChannelBindingType"
-status = "generate"
-    [[object.member]]
-    name = "exporter"
-    version = "2.74"
-
-[[object]]
 name = "Gio.TlsConnection"
 status = "generate"
 manual_traits = ["TlsConnectionExtManual"]
     [[object.function]]
     name = "get_channel_binding_data"
     # Gir confuses the mutability of the data
-    manual = true
-    [[object.function]]
-    name = "set_advertised_protocols"
-    # Use strv
     manual = true
 
 [[object]]
@@ -1419,11 +1217,6 @@ status = "generate"
     # missing (element-type guint8) annotation
     name = "set_value"
     ignore = true
-
-[[object]]
-name = "Gio.UnixCredentialsMessage"
-status = "generate"
-cfg_condition = "unix"
 
 [[object]]
 name = "Gio.UnixFDList"
@@ -1460,22 +1253,6 @@ manual_traits = ["UnixFDListExtManual"]
     doc_trait_name = "UnixFDListExtManual"
 
 [[object]]
-name = "Gio.UnixFDMessage"
-status = "generate"
-cfg_condition = "unix"
-manual_traits = ["UnixFDMessageExtManual"]
-    [[object.function]]
-    name = "append_fd"
-    # has to use RawFd
-    manual = true
-    doc_trait_name = "UnixFDMessageExtManual"
-    [[object.function]]
-    name = "steal_fds"
-    # has to use RawFd
-    manual = true
-    doc_trait_name = "UnixFDMessageExtManual"
-
-[[object]]
 name = "Gio.UnixInputStream"
 status = "generate"
 cfg_condition = "unix"
@@ -1495,8 +1272,9 @@ manual_traits = ["UnixInputStreamExtManual"]
 
     [[object.function]]
     name = "get_fd"
-    # conflicts with as FileDescriptorBased::fd
-    ignore = true
+    # has to use RawFd
+    manual = true
+    doc_trait_name = "UnixInputStreamExtManual"
 
     [[object.property]]
     name = "fd"
@@ -1565,8 +1343,9 @@ manual_traits = ["UnixOutputStreamExtManual"]
 
     [[object.function]]
     name = "get_fd"
-    # conflicts with as FileDescriptorBased::fd
-    ignore = true
+    # has to use RawFd
+    manual = true
+    doc_trait_name = "UnixOutputStreamExtManual"
 
     [[object.property]]
     name = "fd"

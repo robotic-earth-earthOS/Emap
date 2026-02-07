@@ -1,22 +1,21 @@
 // Take a look at the license at the top of the repository in the LICENSE file.
 
-#[cfg(unix)]
-use std::os::unix::io::AsRawFd;
-use std::{
-    boxed::Box as Box_,
-    sync::{Arc, Mutex},
-};
-
+use crate::translate::*;
+use crate::GString;
+#[cfg(any(feature = "v2_50", feature = "dox"))]
+use crate::{GStr, LogWriterOutput};
 use once_cell::sync::Lazy;
+use std::boxed::Box as Box_;
+use std::sync::{Arc, Mutex};
 
-use crate::{translate::*, GStr, GString, LogWriterOutput};
+#[cfg(any(all(unix, feature = "v2_50"), feature = "dox"))]
+use std::os::unix::io::AsRawFd;
 
 #[derive(Debug)]
 pub struct LogHandlerId(u32);
 
 #[doc(hidden)]
 impl FromGlib<u32> for LogHandlerId {
-    #[inline]
     unsafe fn from_glib(value: u32) -> Self {
         Self(value)
     }
@@ -26,7 +25,6 @@ impl FromGlib<u32> for LogHandlerId {
 impl IntoGlib for LogHandlerId {
     type GlibType = u32;
 
-    #[inline]
     fn into_glib(self) -> u32 {
         self.0
     }
@@ -52,7 +50,6 @@ pub enum LogLevel {
 impl IntoGlib for LogLevel {
     type GlibType = u32;
 
-    #[inline]
     fn into_glib(self) -> u32 {
         match self {
             Self::Error => ffi::G_LOG_LEVEL_ERROR,
@@ -67,7 +64,6 @@ impl IntoGlib for LogLevel {
 
 #[doc(hidden)]
 impl FromGlib<u32> for LogLevel {
-    #[inline]
     unsafe fn from_glib(value: u32) -> Self {
         if value & ffi::G_LOG_LEVEL_ERROR != 0 {
             Self::Error
@@ -82,7 +78,7 @@ impl FromGlib<u32> for LogLevel {
         } else if value & ffi::G_LOG_LEVEL_DEBUG != 0 {
             Self::Debug
         } else {
-            panic!("Unknown log level: {value}")
+            panic!("Unknown log level: {}", value)
         }
     }
 }
@@ -103,7 +99,6 @@ impl LogLevel {
 
 bitflags::bitflags! {
     #[doc(alias = "GLogLevelFlags")]
-    #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
     pub struct LogLevels: u32 {
         #[doc(alias = "G_LOG_LEVEL_ERROR")]
         const LEVEL_ERROR = ffi::G_LOG_LEVEL_ERROR;
@@ -124,7 +119,6 @@ bitflags::bitflags! {
 impl IntoGlib for LogLevels {
     type GlibType = ffi::GLogLevelFlags;
 
-    #[inline]
     fn into_glib(self) -> ffi::GLogLevelFlags {
         self.bits()
     }
@@ -132,7 +126,6 @@ impl IntoGlib for LogLevels {
 
 #[doc(hidden)]
 impl FromGlib<ffi::GLogLevelFlags> for LogLevels {
-    #[inline]
     unsafe fn from_glib(value: ffi::GLogLevelFlags) -> Self {
         Self::from_bits_truncate(value)
     }
@@ -350,11 +343,15 @@ pub fn log_default_handler(log_domain: Option<&str>, log_level: LogLevel, messag
 /// embedded nul bytes, or arbitrary pointers.
 ///
 /// [gls]: https://docs.gtk.org/glib/func.log_structured.html
+#[cfg(any(feature = "v2_50", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v2_50")))]
 #[repr(transparent)]
 #[derive(Debug)]
 #[doc(alias = "GLogField")]
 pub struct LogField<'a>(ffi::GLogField, std::marker::PhantomData<&'a GStr>);
 
+#[cfg(any(feature = "v2_50", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v2_50")))]
 impl<'a> LogField<'a> {
     // rustdoc-stripper-ignore-next
     /// Creates a field from a borrowed key and value.
@@ -425,15 +422,19 @@ impl<'a> LogField<'a> {
     /// Retrieves the the user data value from a field created with [`Self::new_user_data`].
     /// Returns `None` if the field was created with [`Self::new`].
     pub fn user_data(&self) -> Option<usize> {
-        (self.0.length == 0).then_some(self.0.value as usize)
+        (self.0.length == 0).then(|| self.0.value as usize)
     }
 }
 
+#[cfg(any(feature = "v2_50", feature = "dox"))]
 type WriterCallback = dyn Fn(LogLevel, &[LogField<'_>]) -> LogWriterOutput + Send + Sync + 'static;
 
+#[cfg(any(feature = "v2_50", feature = "dox"))]
 static WRITER_FUNC: once_cell::sync::OnceCell<Box<WriterCallback>> =
     once_cell::sync::OnceCell::new();
 
+#[cfg(any(feature = "v2_50", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v2_50")))]
 #[doc(alias = "g_log_set_writer_func")]
 pub fn log_set_writer_func<
     P: Fn(LogLevel, &[LogField<'_>]) -> LogWriterOutput + Send + Sync + 'static,
@@ -845,6 +846,8 @@ macro_rules! g_printerr {
 /// Example:
 ///
 /// ```no_run
+/// # #[cfg(feature = "v2_50")]
+/// # {
 /// use glib::{GString, LogLevel, log_structured};
 /// use std::ffi::CString;
 ///
@@ -864,60 +867,40 @@ macro_rules! g_printerr {
 ///         "MESSAGE" => "test: {} {}", 1, 2, ;
 ///     }
 /// );
+/// # }
 /// ```
 #[macro_export]
 macro_rules! log_structured {
-    ($log_domain:expr, $log_level:expr, {$($key:expr => $format:expr $(,$arg:expr)* $(,)?);+ $(;)?} $(,)?) => {{
-        let log_domain = <Option<&str> as std::convert::From<_>>::from($log_domain);
-        let log_domain_str = log_domain.unwrap_or_default();
-        let level: $crate::LogLevel = $log_level;
-        let field_count =
-            <[()]>::len(&[$($crate::log_structured_inner!(@clear $key)),+])
-            + log_domain.map(|_| 2usize).unwrap_or(1usize)
-            + 3;
+    ($log_domain:expr, $log_level:expr, {$($key:expr => $format:expr $(,$arg:expr)* $(,)?);+ $(;)?} $(,)?) => {
+        (|| {
+            let log_domain = <Option<&str> as std::convert::From<_>>::from($log_domain);
+            let log_domain_str = log_domain.unwrap_or_default();
+            let level: $crate::LogLevel = $log_level;
+            let field_count =
+                <[()]>::len(&[$($crate::log_structured_inner!(@clear $key)),+])
+                + log_domain.map(|_| 2usize).unwrap_or(1usize);
 
-        let mut line = [0u8; 32]; // 32 decimal digits of line numbers should be enough!
-        let line = {
-            use std::io::Write;
-
-            let mut cursor = std::io::Cursor::new(&mut line[..]);
-            std::write!(&mut cursor, "{}", line!()).unwrap();
-            let pos = cursor.position() as usize;
-            &line[..pos]
-        };
-
-        $crate::log_structured_array(
-            level,
-            &[
-                $crate::LogField::new(
-                    $crate::gstr!("PRIORITY"),
-                    level.priority().as_bytes(),
-                ),
-                $crate::LogField::new(
-                    $crate::gstr!("CODE_FILE"),
-                    file!().as_bytes(),
-                ),
-                $crate::LogField::new(
-                    $crate::gstr!("CODE_LINE"),
-                    line,
-                ),
-                $crate::LogField::new(
-                    $crate::gstr!("CODE_FUNC"),
-                    $crate::function_name!().as_bytes(),
-                ),
-                $(
+            $crate::log_structured_array(
+                level,
+                &[
                     $crate::LogField::new(
-                        $crate::log_structured_inner!(@key $key),
-                        $crate::log_structured_inner!(@value $format $(,$arg)*),
+                        $crate::gstr!("PRIORITY"),
+                        level.priority().as_bytes(),
                     ),
-                )+
-                $crate::LogField::new(
-                    $crate::gstr!("GLIB_DOMAIN"),
-                    log_domain_str.as_bytes(),
-                ),
-            ][0..field_count],
-        )
-    }};
+                    $(
+                        $crate::LogField::new(
+                            $crate::log_structured_inner!(@key $key),
+                            $crate::log_structured_inner!(@value $format $(,$arg)*),
+                        ),
+                    )+
+                    $crate::LogField::new(
+                        $crate::gstr!("GLIB_DOMAIN"),
+                        log_domain_str.as_bytes(),
+                    ),
+                ][0..field_count],
+            )
+        })()
+    };
 }
 
 #[doc(hidden)]
@@ -938,6 +921,8 @@ macro_rules! log_structured_inner {
     };
 }
 
+#[cfg(any(feature = "v2_50", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v2_50")))]
 #[doc(alias = "g_log_structured_array")]
 #[inline]
 pub fn log_structured_array(log_level: LogLevel, fields: &[LogField<'_>]) {
@@ -950,6 +935,8 @@ pub fn log_structured_array(log_level: LogLevel, fields: &[LogField<'_>]) {
     }
 }
 
+#[cfg(any(feature = "v2_50", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v2_50")))]
 #[doc(alias = "g_log_variant")]
 #[inline]
 pub fn log_variant(log_domain: Option<&str>, log_level: LogLevel, fields: &crate::Variant) {
@@ -962,22 +949,24 @@ pub fn log_variant(log_domain: Option<&str>, log_level: LogLevel, fields: &crate
     }
 }
 
-#[cfg(unix)]
-#[cfg_attr(docsrs, doc(cfg(unix)))]
+#[cfg(any(all(unix, feature = "v2_50"), feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(all(unix, feature = "v2_50"))))]
 #[doc(alias = "g_log_writer_supports_color")]
 #[inline]
 pub fn log_writer_supports_color<T: AsRawFd>(output_fd: T) -> bool {
     unsafe { from_glib(ffi::g_log_writer_supports_color(output_fd.as_raw_fd())) }
 }
 
-#[cfg(unix)]
-#[cfg_attr(docsrs, doc(cfg(unix)))]
+#[cfg(any(all(unix, feature = "v2_50"), feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(all(unix, feature = "v2_50"))))]
 #[doc(alias = "g_log_writer_is_journald")]
 #[inline]
 pub fn log_writer_is_journald<T: AsRawFd>(output_fd: T) -> bool {
     unsafe { from_glib(ffi::g_log_writer_is_journald(output_fd.as_raw_fd())) }
 }
 
+#[cfg(any(feature = "v2_50", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v2_50")))]
 #[doc(alias = "g_log_writer_format_fields")]
 #[inline]
 pub fn log_writer_format_fields(
@@ -995,6 +984,8 @@ pub fn log_writer_format_fields(
     }
 }
 
+#[cfg(any(feature = "v2_50", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v2_50")))]
 #[doc(alias = "g_log_writer_journald")]
 #[inline]
 pub fn log_writer_journald(log_level: LogLevel, fields: &[LogField<'_>]) -> LogWriterOutput {
@@ -1008,6 +999,8 @@ pub fn log_writer_journald(log_level: LogLevel, fields: &[LogField<'_>]) -> LogW
     }
 }
 
+#[cfg(any(feature = "v2_50", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v2_50")))]
 #[doc(alias = "g_log_writer_standard_streams")]
 #[inline]
 pub fn log_writer_standard_streams(
@@ -1024,6 +1017,8 @@ pub fn log_writer_standard_streams(
     }
 }
 
+#[cfg(any(feature = "v2_50", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v2_50")))]
 #[doc(alias = "g_log_writer_default")]
 #[inline]
 pub fn log_writer_default(log_level: LogLevel, fields: &[LogField<'_>]) -> LogWriterOutput {
@@ -1047,16 +1042,16 @@ pub fn log_writer_default(log_level: LogLevel, fields: &[LogField<'_>]) -> LogWr
 ///
 /// This function sets global state and is not thread-aware, as such it should be called before any
 /// threads may try to use GLib logging.
-#[cfg(feature = "v2_68")]
-#[cfg_attr(docsrs, doc(cfg(feature = "v2_68")))]
+#[cfg(any(feature = "v2_68", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v2_68")))]
 #[doc(alias = "g_log_writer_default_set_use_stderr")]
 #[inline]
 pub unsafe fn log_writer_default_set_use_stderr(use_stderr: bool) {
     ffi::g_log_writer_default_set_use_stderr(use_stderr.into_glib());
 }
 
-#[cfg(feature = "v2_68")]
-#[cfg_attr(docsrs, doc(cfg(feature = "v2_68")))]
+#[cfg(any(feature = "v2_68", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v2_68")))]
 #[doc(alias = "g_log_writer_default_would_drop")]
 #[inline]
 pub fn log_writer_default_would_drop(log_level: LogLevel, log_domain: Option<&str>) -> bool {

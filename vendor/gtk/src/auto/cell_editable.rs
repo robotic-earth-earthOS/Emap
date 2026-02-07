@@ -2,13 +2,18 @@
 // from gir-files (https://github.com/gtk-rs/gir-files)
 // DO NOT EDIT
 
-use crate::{Buildable, Widget};
-use glib::{
-    prelude::*,
-    signal::{connect_raw, SignalHandlerId},
-    translate::*,
-};
-use std::{boxed::Box as Box_, fmt, mem::transmute};
+use crate::Buildable;
+use crate::Widget;
+use glib::object::Cast;
+use glib::object::IsA;
+use glib::signal::connect_raw;
+use glib::signal::SignalHandlerId;
+use glib::translate::*;
+use glib::StaticType;
+use glib::ToValue;
+use std::boxed::Box as Box_;
+use std::fmt;
+use std::mem::transmute;
 
 glib::wrapper! {
     #[doc(alias = "GtkCellEditable")]
@@ -23,27 +28,45 @@ impl CellEditable {
     pub const NONE: Option<&'static CellEditable> = None;
 }
 
-mod sealed {
-    pub trait Sealed {}
-    impl<T: super::IsA<super::CellEditable>> Sealed for T {}
+pub trait CellEditableExt: 'static {
+    #[doc(alias = "gtk_cell_editable_editing_done")]
+    fn editing_done(&self);
+
+    #[doc(alias = "gtk_cell_editable_remove_widget")]
+    fn remove_widget(&self);
+
+    #[doc(alias = "gtk_cell_editable_start_editing")]
+    fn start_editing(&self, event: Option<&gdk::Event>);
+
+    #[doc(alias = "editing-canceled")]
+    fn is_editing_canceled(&self) -> bool;
+
+    #[doc(alias = "editing-canceled")]
+    fn set_editing_canceled(&self, editing_canceled: bool);
+
+    #[doc(alias = "editing-done")]
+    fn connect_editing_done<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "remove-widget")]
+    fn connect_remove_widget<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "editing-canceled")]
+    fn connect_editing_canceled_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
 }
 
-pub trait CellEditableExt: IsA<CellEditable> + sealed::Sealed + 'static {
-    #[doc(alias = "gtk_cell_editable_editing_done")]
+impl<O: IsA<CellEditable>> CellEditableExt for O {
     fn editing_done(&self) {
         unsafe {
             ffi::gtk_cell_editable_editing_done(self.as_ref().to_glib_none().0);
         }
     }
 
-    #[doc(alias = "gtk_cell_editable_remove_widget")]
     fn remove_widget(&self) {
         unsafe {
             ffi::gtk_cell_editable_remove_widget(self.as_ref().to_glib_none().0);
         }
     }
 
-    #[doc(alias = "gtk_cell_editable_start_editing")]
     fn start_editing(&self, event: Option<&gdk::Event>) {
         unsafe {
             ffi::gtk_cell_editable_start_editing(
@@ -53,17 +76,14 @@ pub trait CellEditableExt: IsA<CellEditable> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "editing-canceled")]
     fn is_editing_canceled(&self) -> bool {
-        ObjectExt::property(self.as_ref(), "editing-canceled")
+        glib::ObjectExt::property(self.as_ref(), "editing-canceled")
     }
 
-    #[doc(alias = "editing-canceled")]
     fn set_editing_canceled(&self, editing_canceled: bool) {
-        ObjectExt::set_property(self.as_ref(), "editing-canceled", editing_canceled)
+        glib::ObjectExt::set_property(self.as_ref(), "editing-canceled", &editing_canceled)
     }
 
-    #[doc(alias = "editing-done")]
     fn connect_editing_done<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn editing_done_trampoline<P: IsA<CellEditable>, F: Fn(&P) + 'static>(
             this: *mut ffi::GtkCellEditable,
@@ -85,7 +105,6 @@ pub trait CellEditableExt: IsA<CellEditable> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "remove-widget")]
     fn connect_remove_widget<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn remove_widget_trampoline<P: IsA<CellEditable>, F: Fn(&P) + 'static>(
             this: *mut ffi::GtkCellEditable,
@@ -107,7 +126,6 @@ pub trait CellEditableExt: IsA<CellEditable> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "editing-canceled")]
     fn connect_editing_canceled_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_editing_canceled_trampoline<
             P: IsA<CellEditable>,
@@ -133,8 +151,6 @@ pub trait CellEditableExt: IsA<CellEditable> + sealed::Sealed + 'static {
         }
     }
 }
-
-impl<O: IsA<CellEditable>> CellEditableExt for O {}
 
 impl fmt::Display for CellEditable {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {

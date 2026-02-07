@@ -6,7 +6,8 @@
 
 use std::iter::{DoubleEndedIterator, ExactSizeIterator, FusedIterator};
 
-use crate::{translate::*, Variant};
+use crate::translate::*;
+use crate::variant::Variant;
 
 // rustdoc-stripper-ignore-next
 /// Iterator over items in a variant.
@@ -45,29 +46,6 @@ impl Iterator for VariantIter {
         let size = self.tail - self.head;
         (size, Some(size))
     }
-
-    fn count(self) -> usize {
-        self.tail - self.head
-    }
-
-    fn nth(&mut self, n: usize) -> Option<Variant> {
-        let (end, overflow) = self.head.overflowing_add(n);
-        if end >= self.tail || overflow {
-            self.head = self.tail;
-            None
-        } else {
-            self.head = end + 1;
-            Some(self.variant.child_value(end))
-        }
-    }
-
-    fn last(self) -> Option<Variant> {
-        if self.head == self.tail {
-            None
-        } else {
-            Some(self.variant.child_value(self.tail - 1))
-        }
-    }
 }
 
 impl DoubleEndedIterator for VariantIter {
@@ -77,17 +55,6 @@ impl DoubleEndedIterator for VariantIter {
         } else {
             self.tail -= 1;
             Some(self.variant.child_value(self.tail))
-        }
-    }
-
-    fn nth_back(&mut self, n: usize) -> Option<Variant> {
-        let (end, overflow) = self.tail.overflowing_sub(n);
-        if end <= self.head || overflow {
-            self.head = self.tail;
-            None
-        } else {
-            self.tail = end - 1;
-            Some(self.variant.child_value(end - 1))
         }
     }
 }
@@ -149,29 +116,6 @@ impl<'a> Iterator for VariantStrIter<'a> {
         let size = self.tail - self.head;
         (size, Some(size))
     }
-
-    fn count(self) -> usize {
-        self.tail - self.head
-    }
-
-    fn nth(&mut self, n: usize) -> Option<&'a str> {
-        let (end, overflow) = self.head.overflowing_add(n);
-        if end >= self.tail || overflow {
-            self.head = self.tail;
-            None
-        } else {
-            self.head = end + 1;
-            Some(self.impl_get(end))
-        }
-    }
-
-    fn last(self) -> Option<&'a str> {
-        if self.head == self.tail {
-            None
-        } else {
-            Some(self.impl_get(self.tail - 1))
-        }
-    }
 }
 
 impl<'a> DoubleEndedIterator for VariantStrIter<'a> {
@@ -183,17 +127,6 @@ impl<'a> DoubleEndedIterator for VariantStrIter<'a> {
             Some(self.impl_get(self.tail))
         }
     }
-
-    fn nth_back(&mut self, n: usize) -> Option<&'a str> {
-        let (end, overflow) = self.tail.overflowing_sub(n);
-        if end <= self.head || overflow {
-            self.head = self.tail;
-            None
-        } else {
-            self.tail = end - 1;
-            Some(self.impl_get(end - 1))
-        }
-    }
 }
 
 impl<'a> ExactSizeIterator for VariantStrIter<'a> {}
@@ -202,12 +135,9 @@ impl<'a> FusedIterator for VariantStrIter<'a> {}
 
 #[cfg(test)]
 mod tests {
+    use crate::prelude::*;
+    use crate::variant::{DictEntry, Variant};
     use std::collections::HashMap;
-
-    use crate::{
-        prelude::*,
-        variant::{DictEntry, Variant},
-    };
 
     #[test]
     fn test_variant_iter_variant() {
@@ -218,7 +148,7 @@ mod tests {
 
     #[test]
     fn test_variant_iter_array() {
-        let v = Variant::array_from_iter::<String>([
+        let v = Variant::array_from_iter::<String, _>([
             "foo".to_string().to_variant(),
             "bar".to_string().to_variant(),
         ]);
@@ -253,119 +183,5 @@ mod tests {
         map.insert("bar", 1);
         let v = map.to_variant();
         assert_eq!(v.iter().count(), 2);
-    }
-
-    #[test]
-    fn test_variant_iter_nth() {
-        let v = Variant::array_from_iter::<String>([
-            "0".to_string().to_variant(),
-            "1".to_string().to_variant(),
-            "2".to_string().to_variant(),
-            "3".to_string().to_variant(),
-            "4".to_string().to_variant(),
-            "5".to_string().to_variant(),
-        ]);
-
-        let mut iter = v.iter();
-
-        assert_eq!(iter.len(), 6);
-        assert_eq!(
-            iter.nth(1).map(|v| v.get::<String>().unwrap()),
-            Some("1".into())
-        );
-        assert_eq!(iter.len(), 4);
-        assert_eq!(
-            iter.next().map(|v| v.get::<String>().unwrap()),
-            Some("2".into())
-        );
-        assert_eq!(
-            iter.nth_back(2).map(|v| v.get::<String>().unwrap()),
-            Some("3".into())
-        );
-        assert_eq!(iter.len(), 0);
-        assert_eq!(iter.next(), None);
-        assert_eq!(iter.next_back(), None);
-    }
-
-    #[test]
-    fn test_variant_iter_count() {
-        let v = Variant::array_from_iter::<String>([
-            "0".to_string().to_variant(),
-            "1".to_string().to_variant(),
-            "2".to_string().to_variant(),
-        ]);
-
-        let iter = v.iter();
-
-        assert_eq!(iter.len(), 3);
-        assert_eq!(iter.count(), 3);
-    }
-
-    #[test]
-    fn test_variant_iter_last() {
-        let v = Variant::array_from_iter::<String>([
-            "0".to_string().to_variant(),
-            "1".to_string().to_variant(),
-            "2".to_string().to_variant(),
-        ]);
-
-        let iter = v.iter();
-
-        assert_eq!(iter.len(), 3);
-        assert_eq!(
-            iter.last().map(|v| v.get::<String>().unwrap()),
-            Some("2".into())
-        );
-    }
-
-    #[test]
-    fn test_variant_str_iter_nth() {
-        let v = Variant::array_from_iter::<String>([
-            "0".to_string().to_variant(),
-            "1".to_string().to_variant(),
-            "2".to_string().to_variant(),
-            "3".to_string().to_variant(),
-            "4".to_string().to_variant(),
-            "5".to_string().to_variant(),
-        ]);
-
-        let mut iter = v.array_iter_str().unwrap();
-
-        assert_eq!(iter.len(), 6);
-        assert_eq!(iter.nth(1), Some("1"));
-        assert_eq!(iter.len(), 4);
-        assert_eq!(iter.next(), Some("2"));
-        assert_eq!(iter.nth_back(2), Some("3"));
-        assert_eq!(iter.len(), 0);
-        assert_eq!(iter.next(), None);
-        assert_eq!(iter.next_back(), None);
-    }
-
-    #[test]
-    fn test_variant_str_iter_count() {
-        let v = Variant::array_from_iter::<String>([
-            "0".to_string().to_variant(),
-            "1".to_string().to_variant(),
-            "2".to_string().to_variant(),
-        ]);
-
-        let iter = v.array_iter_str().unwrap();
-
-        assert_eq!(iter.len(), 3);
-        assert_eq!(iter.count(), 3);
-    }
-
-    #[test]
-    fn test_variant_str_iter_last() {
-        let v = Variant::array_from_iter::<String>([
-            "0".to_string().to_variant(),
-            "1".to_string().to_variant(),
-            "2".to_string().to_variant(),
-        ]);
-
-        let iter = v.array_iter_str().unwrap();
-
-        assert_eq!(iter.len(), 3);
-        assert_eq!(iter.last(), Some("2"));
     }
 }

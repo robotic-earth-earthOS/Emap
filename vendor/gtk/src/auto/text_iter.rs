@@ -2,8 +2,13 @@
 // from gir-files (https://github.com/gtk-rs/gir-files)
 // DO NOT EDIT
 
-use crate::{TextBuffer, TextChildAnchor, TextMark, TextSearchFlags, TextTag};
-use glib::{prelude::*, translate::*};
+use crate::TextBuffer;
+use crate::TextChildAnchor;
+use crate::TextMark;
+use crate::TextSearchFlags;
+use crate::TextTag;
+use glib::object::IsA;
+use glib::translate::*;
 use std::cmp;
 
 glib::wrapper! {
@@ -73,7 +78,8 @@ impl TextIter {
             let ch = std::convert::TryFrom::try_from(ch)
                 .expect("conversion from an invalid Unicode value attempted");
             let callback: *mut P = user_data as *const _ as usize as *mut P;
-            (*callback)(ch).into_glib()
+            let res = (*callback)(ch);
+            res.into_glib()
         }
         let pred = Some(pred_func::<P> as _);
         let super_callback0: &P = &pred_data;
@@ -233,6 +239,17 @@ impl TextIter {
         }
     }
 
+    #[cfg_attr(feature = "v3_20", deprecated = "Since 3.20")]
+    #[doc(alias = "gtk_text_iter_begins_tag")]
+    pub fn begins_tag(&self, tag: Option<&impl IsA<TextTag>>) -> bool {
+        unsafe {
+            from_glib(ffi::gtk_text_iter_begins_tag(
+                self.to_glib_none().0,
+                tag.map(|p| p.as_ref()).to_glib_none().0,
+            ))
+        }
+    }
+
     #[doc(alias = "gtk_text_iter_can_insert")]
     pub fn can_insert(&self, default_editability: bool) -> bool {
         unsafe {
@@ -341,7 +358,8 @@ impl TextIter {
             let ch = std::convert::TryFrom::try_from(ch)
                 .expect("conversion from an invalid Unicode value attempted");
             let callback: *mut P = user_data as *const _ as usize as *mut P;
-            (*callback)(ch).into_glib()
+            let res = (*callback)(ch);
+            res.into_glib()
         }
         let pred = Some(pred_func::<P> as _);
         let super_callback0: &P = &pred_data;
@@ -769,6 +787,8 @@ impl TextIter {
         unsafe { from_glib(ffi::gtk_text_iter_starts_sentence(self.to_glib_none().0)) }
     }
 
+    #[cfg(any(feature = "v3_20", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
     #[doc(alias = "gtk_text_iter_starts_tag")]
     pub fn starts_tag(&self, tag: Option<&impl IsA<TextTag>>) -> bool {
         unsafe {

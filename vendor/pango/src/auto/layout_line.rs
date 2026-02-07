@@ -2,12 +2,13 @@
 // from gir-files (https://github.com/gtk-rs/gir-files)
 // DO NOT EDIT
 
-#[cfg(feature = "v1_50")]
-#[cfg_attr(docsrs, doc(cfg(feature = "v1_50")))]
+#[cfg(any(feature = "v1_50", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v1_50")))]
 use crate::Direction;
 use crate::Rectangle;
 use glib::translate::*;
-use std::{mem, ptr};
+use std::mem;
+use std::ptr;
 
 glib::wrapper! {
     #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -36,20 +37,21 @@ impl LayoutLine {
         }
     }
 
-    #[cfg(feature = "v1_44")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "v1_44")))]
+    #[cfg(any(feature = "v1_44", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v1_44")))]
     #[doc(alias = "pango_layout_line_get_height")]
     #[doc(alias = "get_height")]
     pub fn height(&self) -> i32 {
         unsafe {
             let mut height = mem::MaybeUninit::uninit();
             ffi::pango_layout_line_get_height(self.to_glib_none().0, height.as_mut_ptr());
-            height.assume_init()
+            let height = height.assume_init();
+            height
         }
     }
 
-    #[cfg(feature = "v1_50")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "v1_50")))]
+    #[cfg(any(feature = "v1_50", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v1_50")))]
     #[doc(alias = "pango_layout_line_get_length")]
     #[doc(alias = "get_length")]
     pub fn length(&self) -> i32 {
@@ -71,8 +73,8 @@ impl LayoutLine {
         }
     }
 
-    #[cfg(feature = "v1_50")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "v1_50")))]
+    #[cfg(any(feature = "v1_50", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v1_50")))]
     #[doc(alias = "pango_layout_line_get_resolved_direction")]
     #[doc(alias = "get_resolved_direction")]
     pub fn resolved_direction(&self) -> Direction {
@@ -83,8 +85,8 @@ impl LayoutLine {
         }
     }
 
-    #[cfg(feature = "v1_50")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "v1_50")))]
+    #[cfg(any(feature = "v1_50", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v1_50")))]
     #[doc(alias = "pango_layout_line_get_start_index")]
     #[doc(alias = "get_start_index")]
     pub fn start_index(&self) -> i32 {
@@ -104,7 +106,7 @@ impl LayoutLine {
                 &mut ranges,
                 n_ranges.as_mut_ptr(),
             );
-            FromGlibContainer::from_glib_full_num(ranges, n_ranges.assume_init() as _)
+            FromGlibContainer::from_glib_full_num(ranges, n_ranges.assume_init() as usize)
         }
     }
 
@@ -118,12 +120,13 @@ impl LayoutLine {
                 trailing.into_glib(),
                 x_pos.as_mut_ptr(),
             );
-            x_pos.assume_init()
+            let x_pos = x_pos.assume_init();
+            x_pos
         }
     }
 
-    #[cfg(feature = "v1_50")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "v1_50")))]
+    #[cfg(any(feature = "v1_50", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v1_50")))]
     #[doc(alias = "pango_layout_line_is_paragraph_start")]
     pub fn is_paragraph_start(&self) -> bool {
         unsafe {

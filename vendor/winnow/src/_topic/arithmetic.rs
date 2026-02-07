@@ -1,10 +1,19 @@
 //! # Arithmetic
 //!
-//! This parses arithmetic expressions and directly evaluates them.
-//!
-//! See also [C-style Expressions][crate::_topic::language#c-style-expressions],
-//! for a more complex example.
+//! ## Direct evaluation
 //!
 //! ```rust
 #![doc = include_str!("../../examples/arithmetic/parser.rs")]
+//! ```
+//!
+//! ## Parse to AST
+//!
+//! ```rust
+#![doc = include_str!("../../examples/arithmetic/parser_ast.rs")]
+//! ```
+//!
+//! ## Parse to Tokens then AST
+//!
+//! ```rust
+#![doc = include_str!("../../examples/arithmetic/parser_lexer.rs")]
 //! ```

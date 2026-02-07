@@ -3,6 +3,7 @@
 // DO NOT EDIT
 
 use crate::PermissionRequest;
+use std::fmt;
 
 glib::wrapper! {
     #[doc(alias = "WebKitPointerLockPermissionRequest")]
@@ -15,4 +16,10 @@ glib::wrapper! {
 
 impl PointerLockPermissionRequest {
   pub const NONE: Option<&'static PointerLockPermissionRequest> = None;
+}
+
+impl fmt::Display for PointerLockPermissionRequest {
+  fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    f.write_str("PointerLockPermissionRequest")
+  }
 }

@@ -2,8 +2,11 @@
 // from gir-files (https://github.com/gtk-rs/gir-files)
 // DO NOT EDIT
 
-use crate::{Analysis, Font, Rectangle};
-use glib::{prelude::*, translate::*};
+use crate::Analysis;
+use crate::Font;
+use crate::Rectangle;
+use glib::object::IsA;
+use glib::translate::*;
 use std::mem;
 
 glib::wrapper! {
@@ -60,32 +63,45 @@ impl GlyphString {
         }
     }
 
+    //#[doc(alias = "pango_glyph_string_get_logical_widths")]
+    //#[doc(alias = "get_logical_widths")]
+    //pub fn logical_widths(&mut self, text: &str, embedding_level: i32, logical_widths: &[i32]) {
+    //    unsafe { TODO: call ffi:pango_glyph_string_get_logical_widths() }
+    //}
+
     #[doc(alias = "pango_glyph_string_get_width")]
     #[doc(alias = "get_width")]
-    pub fn width(&self) -> i32 {
-        unsafe { ffi::pango_glyph_string_get_width(mut_override(self.to_glib_none().0)) }
+    pub fn width(&mut self) -> i32 {
+        unsafe { ffi::pango_glyph_string_get_width(self.to_glib_none_mut().0) }
     }
 
     #[doc(alias = "pango_glyph_string_index_to_x")]
-    pub fn index_to_x(&self, text: &str, analysis: &Analysis, index_: i32, trailing: bool) -> i32 {
-        let length = text.len() as _;
+    pub fn index_to_x(
+        &mut self,
+        text: &str,
+        analysis: &mut Analysis,
+        index_: i32,
+        trailing: bool,
+    ) -> i32 {
+        let length = text.len() as i32;
         unsafe {
             let mut x_pos = mem::MaybeUninit::uninit();
             ffi::pango_glyph_string_index_to_x(
-                mut_override(self.to_glib_none().0),
+                self.to_glib_none_mut().0,
                 text.to_glib_none().0,
                 length,
-                mut_override(analysis.to_glib_none().0),
+                analysis.to_glib_none_mut().0,
                 index_,
                 trailing.into_glib(),
                 x_pos.as_mut_ptr(),
             );
-            x_pos.assume_init()
+            let x_pos = x_pos.assume_init();
+            x_pos
         }
     }
 
-    //#[cfg(feature = "v1_50")]
-    //#[cfg_attr(docsrs, doc(cfg(feature = "v1_50")))]
+    //#[cfg(any(feature = "v1_50", feature = "dox"))]
+    //#[cfg_attr(feature = "dox", doc(cfg(feature = "v1_50")))]
     //#[doc(alias = "pango_glyph_string_index_to_x_full")]
     //pub fn index_to_x_full(&mut self, text: &str, analysis: &mut Analysis, attrs: /*Ignored*/Option<&mut LogAttr>, index_: i32, trailing: bool) -> i32 {
     //    unsafe { TODO: call ffi:pango_glyph_string_index_to_x_full() }
@@ -99,21 +115,23 @@ impl GlyphString {
     }
 
     #[doc(alias = "pango_glyph_string_x_to_index")]
-    pub fn x_to_index(&self, text: &str, analysis: &Analysis, x_pos: i32) -> (i32, i32) {
-        let length = text.len() as _;
+    pub fn x_to_index(&mut self, text: &str, analysis: &mut Analysis, x_pos: i32) -> (i32, i32) {
+        let length = text.len() as i32;
         unsafe {
             let mut index_ = mem::MaybeUninit::uninit();
             let mut trailing = mem::MaybeUninit::uninit();
             ffi::pango_glyph_string_x_to_index(
-                mut_override(self.to_glib_none().0),
+                self.to_glib_none_mut().0,
                 text.to_glib_none().0,
                 length,
-                mut_override(analysis.to_glib_none().0),
+                analysis.to_glib_none_mut().0,
                 x_pos,
                 index_.as_mut_ptr(),
                 trailing.as_mut_ptr(),
             );
-            (index_.assume_init(), trailing.assume_init())
+            let index_ = index_.assume_init();
+            let trailing = trailing.assume_init();
+            (index_, trailing)
         }
     }
 }

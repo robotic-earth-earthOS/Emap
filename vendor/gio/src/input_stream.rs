@@ -1,20 +1,96 @@
 // Take a look at the license at the top of the repository in the LICENSE file.
 
-use std::{future::Future, io, mem, pin::Pin, ptr};
-
+use crate::error::to_std_io_result;
+use crate::prelude::*;
+use crate::Cancellable;
+use crate::InputStream;
+use crate::Seekable;
 use futures_core::task::{Context, Poll};
 use futures_io::{AsyncBufRead, AsyncRead};
-use glib::{prelude::*, translate::*, Priority};
+use glib::object::IsA;
+use glib::translate::*;
+use glib::Priority;
+use std::future::Future;
+use std::io;
+use std::mem;
+use std::pin::Pin;
+use std::ptr;
 
-use crate::{error::to_std_io_result, prelude::*, Cancellable, InputStream, Seekable};
+pub trait InputStreamExtManual: Sized {
+    #[doc(alias = "g_input_stream_read")]
+    fn read<B: AsMut<[u8]>, C: IsA<Cancellable>>(
+        &self,
+        buffer: B,
+        cancellable: Option<&C>,
+    ) -> Result<usize, glib::Error>;
 
-mod sealed {
-    pub trait Sealed {}
-    impl<T: super::IsA<super::InputStream>> Sealed for T {}
+    #[doc(alias = "g_input_stream_read_all")]
+    fn read_all<B: AsMut<[u8]>, C: IsA<Cancellable>>(
+        &self,
+        buffer: B,
+        cancellable: Option<&C>,
+    ) -> Result<(usize, Option<glib::Error>), glib::Error>;
+
+    #[doc(alias = "g_input_stream_read_all_async")]
+    fn read_all_async<
+        B: AsMut<[u8]> + Send + 'static,
+        Q: FnOnce(Result<(B, usize, Option<glib::Error>), (B, glib::Error)>) + 'static,
+        C: IsA<Cancellable>,
+    >(
+        &self,
+        buffer: B,
+        io_priority: Priority,
+        cancellable: Option<&C>,
+        callback: Q,
+    );
+
+    #[doc(alias = "g_input_stream_read_async")]
+    fn read_async<
+        B: AsMut<[u8]> + Send + 'static,
+        Q: FnOnce(Result<(B, usize), (B, glib::Error)>) + 'static,
+        C: IsA<Cancellable>,
+    >(
+        &self,
+        buffer: B,
+        io_priority: Priority,
+        cancellable: Option<&C>,
+        callback: Q,
+    );
+
+    fn read_all_future<B: AsMut<[u8]> + Send + 'static>(
+        &self,
+        buffer: B,
+        io_priority: Priority,
+    ) -> Pin<
+        Box<
+            dyn std::future::Future<
+                    Output = Result<(B, usize, Option<glib::Error>), (B, glib::Error)>,
+                > + 'static,
+        >,
+    >;
+
+    fn read_future<B: AsMut<[u8]> + Send + 'static>(
+        &self,
+        buffer: B,
+        io_priority: Priority,
+    ) -> Pin<Box<dyn std::future::Future<Output = Result<(B, usize), (B, glib::Error)>> + 'static>>;
+
+    fn into_read(self) -> InputStreamRead<Self>
+    where
+        Self: IsA<InputStream>,
+    {
+        InputStreamRead(self)
+    }
+
+    fn into_async_buf_read(self, buffer_size: usize) -> InputStreamAsyncBufRead<Self>
+    where
+        Self: IsA<InputStream>,
+    {
+        InputStreamAsyncBufRead::new(self, buffer_size)
+    }
 }
 
-pub trait InputStreamExtManual: sealed::Sealed + IsA<InputStream> + Sized {
-    #[doc(alias = "g_input_stream_read")]
+impl<O: IsA<InputStream>> InputStreamExtManual for O {
     fn read<B: AsMut<[u8]>, C: IsA<Cancellable>>(
         &self,
         mut buffer: B,
@@ -42,7 +118,6 @@ pub trait InputStreamExtManual: sealed::Sealed + IsA<InputStream> + Sized {
         }
     }
 
-    #[doc(alias = "g_input_stream_read_all")]
     fn read_all<B: AsMut<[u8]>, C: IsA<Cancellable>>(
         &self,
         mut buffer: B,
@@ -76,7 +151,6 @@ pub trait InputStreamExtManual: sealed::Sealed + IsA<InputStream> + Sized {
         }
     }
 
-    #[doc(alias = "g_input_stream_read_all_async")]
     fn read_all_async<
         B: AsMut<[u8]> + Send + 'static,
         Q: FnOnce(Result<(B, usize, Option<glib::Error>), (B, glib::Error)>) + 'static,
@@ -155,7 +229,6 @@ pub trait InputStreamExtManual: sealed::Sealed + IsA<InputStream> + Sized {
         }
     }
 
-    #[doc(alias = "g_input_stream_read_async")]
     fn read_async<
         B: AsMut<[u8]> + Send + 'static,
         Q: FnOnce(Result<(B, usize), (B, glib::Error)>) + 'static,
@@ -225,7 +298,7 @@ pub trait InputStreamExtManual: sealed::Sealed + IsA<InputStream> + Sized {
         }
     }
 
-    fn read_all_future<B: AsMut<[u8]> + Send + 'static>(
+    fn read_all_future<'a, B: AsMut<[u8]> + Send + 'static>(
         &self,
         buffer: B,
         io_priority: Priority,
@@ -246,7 +319,7 @@ pub trait InputStreamExtManual: sealed::Sealed + IsA<InputStream> + Sized {
         ))
     }
 
-    fn read_future<B: AsMut<[u8]> + Send + 'static>(
+    fn read_future<'a, B: AsMut<[u8]> + Send + 'static>(
         &self,
         buffer: B,
         io_priority: Priority,
@@ -261,23 +334,7 @@ pub trait InputStreamExtManual: sealed::Sealed + IsA<InputStream> + Sized {
             },
         ))
     }
-
-    fn into_read(self) -> InputStreamRead<Self>
-    where
-        Self: IsA<InputStream>,
-    {
-        InputStreamRead(self)
-    }
-
-    fn into_async_buf_read(self, buffer_size: usize) -> InputStreamAsyncBufRead<Self>
-    where
-        Self: IsA<InputStream>,
-    {
-        InputStreamAsyncBufRead::new(self, buffer_size)
-    }
 }
-
-impl<O: IsA<InputStream>> InputStreamExtManual for O {}
 
 #[derive(Debug)]
 pub struct InputStreamRead<T: IsA<InputStream>>(T);
@@ -450,9 +507,7 @@ impl<T: IsA<InputStream>> InputStreamAsyncBufRead<T> {
                         }
                     }
                     Poll::Ready(Err((_, err))) => {
-                        let kind = err
-                            .kind::<crate::IOErrorEnum>()
-                            .unwrap_or(crate::IOErrorEnum::Failed);
+                        let kind = err.kind::<crate::IOErrorEnum>().unwrap();
                         self.state = State::Failed(kind);
                         Poll::Ready(Err(io::Error::new(io::ErrorKind::from(kind), err)))
                     }
@@ -476,7 +531,10 @@ impl<T: IsA<InputStream>> InputStreamAsyncBufRead<T> {
             {
                 let available = j - i;
                 if amt > available {
-                    panic!("Cannot consume {amt} bytes as only {available} are available",)
+                    panic!(
+                        "Cannot consume {} bytes as only {} are available",
+                        amt, available
+                    )
                 }
                 let remaining = available - amt;
                 if remaining == 0 {
@@ -536,11 +594,11 @@ impl<T: IsA<InputStream>> Unpin for InputStreamAsyncBufRead<T> {}
 
 #[cfg(test)]
 mod tests {
-    use std::io::Read;
-
+    use crate::prelude::*;
+    use crate::test_util::run_async;
+    use crate::MemoryInputStream;
     use glib::Bytes;
-
-    use crate::{prelude::*, test_util::run_async, MemoryInputStream};
+    use std::io::Read;
 
     #[test]
     fn read_all_async() {
@@ -551,7 +609,7 @@ mod tests {
             let buf = vec![0; 10];
             strm.read_all_async(
                 buf,
-                glib::Priority::DEFAULT_IDLE,
+                glib::PRIORITY_DEFAULT_IDLE,
                 crate::Cancellable::NONE,
                 move |ret| {
                     tx.send(ret).unwrap();
@@ -606,7 +664,7 @@ mod tests {
             let buf = vec![0; 10];
             strm.read_async(
                 buf,
-                glib::Priority::DEFAULT_IDLE,
+                glib::PRIORITY_DEFAULT_IDLE,
                 crate::Cancellable::NONE,
                 move |ret| {
                     tx.send(ret).unwrap();
@@ -630,7 +688,7 @@ mod tests {
 
             strm.read_bytes_async(
                 10,
-                glib::Priority::DEFAULT_IDLE,
+                glib::PRIORITY_DEFAULT_IDLE,
                 crate::Cancellable::NONE,
                 move |ret| {
                     tx.send(ret).unwrap();
@@ -651,7 +709,7 @@ mod tests {
 
             strm.skip_async(
                 10,
-                glib::Priority::DEFAULT_IDLE,
+                glib::PRIORITY_DEFAULT_IDLE,
                 crate::Cancellable::NONE,
                 move |ret| {
                     tx.send(ret).unwrap();

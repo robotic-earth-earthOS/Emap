@@ -1,18 +1,16 @@
 // Take a look at the license at the top of the repository in the LICENSE file.
 
+use crate::utils::crate_ident_new;
 use proc_macro2::{Ident, Span, TokenStream};
 use proc_macro_error::abort;
 use quote::{quote, ToTokens, TokenStreamExt};
 use syn::{ext::IdentExt, spanned::Spanned, Token};
-
-use crate::utils::crate_ident_new;
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 enum CaptureKind {
     Watch,
     WeakAllowNone,
     Strong,
-    ToOwned,
 }
 
 struct Capture {
@@ -42,9 +40,6 @@ impl Capture {
             },
             CaptureKind::Strong => quote! {
                 let #alias = #name.clone();
-            },
-            CaptureKind::ToOwned => quote! {
-                let #alias = ::std::borrow::ToOwned::to_owned(&*#name);
             },
         }
     }
@@ -95,10 +90,9 @@ impl syn::parse::Parse for CaptureKind {
             "strong" => CaptureKind::Strong,
             "watch" => CaptureKind::Watch,
             "weak-allow-none" => CaptureKind::WeakAllowNone,
-            "to-owned" => CaptureKind::ToOwned,
             k => abort!(
                 idents,
-                "Unknown keyword `{}`, only `watch`, `weak-allow-none`, `to-owned` and `strong` are allowed",
+                "Unknown keyword `{}`, only `watch`, `weak-allow-none` and `strong` are allowed",
                 k,
             ),
         })
@@ -197,7 +191,7 @@ impl syn::parse::Parse for Closure {
             .inputs
             .iter()
             .enumerate()
-            .map(|(i, _)| Ident::new(&format!("____value{i}"), Span::call_site()))
+            .map(|(i, _)| Ident::new(&format!("____value{}", i), Span::call_site()))
             .collect();
         closure.capture = None;
         Ok(Closure {
@@ -229,7 +223,7 @@ impl ToTokens for Closure {
             .map(|c| c.outer_after_tokens(&crate_ident, &closure_ident));
 
         let arg_values = self.args.iter().enumerate().map(|(index, arg)| {
-            let err_msg = format!("Wrong type for argument {index}: {{:?}}");
+            let err_msg = format!("Wrong type for argument {}: {{:?}}", index);
             quote! {
                 let #arg = ::core::result::Result::unwrap_or_else(
                     #crate_ident::Value::get(&#values_ident[#index]),
@@ -247,17 +241,11 @@ impl ToTokens for Closure {
                 let #closure_ident = {
                     #(#outer_before)*
                     #crate_ident::closure::RustClosure::#constructor(move |#values_ident| {
-                        assert_eq!(
-                            #values_ident.len(),
-                            #args_len,
-                            "Expected {} arguments but got {}",
-                            #args_len,
-                            #values_ident.len(),
-                        );
+                        assert_eq!(#values_ident.len(), #args_len);
                         #(#inner_before)*
                         #(#arg_values)*
-                        #crate_ident::closure::IntoClosureReturnValue::into_closure_return_value(
-                            (#closure)(#(#arg_names),*)
+                        #crate_ident::closure::ToClosureReturnValue::to_closure_return_value(
+                            &(#closure)(#(#arg_names),*)
                         )
                     })
                 };

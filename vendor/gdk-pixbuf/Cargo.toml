@@ -11,9 +11,9 @@
 
 [package]
 edition = "2021"
-rust-version = "1.70"
+rust-version = "1.56"
 name = "gdk-pixbuf"
-version = "0.18.5"
+version = "0.15.11"
 authors = ["The gtk-rs Project Developers"]
 exclude = ["gir-files/*"]
 description = "Rust bindings for the GdkPixbuf library"
@@ -29,41 +29,44 @@ license = "MIT"
 repository = "https://github.com/gtk-rs/gtk-rs-core"
 
 [package.metadata.docs.rs]
-all-features = true
-rustc-args = [
-    "--cfg",
-    "docsrs",
-]
-rustdoc-args = [
-    "--cfg",
-    "docsrs",
-    "--generate-link-to-definition",
-]
+features = ["dox"]
 
 [lib]
 name = "gdk_pixbuf"
 
+[dependencies.bitflags]
+version = "1.3"
+
 [dependencies.ffi]
-version = "0.18"
+version = "0.15.1"
 package = "gdk-pixbuf-sys"
 
 [dependencies.gio]
-version = "0.18"
+version = "0.15.1"
 
 [dependencies.glib]
-version = "0.18"
+version = "0.15.3"
 
 [dependencies.libc]
 version = "0.2"
-
-[dependencies.once_cell]
-version = "1"
 
 [dev-dependencies.gir-format-check]
 version = "^0.1"
 
 [features]
-v2_40 = ["ffi/v2_40"]
+dox = [
+    "glib/dox",
+    "ffi/dox",
+]
+v2_36 = ["ffi/v2_36"]
+v2_36_8 = [
+    "v2_36",
+    "ffi/v2_36_8",
+]
+v2_40 = [
+    "v2_36_8",
+    "ffi/v2_40",
+]
 v2_42 = [
     "v2_40",
     "ffi/v2_42",

@@ -59,7 +59,6 @@ int main() {
     printf("%s;%zu;%zu\n", "GOptionEntry", sizeof(GOptionEntry), alignof(GOptionEntry));
     printf("%s;%zu;%zu\n", "GOptionError", sizeof(GOptionError), alignof(GOptionError));
     printf("%s;%zu;%zu\n", "GOptionFlags", sizeof(GOptionFlags), alignof(GOptionFlags));
-    printf("%s;%zu;%zu\n", "GPathBuf", sizeof(GPathBuf), alignof(GPathBuf));
     printf("%s;%zu;%zu\n", "GPid", sizeof(GPid), alignof(GPid));
     printf("%s;%zu;%zu\n", "GPollFD", sizeof(GPollFD), alignof(GPollFD));
     printf("%s;%zu;%zu\n", "GPrivate", sizeof(GPrivate), alignof(GPrivate));
@@ -87,6 +86,7 @@ int main() {
     printf("%s;%zu;%zu\n", "GTestConfig", sizeof(GTestConfig), alignof(GTestConfig));
     printf("%s;%zu;%zu\n", "GTestFileType", sizeof(GTestFileType), alignof(GTestFileType));
     printf("%s;%zu;%zu\n", "GTestLogBuffer", sizeof(GTestLogBuffer), alignof(GTestLogBuffer));
+    printf("%s;%zu;%zu\n", "GTestLogMsg", sizeof(GTestLogMsg), alignof(GTestLogMsg));
     printf("%s;%zu;%zu\n", "GTestLogType", sizeof(GTestLogType), alignof(GTestLogType));
     printf("%s;%zu;%zu\n", "GTestResult", sizeof(GTestResult), alignof(GTestResult));
     printf("%s;%zu;%zu\n", "GTestSubprocessFlags", sizeof(GTestSubprocessFlags), alignof(GTestSubprocessFlags));

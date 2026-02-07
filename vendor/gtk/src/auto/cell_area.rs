@@ -2,16 +2,28 @@
 // from gir-files (https://github.com/gtk-rs/gir-files)
 // DO NOT EDIT
 
-use crate::{
-    Buildable, CellAreaContext, CellEditable, CellLayout, CellRenderer, CellRendererState,
-    DirectionType, Orientation, SizeRequestMode, TreeIter, TreeModel, TreePath, Widget,
-};
-use glib::{
-    prelude::*,
-    signal::{connect_raw, SignalHandlerId},
-    translate::*,
-};
-use std::{boxed::Box as Box_, fmt, mem, mem::transmute};
+use crate::Buildable;
+use crate::CellAreaContext;
+use crate::CellEditable;
+use crate::CellLayout;
+use crate::CellRenderer;
+use crate::CellRendererState;
+use crate::DirectionType;
+use crate::Orientation;
+use crate::SizeRequestMode;
+use crate::TreeIter;
+use crate::TreeModel;
+use crate::TreePath;
+use crate::Widget;
+use glib::object::Cast;
+use glib::object::IsA;
+use glib::signal::connect_raw;
+use glib::signal::SignalHandlerId;
+use glib::translate::*;
+use std::boxed::Box as Box_;
+use std::fmt;
+use std::mem;
+use std::mem::transmute;
 
 glib::wrapper! {
     #[doc(alias = "GtkCellArea")]
@@ -26,13 +38,294 @@ impl CellArea {
     pub const NONE: Option<&'static CellArea> = None;
 }
 
-mod sealed {
-    pub trait Sealed {}
-    impl<T: super::IsA<super::CellArea>> Sealed for T {}
+pub trait CellAreaExt: 'static {
+    #[doc(alias = "gtk_cell_area_activate")]
+    fn activate(
+        &self,
+        context: &impl IsA<CellAreaContext>,
+        widget: &impl IsA<Widget>,
+        cell_area: &gdk::Rectangle,
+        flags: CellRendererState,
+        edit_only: bool,
+    ) -> bool;
+
+    #[doc(alias = "gtk_cell_area_activate_cell")]
+    fn activate_cell(
+        &self,
+        widget: &impl IsA<Widget>,
+        renderer: &impl IsA<CellRenderer>,
+        event: &gdk::Event,
+        cell_area: &gdk::Rectangle,
+        flags: CellRendererState,
+    ) -> bool;
+
+    #[doc(alias = "gtk_cell_area_add")]
+    fn add(&self, renderer: &impl IsA<CellRenderer>);
+
+    #[doc(alias = "gtk_cell_area_add_focus_sibling")]
+    fn add_focus_sibling(
+        &self,
+        renderer: &impl IsA<CellRenderer>,
+        sibling: &impl IsA<CellRenderer>,
+    );
+
+    //#[doc(alias = "gtk_cell_area_add_with_properties")]
+    //fn add_with_properties(&self, renderer: &impl IsA<CellRenderer>, first_prop_name: &str, : /*Unknown conversion*//*Unimplemented*/Fundamental: VarArgs);
+
+    #[doc(alias = "gtk_cell_area_apply_attributes")]
+    fn apply_attributes(
+        &self,
+        tree_model: &impl IsA<TreeModel>,
+        iter: &TreeIter,
+        is_expander: bool,
+        is_expanded: bool,
+    );
+
+    #[doc(alias = "gtk_cell_area_attribute_connect")]
+    fn attribute_connect(&self, renderer: &impl IsA<CellRenderer>, attribute: &str, column: i32);
+
+    #[doc(alias = "gtk_cell_area_attribute_disconnect")]
+    fn attribute_disconnect(&self, renderer: &impl IsA<CellRenderer>, attribute: &str);
+
+    #[doc(alias = "gtk_cell_area_attribute_get_column")]
+    fn attribute_get_column(&self, renderer: &impl IsA<CellRenderer>, attribute: &str) -> i32;
+
+    //#[doc(alias = "gtk_cell_area_cell_get")]
+    //fn cell_get(&self, renderer: &impl IsA<CellRenderer>, first_prop_name: &str, : /*Unknown conversion*//*Unimplemented*/Fundamental: VarArgs);
+
+    #[doc(alias = "gtk_cell_area_cell_get_property")]
+    fn cell_get_property(
+        &self,
+        renderer: &impl IsA<CellRenderer>,
+        property_name: &str,
+    ) -> glib::Value;
+
+    //#[doc(alias = "gtk_cell_area_cell_get_valist")]
+    //fn cell_get_valist(&self, renderer: &impl IsA<CellRenderer>, first_property_name: &str, var_args: /*Unknown conversion*//*Unimplemented*/Unsupported);
+
+    //#[doc(alias = "gtk_cell_area_cell_set")]
+    //fn cell_set(&self, renderer: &impl IsA<CellRenderer>, first_prop_name: &str, : /*Unknown conversion*//*Unimplemented*/Fundamental: VarArgs);
+
+    #[doc(alias = "gtk_cell_area_cell_set_property")]
+    fn cell_set_property(
+        &self,
+        renderer: &impl IsA<CellRenderer>,
+        property_name: &str,
+        value: &glib::Value,
+    );
+
+    //#[doc(alias = "gtk_cell_area_cell_set_valist")]
+    //fn cell_set_valist(&self, renderer: &impl IsA<CellRenderer>, first_property_name: &str, var_args: /*Unknown conversion*//*Unimplemented*/Unsupported);
+
+    #[doc(alias = "gtk_cell_area_copy_context")]
+    fn copy_context(&self, context: &impl IsA<CellAreaContext>) -> Option<CellAreaContext>;
+
+    #[doc(alias = "gtk_cell_area_create_context")]
+    fn create_context(&self) -> Option<CellAreaContext>;
+
+    #[doc(alias = "gtk_cell_area_event")]
+    fn event(
+        &self,
+        context: &impl IsA<CellAreaContext>,
+        widget: &impl IsA<Widget>,
+        event: &gdk::Event,
+        cell_area: &gdk::Rectangle,
+        flags: CellRendererState,
+    ) -> i32;
+
+    #[doc(alias = "gtk_cell_area_focus")]
+    fn focus(&self, direction: DirectionType) -> bool;
+
+    #[doc(alias = "gtk_cell_area_foreach")]
+    fn foreach<P: FnMut(&CellRenderer) -> bool>(&self, callback: P);
+
+    #[doc(alias = "gtk_cell_area_foreach_alloc")]
+    fn foreach_alloc<P: FnMut(&CellRenderer, &gdk::Rectangle, &gdk::Rectangle) -> bool>(
+        &self,
+        context: &impl IsA<CellAreaContext>,
+        widget: &impl IsA<Widget>,
+        cell_area: &gdk::Rectangle,
+        background_area: &gdk::Rectangle,
+        callback: P,
+    );
+
+    #[doc(alias = "gtk_cell_area_get_cell_allocation")]
+    #[doc(alias = "get_cell_allocation")]
+    fn cell_allocation(
+        &self,
+        context: &impl IsA<CellAreaContext>,
+        widget: &impl IsA<Widget>,
+        renderer: &impl IsA<CellRenderer>,
+        cell_area: &gdk::Rectangle,
+    ) -> gdk::Rectangle;
+
+    #[doc(alias = "gtk_cell_area_get_cell_at_position")]
+    #[doc(alias = "get_cell_at_position")]
+    fn cell_at_position(
+        &self,
+        context: &impl IsA<CellAreaContext>,
+        widget: &impl IsA<Widget>,
+        cell_area: &gdk::Rectangle,
+        x: i32,
+        y: i32,
+    ) -> (CellRenderer, gdk::Rectangle);
+
+    #[doc(alias = "gtk_cell_area_get_current_path_string")]
+    #[doc(alias = "get_current_path_string")]
+    fn current_path_string(&self) -> Option<glib::GString>;
+
+    #[doc(alias = "gtk_cell_area_get_edit_widget")]
+    #[doc(alias = "get_edit_widget")]
+    fn edit_widget(&self) -> Option<CellEditable>;
+
+    #[doc(alias = "gtk_cell_area_get_edited_cell")]
+    #[doc(alias = "get_edited_cell")]
+    fn edited_cell(&self) -> Option<CellRenderer>;
+
+    #[doc(alias = "gtk_cell_area_get_focus_cell")]
+    #[doc(alias = "get_focus_cell")]
+    fn focus_cell(&self) -> Option<CellRenderer>;
+
+    #[doc(alias = "gtk_cell_area_get_focus_from_sibling")]
+    #[doc(alias = "get_focus_from_sibling")]
+    fn focus_from_sibling(&self, renderer: &impl IsA<CellRenderer>) -> Option<CellRenderer>;
+
+    #[doc(alias = "gtk_cell_area_get_focus_siblings")]
+    #[doc(alias = "get_focus_siblings")]
+    fn focus_siblings(&self, renderer: &impl IsA<CellRenderer>) -> Vec<CellRenderer>;
+
+    #[doc(alias = "gtk_cell_area_get_preferred_height")]
+    #[doc(alias = "get_preferred_height")]
+    fn preferred_height(
+        &self,
+        context: &impl IsA<CellAreaContext>,
+        widget: &impl IsA<Widget>,
+    ) -> (i32, i32);
+
+    #[doc(alias = "gtk_cell_area_get_preferred_height_for_width")]
+    #[doc(alias = "get_preferred_height_for_width")]
+    fn preferred_height_for_width(
+        &self,
+        context: &impl IsA<CellAreaContext>,
+        widget: &impl IsA<Widget>,
+        width: i32,
+    ) -> (i32, i32);
+
+    #[doc(alias = "gtk_cell_area_get_preferred_width")]
+    #[doc(alias = "get_preferred_width")]
+    fn preferred_width(
+        &self,
+        context: &impl IsA<CellAreaContext>,
+        widget: &impl IsA<Widget>,
+    ) -> (i32, i32);
+
+    #[doc(alias = "gtk_cell_area_get_preferred_width_for_height")]
+    #[doc(alias = "get_preferred_width_for_height")]
+    fn preferred_width_for_height(
+        &self,
+        context: &impl IsA<CellAreaContext>,
+        widget: &impl IsA<Widget>,
+        height: i32,
+    ) -> (i32, i32);
+
+    #[doc(alias = "gtk_cell_area_get_request_mode")]
+    #[doc(alias = "get_request_mode")]
+    fn request_mode(&self) -> SizeRequestMode;
+
+    #[doc(alias = "gtk_cell_area_has_renderer")]
+    fn has_renderer(&self, renderer: &impl IsA<CellRenderer>) -> bool;
+
+    #[doc(alias = "gtk_cell_area_inner_cell_area")]
+    fn inner_cell_area(
+        &self,
+        widget: &impl IsA<Widget>,
+        cell_area: &gdk::Rectangle,
+    ) -> gdk::Rectangle;
+
+    #[doc(alias = "gtk_cell_area_is_activatable")]
+    fn is_activatable(&self) -> bool;
+
+    #[doc(alias = "gtk_cell_area_is_focus_sibling")]
+    fn is_focus_sibling(
+        &self,
+        renderer: &impl IsA<CellRenderer>,
+        sibling: &impl IsA<CellRenderer>,
+    ) -> bool;
+
+    #[doc(alias = "gtk_cell_area_remove")]
+    fn remove(&self, renderer: &impl IsA<CellRenderer>);
+
+    #[doc(alias = "gtk_cell_area_remove_focus_sibling")]
+    fn remove_focus_sibling(
+        &self,
+        renderer: &impl IsA<CellRenderer>,
+        sibling: &impl IsA<CellRenderer>,
+    );
+
+    #[doc(alias = "gtk_cell_area_render")]
+    fn render(
+        &self,
+        context: &impl IsA<CellAreaContext>,
+        widget: &impl IsA<Widget>,
+        cr: &cairo::Context,
+        background_area: &gdk::Rectangle,
+        cell_area: &gdk::Rectangle,
+        flags: CellRendererState,
+        paint_focus: bool,
+    );
+
+    #[doc(alias = "gtk_cell_area_request_renderer")]
+    fn request_renderer(
+        &self,
+        renderer: &impl IsA<CellRenderer>,
+        orientation: Orientation,
+        widget: &impl IsA<Widget>,
+        for_size: i32,
+    ) -> (i32, i32);
+
+    #[doc(alias = "gtk_cell_area_set_focus_cell")]
+    fn set_focus_cell(&self, renderer: &impl IsA<CellRenderer>);
+
+    #[doc(alias = "gtk_cell_area_stop_editing")]
+    fn stop_editing(&self, canceled: bool);
+
+    #[doc(alias = "add-editable")]
+    fn connect_add_editable<
+        F: Fn(&Self, &CellRenderer, &CellEditable, &gdk::Rectangle, TreePath) + 'static,
+    >(
+        &self,
+        f: F,
+    ) -> SignalHandlerId;
+
+    #[doc(alias = "apply-attributes")]
+    fn connect_apply_attributes<F: Fn(&Self, &TreeModel, &TreeIter, bool, bool) + 'static>(
+        &self,
+        f: F,
+    ) -> SignalHandlerId;
+
+    #[doc(alias = "focus-changed")]
+    fn connect_focus_changed<F: Fn(&Self, &CellRenderer, TreePath) + 'static>(
+        &self,
+        f: F,
+    ) -> SignalHandlerId;
+
+    #[doc(alias = "remove-editable")]
+    fn connect_remove_editable<F: Fn(&Self, &CellRenderer, &CellEditable) + 'static>(
+        &self,
+        f: F,
+    ) -> SignalHandlerId;
+
+    #[doc(alias = "edit-widget")]
+    fn connect_edit_widget_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "edited-cell")]
+    fn connect_edited_cell_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "focus-cell")]
+    fn connect_focus_cell_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
 }
 
-pub trait CellAreaExt: IsA<CellArea> + sealed::Sealed + 'static {
-    #[doc(alias = "gtk_cell_area_activate")]
+impl<O: IsA<CellArea>> CellAreaExt for O {
     fn activate(
         &self,
         context: &impl IsA<CellAreaContext>,
@@ -53,7 +346,6 @@ pub trait CellAreaExt: IsA<CellArea> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_cell_area_activate_cell")]
     fn activate_cell(
         &self,
         widget: &impl IsA<Widget>,
@@ -74,7 +366,6 @@ pub trait CellAreaExt: IsA<CellArea> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_cell_area_add")]
     fn add(&self, renderer: &impl IsA<CellRenderer>) {
         unsafe {
             ffi::gtk_cell_area_add(
@@ -84,7 +375,6 @@ pub trait CellAreaExt: IsA<CellArea> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_cell_area_add_focus_sibling")]
     fn add_focus_sibling(
         &self,
         renderer: &impl IsA<CellRenderer>,
@@ -99,12 +389,10 @@ pub trait CellAreaExt: IsA<CellArea> + sealed::Sealed + 'static {
         }
     }
 
-    //#[doc(alias = "gtk_cell_area_add_with_properties")]
-    //fn add_with_properties(&self, renderer: &impl IsA<CellRenderer>, first_prop_name: &str, : /*Unknown conversion*//*Unimplemented*/Basic: VarArgs) {
+    //fn add_with_properties(&self, renderer: &impl IsA<CellRenderer>, first_prop_name: &str, : /*Unknown conversion*//*Unimplemented*/Fundamental: VarArgs) {
     //    unsafe { TODO: call ffi:gtk_cell_area_add_with_properties() }
     //}
 
-    #[doc(alias = "gtk_cell_area_apply_attributes")]
     fn apply_attributes(
         &self,
         tree_model: &impl IsA<TreeModel>,
@@ -123,7 +411,6 @@ pub trait CellAreaExt: IsA<CellArea> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_cell_area_attribute_connect")]
     fn attribute_connect(&self, renderer: &impl IsA<CellRenderer>, attribute: &str, column: i32) {
         unsafe {
             ffi::gtk_cell_area_attribute_connect(
@@ -135,7 +422,6 @@ pub trait CellAreaExt: IsA<CellArea> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_cell_area_attribute_disconnect")]
     fn attribute_disconnect(&self, renderer: &impl IsA<CellRenderer>, attribute: &str) {
         unsafe {
             ffi::gtk_cell_area_attribute_disconnect(
@@ -146,7 +432,6 @@ pub trait CellAreaExt: IsA<CellArea> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_cell_area_attribute_get_column")]
     fn attribute_get_column(&self, renderer: &impl IsA<CellRenderer>, attribute: &str) -> i32 {
         unsafe {
             ffi::gtk_cell_area_attribute_get_column(
@@ -157,12 +442,10 @@ pub trait CellAreaExt: IsA<CellArea> + sealed::Sealed + 'static {
         }
     }
 
-    //#[doc(alias = "gtk_cell_area_cell_get")]
-    //fn cell_get(&self, renderer: &impl IsA<CellRenderer>, first_prop_name: &str, : /*Unknown conversion*//*Unimplemented*/Basic: VarArgs) {
+    //fn cell_get(&self, renderer: &impl IsA<CellRenderer>, first_prop_name: &str, : /*Unknown conversion*//*Unimplemented*/Fundamental: VarArgs) {
     //    unsafe { TODO: call ffi:gtk_cell_area_cell_get() }
     //}
 
-    #[doc(alias = "gtk_cell_area_cell_get_property")]
     fn cell_get_property(
         &self,
         renderer: &impl IsA<CellRenderer>,
@@ -180,17 +463,14 @@ pub trait CellAreaExt: IsA<CellArea> + sealed::Sealed + 'static {
         }
     }
 
-    //#[doc(alias = "gtk_cell_area_cell_get_valist")]
     //fn cell_get_valist(&self, renderer: &impl IsA<CellRenderer>, first_property_name: &str, var_args: /*Unknown conversion*//*Unimplemented*/Unsupported) {
     //    unsafe { TODO: call ffi:gtk_cell_area_cell_get_valist() }
     //}
 
-    //#[doc(alias = "gtk_cell_area_cell_set")]
-    //fn cell_set(&self, renderer: &impl IsA<CellRenderer>, first_prop_name: &str, : /*Unknown conversion*//*Unimplemented*/Basic: VarArgs) {
+    //fn cell_set(&self, renderer: &impl IsA<CellRenderer>, first_prop_name: &str, : /*Unknown conversion*//*Unimplemented*/Fundamental: VarArgs) {
     //    unsafe { TODO: call ffi:gtk_cell_area_cell_set() }
     //}
 
-    #[doc(alias = "gtk_cell_area_cell_set_property")]
     fn cell_set_property(
         &self,
         renderer: &impl IsA<CellRenderer>,
@@ -207,12 +487,10 @@ pub trait CellAreaExt: IsA<CellArea> + sealed::Sealed + 'static {
         }
     }
 
-    //#[doc(alias = "gtk_cell_area_cell_set_valist")]
     //fn cell_set_valist(&self, renderer: &impl IsA<CellRenderer>, first_property_name: &str, var_args: /*Unknown conversion*//*Unimplemented*/Unsupported) {
     //    unsafe { TODO: call ffi:gtk_cell_area_cell_set_valist() }
     //}
 
-    #[doc(alias = "gtk_cell_area_copy_context")]
     fn copy_context(&self, context: &impl IsA<CellAreaContext>) -> Option<CellAreaContext> {
         unsafe {
             from_glib_full(ffi::gtk_cell_area_copy_context(
@@ -222,7 +500,6 @@ pub trait CellAreaExt: IsA<CellArea> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_cell_area_create_context")]
     fn create_context(&self) -> Option<CellAreaContext> {
         unsafe {
             from_glib_full(ffi::gtk_cell_area_create_context(
@@ -231,7 +508,6 @@ pub trait CellAreaExt: IsA<CellArea> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_cell_area_event")]
     fn event(
         &self,
         context: &impl IsA<CellAreaContext>,
@@ -252,7 +528,6 @@ pub trait CellAreaExt: IsA<CellArea> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_cell_area_focus")]
     fn focus(&self, direction: DirectionType) -> bool {
         unsafe {
             from_glib(ffi::gtk_cell_area_focus(
@@ -262,7 +537,6 @@ pub trait CellAreaExt: IsA<CellArea> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_cell_area_foreach")]
     fn foreach<P: FnMut(&CellRenderer) -> bool>(&self, callback: P) {
         let callback_data: P = callback;
         unsafe extern "C" fn callback_func<P: FnMut(&CellRenderer) -> bool>(
@@ -271,7 +545,8 @@ pub trait CellAreaExt: IsA<CellArea> + sealed::Sealed + 'static {
         ) -> glib::ffi::gboolean {
             let renderer = from_glib_borrow(renderer);
             let callback: *mut P = data as *const _ as usize as *mut P;
-            (*callback)(&renderer).into_glib()
+            let res = (*callback)(&renderer);
+            res.into_glib()
         }
         let callback = Some(callback_func::<P> as _);
         let super_callback0: &P = &callback_data;
@@ -284,7 +559,6 @@ pub trait CellAreaExt: IsA<CellArea> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_cell_area_foreach_alloc")]
     fn foreach_alloc<P: FnMut(&CellRenderer, &gdk::Rectangle, &gdk::Rectangle) -> bool>(
         &self,
         context: &impl IsA<CellAreaContext>,
@@ -306,7 +580,8 @@ pub trait CellAreaExt: IsA<CellArea> + sealed::Sealed + 'static {
             let cell_area = from_glib_borrow(cell_area);
             let cell_background = from_glib_borrow(cell_background);
             let callback: *mut P = data as *const _ as usize as *mut P;
-            (*callback)(&renderer, &cell_area, &cell_background).into_glib()
+            let res = (*callback)(&renderer, &cell_area, &cell_background);
+            res.into_glib()
         }
         let callback = Some(callback_func::<P> as _);
         let super_callback0: &P = &callback_data;
@@ -323,8 +598,6 @@ pub trait CellAreaExt: IsA<CellArea> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_cell_area_get_cell_allocation")]
-    #[doc(alias = "get_cell_allocation")]
     fn cell_allocation(
         &self,
         context: &impl IsA<CellAreaContext>,
@@ -346,8 +619,6 @@ pub trait CellAreaExt: IsA<CellArea> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_cell_area_get_cell_at_position")]
-    #[doc(alias = "get_cell_at_position")]
     fn cell_at_position(
         &self,
         context: &impl IsA<CellAreaContext>,
@@ -371,8 +642,6 @@ pub trait CellAreaExt: IsA<CellArea> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_cell_area_get_current_path_string")]
-    #[doc(alias = "get_current_path_string")]
     fn current_path_string(&self) -> Option<glib::GString> {
         unsafe {
             from_glib_none(ffi::gtk_cell_area_get_current_path_string(
@@ -381,8 +650,6 @@ pub trait CellAreaExt: IsA<CellArea> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_cell_area_get_edit_widget")]
-    #[doc(alias = "get_edit_widget")]
     fn edit_widget(&self) -> Option<CellEditable> {
         unsafe {
             from_glib_none(ffi::gtk_cell_area_get_edit_widget(
@@ -391,8 +658,6 @@ pub trait CellAreaExt: IsA<CellArea> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_cell_area_get_edited_cell")]
-    #[doc(alias = "get_edited_cell")]
     fn edited_cell(&self) -> Option<CellRenderer> {
         unsafe {
             from_glib_none(ffi::gtk_cell_area_get_edited_cell(
@@ -401,8 +666,6 @@ pub trait CellAreaExt: IsA<CellArea> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_cell_area_get_focus_cell")]
-    #[doc(alias = "get_focus_cell")]
     fn focus_cell(&self) -> Option<CellRenderer> {
         unsafe {
             from_glib_none(ffi::gtk_cell_area_get_focus_cell(
@@ -411,8 +674,6 @@ pub trait CellAreaExt: IsA<CellArea> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_cell_area_get_focus_from_sibling")]
-    #[doc(alias = "get_focus_from_sibling")]
     fn focus_from_sibling(&self, renderer: &impl IsA<CellRenderer>) -> Option<CellRenderer> {
         unsafe {
             from_glib_none(ffi::gtk_cell_area_get_focus_from_sibling(
@@ -422,8 +683,6 @@ pub trait CellAreaExt: IsA<CellArea> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_cell_area_get_focus_siblings")]
-    #[doc(alias = "get_focus_siblings")]
     fn focus_siblings(&self, renderer: &impl IsA<CellRenderer>) -> Vec<CellRenderer> {
         unsafe {
             FromGlibPtrContainer::from_glib_none(ffi::gtk_cell_area_get_focus_siblings(
@@ -433,8 +692,6 @@ pub trait CellAreaExt: IsA<CellArea> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_cell_area_get_preferred_height")]
-    #[doc(alias = "get_preferred_height")]
     fn preferred_height(
         &self,
         context: &impl IsA<CellAreaContext>,
@@ -450,12 +707,12 @@ pub trait CellAreaExt: IsA<CellArea> + sealed::Sealed + 'static {
                 minimum_height.as_mut_ptr(),
                 natural_height.as_mut_ptr(),
             );
-            (minimum_height.assume_init(), natural_height.assume_init())
+            let minimum_height = minimum_height.assume_init();
+            let natural_height = natural_height.assume_init();
+            (minimum_height, natural_height)
         }
     }
 
-    #[doc(alias = "gtk_cell_area_get_preferred_height_for_width")]
-    #[doc(alias = "get_preferred_height_for_width")]
     fn preferred_height_for_width(
         &self,
         context: &impl IsA<CellAreaContext>,
@@ -473,12 +730,12 @@ pub trait CellAreaExt: IsA<CellArea> + sealed::Sealed + 'static {
                 minimum_height.as_mut_ptr(),
                 natural_height.as_mut_ptr(),
             );
-            (minimum_height.assume_init(), natural_height.assume_init())
+            let minimum_height = minimum_height.assume_init();
+            let natural_height = natural_height.assume_init();
+            (minimum_height, natural_height)
         }
     }
 
-    #[doc(alias = "gtk_cell_area_get_preferred_width")]
-    #[doc(alias = "get_preferred_width")]
     fn preferred_width(
         &self,
         context: &impl IsA<CellAreaContext>,
@@ -494,12 +751,12 @@ pub trait CellAreaExt: IsA<CellArea> + sealed::Sealed + 'static {
                 minimum_width.as_mut_ptr(),
                 natural_width.as_mut_ptr(),
             );
-            (minimum_width.assume_init(), natural_width.assume_init())
+            let minimum_width = minimum_width.assume_init();
+            let natural_width = natural_width.assume_init();
+            (minimum_width, natural_width)
         }
     }
 
-    #[doc(alias = "gtk_cell_area_get_preferred_width_for_height")]
-    #[doc(alias = "get_preferred_width_for_height")]
     fn preferred_width_for_height(
         &self,
         context: &impl IsA<CellAreaContext>,
@@ -517,12 +774,12 @@ pub trait CellAreaExt: IsA<CellArea> + sealed::Sealed + 'static {
                 minimum_width.as_mut_ptr(),
                 natural_width.as_mut_ptr(),
             );
-            (minimum_width.assume_init(), natural_width.assume_init())
+            let minimum_width = minimum_width.assume_init();
+            let natural_width = natural_width.assume_init();
+            (minimum_width, natural_width)
         }
     }
 
-    #[doc(alias = "gtk_cell_area_get_request_mode")]
-    #[doc(alias = "get_request_mode")]
     fn request_mode(&self) -> SizeRequestMode {
         unsafe {
             from_glib(ffi::gtk_cell_area_get_request_mode(
@@ -531,7 +788,6 @@ pub trait CellAreaExt: IsA<CellArea> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_cell_area_has_renderer")]
     fn has_renderer(&self, renderer: &impl IsA<CellRenderer>) -> bool {
         unsafe {
             from_glib(ffi::gtk_cell_area_has_renderer(
@@ -541,7 +797,6 @@ pub trait CellAreaExt: IsA<CellArea> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_cell_area_inner_cell_area")]
     fn inner_cell_area(
         &self,
         widget: &impl IsA<Widget>,
@@ -559,7 +814,6 @@ pub trait CellAreaExt: IsA<CellArea> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_cell_area_is_activatable")]
     fn is_activatable(&self) -> bool {
         unsafe {
             from_glib(ffi::gtk_cell_area_is_activatable(
@@ -568,7 +822,6 @@ pub trait CellAreaExt: IsA<CellArea> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_cell_area_is_focus_sibling")]
     fn is_focus_sibling(
         &self,
         renderer: &impl IsA<CellRenderer>,
@@ -583,7 +836,6 @@ pub trait CellAreaExt: IsA<CellArea> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_cell_area_remove")]
     fn remove(&self, renderer: &impl IsA<CellRenderer>) {
         unsafe {
             ffi::gtk_cell_area_remove(
@@ -593,7 +845,6 @@ pub trait CellAreaExt: IsA<CellArea> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_cell_area_remove_focus_sibling")]
     fn remove_focus_sibling(
         &self,
         renderer: &impl IsA<CellRenderer>,
@@ -608,7 +859,6 @@ pub trait CellAreaExt: IsA<CellArea> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_cell_area_render")]
     fn render(
         &self,
         context: &impl IsA<CellAreaContext>,
@@ -633,7 +883,6 @@ pub trait CellAreaExt: IsA<CellArea> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_cell_area_request_renderer")]
     fn request_renderer(
         &self,
         renderer: &impl IsA<CellRenderer>,
@@ -653,11 +902,12 @@ pub trait CellAreaExt: IsA<CellArea> + sealed::Sealed + 'static {
                 minimum_size.as_mut_ptr(),
                 natural_size.as_mut_ptr(),
             );
-            (minimum_size.assume_init(), natural_size.assume_init())
+            let minimum_size = minimum_size.assume_init();
+            let natural_size = natural_size.assume_init();
+            (minimum_size, natural_size)
         }
     }
 
-    #[doc(alias = "gtk_cell_area_set_focus_cell")]
     fn set_focus_cell(&self, renderer: &impl IsA<CellRenderer>) {
         unsafe {
             ffi::gtk_cell_area_set_focus_cell(
@@ -667,14 +917,12 @@ pub trait CellAreaExt: IsA<CellArea> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_cell_area_stop_editing")]
     fn stop_editing(&self, canceled: bool) {
         unsafe {
             ffi::gtk_cell_area_stop_editing(self.as_ref().to_glib_none().0, canceled.into_glib());
         }
     }
 
-    #[doc(alias = "add-editable")]
     fn connect_add_editable<
         F: Fn(&Self, &CellRenderer, &CellEditable, &gdk::Rectangle, TreePath) + 'static,
     >(
@@ -715,7 +963,6 @@ pub trait CellAreaExt: IsA<CellArea> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "apply-attributes")]
     fn connect_apply_attributes<F: Fn(&Self, &TreeModel, &TreeIter, bool, bool) + 'static>(
         &self,
         f: F,
@@ -753,7 +1000,6 @@ pub trait CellAreaExt: IsA<CellArea> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "focus-changed")]
     fn connect_focus_changed<F: Fn(&Self, &CellRenderer, TreePath) + 'static>(
         &self,
         f: F,
@@ -788,7 +1034,6 @@ pub trait CellAreaExt: IsA<CellArea> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "remove-editable")]
     fn connect_remove_editable<F: Fn(&Self, &CellRenderer, &CellEditable) + 'static>(
         &self,
         f: F,
@@ -822,7 +1067,6 @@ pub trait CellAreaExt: IsA<CellArea> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "edit-widget")]
     fn connect_edit_widget_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_edit_widget_trampoline<
             P: IsA<CellArea>,
@@ -848,7 +1092,6 @@ pub trait CellAreaExt: IsA<CellArea> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "edited-cell")]
     fn connect_edited_cell_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_edited_cell_trampoline<
             P: IsA<CellArea>,
@@ -874,7 +1117,6 @@ pub trait CellAreaExt: IsA<CellArea> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "focus-cell")]
     fn connect_focus_cell_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_focus_cell_trampoline<P: IsA<CellArea>, F: Fn(&P) + 'static>(
             this: *mut ffi::GtkCellArea,
@@ -897,8 +1139,6 @@ pub trait CellAreaExt: IsA<CellArea> + sealed::Sealed + 'static {
         }
     }
 }
-
-impl<O: IsA<CellArea>> CellAreaExt for O {}
 
 impl fmt::Display for CellArea {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {

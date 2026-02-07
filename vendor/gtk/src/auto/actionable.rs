@@ -2,13 +2,16 @@
 // from gir-files (https://github.com/gtk-rs/gir-files)
 // DO NOT EDIT
 
-use crate::{Buildable, Widget};
-use glib::{
-    prelude::*,
-    signal::{connect_raw, SignalHandlerId},
-    translate::*,
-};
-use std::{boxed::Box as Box_, fmt, mem::transmute};
+use crate::Buildable;
+use crate::Widget;
+use glib::object::Cast;
+use glib::object::IsA;
+use glib::signal::connect_raw;
+use glib::signal::SignalHandlerId;
+use glib::translate::*;
+use std::boxed::Box as Box_;
+use std::fmt;
+use std::mem::transmute;
 
 glib::wrapper! {
     #[doc(alias = "GtkActionable")]
@@ -23,14 +26,35 @@ impl Actionable {
     pub const NONE: Option<&'static Actionable> = None;
 }
 
-mod sealed {
-    pub trait Sealed {}
-    impl<T: super::IsA<super::Actionable>> Sealed for T {}
-}
-
-pub trait ActionableExt: IsA<Actionable> + sealed::Sealed + 'static {
+pub trait ActionableExt: 'static {
     #[doc(alias = "gtk_actionable_get_action_name")]
     #[doc(alias = "get_action_name")]
+    fn action_name(&self) -> Option<glib::GString>;
+
+    #[doc(alias = "gtk_actionable_get_action_target_value")]
+    #[doc(alias = "get_action_target_value")]
+    fn action_target_value(&self) -> Option<glib::Variant>;
+
+    #[doc(alias = "gtk_actionable_set_action_name")]
+    fn set_action_name(&self, action_name: Option<&str>);
+
+    //#[doc(alias = "gtk_actionable_set_action_target")]
+    //fn set_action_target(&self, format_string: &str, : /*Unknown conversion*//*Unimplemented*/Fundamental: VarArgs);
+
+    #[doc(alias = "gtk_actionable_set_action_target_value")]
+    fn set_action_target_value(&self, target_value: Option<&glib::Variant>);
+
+    #[doc(alias = "gtk_actionable_set_detailed_action_name")]
+    fn set_detailed_action_name(&self, detailed_action_name: &str);
+
+    #[doc(alias = "action-name")]
+    fn connect_action_name_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "action-target")]
+    fn connect_action_target_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+}
+
+impl<O: IsA<Actionable>> ActionableExt for O {
     fn action_name(&self) -> Option<glib::GString> {
         unsafe {
             from_glib_none(ffi::gtk_actionable_get_action_name(
@@ -39,8 +63,6 @@ pub trait ActionableExt: IsA<Actionable> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_actionable_get_action_target_value")]
-    #[doc(alias = "get_action_target_value")]
     fn action_target_value(&self) -> Option<glib::Variant> {
         unsafe {
             from_glib_none(ffi::gtk_actionable_get_action_target_value(
@@ -49,7 +71,6 @@ pub trait ActionableExt: IsA<Actionable> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_actionable_set_action_name")]
     fn set_action_name(&self, action_name: Option<&str>) {
         unsafe {
             ffi::gtk_actionable_set_action_name(
@@ -59,12 +80,10 @@ pub trait ActionableExt: IsA<Actionable> + sealed::Sealed + 'static {
         }
     }
 
-    //#[doc(alias = "gtk_actionable_set_action_target")]
-    //fn set_action_target(&self, format_string: &str, : /*Unknown conversion*//*Unimplemented*/Basic: VarArgs) {
+    //fn set_action_target(&self, format_string: &str, : /*Unknown conversion*//*Unimplemented*/Fundamental: VarArgs) {
     //    unsafe { TODO: call ffi:gtk_actionable_set_action_target() }
     //}
 
-    #[doc(alias = "gtk_actionable_set_action_target_value")]
     fn set_action_target_value(&self, target_value: Option<&glib::Variant>) {
         unsafe {
             ffi::gtk_actionable_set_action_target_value(
@@ -74,7 +93,6 @@ pub trait ActionableExt: IsA<Actionable> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_actionable_set_detailed_action_name")]
     fn set_detailed_action_name(&self, detailed_action_name: &str) {
         unsafe {
             ffi::gtk_actionable_set_detailed_action_name(
@@ -84,7 +102,6 @@ pub trait ActionableExt: IsA<Actionable> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "action-name")]
     fn connect_action_name_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_action_name_trampoline<
             P: IsA<Actionable>,
@@ -110,7 +127,6 @@ pub trait ActionableExt: IsA<Actionable> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "action-target")]
     fn connect_action_target_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_action_target_trampoline<
             P: IsA<Actionable>,
@@ -136,8 +152,6 @@ pub trait ActionableExt: IsA<Actionable> + sealed::Sealed + 'static {
         }
     }
 }
-
-impl<O: IsA<Actionable>> ActionableExt for O {}
 
 impl fmt::Display for Actionable {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {

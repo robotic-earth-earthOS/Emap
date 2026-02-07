@@ -2,14 +2,33 @@
 // from gir-files (https://github.com/gtk-rs/gir-files)
 // DO NOT EDIT
 
-use crate::{
-    AppInfo, AsyncResult, Cancellable, DriveStartFlags, FileAttributeInfoList, FileCopyFlags,
-    FileCreateFlags, FileEnumerator, FileIOStream, FileInfo, FileInputStream, FileMonitor,
-    FileMonitorFlags, FileOutputStream, FileQueryInfoFlags, FileType, Mount, MountMountFlags,
-    MountOperation, MountUnmountFlags,
-};
-use glib::{prelude::*, translate::*};
-use std::{boxed::Box as Box_, fmt, mem, pin::Pin, ptr};
+use crate::AppInfo;
+use crate::AsyncResult;
+use crate::Cancellable;
+use crate::DriveStartFlags;
+use crate::FileAttributeInfoList;
+use crate::FileCopyFlags;
+use crate::FileCreateFlags;
+use crate::FileEnumerator;
+use crate::FileIOStream;
+use crate::FileInfo;
+use crate::FileInputStream;
+use crate::FileMonitor;
+use crate::FileMonitorFlags;
+use crate::FileOutputStream;
+use crate::FileQueryInfoFlags;
+use crate::FileType;
+use crate::Mount;
+use crate::MountMountFlags;
+use crate::MountOperation;
+use crate::MountUnmountFlags;
+use glib::object::IsA;
+use glib::translate::*;
+use std::boxed::Box as Box_;
+use std::fmt;
+use std::mem;
+use std::pin::Pin;
+use std::ptr;
 
 glib::wrapper! {
     #[doc(alias = "GFile")]
@@ -23,17 +42,12 @@ glib::wrapper! {
 impl File {
     pub const NONE: Option<&'static File> = None;
 
+    //#[cfg(any(feature = "v2_56", feature = "dox"))]
+    //#[cfg_attr(feature = "dox", doc(cfg(feature = "v2_56")))]
     //#[doc(alias = "g_file_new_build_filename")]
-    //pub fn new_build_filename(first_element: impl AsRef<std::path::Path>, : /*Unknown conversion*//*Unimplemented*/Basic: VarArgs) -> File {
+    //pub fn new_build_filename(first_element: impl AsRef<std::path::Path>, : /*Unknown conversion*//*Unimplemented*/Fundamental: VarArgs) -> File {
     //    unsafe { TODO: call ffi:g_file_new_build_filename() }
     //}
-
-    #[cfg(feature = "v2_78")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "v2_78")))]
-    #[doc(alias = "g_file_new_build_filenamev")]
-    pub fn new_build_filenamev(args: &[&std::path::Path]) -> File {
-        unsafe { from_glib_full(ffi::g_file_new_build_filenamev(args.to_glib_none().0)) }
-    }
 
     #[doc(alias = "g_file_new_for_commandline_arg")]
     #[doc(alias = "new_for_commandline_arg")]
@@ -101,13 +115,738 @@ impl File {
 unsafe impl Send for File {}
 unsafe impl Sync for File {}
 
-mod sealed {
-    pub trait Sealed {}
-    impl<T: super::IsA<super::File>> Sealed for T {}
+pub trait FileExt: 'static {
+    #[doc(alias = "g_file_append_to")]
+    fn append_to(
+        &self,
+        flags: FileCreateFlags,
+        cancellable: Option<&impl IsA<Cancellable>>,
+    ) -> Result<FileOutputStream, glib::Error>;
+
+    #[doc(alias = "g_file_append_to_async")]
+    fn append_to_async<P: FnOnce(Result<FileOutputStream, glib::Error>) + 'static>(
+        &self,
+        flags: FileCreateFlags,
+        io_priority: glib::Priority,
+        cancellable: Option<&impl IsA<Cancellable>>,
+        callback: P,
+    );
+
+    fn append_to_future(
+        &self,
+        flags: FileCreateFlags,
+        io_priority: glib::Priority,
+    ) -> Pin<Box_<dyn std::future::Future<Output = Result<FileOutputStream, glib::Error>> + 'static>>;
+
+    #[cfg(any(feature = "v2_68", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v2_68")))]
+    #[doc(alias = "g_file_build_attribute_list_for_copy")]
+    fn build_attribute_list_for_copy(
+        &self,
+        flags: FileCopyFlags,
+        cancellable: Option<&impl IsA<Cancellable>>,
+    ) -> Result<glib::GString, glib::Error>;
+
+    #[doc(alias = "g_file_copy")]
+    fn copy(
+        &self,
+        destination: &impl IsA<File>,
+        flags: FileCopyFlags,
+        cancellable: Option<&impl IsA<Cancellable>>,
+        progress_callback: Option<&mut dyn (FnMut(i64, i64))>,
+    ) -> Result<(), glib::Error>;
+
+    #[doc(alias = "g_file_copy_attributes")]
+    fn copy_attributes(
+        &self,
+        destination: &impl IsA<File>,
+        flags: FileCopyFlags,
+        cancellable: Option<&impl IsA<Cancellable>>,
+    ) -> Result<(), glib::Error>;
+
+    #[doc(alias = "g_file_create")]
+    fn create(
+        &self,
+        flags: FileCreateFlags,
+        cancellable: Option<&impl IsA<Cancellable>>,
+    ) -> Result<FileOutputStream, glib::Error>;
+
+    #[doc(alias = "g_file_create_async")]
+    fn create_async<P: FnOnce(Result<FileOutputStream, glib::Error>) + 'static>(
+        &self,
+        flags: FileCreateFlags,
+        io_priority: glib::Priority,
+        cancellable: Option<&impl IsA<Cancellable>>,
+        callback: P,
+    );
+
+    fn create_future(
+        &self,
+        flags: FileCreateFlags,
+        io_priority: glib::Priority,
+    ) -> Pin<Box_<dyn std::future::Future<Output = Result<FileOutputStream, glib::Error>> + 'static>>;
+
+    #[doc(alias = "g_file_create_readwrite")]
+    fn create_readwrite(
+        &self,
+        flags: FileCreateFlags,
+        cancellable: Option<&impl IsA<Cancellable>>,
+    ) -> Result<FileIOStream, glib::Error>;
+
+    #[doc(alias = "g_file_create_readwrite_async")]
+    fn create_readwrite_async<P: FnOnce(Result<FileIOStream, glib::Error>) + 'static>(
+        &self,
+        flags: FileCreateFlags,
+        io_priority: glib::Priority,
+        cancellable: Option<&impl IsA<Cancellable>>,
+        callback: P,
+    );
+
+    fn create_readwrite_future(
+        &self,
+        flags: FileCreateFlags,
+        io_priority: glib::Priority,
+    ) -> Pin<Box_<dyn std::future::Future<Output = Result<FileIOStream, glib::Error>> + 'static>>;
+
+    #[doc(alias = "g_file_delete")]
+    fn delete(&self, cancellable: Option<&impl IsA<Cancellable>>) -> Result<(), glib::Error>;
+
+    #[doc(alias = "g_file_delete_async")]
+    fn delete_async<P: FnOnce(Result<(), glib::Error>) + 'static>(
+        &self,
+        io_priority: glib::Priority,
+        cancellable: Option<&impl IsA<Cancellable>>,
+        callback: P,
+    );
+
+    fn delete_future(
+        &self,
+        io_priority: glib::Priority,
+    ) -> Pin<Box_<dyn std::future::Future<Output = Result<(), glib::Error>> + 'static>>;
+
+    #[doc(alias = "g_file_dup")]
+    #[must_use]
+    fn dup(&self) -> File;
+
+    #[doc(alias = "g_file_eject_mountable_with_operation")]
+    fn eject_mountable_with_operation<P: FnOnce(Result<(), glib::Error>) + 'static>(
+        &self,
+        flags: MountUnmountFlags,
+        mount_operation: Option<&impl IsA<MountOperation>>,
+        cancellable: Option<&impl IsA<Cancellable>>,
+        callback: P,
+    );
+
+    fn eject_mountable_with_operation_future(
+        &self,
+        flags: MountUnmountFlags,
+        mount_operation: Option<&(impl IsA<MountOperation> + Clone + 'static)>,
+    ) -> Pin<Box_<dyn std::future::Future<Output = Result<(), glib::Error>> + 'static>>;
+
+    #[doc(alias = "g_file_enumerate_children")]
+    fn enumerate_children(
+        &self,
+        attributes: &str,
+        flags: FileQueryInfoFlags,
+        cancellable: Option<&impl IsA<Cancellable>>,
+    ) -> Result<FileEnumerator, glib::Error>;
+
+    #[doc(alias = "g_file_equal")]
+    fn equal(&self, file2: &impl IsA<File>) -> bool;
+
+    #[doc(alias = "g_file_find_enclosing_mount")]
+    fn find_enclosing_mount(
+        &self,
+        cancellable: Option<&impl IsA<Cancellable>>,
+    ) -> Result<Mount, glib::Error>;
+
+    #[doc(alias = "g_file_get_basename")]
+    #[doc(alias = "get_basename")]
+    fn basename(&self) -> Option<std::path::PathBuf>;
+
+    #[doc(alias = "g_file_get_child")]
+    #[doc(alias = "get_child")]
+    #[must_use]
+    fn child(&self, name: impl AsRef<std::path::Path>) -> File;
+
+    #[doc(alias = "g_file_get_child_for_display_name")]
+    #[doc(alias = "get_child_for_display_name")]
+    fn child_for_display_name(&self, display_name: &str) -> Result<File, glib::Error>;
+
+    #[doc(alias = "g_file_get_parent")]
+    #[doc(alias = "get_parent")]
+    #[must_use]
+    fn parent(&self) -> Option<File>;
+
+    #[doc(alias = "g_file_get_parse_name")]
+    #[doc(alias = "get_parse_name")]
+    fn parse_name(&self) -> glib::GString;
+
+    #[doc(alias = "g_file_get_path")]
+    #[doc(alias = "get_path")]
+    fn path(&self) -> Option<std::path::PathBuf>;
+
+    #[doc(alias = "g_file_get_relative_path")]
+    #[doc(alias = "get_relative_path")]
+    fn relative_path(&self, descendant: &impl IsA<File>) -> Option<std::path::PathBuf>;
+
+    #[doc(alias = "g_file_get_uri")]
+    #[doc(alias = "get_uri")]
+    fn uri(&self) -> glib::GString;
+
+    #[doc(alias = "g_file_get_uri_scheme")]
+    #[doc(alias = "get_uri_scheme")]
+    fn uri_scheme(&self) -> Option<glib::GString>;
+
+    #[doc(alias = "g_file_has_parent")]
+    fn has_parent(&self, parent: Option<&impl IsA<File>>) -> bool;
+
+    #[doc(alias = "g_file_has_prefix")]
+    fn has_prefix(&self, prefix: &impl IsA<File>) -> bool;
+
+    #[doc(alias = "g_file_has_uri_scheme")]
+    fn has_uri_scheme(&self, uri_scheme: &str) -> bool;
+
+    #[doc(alias = "g_file_is_native")]
+    fn is_native(&self) -> bool;
+
+    #[cfg(any(feature = "v2_56", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v2_56")))]
+    #[doc(alias = "g_file_load_bytes")]
+    fn load_bytes(
+        &self,
+        cancellable: Option<&impl IsA<Cancellable>>,
+    ) -> Result<(glib::Bytes, Option<glib::GString>), glib::Error>;
+
+    #[cfg(any(feature = "v2_56", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v2_56")))]
+    #[doc(alias = "g_file_load_bytes_async")]
+    fn load_bytes_async<
+        P: FnOnce(Result<(glib::Bytes, Option<glib::GString>), glib::Error>) + 'static,
+    >(
+        &self,
+        cancellable: Option<&impl IsA<Cancellable>>,
+        callback: P,
+    );
+
+    #[cfg(any(feature = "v2_56", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v2_56")))]
+    fn load_bytes_future(
+        &self,
+    ) -> Pin<
+        Box_<
+            dyn std::future::Future<
+                    Output = Result<(glib::Bytes, Option<glib::GString>), glib::Error>,
+                > + 'static,
+        >,
+    >;
+
+    #[doc(alias = "g_file_load_contents")]
+    fn load_contents(
+        &self,
+        cancellable: Option<&impl IsA<Cancellable>>,
+    ) -> Result<(Vec<u8>, Option<glib::GString>), glib::Error>;
+
+    #[doc(alias = "g_file_load_contents_async")]
+    fn load_contents_async<
+        P: FnOnce(Result<(Vec<u8>, Option<glib::GString>), glib::Error>) + 'static,
+    >(
+        &self,
+        cancellable: Option<&impl IsA<Cancellable>>,
+        callback: P,
+    );
+
+    fn load_contents_future(
+        &self,
+    ) -> Pin<
+        Box_<
+            dyn std::future::Future<Output = Result<(Vec<u8>, Option<glib::GString>), glib::Error>>
+                + 'static,
+        >,
+    >;
+
+    #[doc(alias = "g_file_make_directory")]
+    fn make_directory(
+        &self,
+        cancellable: Option<&impl IsA<Cancellable>>,
+    ) -> Result<(), glib::Error>;
+
+    #[doc(alias = "g_file_make_directory_async")]
+    fn make_directory_async<P: FnOnce(Result<(), glib::Error>) + 'static>(
+        &self,
+        io_priority: glib::Priority,
+        cancellable: Option<&impl IsA<Cancellable>>,
+        callback: P,
+    );
+
+    fn make_directory_future(
+        &self,
+        io_priority: glib::Priority,
+    ) -> Pin<Box_<dyn std::future::Future<Output = Result<(), glib::Error>> + 'static>>;
+
+    #[doc(alias = "g_file_make_directory_with_parents")]
+    fn make_directory_with_parents(
+        &self,
+        cancellable: Option<&impl IsA<Cancellable>>,
+    ) -> Result<(), glib::Error>;
+
+    #[doc(alias = "g_file_make_symbolic_link")]
+    fn make_symbolic_link(
+        &self,
+        symlink_value: impl AsRef<std::path::Path>,
+        cancellable: Option<&impl IsA<Cancellable>>,
+    ) -> Result<(), glib::Error>;
+
+    #[doc(alias = "g_file_monitor")]
+    fn monitor(
+        &self,
+        flags: FileMonitorFlags,
+        cancellable: Option<&impl IsA<Cancellable>>,
+    ) -> Result<FileMonitor, glib::Error>;
+
+    #[doc(alias = "g_file_monitor_directory")]
+    fn monitor_directory(
+        &self,
+        flags: FileMonitorFlags,
+        cancellable: Option<&impl IsA<Cancellable>>,
+    ) -> Result<FileMonitor, glib::Error>;
+
+    #[doc(alias = "g_file_monitor_file")]
+    fn monitor_file(
+        &self,
+        flags: FileMonitorFlags,
+        cancellable: Option<&impl IsA<Cancellable>>,
+    ) -> Result<FileMonitor, glib::Error>;
+
+    #[doc(alias = "g_file_mount_enclosing_volume")]
+    fn mount_enclosing_volume<P: FnOnce(Result<(), glib::Error>) + 'static>(
+        &self,
+        flags: MountMountFlags,
+        mount_operation: Option<&impl IsA<MountOperation>>,
+        cancellable: Option<&impl IsA<Cancellable>>,
+        callback: P,
+    );
+
+    fn mount_enclosing_volume_future(
+        &self,
+        flags: MountMountFlags,
+        mount_operation: Option<&(impl IsA<MountOperation> + Clone + 'static)>,
+    ) -> Pin<Box_<dyn std::future::Future<Output = Result<(), glib::Error>> + 'static>>;
+
+    #[doc(alias = "g_file_mount_mountable")]
+    fn mount_mountable<P: FnOnce(Result<File, glib::Error>) + 'static>(
+        &self,
+        flags: MountMountFlags,
+        mount_operation: Option<&impl IsA<MountOperation>>,
+        cancellable: Option<&impl IsA<Cancellable>>,
+        callback: P,
+    );
+
+    fn mount_mountable_future(
+        &self,
+        flags: MountMountFlags,
+        mount_operation: Option<&(impl IsA<MountOperation> + Clone + 'static)>,
+    ) -> Pin<Box_<dyn std::future::Future<Output = Result<File, glib::Error>> + 'static>>;
+
+    #[doc(alias = "g_file_move")]
+    #[doc(alias = "move")]
+    fn move_(
+        &self,
+        destination: &impl IsA<File>,
+        flags: FileCopyFlags,
+        cancellable: Option<&impl IsA<Cancellable>>,
+        progress_callback: Option<&mut dyn (FnMut(i64, i64))>,
+    ) -> Result<(), glib::Error>;
+
+    #[doc(alias = "g_file_open_readwrite")]
+    fn open_readwrite(
+        &self,
+        cancellable: Option<&impl IsA<Cancellable>>,
+    ) -> Result<FileIOStream, glib::Error>;
+
+    #[doc(alias = "g_file_open_readwrite_async")]
+    fn open_readwrite_async<P: FnOnce(Result<FileIOStream, glib::Error>) + 'static>(
+        &self,
+        io_priority: glib::Priority,
+        cancellable: Option<&impl IsA<Cancellable>>,
+        callback: P,
+    );
+
+    fn open_readwrite_future(
+        &self,
+        io_priority: glib::Priority,
+    ) -> Pin<Box_<dyn std::future::Future<Output = Result<FileIOStream, glib::Error>> + 'static>>;
+
+    #[cfg(any(feature = "v2_56", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v2_56")))]
+    #[doc(alias = "g_file_peek_path")]
+    fn peek_path(&self) -> Option<std::path::PathBuf>;
+
+    #[doc(alias = "g_file_poll_mountable")]
+    fn poll_mountable<P: FnOnce(Result<(), glib::Error>) + 'static>(
+        &self,
+        cancellable: Option<&impl IsA<Cancellable>>,
+        callback: P,
+    );
+
+    fn poll_mountable_future(
+        &self,
+    ) -> Pin<Box_<dyn std::future::Future<Output = Result<(), glib::Error>> + 'static>>;
+
+    #[doc(alias = "g_file_query_default_handler")]
+    fn query_default_handler(
+        &self,
+        cancellable: Option<&impl IsA<Cancellable>>,
+    ) -> Result<AppInfo, glib::Error>;
+
+    #[cfg(any(feature = "v2_60", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v2_60")))]
+    #[doc(alias = "g_file_query_default_handler_async")]
+    fn query_default_handler_async<P: FnOnce(Result<AppInfo, glib::Error>) + 'static>(
+        &self,
+        io_priority: glib::Priority,
+        cancellable: Option<&impl IsA<Cancellable>>,
+        callback: P,
+    );
+
+    #[cfg(any(feature = "v2_60", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v2_60")))]
+    fn query_default_handler_future(
+        &self,
+        io_priority: glib::Priority,
+    ) -> Pin<Box_<dyn std::future::Future<Output = Result<AppInfo, glib::Error>> + 'static>>;
+
+    #[doc(alias = "g_file_query_exists")]
+    fn query_exists(&self, cancellable: Option<&impl IsA<Cancellable>>) -> bool;
+
+    #[doc(alias = "g_file_query_file_type")]
+    fn query_file_type(
+        &self,
+        flags: FileQueryInfoFlags,
+        cancellable: Option<&impl IsA<Cancellable>>,
+    ) -> FileType;
+
+    #[doc(alias = "g_file_query_filesystem_info")]
+    fn query_filesystem_info(
+        &self,
+        attributes: &str,
+        cancellable: Option<&impl IsA<Cancellable>>,
+    ) -> Result<FileInfo, glib::Error>;
+
+    #[doc(alias = "g_file_query_filesystem_info_async")]
+    fn query_filesystem_info_async<P: FnOnce(Result<FileInfo, glib::Error>) + 'static>(
+        &self,
+        attributes: &str,
+        io_priority: glib::Priority,
+        cancellable: Option<&impl IsA<Cancellable>>,
+        callback: P,
+    );
+
+    fn query_filesystem_info_future(
+        &self,
+        attributes: &str,
+        io_priority: glib::Priority,
+    ) -> Pin<Box_<dyn std::future::Future<Output = Result<FileInfo, glib::Error>> + 'static>>;
+
+    #[doc(alias = "g_file_query_info")]
+    fn query_info(
+        &self,
+        attributes: &str,
+        flags: FileQueryInfoFlags,
+        cancellable: Option<&impl IsA<Cancellable>>,
+    ) -> Result<FileInfo, glib::Error>;
+
+    #[doc(alias = "g_file_query_info_async")]
+    fn query_info_async<P: FnOnce(Result<FileInfo, glib::Error>) + 'static>(
+        &self,
+        attributes: &str,
+        flags: FileQueryInfoFlags,
+        io_priority: glib::Priority,
+        cancellable: Option<&impl IsA<Cancellable>>,
+        callback: P,
+    );
+
+    fn query_info_future(
+        &self,
+        attributes: &str,
+        flags: FileQueryInfoFlags,
+        io_priority: glib::Priority,
+    ) -> Pin<Box_<dyn std::future::Future<Output = Result<FileInfo, glib::Error>> + 'static>>;
+
+    #[doc(alias = "g_file_query_settable_attributes")]
+    fn query_settable_attributes(
+        &self,
+        cancellable: Option<&impl IsA<Cancellable>>,
+    ) -> Result<FileAttributeInfoList, glib::Error>;
+
+    #[doc(alias = "g_file_query_writable_namespaces")]
+    fn query_writable_namespaces(
+        &self,
+        cancellable: Option<&impl IsA<Cancellable>>,
+    ) -> Result<FileAttributeInfoList, glib::Error>;
+
+    #[doc(alias = "g_file_read")]
+    fn read(
+        &self,
+        cancellable: Option<&impl IsA<Cancellable>>,
+    ) -> Result<FileInputStream, glib::Error>;
+
+    #[doc(alias = "g_file_read_async")]
+    fn read_async<P: FnOnce(Result<FileInputStream, glib::Error>) + 'static>(
+        &self,
+        io_priority: glib::Priority,
+        cancellable: Option<&impl IsA<Cancellable>>,
+        callback: P,
+    );
+
+    fn read_future(
+        &self,
+        io_priority: glib::Priority,
+    ) -> Pin<Box_<dyn std::future::Future<Output = Result<FileInputStream, glib::Error>> + 'static>>;
+
+    #[doc(alias = "g_file_replace")]
+    fn replace(
+        &self,
+        etag: Option<&str>,
+        make_backup: bool,
+        flags: FileCreateFlags,
+        cancellable: Option<&impl IsA<Cancellable>>,
+    ) -> Result<FileOutputStream, glib::Error>;
+
+    #[doc(alias = "g_file_replace_async")]
+    fn replace_async<P: FnOnce(Result<FileOutputStream, glib::Error>) + 'static>(
+        &self,
+        etag: Option<&str>,
+        make_backup: bool,
+        flags: FileCreateFlags,
+        io_priority: glib::Priority,
+        cancellable: Option<&impl IsA<Cancellable>>,
+        callback: P,
+    );
+
+    fn replace_future(
+        &self,
+        etag: Option<&str>,
+        make_backup: bool,
+        flags: FileCreateFlags,
+        io_priority: glib::Priority,
+    ) -> Pin<Box_<dyn std::future::Future<Output = Result<FileOutputStream, glib::Error>> + 'static>>;
+
+    #[doc(alias = "g_file_replace_contents")]
+    fn replace_contents(
+        &self,
+        contents: &[u8],
+        etag: Option<&str>,
+        make_backup: bool,
+        flags: FileCreateFlags,
+        cancellable: Option<&impl IsA<Cancellable>>,
+    ) -> Result<Option<glib::GString>, glib::Error>;
+
+    //#[doc(alias = "g_file_replace_contents_bytes_async")]
+    //fn replace_contents_bytes_async<P: FnOnce(Result<(), glib::Error>) + 'static>(&self, contents: &glib::Bytes, etag: Option<&str>, make_backup: bool, flags: FileCreateFlags, cancellable: Option<&impl IsA<Cancellable>>, callback: P);
+
+    #[doc(alias = "g_file_replace_readwrite")]
+    fn replace_readwrite(
+        &self,
+        etag: Option<&str>,
+        make_backup: bool,
+        flags: FileCreateFlags,
+        cancellable: Option<&impl IsA<Cancellable>>,
+    ) -> Result<FileIOStream, glib::Error>;
+
+    #[doc(alias = "g_file_replace_readwrite_async")]
+    fn replace_readwrite_async<P: FnOnce(Result<FileIOStream, glib::Error>) + 'static>(
+        &self,
+        etag: Option<&str>,
+        make_backup: bool,
+        flags: FileCreateFlags,
+        io_priority: glib::Priority,
+        cancellable: Option<&impl IsA<Cancellable>>,
+        callback: P,
+    );
+
+    fn replace_readwrite_future(
+        &self,
+        etag: Option<&str>,
+        make_backup: bool,
+        flags: FileCreateFlags,
+        io_priority: glib::Priority,
+    ) -> Pin<Box_<dyn std::future::Future<Output = Result<FileIOStream, glib::Error>> + 'static>>;
+
+    #[doc(alias = "g_file_resolve_relative_path")]
+    #[must_use]
+    fn resolve_relative_path(&self, relative_path: impl AsRef<std::path::Path>) -> File;
+
+    //#[doc(alias = "g_file_set_attribute")]
+    //fn set_attribute(&self, attribute: &str, type_: FileAttributeType, value_p: /*Unimplemented*/Option<Fundamental: Pointer>, flags: FileQueryInfoFlags, cancellable: Option<&impl IsA<Cancellable>>) -> Result<(), glib::Error>;
+
+    #[doc(alias = "g_file_set_attribute_byte_string")]
+    fn set_attribute_byte_string(
+        &self,
+        attribute: &str,
+        value: &str,
+        flags: FileQueryInfoFlags,
+        cancellable: Option<&impl IsA<Cancellable>>,
+    ) -> Result<(), glib::Error>;
+
+    #[doc(alias = "g_file_set_attribute_int32")]
+    fn set_attribute_int32(
+        &self,
+        attribute: &str,
+        value: i32,
+        flags: FileQueryInfoFlags,
+        cancellable: Option<&impl IsA<Cancellable>>,
+    ) -> Result<(), glib::Error>;
+
+    #[doc(alias = "g_file_set_attribute_int64")]
+    fn set_attribute_int64(
+        &self,
+        attribute: &str,
+        value: i64,
+        flags: FileQueryInfoFlags,
+        cancellable: Option<&impl IsA<Cancellable>>,
+    ) -> Result<(), glib::Error>;
+
+    #[doc(alias = "g_file_set_attribute_string")]
+    fn set_attribute_string(
+        &self,
+        attribute: &str,
+        value: &str,
+        flags: FileQueryInfoFlags,
+        cancellable: Option<&impl IsA<Cancellable>>,
+    ) -> Result<(), glib::Error>;
+
+    #[doc(alias = "g_file_set_attribute_uint32")]
+    fn set_attribute_uint32(
+        &self,
+        attribute: &str,
+        value: u32,
+        flags: FileQueryInfoFlags,
+        cancellable: Option<&impl IsA<Cancellable>>,
+    ) -> Result<(), glib::Error>;
+
+    #[doc(alias = "g_file_set_attribute_uint64")]
+    fn set_attribute_uint64(
+        &self,
+        attribute: &str,
+        value: u64,
+        flags: FileQueryInfoFlags,
+        cancellable: Option<&impl IsA<Cancellable>>,
+    ) -> Result<(), glib::Error>;
+
+    #[doc(alias = "g_file_set_attributes_async")]
+    fn set_attributes_async<P: FnOnce(Result<FileInfo, glib::Error>) + 'static>(
+        &self,
+        info: &FileInfo,
+        flags: FileQueryInfoFlags,
+        io_priority: glib::Priority,
+        cancellable: Option<&impl IsA<Cancellable>>,
+        callback: P,
+    );
+
+    fn set_attributes_future(
+        &self,
+        info: &FileInfo,
+        flags: FileQueryInfoFlags,
+        io_priority: glib::Priority,
+    ) -> Pin<Box_<dyn std::future::Future<Output = Result<FileInfo, glib::Error>> + 'static>>;
+
+    #[doc(alias = "g_file_set_attributes_from_info")]
+    fn set_attributes_from_info(
+        &self,
+        info: &FileInfo,
+        flags: FileQueryInfoFlags,
+        cancellable: Option<&impl IsA<Cancellable>>,
+    ) -> Result<(), glib::Error>;
+
+    #[doc(alias = "g_file_set_display_name")]
+    fn set_display_name(
+        &self,
+        display_name: &str,
+        cancellable: Option<&impl IsA<Cancellable>>,
+    ) -> Result<File, glib::Error>;
+
+    #[doc(alias = "g_file_set_display_name_async")]
+    fn set_display_name_async<P: FnOnce(Result<File, glib::Error>) + 'static>(
+        &self,
+        display_name: &str,
+        io_priority: glib::Priority,
+        cancellable: Option<&impl IsA<Cancellable>>,
+        callback: P,
+    );
+
+    fn set_display_name_future(
+        &self,
+        display_name: &str,
+        io_priority: glib::Priority,
+    ) -> Pin<Box_<dyn std::future::Future<Output = Result<File, glib::Error>> + 'static>>;
+
+    #[doc(alias = "g_file_start_mountable")]
+    fn start_mountable<P: FnOnce(Result<(), glib::Error>) + 'static>(
+        &self,
+        flags: DriveStartFlags,
+        start_operation: Option<&impl IsA<MountOperation>>,
+        cancellable: Option<&impl IsA<Cancellable>>,
+        callback: P,
+    );
+
+    fn start_mountable_future(
+        &self,
+        flags: DriveStartFlags,
+        start_operation: Option<&(impl IsA<MountOperation> + Clone + 'static)>,
+    ) -> Pin<Box_<dyn std::future::Future<Output = Result<(), glib::Error>> + 'static>>;
+
+    #[doc(alias = "g_file_stop_mountable")]
+    fn stop_mountable<P: FnOnce(Result<(), glib::Error>) + 'static>(
+        &self,
+        flags: MountUnmountFlags,
+        mount_operation: Option<&impl IsA<MountOperation>>,
+        cancellable: Option<&impl IsA<Cancellable>>,
+        callback: P,
+    );
+
+    fn stop_mountable_future(
+        &self,
+        flags: MountUnmountFlags,
+        mount_operation: Option<&(impl IsA<MountOperation> + Clone + 'static)>,
+    ) -> Pin<Box_<dyn std::future::Future<Output = Result<(), glib::Error>> + 'static>>;
+
+    #[doc(alias = "g_file_supports_thread_contexts")]
+    fn supports_thread_contexts(&self) -> bool;
+
+    #[doc(alias = "g_file_trash")]
+    fn trash(&self, cancellable: Option<&impl IsA<Cancellable>>) -> Result<(), glib::Error>;
+
+    #[doc(alias = "g_file_trash_async")]
+    fn trash_async<P: FnOnce(Result<(), glib::Error>) + 'static>(
+        &self,
+        io_priority: glib::Priority,
+        cancellable: Option<&impl IsA<Cancellable>>,
+        callback: P,
+    );
+
+    fn trash_future(
+        &self,
+        io_priority: glib::Priority,
+    ) -> Pin<Box_<dyn std::future::Future<Output = Result<(), glib::Error>> + 'static>>;
+
+    #[doc(alias = "g_file_unmount_mountable_with_operation")]
+    fn unmount_mountable_with_operation<P: FnOnce(Result<(), glib::Error>) + 'static>(
+        &self,
+        flags: MountUnmountFlags,
+        mount_operation: Option<&impl IsA<MountOperation>>,
+        cancellable: Option<&impl IsA<Cancellable>>,
+        callback: P,
+    );
+
+    fn unmount_mountable_with_operation_future(
+        &self,
+        flags: MountUnmountFlags,
+        mount_operation: Option<&(impl IsA<MountOperation> + Clone + 'static)>,
+    ) -> Pin<Box_<dyn std::future::Future<Output = Result<(), glib::Error>> + 'static>>;
 }
 
-pub trait FileExt: IsA<File> + sealed::Sealed + 'static {
-    #[doc(alias = "g_file_append_to")]
+impl<O: IsA<File>> FileExt for O {
     fn append_to(
         &self,
         flags: FileCreateFlags,
@@ -129,7 +868,6 @@ pub trait FileExt: IsA<File> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_file_append_to_async")]
     fn append_to_async<P: FnOnce(Result<FileOutputStream, glib::Error>) + 'static>(
         &self,
         flags: FileCreateFlags,
@@ -197,9 +935,8 @@ pub trait FileExt: IsA<File> + sealed::Sealed + 'static {
         ))
     }
 
-    #[cfg(feature = "v2_68")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "v2_68")))]
-    #[doc(alias = "g_file_build_attribute_list_for_copy")]
+    #[cfg(any(feature = "v2_68", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v2_68")))]
     fn build_attribute_list_for_copy(
         &self,
         flags: FileCopyFlags,
@@ -221,7 +958,6 @@ pub trait FileExt: IsA<File> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_file_copy")]
     fn copy(
         &self,
         destination: &impl IsA<File>,
@@ -233,15 +969,15 @@ pub trait FileExt: IsA<File> + sealed::Sealed + 'static {
         unsafe extern "C" fn progress_callback_func(
             current_num_bytes: i64,
             total_num_bytes: i64,
-            data: glib::ffi::gpointer,
+            user_data: glib::ffi::gpointer,
         ) {
             let callback: *mut Option<&mut dyn (FnMut(i64, i64))> =
-                data as *const _ as usize as *mut Option<&mut dyn (FnMut(i64, i64))>;
+                user_data as *const _ as usize as *mut Option<&mut dyn (FnMut(i64, i64))>;
             if let Some(ref mut callback) = *callback {
                 callback(current_num_bytes, total_num_bytes)
             } else {
                 panic!("cannot get closure...")
-            }
+            };
         }
         let progress_callback = if progress_callback_data.is_some() {
             Some(progress_callback_func as _)
@@ -260,7 +996,7 @@ pub trait FileExt: IsA<File> + sealed::Sealed + 'static {
                 super_callback0 as *const _ as usize as *mut _,
                 &mut error,
             );
-            debug_assert_eq!(is_ok == glib::ffi::GFALSE, !error.is_null());
+            assert_eq!(is_ok == glib::ffi::GFALSE, !error.is_null());
             if error.is_null() {
                 Ok(())
             } else {
@@ -269,7 +1005,6 @@ pub trait FileExt: IsA<File> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_file_copy_attributes")]
     fn copy_attributes(
         &self,
         destination: &impl IsA<File>,
@@ -285,7 +1020,7 @@ pub trait FileExt: IsA<File> + sealed::Sealed + 'static {
                 cancellable.map(|p| p.as_ref()).to_glib_none().0,
                 &mut error,
             );
-            debug_assert_eq!(is_ok == glib::ffi::GFALSE, !error.is_null());
+            assert_eq!(is_ok == glib::ffi::GFALSE, !error.is_null());
             if error.is_null() {
                 Ok(())
             } else {
@@ -294,7 +1029,6 @@ pub trait FileExt: IsA<File> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_file_create")]
     fn create(
         &self,
         flags: FileCreateFlags,
@@ -316,7 +1050,6 @@ pub trait FileExt: IsA<File> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_file_create_async")]
     fn create_async<P: FnOnce(Result<FileOutputStream, glib::Error>) + 'static>(
         &self,
         flags: FileCreateFlags,
@@ -384,7 +1117,6 @@ pub trait FileExt: IsA<File> + sealed::Sealed + 'static {
         ))
     }
 
-    #[doc(alias = "g_file_create_readwrite")]
     fn create_readwrite(
         &self,
         flags: FileCreateFlags,
@@ -406,7 +1138,6 @@ pub trait FileExt: IsA<File> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_file_create_readwrite_async")]
     fn create_readwrite_async<P: FnOnce(Result<FileIOStream, glib::Error>) + 'static>(
         &self,
         flags: FileCreateFlags,
@@ -475,7 +1206,6 @@ pub trait FileExt: IsA<File> + sealed::Sealed + 'static {
         ))
     }
 
-    #[doc(alias = "g_file_delete")]
     fn delete(&self, cancellable: Option<&impl IsA<Cancellable>>) -> Result<(), glib::Error> {
         unsafe {
             let mut error = ptr::null_mut();
@@ -484,7 +1214,7 @@ pub trait FileExt: IsA<File> + sealed::Sealed + 'static {
                 cancellable.map(|p| p.as_ref()).to_glib_none().0,
                 &mut error,
             );
-            debug_assert_eq!(is_ok == glib::ffi::GFALSE, !error.is_null());
+            assert_eq!(is_ok == glib::ffi::GFALSE, !error.is_null());
             if error.is_null() {
                 Ok(())
             } else {
@@ -493,7 +1223,6 @@ pub trait FileExt: IsA<File> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_file_delete_async")]
     fn delete_async<P: FnOnce(Result<(), glib::Error>) + 'static>(
         &self,
         io_priority: glib::Priority,
@@ -557,13 +1286,10 @@ pub trait FileExt: IsA<File> + sealed::Sealed + 'static {
         ))
     }
 
-    #[doc(alias = "g_file_dup")]
-    #[must_use]
     fn dup(&self) -> File {
         unsafe { from_glib_full(ffi::g_file_dup(self.as_ref().to_glib_none().0)) }
     }
 
-    #[doc(alias = "g_file_eject_mountable_with_operation")]
     fn eject_mountable_with_operation<P: FnOnce(Result<(), glib::Error>) + 'static>(
         &self,
         flags: MountUnmountFlags,
@@ -640,7 +1366,6 @@ pub trait FileExt: IsA<File> + sealed::Sealed + 'static {
         ))
     }
 
-    #[doc(alias = "g_file_enumerate_children")]
     fn enumerate_children(
         &self,
         attributes: &str,
@@ -664,7 +1389,6 @@ pub trait FileExt: IsA<File> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_file_equal")]
     fn equal(&self, file2: &impl IsA<File>) -> bool {
         unsafe {
             from_glib(ffi::g_file_equal(
@@ -674,7 +1398,6 @@ pub trait FileExt: IsA<File> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_file_find_enclosing_mount")]
     fn find_enclosing_mount(
         &self,
         cancellable: Option<&impl IsA<Cancellable>>,
@@ -694,15 +1417,10 @@ pub trait FileExt: IsA<File> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_file_get_basename")]
-    #[doc(alias = "get_basename")]
     fn basename(&self) -> Option<std::path::PathBuf> {
         unsafe { from_glib_full(ffi::g_file_get_basename(self.as_ref().to_glib_none().0)) }
     }
 
-    #[doc(alias = "g_file_get_child")]
-    #[doc(alias = "get_child")]
-    #[must_use]
     fn child(&self, name: impl AsRef<std::path::Path>) -> File {
         unsafe {
             from_glib_full(ffi::g_file_get_child(
@@ -712,8 +1430,6 @@ pub trait FileExt: IsA<File> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_file_get_child_for_display_name")]
-    #[doc(alias = "get_child_for_display_name")]
     fn child_for_display_name(&self, display_name: &str) -> Result<File, glib::Error> {
         unsafe {
             let mut error = ptr::null_mut();
@@ -730,27 +1446,18 @@ pub trait FileExt: IsA<File> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_file_get_parent")]
-    #[doc(alias = "get_parent")]
-    #[must_use]
     fn parent(&self) -> Option<File> {
         unsafe { from_glib_full(ffi::g_file_get_parent(self.as_ref().to_glib_none().0)) }
     }
 
-    #[doc(alias = "g_file_get_parse_name")]
-    #[doc(alias = "get_parse_name")]
     fn parse_name(&self) -> glib::GString {
         unsafe { from_glib_full(ffi::g_file_get_parse_name(self.as_ref().to_glib_none().0)) }
     }
 
-    #[doc(alias = "g_file_get_path")]
-    #[doc(alias = "get_path")]
     fn path(&self) -> Option<std::path::PathBuf> {
         unsafe { from_glib_full(ffi::g_file_get_path(self.as_ref().to_glib_none().0)) }
     }
 
-    #[doc(alias = "g_file_get_relative_path")]
-    #[doc(alias = "get_relative_path")]
     fn relative_path(&self, descendant: &impl IsA<File>) -> Option<std::path::PathBuf> {
         unsafe {
             from_glib_full(ffi::g_file_get_relative_path(
@@ -760,19 +1467,14 @@ pub trait FileExt: IsA<File> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_file_get_uri")]
-    #[doc(alias = "get_uri")]
     fn uri(&self) -> glib::GString {
         unsafe { from_glib_full(ffi::g_file_get_uri(self.as_ref().to_glib_none().0)) }
     }
 
-    #[doc(alias = "g_file_get_uri_scheme")]
-    #[doc(alias = "get_uri_scheme")]
     fn uri_scheme(&self) -> Option<glib::GString> {
         unsafe { from_glib_full(ffi::g_file_get_uri_scheme(self.as_ref().to_glib_none().0)) }
     }
 
-    #[doc(alias = "g_file_has_parent")]
     fn has_parent(&self, parent: Option<&impl IsA<File>>) -> bool {
         unsafe {
             from_glib(ffi::g_file_has_parent(
@@ -782,7 +1484,6 @@ pub trait FileExt: IsA<File> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_file_has_prefix")]
     fn has_prefix(&self, prefix: &impl IsA<File>) -> bool {
         unsafe {
             from_glib(ffi::g_file_has_prefix(
@@ -792,7 +1493,6 @@ pub trait FileExt: IsA<File> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_file_has_uri_scheme")]
     fn has_uri_scheme(&self, uri_scheme: &str) -> bool {
         unsafe {
             from_glib(ffi::g_file_has_uri_scheme(
@@ -802,12 +1502,12 @@ pub trait FileExt: IsA<File> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_file_is_native")]
     fn is_native(&self) -> bool {
         unsafe { from_glib(ffi::g_file_is_native(self.as_ref().to_glib_none().0)) }
     }
 
-    #[doc(alias = "g_file_load_bytes")]
+    #[cfg(any(feature = "v2_56", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v2_56")))]
     fn load_bytes(
         &self,
         cancellable: Option<&impl IsA<Cancellable>>,
@@ -829,7 +1529,8 @@ pub trait FileExt: IsA<File> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_file_load_bytes_async")]
+    #[cfg(any(feature = "v2_56", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v2_56")))]
     fn load_bytes_async<
         P: FnOnce(Result<(glib::Bytes, Option<glib::GString>), glib::Error>) + 'static,
     >(
@@ -885,6 +1586,8 @@ pub trait FileExt: IsA<File> + sealed::Sealed + 'static {
         }
     }
 
+    #[cfg(any(feature = "v2_56", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v2_56")))]
     fn load_bytes_future(
         &self,
     ) -> Pin<
@@ -904,7 +1607,6 @@ pub trait FileExt: IsA<File> + sealed::Sealed + 'static {
         ))
     }
 
-    #[doc(alias = "g_file_load_contents")]
     fn load_contents(
         &self,
         cancellable: Option<&impl IsA<Cancellable>>,
@@ -922,10 +1624,10 @@ pub trait FileExt: IsA<File> + sealed::Sealed + 'static {
                 &mut etag_out,
                 &mut error,
             );
-            debug_assert_eq!(is_ok == glib::ffi::GFALSE, !error.is_null());
+            assert_eq!(is_ok == glib::ffi::GFALSE, !error.is_null());
             if error.is_null() {
                 Ok((
-                    FromGlibContainer::from_glib_full_num(contents, length.assume_init() as _),
+                    FromGlibContainer::from_glib_full_num(contents, length.assume_init() as usize),
                     from_glib_full(etag_out),
                 ))
             } else {
@@ -934,7 +1636,6 @@ pub trait FileExt: IsA<File> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_file_load_contents_async")]
     fn load_contents_async<
         P: FnOnce(Result<(Vec<u8>, Option<glib::GString>), glib::Error>) + 'static,
     >(
@@ -975,7 +1676,7 @@ pub trait FileExt: IsA<File> + sealed::Sealed + 'static {
             );
             let result = if error.is_null() {
                 Ok((
-                    FromGlibContainer::from_glib_full_num(contents, length.assume_init() as _),
+                    FromGlibContainer::from_glib_full_num(contents, length.assume_init() as usize),
                     from_glib_full(etag_out),
                 ))
             } else {
@@ -1015,7 +1716,6 @@ pub trait FileExt: IsA<File> + sealed::Sealed + 'static {
         ))
     }
 
-    #[doc(alias = "g_file_make_directory")]
     fn make_directory(
         &self,
         cancellable: Option<&impl IsA<Cancellable>>,
@@ -1027,7 +1727,7 @@ pub trait FileExt: IsA<File> + sealed::Sealed + 'static {
                 cancellable.map(|p| p.as_ref()).to_glib_none().0,
                 &mut error,
             );
-            debug_assert_eq!(is_ok == glib::ffi::GFALSE, !error.is_null());
+            assert_eq!(is_ok == glib::ffi::GFALSE, !error.is_null());
             if error.is_null() {
                 Ok(())
             } else {
@@ -1036,7 +1736,6 @@ pub trait FileExt: IsA<File> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_file_make_directory_async")]
     fn make_directory_async<P: FnOnce(Result<(), glib::Error>) + 'static>(
         &self,
         io_priority: glib::Priority,
@@ -1100,7 +1799,6 @@ pub trait FileExt: IsA<File> + sealed::Sealed + 'static {
         ))
     }
 
-    #[doc(alias = "g_file_make_directory_with_parents")]
     fn make_directory_with_parents(
         &self,
         cancellable: Option<&impl IsA<Cancellable>>,
@@ -1112,7 +1810,7 @@ pub trait FileExt: IsA<File> + sealed::Sealed + 'static {
                 cancellable.map(|p| p.as_ref()).to_glib_none().0,
                 &mut error,
             );
-            debug_assert_eq!(is_ok == glib::ffi::GFALSE, !error.is_null());
+            assert_eq!(is_ok == glib::ffi::GFALSE, !error.is_null());
             if error.is_null() {
                 Ok(())
             } else {
@@ -1121,7 +1819,6 @@ pub trait FileExt: IsA<File> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_file_make_symbolic_link")]
     fn make_symbolic_link(
         &self,
         symlink_value: impl AsRef<std::path::Path>,
@@ -1135,7 +1832,7 @@ pub trait FileExt: IsA<File> + sealed::Sealed + 'static {
                 cancellable.map(|p| p.as_ref()).to_glib_none().0,
                 &mut error,
             );
-            debug_assert_eq!(is_ok == glib::ffi::GFALSE, !error.is_null());
+            assert_eq!(is_ok == glib::ffi::GFALSE, !error.is_null());
             if error.is_null() {
                 Ok(())
             } else {
@@ -1144,7 +1841,6 @@ pub trait FileExt: IsA<File> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_file_monitor")]
     fn monitor(
         &self,
         flags: FileMonitorFlags,
@@ -1166,7 +1862,6 @@ pub trait FileExt: IsA<File> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_file_monitor_directory")]
     fn monitor_directory(
         &self,
         flags: FileMonitorFlags,
@@ -1188,7 +1883,6 @@ pub trait FileExt: IsA<File> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_file_monitor_file")]
     fn monitor_file(
         &self,
         flags: FileMonitorFlags,
@@ -1210,7 +1904,6 @@ pub trait FileExt: IsA<File> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_file_mount_enclosing_volume")]
     fn mount_enclosing_volume<P: FnOnce(Result<(), glib::Error>) + 'static>(
         &self,
         flags: MountMountFlags,
@@ -1287,7 +1980,6 @@ pub trait FileExt: IsA<File> + sealed::Sealed + 'static {
         ))
     }
 
-    #[doc(alias = "g_file_mount_mountable")]
     fn mount_mountable<P: FnOnce(Result<File, glib::Error>) + 'static>(
         &self,
         flags: MountMountFlags,
@@ -1360,8 +2052,6 @@ pub trait FileExt: IsA<File> + sealed::Sealed + 'static {
         ))
     }
 
-    #[doc(alias = "g_file_move")]
-    #[doc(alias = "move")]
     fn move_(
         &self,
         destination: &impl IsA<File>,
@@ -1373,15 +2063,15 @@ pub trait FileExt: IsA<File> + sealed::Sealed + 'static {
         unsafe extern "C" fn progress_callback_func(
             current_num_bytes: i64,
             total_num_bytes: i64,
-            data: glib::ffi::gpointer,
+            user_data: glib::ffi::gpointer,
         ) {
             let callback: *mut Option<&mut dyn (FnMut(i64, i64))> =
-                data as *const _ as usize as *mut Option<&mut dyn (FnMut(i64, i64))>;
+                user_data as *const _ as usize as *mut Option<&mut dyn (FnMut(i64, i64))>;
             if let Some(ref mut callback) = *callback {
                 callback(current_num_bytes, total_num_bytes)
             } else {
                 panic!("cannot get closure...")
-            }
+            };
         }
         let progress_callback = if progress_callback_data.is_some() {
             Some(progress_callback_func as _)
@@ -1400,7 +2090,7 @@ pub trait FileExt: IsA<File> + sealed::Sealed + 'static {
                 super_callback0 as *const _ as usize as *mut _,
                 &mut error,
             );
-            debug_assert_eq!(is_ok == glib::ffi::GFALSE, !error.is_null());
+            assert_eq!(is_ok == glib::ffi::GFALSE, !error.is_null());
             if error.is_null() {
                 Ok(())
             } else {
@@ -1409,7 +2099,6 @@ pub trait FileExt: IsA<File> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_file_open_readwrite")]
     fn open_readwrite(
         &self,
         cancellable: Option<&impl IsA<Cancellable>>,
@@ -1429,7 +2118,6 @@ pub trait FileExt: IsA<File> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_file_open_readwrite_async")]
     fn open_readwrite_async<P: FnOnce(Result<FileIOStream, glib::Error>) + 'static>(
         &self,
         io_priority: glib::Priority,
@@ -1494,12 +2182,12 @@ pub trait FileExt: IsA<File> + sealed::Sealed + 'static {
         ))
     }
 
-    #[doc(alias = "g_file_peek_path")]
+    #[cfg(any(feature = "v2_56", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v2_56")))]
     fn peek_path(&self) -> Option<std::path::PathBuf> {
         unsafe { from_glib_none(ffi::g_file_peek_path(self.as_ref().to_glib_none().0)) }
     }
 
-    #[doc(alias = "g_file_poll_mountable")]
     fn poll_mountable<P: FnOnce(Result<(), glib::Error>) + 'static>(
         &self,
         cancellable: Option<&impl IsA<Cancellable>>,
@@ -1560,7 +2248,6 @@ pub trait FileExt: IsA<File> + sealed::Sealed + 'static {
         ))
     }
 
-    #[doc(alias = "g_file_query_default_handler")]
     fn query_default_handler(
         &self,
         cancellable: Option<&impl IsA<Cancellable>>,
@@ -1580,9 +2267,8 @@ pub trait FileExt: IsA<File> + sealed::Sealed + 'static {
         }
     }
 
-    #[cfg(feature = "v2_60")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "v2_60")))]
-    #[doc(alias = "g_file_query_default_handler_async")]
+    #[cfg(any(feature = "v2_60", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v2_60")))]
     fn query_default_handler_async<P: FnOnce(Result<AppInfo, glib::Error>) + 'static>(
         &self,
         io_priority: glib::Priority,
@@ -1633,8 +2319,8 @@ pub trait FileExt: IsA<File> + sealed::Sealed + 'static {
         }
     }
 
-    #[cfg(feature = "v2_60")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "v2_60")))]
+    #[cfg(any(feature = "v2_60", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v2_60")))]
     fn query_default_handler_future(
         &self,
         io_priority: glib::Priority,
@@ -1649,7 +2335,6 @@ pub trait FileExt: IsA<File> + sealed::Sealed + 'static {
         ))
     }
 
-    #[doc(alias = "g_file_query_exists")]
     fn query_exists(&self, cancellable: Option<&impl IsA<Cancellable>>) -> bool {
         unsafe {
             from_glib(ffi::g_file_query_exists(
@@ -1659,7 +2344,6 @@ pub trait FileExt: IsA<File> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_file_query_file_type")]
     fn query_file_type(
         &self,
         flags: FileQueryInfoFlags,
@@ -1674,7 +2358,6 @@ pub trait FileExt: IsA<File> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_file_query_filesystem_info")]
     fn query_filesystem_info(
         &self,
         attributes: &str,
@@ -1696,7 +2379,6 @@ pub trait FileExt: IsA<File> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_file_query_filesystem_info_async")]
     fn query_filesystem_info_async<P: FnOnce(Result<FileInfo, glib::Error>) + 'static>(
         &self,
         attributes: &str,
@@ -1770,7 +2452,6 @@ pub trait FileExt: IsA<File> + sealed::Sealed + 'static {
         ))
     }
 
-    #[doc(alias = "g_file_query_info")]
     fn query_info(
         &self,
         attributes: &str,
@@ -1794,7 +2475,6 @@ pub trait FileExt: IsA<File> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_file_query_info_async")]
     fn query_info_async<P: FnOnce(Result<FileInfo, glib::Error>) + 'static>(
         &self,
         attributes: &str,
@@ -1871,7 +2551,6 @@ pub trait FileExt: IsA<File> + sealed::Sealed + 'static {
         ))
     }
 
-    #[doc(alias = "g_file_query_settable_attributes")]
     fn query_settable_attributes(
         &self,
         cancellable: Option<&impl IsA<Cancellable>>,
@@ -1891,7 +2570,6 @@ pub trait FileExt: IsA<File> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_file_query_writable_namespaces")]
     fn query_writable_namespaces(
         &self,
         cancellable: Option<&impl IsA<Cancellable>>,
@@ -1911,7 +2589,6 @@ pub trait FileExt: IsA<File> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_file_read")]
     fn read(
         &self,
         cancellable: Option<&impl IsA<Cancellable>>,
@@ -1931,7 +2608,6 @@ pub trait FileExt: IsA<File> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_file_read_async")]
     fn read_async<P: FnOnce(Result<FileInputStream, glib::Error>) + 'static>(
         &self,
         io_priority: glib::Priority,
@@ -1996,7 +2672,6 @@ pub trait FileExt: IsA<File> + sealed::Sealed + 'static {
         ))
     }
 
-    #[doc(alias = "g_file_replace")]
     fn replace(
         &self,
         etag: Option<&str>,
@@ -2022,7 +2697,6 @@ pub trait FileExt: IsA<File> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_file_replace_async")]
     fn replace_async<P: FnOnce(Result<FileOutputStream, glib::Error>) + 'static>(
         &self,
         etag: Option<&str>,
@@ -2104,7 +2778,6 @@ pub trait FileExt: IsA<File> + sealed::Sealed + 'static {
         ))
     }
 
-    #[doc(alias = "g_file_replace_contents")]
     fn replace_contents(
         &self,
         contents: &[u8],
@@ -2113,7 +2786,7 @@ pub trait FileExt: IsA<File> + sealed::Sealed + 'static {
         flags: FileCreateFlags,
         cancellable: Option<&impl IsA<Cancellable>>,
     ) -> Result<Option<glib::GString>, glib::Error> {
-        let length = contents.len() as _;
+        let length = contents.len() as usize;
         unsafe {
             let mut new_etag = ptr::null_mut();
             let mut error = ptr::null_mut();
@@ -2128,7 +2801,7 @@ pub trait FileExt: IsA<File> + sealed::Sealed + 'static {
                 cancellable.map(|p| p.as_ref()).to_glib_none().0,
                 &mut error,
             );
-            debug_assert_eq!(is_ok == glib::ffi::GFALSE, !error.is_null());
+            assert_eq!(is_ok == glib::ffi::GFALSE, !error.is_null());
             if error.is_null() {
                 Ok(from_glib_full(new_etag))
             } else {
@@ -2137,12 +2810,10 @@ pub trait FileExt: IsA<File> + sealed::Sealed + 'static {
         }
     }
 
-    //#[doc(alias = "g_file_replace_contents_bytes_async")]
     //fn replace_contents_bytes_async<P: FnOnce(Result<(), glib::Error>) + 'static>(&self, contents: &glib::Bytes, etag: Option<&str>, make_backup: bool, flags: FileCreateFlags, cancellable: Option<&impl IsA<Cancellable>>, callback: P) {
     //    unsafe { TODO: call ffi:g_file_replace_contents_bytes_async() }
     //}
 
-    #[doc(alias = "g_file_replace_readwrite")]
     fn replace_readwrite(
         &self,
         etag: Option<&str>,
@@ -2168,7 +2839,6 @@ pub trait FileExt: IsA<File> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_file_replace_readwrite_async")]
     fn replace_readwrite_async<P: FnOnce(Result<FileIOStream, glib::Error>) + 'static>(
         &self,
         etag: Option<&str>,
@@ -2251,8 +2921,6 @@ pub trait FileExt: IsA<File> + sealed::Sealed + 'static {
         ))
     }
 
-    #[doc(alias = "g_file_resolve_relative_path")]
-    #[must_use]
     fn resolve_relative_path(&self, relative_path: impl AsRef<std::path::Path>) -> File {
         unsafe {
             from_glib_full(ffi::g_file_resolve_relative_path(
@@ -2262,12 +2930,10 @@ pub trait FileExt: IsA<File> + sealed::Sealed + 'static {
         }
     }
 
-    //#[doc(alias = "g_file_set_attribute")]
-    //fn set_attribute(&self, attribute: &str, type_: FileAttributeType, value_p: /*Unimplemented*/Option<Basic: Pointer>, flags: FileQueryInfoFlags, cancellable: Option<&impl IsA<Cancellable>>) -> Result<(), glib::Error> {
+    //fn set_attribute(&self, attribute: &str, type_: FileAttributeType, value_p: /*Unimplemented*/Option<Fundamental: Pointer>, flags: FileQueryInfoFlags, cancellable: Option<&impl IsA<Cancellable>>) -> Result<(), glib::Error> {
     //    unsafe { TODO: call ffi:g_file_set_attribute() }
     //}
 
-    #[doc(alias = "g_file_set_attribute_byte_string")]
     fn set_attribute_byte_string(
         &self,
         attribute: &str,
@@ -2285,7 +2951,7 @@ pub trait FileExt: IsA<File> + sealed::Sealed + 'static {
                 cancellable.map(|p| p.as_ref()).to_glib_none().0,
                 &mut error,
             );
-            debug_assert_eq!(is_ok == glib::ffi::GFALSE, !error.is_null());
+            assert_eq!(is_ok == glib::ffi::GFALSE, !error.is_null());
             if error.is_null() {
                 Ok(())
             } else {
@@ -2294,7 +2960,6 @@ pub trait FileExt: IsA<File> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_file_set_attribute_int32")]
     fn set_attribute_int32(
         &self,
         attribute: &str,
@@ -2312,7 +2977,7 @@ pub trait FileExt: IsA<File> + sealed::Sealed + 'static {
                 cancellable.map(|p| p.as_ref()).to_glib_none().0,
                 &mut error,
             );
-            debug_assert_eq!(is_ok == glib::ffi::GFALSE, !error.is_null());
+            assert_eq!(is_ok == glib::ffi::GFALSE, !error.is_null());
             if error.is_null() {
                 Ok(())
             } else {
@@ -2321,7 +2986,6 @@ pub trait FileExt: IsA<File> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_file_set_attribute_int64")]
     fn set_attribute_int64(
         &self,
         attribute: &str,
@@ -2339,7 +3003,7 @@ pub trait FileExt: IsA<File> + sealed::Sealed + 'static {
                 cancellable.map(|p| p.as_ref()).to_glib_none().0,
                 &mut error,
             );
-            debug_assert_eq!(is_ok == glib::ffi::GFALSE, !error.is_null());
+            assert_eq!(is_ok == glib::ffi::GFALSE, !error.is_null());
             if error.is_null() {
                 Ok(())
             } else {
@@ -2348,7 +3012,6 @@ pub trait FileExt: IsA<File> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_file_set_attribute_string")]
     fn set_attribute_string(
         &self,
         attribute: &str,
@@ -2366,7 +3029,7 @@ pub trait FileExt: IsA<File> + sealed::Sealed + 'static {
                 cancellable.map(|p| p.as_ref()).to_glib_none().0,
                 &mut error,
             );
-            debug_assert_eq!(is_ok == glib::ffi::GFALSE, !error.is_null());
+            assert_eq!(is_ok == glib::ffi::GFALSE, !error.is_null());
             if error.is_null() {
                 Ok(())
             } else {
@@ -2375,7 +3038,6 @@ pub trait FileExt: IsA<File> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_file_set_attribute_uint32")]
     fn set_attribute_uint32(
         &self,
         attribute: &str,
@@ -2393,7 +3055,7 @@ pub trait FileExt: IsA<File> + sealed::Sealed + 'static {
                 cancellable.map(|p| p.as_ref()).to_glib_none().0,
                 &mut error,
             );
-            debug_assert_eq!(is_ok == glib::ffi::GFALSE, !error.is_null());
+            assert_eq!(is_ok == glib::ffi::GFALSE, !error.is_null());
             if error.is_null() {
                 Ok(())
             } else {
@@ -2402,7 +3064,6 @@ pub trait FileExt: IsA<File> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_file_set_attribute_uint64")]
     fn set_attribute_uint64(
         &self,
         attribute: &str,
@@ -2420,7 +3081,7 @@ pub trait FileExt: IsA<File> + sealed::Sealed + 'static {
                 cancellable.map(|p| p.as_ref()).to_glib_none().0,
                 &mut error,
             );
-            debug_assert_eq!(is_ok == glib::ffi::GFALSE, !error.is_null());
+            assert_eq!(is_ok == glib::ffi::GFALSE, !error.is_null());
             if error.is_null() {
                 Ok(())
             } else {
@@ -2429,7 +3090,6 @@ pub trait FileExt: IsA<File> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_file_set_attributes_async")]
     fn set_attributes_async<P: FnOnce(Result<FileInfo, glib::Error>) + 'static>(
         &self,
         info: &FileInfo,
@@ -2512,7 +3172,6 @@ pub trait FileExt: IsA<File> + sealed::Sealed + 'static {
         ))
     }
 
-    #[doc(alias = "g_file_set_attributes_from_info")]
     fn set_attributes_from_info(
         &self,
         info: &FileInfo,
@@ -2528,7 +3187,7 @@ pub trait FileExt: IsA<File> + sealed::Sealed + 'static {
                 cancellable.map(|p| p.as_ref()).to_glib_none().0,
                 &mut error,
             );
-            debug_assert_eq!(is_ok == glib::ffi::GFALSE, !error.is_null());
+            assert_eq!(is_ok == glib::ffi::GFALSE, !error.is_null());
             if error.is_null() {
                 Ok(())
             } else {
@@ -2537,7 +3196,6 @@ pub trait FileExt: IsA<File> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_file_set_display_name")]
     fn set_display_name(
         &self,
         display_name: &str,
@@ -2559,7 +3217,6 @@ pub trait FileExt: IsA<File> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_file_set_display_name_async")]
     fn set_display_name_async<P: FnOnce(Result<File, glib::Error>) + 'static>(
         &self,
         display_name: &str,
@@ -2633,7 +3290,6 @@ pub trait FileExt: IsA<File> + sealed::Sealed + 'static {
         ))
     }
 
-    #[doc(alias = "g_file_start_mountable")]
     fn start_mountable<P: FnOnce(Result<(), glib::Error>) + 'static>(
         &self,
         flags: DriveStartFlags,
@@ -2706,7 +3362,6 @@ pub trait FileExt: IsA<File> + sealed::Sealed + 'static {
         ))
     }
 
-    #[doc(alias = "g_file_stop_mountable")]
     fn stop_mountable<P: FnOnce(Result<(), glib::Error>) + 'static>(
         &self,
         flags: MountUnmountFlags,
@@ -2779,7 +3434,6 @@ pub trait FileExt: IsA<File> + sealed::Sealed + 'static {
         ))
     }
 
-    #[doc(alias = "g_file_supports_thread_contexts")]
     fn supports_thread_contexts(&self) -> bool {
         unsafe {
             from_glib(ffi::g_file_supports_thread_contexts(
@@ -2788,7 +3442,6 @@ pub trait FileExt: IsA<File> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_file_trash")]
     fn trash(&self, cancellable: Option<&impl IsA<Cancellable>>) -> Result<(), glib::Error> {
         unsafe {
             let mut error = ptr::null_mut();
@@ -2797,7 +3450,7 @@ pub trait FileExt: IsA<File> + sealed::Sealed + 'static {
                 cancellable.map(|p| p.as_ref()).to_glib_none().0,
                 &mut error,
             );
-            debug_assert_eq!(is_ok == glib::ffi::GFALSE, !error.is_null());
+            assert_eq!(is_ok == glib::ffi::GFALSE, !error.is_null());
             if error.is_null() {
                 Ok(())
             } else {
@@ -2806,7 +3459,6 @@ pub trait FileExt: IsA<File> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_file_trash_async")]
     fn trash_async<P: FnOnce(Result<(), glib::Error>) + 'static>(
         &self,
         io_priority: glib::Priority,
@@ -2870,7 +3522,6 @@ pub trait FileExt: IsA<File> + sealed::Sealed + 'static {
         ))
     }
 
-    #[doc(alias = "g_file_unmount_mountable_with_operation")]
     fn unmount_mountable_with_operation<P: FnOnce(Result<(), glib::Error>) + 'static>(
         &self,
         flags: MountUnmountFlags,
@@ -2947,8 +3598,6 @@ pub trait FileExt: IsA<File> + sealed::Sealed + 'static {
         ))
     }
 }
-
-impl<O: IsA<File>> FileExt for O {}
 
 impl fmt::Display for File {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {

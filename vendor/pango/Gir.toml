@@ -5,15 +5,15 @@ version = "1.0"
 target_path = "."
 work_mode = "normal"
 generate_safety_asserts = false
-min_cfg_version = "1.40"
+min_cfg_version = "1.38"
 use_gi_docgen = true
 single_version_file = true
 deprecate_by_min_version = true
-trust_return_value_nullability = true
 
 generate = [
     # "Pango.GlyphVisAttr",
     # "Pango.LogAttr",
+    # "Pango.ScriptIter",
     "Pango.Alignment",
     "Pango.BaselineShift",
     "Pango.BidiType",
@@ -21,12 +21,14 @@ generate = [
     "Pango.Direction",
     "Pango.EllipsizeMode",
     "Pango.FontFace",
+    "Pango.FontFamily",
     "Pango.FontMask",
     "Pango.FontMetrics",
     "Pango.FontScale",
     "Pango.Fontset",
     "Pango.FontsetSimple",
     "Pango.Glyph",
+    "Pango.GlyphItem",
     "Pango.GlyphUnit",
     "Pango.Gravity",
     "Pango.GravityHint",
@@ -50,10 +52,8 @@ generate = [
 ]
 
 manual = [
-    "Gio.ListModel",
     "GLib.Bytes",
     "GLib.Error",
-    "GLib.MarkupParseContext",
     "GLib.Quark",
     "Pango.Analysis",
     "Pango.AttrClass",
@@ -69,6 +69,7 @@ manual = [
     "Pango.Coverage",
     "Pango.GlyphGeometry",
     "Pango.GlyphInfo",
+    "Pango.Language",
     "Pango.LayoutDeserializeError",
     "Pango.Rectangle",
 ]
@@ -81,7 +82,9 @@ status = "generate"
     ignore = true
     [[object.function]]
     name = "extents_to_pixels"
-    manual = true
+        [[object.function.parameter]]
+        pattern = ".+"
+        const = true
     [[object.function]]
     name = "get_mirror_char"
     #out param
@@ -106,15 +109,15 @@ status = "generate"
         const = true
     [[object.function]]
     name = "reorder_items"
-    manual = true
+    ignore = true
     [[object.function]]
     name = "shape_full"
     # invalid length computation on Stash instead of str
-    manual = true
+    ignore = true
     [[object.function]]
     name = "shape_with_flags"
     # ivanlid length computation on a Option<str>, it should fallback to 0.
-    manual = true
+    ignore = true
 
 [[object]]
 name = "Pango.Attribute"
@@ -134,10 +137,13 @@ concurrency = "send+sync"
 
 [[object]]
 name = "Pango.AttrIterator"
-status = "manual"
+status = "generate"
     [[object.function]]
-    name = "next"
-    rename = "next_style_change"
+    name = "get_font"
+    manual = true
+    [[object.function]]
+    name = "get_type"
+    version = "1.44"
 
 [[object]]
 name = "Pango.AttrList"
@@ -202,26 +208,10 @@ boxed_inline = true
 name = "Pango.Context"
 status = "generate"
     [[object.function]]
-    name = "new"
-        # Can be removed once https://gitlab.gnome.org/GNOME/pango/-/merge_requests/651
-        # has been merged.
-        [object.function.return]
-        nullable = false
-    [[object.function]]
-    name = "get_language"
-        # Can be removed once https://gitlab.gnome.org/GNOME/pango/-/issues/709
-        # has been fixed.
-        [object.function.return]
-        nullable = true
-    [[object.function]]
     name = "get_metrics"
         [[object.function.parameter]]
         name = "language"
         const = true
-        # Can be removed once https://gitlab.gnome.org/GNOME/pango/-/merge_requests/651
-        # has been merged.
-        [object.function.return]
-        nullable = false
     [[object.function]]
     name = "load_fontset"
         [[object.function.parameter]]
@@ -258,11 +248,19 @@ status = "generate"
     name = "get_languages"
     # TODO: requires FromGlibPtrArrayContainerAsVec implementation
     ignore = true
+    [[object.function]]
+    pattern = "serialize"
+        [object.function.return]
+        nullable = false
 
 [[object]]
 name = "Pango.FontDescription"
 status = "generate"
 concurrency = "send+sync"
+    [[object.function]]
+    name = "from_string"
+        [object.function.return]
+        nullable = false
     [[object.function]]
     name = "set_family_static"
     ignore = true
@@ -277,24 +275,8 @@ concurrency = "send+sync"
     ignore = true
 
 [[object]]
-name = "Pango.FontFamily"
-status = "generate"
-    [[object.property]]
-    name = "item-type"
-    generate = [] # disable generated getter/notify, use the ones from GListModel iface
-    [[object.property]]
-    name = "n-items"
-    generate = [] # disable generated getter/notify, use the ones from GListModel iface
-
-[[object]]
 name = "Pango.FontMap"
 status = "generate"
-    [[object.property]]
-    name = "item-type"
-    generate = [] # disable generated getter/notify, use the ones from GListModel iface
-    [[object.property]]
-    name = "n-items"
-    generate = [] # disable generated getter/notify, use the ones from GListModel iface
     [[object.function]]
     name = "load_fontset"
         [[object.function.parameter]]
@@ -302,59 +284,17 @@ status = "generate"
         const = true
 
 [[object]]
-name = "Pango.GlyphItem"
+name = "Pango.GlyphItemIter"
 status = "generate"
     [[object.function]]
-    name = "get_logical_widths"
+    pattern = "init.*"
+    # converted to proper constructors
     manual = true
-
-[[object]]
-name = "Pango.GlyphItemIter"
-status = "manual"
-    [[object.function]]
-    name = "init_start"
-    rename = "new_start"
-    [[object.function]]
-    name = "init_end"
-    rename = "new_end"
 
 [[object]]
 name = "Pango.GlyphString"
 status = "generate"
 concurrency = "send+sync"
-    [[object.function]]
-    name = "get_logical_widths"
-    manual = true
-    [[object.function]]
-    pattern = "(get_width|index_to_x|x_to_index)"
-        [[object.function.parameter]]
-        name = "glyphs"
-        const = true
-    [[object.function]]
-    pattern = "(index_to_x|x_to_index)"
-        [[object.function.parameter]]
-        name = "analysis"
-        const = true
-
-[[object]]
-name = "Pango.Language"
-status = "generate"
-    [[object.function]]
-    pattern = "get_scripts"
-    manual = true # enum arrays don't seem to be possible to be autogenerated
-    [[object.function]]
-    pattern = "(get_sample_string|includes_script|matches|to_string)"
-        [[object.function.parameter]]
-        name = "language"
-        const = true
-    [[object.function]]
-    name = "from_string"
-    # This only returns NULL when passing NULL
-        [[object.function.parameter]]
-        name = "language"
-        nullable = false
-        [object.function.return]
-        nullable = false
 
 [[object]]
 name = "Pango.Layout"
@@ -368,6 +308,10 @@ status = "generate"
         [[object.function.parameter]]
         name = "tabs"
         const = true
+    [[object.function]]
+    name = "serialize"
+        [object.function.return]
+        nullable = false
 
 [[object]]
 name = "Pango.LayoutLine"
@@ -388,13 +332,6 @@ boxed_inline = true
     manual = true
 
 [[object]]
-name = "Pango.ScriptIter"
-status = "manual"
-    [[object.function]]
-    name = "next"
-    rename = "next_range"
-
-[[object]]
 name = "Pango.TabAlign"
 status = "generate"
     [[object.member]]
@@ -412,13 +349,10 @@ name = "Pango.TabArray"
 status = "generate"
 concurrency = "send+sync"
     [[object.function]]
-    pattern = "(to_string|get_decimal_point|get_positions_in_pixels|get_size|get_tab)"
+    pattern = "(to_string|get_decimal_point|get_positions_in_pixels|get_tab)"
         [[object.function.parameter]]
         pattern = "*" # because we can't target self
         const = true
-    [[object.function]]
-    name = "get_tabs"
-    manual = true
     [[object.function]]
     name = "from_string"
         [object.function.return]

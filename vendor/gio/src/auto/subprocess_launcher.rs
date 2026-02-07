@@ -2,12 +2,14 @@
 // from gir-files (https://github.com/gtk-rs/gir-files)
 // DO NOT EDIT
 
-use crate::{Subprocess, SubprocessFlags};
+use crate::Subprocess;
+use crate::SubprocessFlags;
 use glib::translate::*;
-#[cfg(unix)]
-#[cfg_attr(docsrs, doc(cfg(unix)))]
+#[cfg(any(unix, feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(unix)))]
 use std::boxed::Box as Box_;
-use std::{fmt, ptr};
+use std::fmt;
+use std::ptr;
 
 glib::wrapper! {
     #[doc(alias = "GSubprocessLauncher")]
@@ -24,10 +26,10 @@ impl SubprocessLauncher {
         unsafe { from_glib_full(ffi::g_subprocess_launcher_new(flags.into_glib())) }
     }
 
-    #[cfg(unix)]
-    #[cfg_attr(docsrs, doc(cfg(unix)))]
-    #[cfg(feature = "v2_68")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "v2_68")))]
+    #[cfg(any(unix, feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(unix)))]
+    #[cfg(any(feature = "v2_68", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v2_68")))]
     #[doc(alias = "g_subprocess_launcher_close")]
     pub fn close(&self) {
         unsafe {
@@ -45,14 +47,14 @@ impl SubprocessLauncher {
         }
     }
 
-    #[cfg(unix)]
-    #[cfg_attr(docsrs, doc(cfg(unix)))]
+    #[cfg(any(unix, feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(unix)))]
     #[doc(alias = "g_subprocess_launcher_set_child_setup")]
     pub fn set_child_setup<P: Fn() + 'static>(&self, child_setup: P) {
         let child_setup_data: Box_<P> = Box_::new(child_setup);
-        unsafe extern "C" fn child_setup_func<P: Fn() + 'static>(data: glib::ffi::gpointer) {
-            let callback: &P = &*(data as *mut _);
-            (*callback)()
+        unsafe extern "C" fn child_setup_func<P: Fn() + 'static>(user_data: glib::ffi::gpointer) {
+            let callback: &P = &*(user_data as *mut _);
+            (*callback)();
         }
         let child_setup = Some(child_setup_func::<P> as _);
         unsafe extern "C" fn destroy_notify_func<P: Fn() + 'static>(data: glib::ffi::gpointer) {
@@ -94,8 +96,8 @@ impl SubprocessLauncher {
         }
     }
 
-    #[cfg(unix)]
-    #[cfg_attr(docsrs, doc(cfg(unix)))]
+    #[cfg(any(unix, feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(unix)))]
     #[doc(alias = "g_subprocess_launcher_set_stderr_file_path")]
     pub fn set_stderr_file_path(&self, path: Option<impl AsRef<std::path::Path>>) {
         unsafe {
@@ -106,8 +108,8 @@ impl SubprocessLauncher {
         }
     }
 
-    #[cfg(unix)]
-    #[cfg_attr(docsrs, doc(cfg(unix)))]
+    #[cfg(any(unix, feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(unix)))]
     #[doc(alias = "g_subprocess_launcher_set_stdin_file_path")]
     pub fn set_stdin_file_path(&self, path: &str) {
         unsafe {
@@ -118,8 +120,8 @@ impl SubprocessLauncher {
         }
     }
 
-    #[cfg(unix)]
-    #[cfg_attr(docsrs, doc(cfg(unix)))]
+    #[cfg(any(unix, feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(unix)))]
     #[doc(alias = "g_subprocess_launcher_set_stdout_file_path")]
     pub fn set_stdout_file_path(&self, path: Option<impl AsRef<std::path::Path>>) {
         unsafe {
@@ -148,7 +150,7 @@ impl SubprocessLauncher {
     }
 
     //#[doc(alias = "g_subprocess_launcher_spawn")]
-    //pub fn spawn(&self, error: &mut glib::Error, argv0: &str, : /*Unknown conversion*//*Unimplemented*/Basic: VarArgs) -> Subprocess {
+    //pub fn spawn(&self, error: &mut glib::Error, argv0: &str, : /*Unknown conversion*//*Unimplemented*/Fundamental: VarArgs) -> Subprocess {
     //    unsafe { TODO: call ffi:g_subprocess_launcher_spawn() }
     //}
 

@@ -2,13 +2,18 @@
 // from gir-files (https://github.com/gtk-rs/gir-files)
 // DO NOT EDIT
 
-use crate::{ApplicationInhibitFlags, Window};
-use glib::{
-    prelude::*,
-    signal::{connect_raw, SignalHandlerId},
-    translate::*,
-};
-use std::{boxed::Box as Box_, fmt, mem::transmute};
+use crate::ApplicationInhibitFlags;
+use crate::Window;
+use glib::object::Cast;
+use glib::object::IsA;
+use glib::signal::connect_raw;
+use glib::signal::SignalHandlerId;
+use glib::translate::*;
+use glib::StaticType;
+use glib::ToValue;
+use std::boxed::Box as Box_;
+use std::fmt;
+use std::mem::transmute;
 
 glib::wrapper! {
     #[doc(alias = "GtkApplication")]
@@ -27,101 +32,221 @@ impl Application {
     ///
     /// This method returns an instance of [`ApplicationBuilder`](crate::builders::ApplicationBuilder) which can be used to create [`Application`] objects.
     pub fn builder() -> ApplicationBuilder {
-        ApplicationBuilder::new()
+        ApplicationBuilder::default()
     }
 }
 
+#[derive(Clone, Default)]
 // rustdoc-stripper-ignore-next
 /// A [builder-pattern] type to construct [`Application`] objects.
 ///
 /// [builder-pattern]: https://doc.rust-lang.org/1.0.0/style/ownership/builders.html
 #[must_use = "The builder must be built to be used"]
 pub struct ApplicationBuilder {
-    builder: glib::object::ObjectBuilder<'static, Application>,
+    app_menu: Option<gio::MenuModel>,
+    menubar: Option<gio::MenuModel>,
+    register_session: Option<bool>,
+    action_group: Option<gio::ActionGroup>,
+    application_id: Option<String>,
+    flags: Option<gio::ApplicationFlags>,
+    inactivity_timeout: Option<u32>,
+    resource_base_path: Option<String>,
 }
 
 impl ApplicationBuilder {
-    fn new() -> Self {
-        Self {
-            builder: glib::object::Object::builder(),
-        }
-    }
-
-    pub fn app_menu(self, app_menu: &impl IsA<gio::MenuModel>) -> Self {
-        Self {
-            builder: self.builder.property("app-menu", app_menu.clone().upcast()),
-        }
-    }
-
-    pub fn menubar(self, menubar: &impl IsA<gio::MenuModel>) -> Self {
-        Self {
-            builder: self.builder.property("menubar", menubar.clone().upcast()),
-        }
-    }
-
-    pub fn register_session(self, register_session: bool) -> Self {
-        Self {
-            builder: self.builder.property("register-session", register_session),
-        }
-    }
-
-    pub fn action_group(self, action_group: &impl IsA<gio::ActionGroup>) -> Self {
-        Self {
-            builder: self
-                .builder
-                .property("action-group", action_group.clone().upcast()),
-        }
-    }
-
-    pub fn application_id(self, application_id: impl Into<glib::GString>) -> Self {
-        Self {
-            builder: self
-                .builder
-                .property("application-id", application_id.into()),
-        }
-    }
-
-    pub fn flags(self, flags: gio::ApplicationFlags) -> Self {
-        Self {
-            builder: self.builder.property("flags", flags),
-        }
-    }
-
-    pub fn inactivity_timeout(self, inactivity_timeout: u32) -> Self {
-        Self {
-            builder: self
-                .builder
-                .property("inactivity-timeout", inactivity_timeout),
-        }
-    }
-
-    pub fn resource_base_path(self, resource_base_path: impl Into<glib::GString>) -> Self {
-        Self {
-            builder: self
-                .builder
-                .property("resource-base-path", resource_base_path.into()),
-        }
+    // rustdoc-stripper-ignore-next
+    /// Create a new [`ApplicationBuilder`].
+    pub fn new() -> Self {
+        Self::default()
     }
 
     // rustdoc-stripper-ignore-next
     /// Build the [`Application`].
     #[must_use = "Building the object from the builder is usually expensive and is not expected to have side effects"]
     pub fn build(self) -> Application {
-        let ret = self.builder.build();
+        let mut properties: Vec<(&str, &dyn ToValue)> = vec![];
+        if let Some(ref app_menu) = self.app_menu {
+            properties.push(("app-menu", app_menu));
+        }
+        if let Some(ref menubar) = self.menubar {
+            properties.push(("menubar", menubar));
+        }
+        if let Some(ref register_session) = self.register_session {
+            properties.push(("register-session", register_session));
+        }
+        if let Some(ref action_group) = self.action_group {
+            properties.push(("action-group", action_group));
+        }
+        if let Some(ref application_id) = self.application_id {
+            properties.push(("application-id", application_id));
+        }
+        if let Some(ref flags) = self.flags {
+            properties.push(("flags", flags));
+        }
+        if let Some(ref inactivity_timeout) = self.inactivity_timeout {
+            properties.push(("inactivity-timeout", inactivity_timeout));
+        }
+        if let Some(ref resource_base_path) = self.resource_base_path {
+            properties.push(("resource-base-path", resource_base_path));
+        }
+        let ret = glib::Object::new::<Application>(&properties)
+            .expect("Failed to create an instance of Application");
         {
             Application::register_startup_hook(&ret);
         }
         ret
     }
+
+    pub fn app_menu(mut self, app_menu: &impl IsA<gio::MenuModel>) -> Self {
+        self.app_menu = Some(app_menu.clone().upcast());
+        self
+    }
+
+    pub fn menubar(mut self, menubar: &impl IsA<gio::MenuModel>) -> Self {
+        self.menubar = Some(menubar.clone().upcast());
+        self
+    }
+
+    pub fn register_session(mut self, register_session: bool) -> Self {
+        self.register_session = Some(register_session);
+        self
+    }
+
+    pub fn action_group(mut self, action_group: &impl IsA<gio::ActionGroup>) -> Self {
+        self.action_group = Some(action_group.clone().upcast());
+        self
+    }
+
+    pub fn application_id(mut self, application_id: &str) -> Self {
+        self.application_id = Some(application_id.to_string());
+        self
+    }
+
+    pub fn flags(mut self, flags: gio::ApplicationFlags) -> Self {
+        self.flags = Some(flags);
+        self
+    }
+
+    pub fn inactivity_timeout(mut self, inactivity_timeout: u32) -> Self {
+        self.inactivity_timeout = Some(inactivity_timeout);
+        self
+    }
+
+    pub fn resource_base_path(mut self, resource_base_path: &str) -> Self {
+        self.resource_base_path = Some(resource_base_path.to_string());
+        self
+    }
 }
 
-mod sealed {
-    pub trait Sealed {}
-    impl<T: super::IsA<super::Application>> Sealed for T {}
-}
-
-pub trait GtkApplicationExt: IsA<Application> + sealed::Sealed + 'static {
+pub trait GtkApplicationExt: 'static {
     #[doc(alias = "gtk_application_add_window")]
+    fn add_window(&self, window: &impl IsA<Window>);
+
+    #[doc(alias = "gtk_application_get_accels_for_action")]
+    #[doc(alias = "get_accels_for_action")]
+    fn accels_for_action(&self, detailed_action_name: &str) -> Vec<glib::GString>;
+
+    #[doc(alias = "gtk_application_get_actions_for_accel")]
+    #[doc(alias = "get_actions_for_accel")]
+    fn actions_for_accel(&self, accel: &str) -> Vec<glib::GString>;
+
+    #[doc(alias = "gtk_application_get_active_window")]
+    #[doc(alias = "get_active_window")]
+    fn active_window(&self) -> Option<Window>;
+
+    #[doc(alias = "gtk_application_get_app_menu")]
+    #[doc(alias = "get_app_menu")]
+    fn app_menu(&self) -> Option<gio::MenuModel>;
+
+    #[doc(alias = "gtk_application_get_menu_by_id")]
+    #[doc(alias = "get_menu_by_id")]
+    fn menu_by_id(&self, id: &str) -> Option<gio::Menu>;
+
+    #[doc(alias = "gtk_application_get_menubar")]
+    #[doc(alias = "get_menubar")]
+    fn menubar(&self) -> Option<gio::MenuModel>;
+
+    #[doc(alias = "gtk_application_get_window_by_id")]
+    #[doc(alias = "get_window_by_id")]
+    fn window_by_id(&self, id: u32) -> Option<Window>;
+
+    #[doc(alias = "gtk_application_get_windows")]
+    #[doc(alias = "get_windows")]
+    fn windows(&self) -> Vec<Window>;
+
+    #[doc(alias = "gtk_application_inhibit")]
+    fn inhibit(
+        &self,
+        window: Option<&impl IsA<Window>>,
+        flags: ApplicationInhibitFlags,
+        reason: Option<&str>,
+    ) -> u32;
+
+    #[doc(alias = "gtk_application_is_inhibited")]
+    fn is_inhibited(&self, flags: ApplicationInhibitFlags) -> bool;
+
+    #[doc(alias = "gtk_application_list_action_descriptions")]
+    fn list_action_descriptions(&self) -> Vec<glib::GString>;
+
+    #[doc(alias = "gtk_application_prefers_app_menu")]
+    fn prefers_app_menu(&self) -> bool;
+
+    #[doc(alias = "gtk_application_remove_window")]
+    fn remove_window(&self, window: &impl IsA<Window>);
+
+    #[doc(alias = "gtk_application_set_accels_for_action")]
+    fn set_accels_for_action(&self, detailed_action_name: &str, accels: &[&str]);
+
+    #[doc(alias = "gtk_application_set_app_menu")]
+    fn set_app_menu(&self, app_menu: Option<&impl IsA<gio::MenuModel>>);
+
+    #[doc(alias = "gtk_application_set_menubar")]
+    fn set_menubar(&self, menubar: Option<&impl IsA<gio::MenuModel>>);
+
+    #[doc(alias = "gtk_application_uninhibit")]
+    fn uninhibit(&self, cookie: u32);
+
+    #[doc(alias = "register-session")]
+    fn is_register_session(&self) -> bool;
+
+    #[doc(alias = "register-session")]
+    fn set_register_session(&self, register_session: bool);
+
+    #[cfg(any(feature = "v3_24", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_24")))]
+    #[doc(alias = "screensaver-active")]
+    fn is_screensaver_active(&self) -> bool;
+
+    #[cfg(any(feature = "v3_24_8", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_24_8")))]
+    #[doc(alias = "query-end")]
+    fn connect_query_end<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "window-added")]
+    fn connect_window_added<F: Fn(&Self, &Window) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "window-removed")]
+    fn connect_window_removed<F: Fn(&Self, &Window) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "active-window")]
+    fn connect_active_window_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "app-menu")]
+    fn connect_app_menu_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "menubar")]
+    fn connect_menubar_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "register-session")]
+    fn connect_register_session_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[cfg(any(feature = "v3_24", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_24")))]
+    #[doc(alias = "screensaver-active")]
+    fn connect_screensaver_active_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+}
+
+impl<O: IsA<Application>> GtkApplicationExt for O {
     fn add_window(&self, window: &impl IsA<Window>) {
         unsafe {
             ffi::gtk_application_add_window(
@@ -131,8 +256,6 @@ pub trait GtkApplicationExt: IsA<Application> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_application_get_accels_for_action")]
-    #[doc(alias = "get_accels_for_action")]
     fn accels_for_action(&self, detailed_action_name: &str) -> Vec<glib::GString> {
         unsafe {
             FromGlibPtrContainer::from_glib_full(ffi::gtk_application_get_accels_for_action(
@@ -142,8 +265,6 @@ pub trait GtkApplicationExt: IsA<Application> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_application_get_actions_for_accel")]
-    #[doc(alias = "get_actions_for_accel")]
     fn actions_for_accel(&self, accel: &str) -> Vec<glib::GString> {
         unsafe {
             FromGlibPtrContainer::from_glib_full(ffi::gtk_application_get_actions_for_accel(
@@ -153,8 +274,6 @@ pub trait GtkApplicationExt: IsA<Application> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_application_get_active_window")]
-    #[doc(alias = "get_active_window")]
     fn active_window(&self) -> Option<Window> {
         unsafe {
             from_glib_none(ffi::gtk_application_get_active_window(
@@ -163,8 +282,6 @@ pub trait GtkApplicationExt: IsA<Application> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_application_get_app_menu")]
-    #[doc(alias = "get_app_menu")]
     fn app_menu(&self) -> Option<gio::MenuModel> {
         unsafe {
             from_glib_none(ffi::gtk_application_get_app_menu(
@@ -173,8 +290,6 @@ pub trait GtkApplicationExt: IsA<Application> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_application_get_menu_by_id")]
-    #[doc(alias = "get_menu_by_id")]
     fn menu_by_id(&self, id: &str) -> Option<gio::Menu> {
         unsafe {
             from_glib_none(ffi::gtk_application_get_menu_by_id(
@@ -184,8 +299,6 @@ pub trait GtkApplicationExt: IsA<Application> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_application_get_menubar")]
-    #[doc(alias = "get_menubar")]
     fn menubar(&self) -> Option<gio::MenuModel> {
         unsafe {
             from_glib_none(ffi::gtk_application_get_menubar(
@@ -194,8 +307,6 @@ pub trait GtkApplicationExt: IsA<Application> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_application_get_window_by_id")]
-    #[doc(alias = "get_window_by_id")]
     fn window_by_id(&self, id: u32) -> Option<Window> {
         unsafe {
             from_glib_none(ffi::gtk_application_get_window_by_id(
@@ -205,8 +316,6 @@ pub trait GtkApplicationExt: IsA<Application> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_application_get_windows")]
-    #[doc(alias = "get_windows")]
     fn windows(&self) -> Vec<Window> {
         unsafe {
             FromGlibPtrContainer::from_glib_none(ffi::gtk_application_get_windows(
@@ -215,7 +324,6 @@ pub trait GtkApplicationExt: IsA<Application> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_application_inhibit")]
     fn inhibit(
         &self,
         window: Option<&impl IsA<Window>>,
@@ -232,7 +340,6 @@ pub trait GtkApplicationExt: IsA<Application> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_application_is_inhibited")]
     fn is_inhibited(&self, flags: ApplicationInhibitFlags) -> bool {
         unsafe {
             from_glib(ffi::gtk_application_is_inhibited(
@@ -242,7 +349,6 @@ pub trait GtkApplicationExt: IsA<Application> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_application_list_action_descriptions")]
     fn list_action_descriptions(&self) -> Vec<glib::GString> {
         unsafe {
             FromGlibPtrContainer::from_glib_full(ffi::gtk_application_list_action_descriptions(
@@ -251,7 +357,6 @@ pub trait GtkApplicationExt: IsA<Application> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_application_prefers_app_menu")]
     fn prefers_app_menu(&self) -> bool {
         unsafe {
             from_glib(ffi::gtk_application_prefers_app_menu(
@@ -260,7 +365,6 @@ pub trait GtkApplicationExt: IsA<Application> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_application_remove_window")]
     fn remove_window(&self, window: &impl IsA<Window>) {
         unsafe {
             ffi::gtk_application_remove_window(
@@ -270,7 +374,6 @@ pub trait GtkApplicationExt: IsA<Application> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_application_set_accels_for_action")]
     fn set_accels_for_action(&self, detailed_action_name: &str, accels: &[&str]) {
         unsafe {
             ffi::gtk_application_set_accels_for_action(
@@ -281,7 +384,6 @@ pub trait GtkApplicationExt: IsA<Application> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_application_set_app_menu")]
     fn set_app_menu(&self, app_menu: Option<&impl IsA<gio::MenuModel>>) {
         unsafe {
             ffi::gtk_application_set_app_menu(
@@ -291,7 +393,6 @@ pub trait GtkApplicationExt: IsA<Application> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_application_set_menubar")]
     fn set_menubar(&self, menubar: Option<&impl IsA<gio::MenuModel>>) {
         unsafe {
             ffi::gtk_application_set_menubar(
@@ -301,33 +402,28 @@ pub trait GtkApplicationExt: IsA<Application> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_application_uninhibit")]
     fn uninhibit(&self, cookie: u32) {
         unsafe {
             ffi::gtk_application_uninhibit(self.as_ref().to_glib_none().0, cookie);
         }
     }
 
-    #[doc(alias = "register-session")]
     fn is_register_session(&self) -> bool {
-        ObjectExt::property(self.as_ref(), "register-session")
+        glib::ObjectExt::property(self.as_ref(), "register-session")
     }
 
-    #[doc(alias = "register-session")]
     fn set_register_session(&self, register_session: bool) {
-        ObjectExt::set_property(self.as_ref(), "register-session", register_session)
+        glib::ObjectExt::set_property(self.as_ref(), "register-session", &register_session)
     }
 
-    #[cfg(feature = "v3_24")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "v3_24")))]
-    #[doc(alias = "screensaver-active")]
+    #[cfg(any(feature = "v3_24", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_24")))]
     fn is_screensaver_active(&self) -> bool {
-        ObjectExt::property(self.as_ref(), "screensaver-active")
+        glib::ObjectExt::property(self.as_ref(), "screensaver-active")
     }
 
-    #[cfg(feature = "v3_24_8")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "v3_24_8")))]
-    #[doc(alias = "query-end")]
+    #[cfg(any(feature = "v3_24_8", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_24_8")))]
     fn connect_query_end<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn query_end_trampoline<P: IsA<Application>, F: Fn(&P) + 'static>(
             this: *mut ffi::GtkApplication,
@@ -349,7 +445,6 @@ pub trait GtkApplicationExt: IsA<Application> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "window-added")]
     fn connect_window_added<F: Fn(&Self, &Window) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn window_added_trampoline<
             P: IsA<Application>,
@@ -378,7 +473,6 @@ pub trait GtkApplicationExt: IsA<Application> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "window-removed")]
     fn connect_window_removed<F: Fn(&Self, &Window) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn window_removed_trampoline<
             P: IsA<Application>,
@@ -407,7 +501,6 @@ pub trait GtkApplicationExt: IsA<Application> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "active-window")]
     fn connect_active_window_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_active_window_trampoline<
             P: IsA<Application>,
@@ -433,7 +526,6 @@ pub trait GtkApplicationExt: IsA<Application> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "app-menu")]
     fn connect_app_menu_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_app_menu_trampoline<
             P: IsA<Application>,
@@ -459,7 +551,6 @@ pub trait GtkApplicationExt: IsA<Application> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "menubar")]
     fn connect_menubar_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_menubar_trampoline<P: IsA<Application>, F: Fn(&P) + 'static>(
             this: *mut ffi::GtkApplication,
@@ -482,7 +573,6 @@ pub trait GtkApplicationExt: IsA<Application> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "register-session")]
     fn connect_register_session_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_register_session_trampoline<
             P: IsA<Application>,
@@ -508,9 +598,8 @@ pub trait GtkApplicationExt: IsA<Application> + sealed::Sealed + 'static {
         }
     }
 
-    #[cfg(feature = "v3_24")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "v3_24")))]
-    #[doc(alias = "screensaver-active")]
+    #[cfg(any(feature = "v3_24", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_24")))]
     fn connect_screensaver_active_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_screensaver_active_trampoline<
             P: IsA<Application>,
@@ -536,8 +625,6 @@ pub trait GtkApplicationExt: IsA<Application> + sealed::Sealed + 'static {
         }
     }
 }
-
-impl<O: IsA<Application>> GtkApplicationExt for O {}
 
 impl fmt::Display for Application {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {

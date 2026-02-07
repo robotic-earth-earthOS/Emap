@@ -4,22 +4,20 @@ use crate::translate::*;
 
 bitflags::bitflags! {
     #[doc(alias = "GParamFlags")]
-    #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
     pub struct ParamFlags: u32 {
         #[doc(alias = "G_PARAM_READABLE")]
-        const READABLE = gobject_ffi::G_PARAM_READABLE as _;
+        const READABLE = gobject_ffi::G_PARAM_READABLE as u32;
         #[doc(alias = "G_PARAM_WRITABLE")]
-        const WRITABLE = gobject_ffi::G_PARAM_WRITABLE as _;
+        const WRITABLE = gobject_ffi::G_PARAM_WRITABLE as u32;
         #[doc(alias = "G_PARAM_READWRITE")]
-        const READWRITE = gobject_ffi::G_PARAM_READWRITE as _;
+        const READWRITE = gobject_ffi::G_PARAM_READWRITE as u32;
         #[doc(alias = "G_PARAM_CONSTRUCT")]
-        const CONSTRUCT = gobject_ffi::G_PARAM_CONSTRUCT as _;
+        const CONSTRUCT = gobject_ffi::G_PARAM_CONSTRUCT as u32;
         #[doc(alias = "G_PARAM_CONSTRUCT_ONLY")]
-        const CONSTRUCT_ONLY = gobject_ffi::G_PARAM_CONSTRUCT_ONLY as _;
+        const CONSTRUCT_ONLY = gobject_ffi::G_PARAM_CONSTRUCT_ONLY as u32;
         #[doc(alias = "G_PARAM_LAX_VALIDATION")]
-        const LAX_VALIDATION = gobject_ffi::G_PARAM_LAX_VALIDATION as _;
-        const USER_0 = 256;
-        const USER_1 = 512;
+        const LAX_VALIDATION = gobject_ffi::G_PARAM_LAX_VALIDATION as u32;
+        const USER_1 = 256;
         const USER_2 = 1024;
         const USER_3 = 2048;
         const USER_4 = 4096;
@@ -28,9 +26,9 @@ bitflags::bitflags! {
         const USER_7 = 32768;
         const USER_8 = 65536;
         #[doc(alias = "G_PARAM_EXPLICIT_NOTIFY")]
-        const EXPLICIT_NOTIFY = gobject_ffi::G_PARAM_EXPLICIT_NOTIFY as _;
+        const EXPLICIT_NOTIFY = gobject_ffi::G_PARAM_EXPLICIT_NOTIFY as u32;
         #[doc(alias = "G_PARAM_DEPRECATED")]
-        const DEPRECATED = gobject_ffi::G_PARAM_DEPRECATED as _;
+        const DEPRECATED = gobject_ffi::G_PARAM_DEPRECATED as u32;
     }
 }
 
@@ -44,7 +42,6 @@ impl Default for ParamFlags {
 impl IntoGlib for ParamFlags {
     type GlibType = gobject_ffi::GParamFlags;
 
-    #[inline]
     fn into_glib(self) -> gobject_ffi::GParamFlags {
         self.bits()
     }
@@ -52,7 +49,6 @@ impl IntoGlib for ParamFlags {
 
 #[doc(hidden)]
 impl FromGlib<gobject_ffi::GParamFlags> for ParamFlags {
-    #[inline]
     unsafe fn from_glib(value: gobject_ffi::GParamFlags) -> Self {
         Self::from_bits_truncate(value)
     }

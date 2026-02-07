@@ -3,12 +3,14 @@
 // DO NOT EDIT
 
 use crate::TreeModel;
-use glib::{
-    prelude::*,
-    signal::{connect_raw, SignalHandlerId},
-    translate::*,
-};
-use std::{boxed::Box as Box_, fmt, mem::transmute};
+use glib::object::Cast;
+use glib::object::IsA;
+use glib::signal::connect_raw;
+use glib::signal::SignalHandlerId;
+use glib::translate::*;
+use std::boxed::Box as Box_;
+use std::fmt;
+use std::mem::transmute;
 
 glib::wrapper! {
     #[doc(alias = "GtkTreeSortable")]
@@ -23,13 +25,18 @@ impl TreeSortable {
     pub const NONE: Option<&'static TreeSortable> = None;
 }
 
-mod sealed {
-    pub trait Sealed {}
-    impl<T: super::IsA<super::TreeSortable>> Sealed for T {}
+pub trait TreeSortableExt: 'static {
+    #[doc(alias = "gtk_tree_sortable_has_default_sort_func")]
+    fn has_default_sort_func(&self) -> bool;
+
+    #[doc(alias = "gtk_tree_sortable_sort_column_changed")]
+    fn sort_column_changed(&self);
+
+    #[doc(alias = "sort-column-changed")]
+    fn connect_sort_column_changed<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
 }
 
-pub trait TreeSortableExt: IsA<TreeSortable> + sealed::Sealed + 'static {
-    #[doc(alias = "gtk_tree_sortable_has_default_sort_func")]
+impl<O: IsA<TreeSortable>> TreeSortableExt for O {
     fn has_default_sort_func(&self) -> bool {
         unsafe {
             from_glib(ffi::gtk_tree_sortable_has_default_sort_func(
@@ -38,14 +45,12 @@ pub trait TreeSortableExt: IsA<TreeSortable> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_tree_sortable_sort_column_changed")]
     fn sort_column_changed(&self) {
         unsafe {
             ffi::gtk_tree_sortable_sort_column_changed(self.as_ref().to_glib_none().0);
         }
     }
 
-    #[doc(alias = "sort-column-changed")]
     fn connect_sort_column_changed<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn sort_column_changed_trampoline<
             P: IsA<TreeSortable>,
@@ -70,8 +75,6 @@ pub trait TreeSortableExt: IsA<TreeSortable> + sealed::Sealed + 'static {
         }
     }
 }
-
-impl<O: IsA<TreeSortable>> TreeSortableExt for O {}
 
 impl fmt::Display for TreeSortable {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {

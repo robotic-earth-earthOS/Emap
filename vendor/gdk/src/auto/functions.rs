@@ -2,9 +2,18 @@
 // from gir-files (https://github.com/gtk-rs/gir-files)
 // DO NOT EDIT
 
-use crate::{Atom, Display, Event, EventType, ModifierType, Screen, Window, WindowState};
+use crate::Atom;
+use crate::Display;
+use crate::Event;
+use crate::EventType;
+use crate::ModifierType;
+use crate::Screen;
+use crate::Visual;
+use crate::Window;
+use crate::WindowState;
 use glib::translate::*;
-use std::{mem, ptr};
+use std::mem;
+use std::ptr;
 
 #[doc(alias = "gdk_beep")]
 pub fn beep() {
@@ -46,8 +55,9 @@ pub fn events_get_angle(event1: &mut Event, event2: &mut Event) -> Option<f64> {
             event2.to_glib_none_mut().0,
             angle.as_mut_ptr(),
         ));
+        let angle = angle.assume_init();
         if ret {
-            Some(angle.assume_init())
+            Some(angle)
         } else {
             None
         }
@@ -66,8 +76,10 @@ pub fn events_get_center(event1: &mut Event, event2: &mut Event) -> Option<(f64,
             x.as_mut_ptr(),
             y.as_mut_ptr(),
         ));
+        let x = x.assume_init();
+        let y = y.assume_init();
         if ret {
-            Some((x.assume_init(), y.assume_init()))
+            Some((x, y))
         } else {
             None
         }
@@ -84,8 +96,9 @@ pub fn events_get_distance(event1: &mut Event, event2: &mut Event) -> Option<f64
             event2.to_glib_none_mut().0,
             distance.as_mut_ptr(),
         ));
+        let distance = distance.assume_init();
         if ret {
-            Some(distance.assume_init())
+            Some(distance)
         } else {
             None
         }
@@ -127,6 +140,13 @@ pub fn shows_events() -> bool {
     unsafe { from_glib(ffi::gdk_get_show_events()) }
 }
 
+#[cfg_attr(feature = "v3_22", deprecated = "Since 3.22")]
+#[doc(alias = "gdk_list_visuals")]
+pub fn list_visuals() -> Vec<Visual> {
+    assert_initialized_main_thread!();
+    unsafe { FromGlibPtrContainer::from_glib_container(ffi::gdk_list_visuals()) }
+}
+
 #[doc(alias = "gdk_notify_startup_complete")]
 pub fn notify_startup_complete() {
     assert_initialized_main_thread!();
@@ -149,6 +169,8 @@ pub fn pango_context_get() -> Option<pango::Context> {
     unsafe { from_glib_full(ffi::gdk_pango_context_get()) }
 }
 
+#[cfg(any(feature = "v3_22", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
 #[doc(alias = "gdk_pango_context_get_for_display")]
 pub fn pango_context_get_for_display(display: &Display) -> Option<pango::Context> {
     skip_assert_initialized!();
@@ -229,17 +251,36 @@ pub fn property_get(
             actual_length.as_mut_ptr(),
             &mut data,
         ));
+        let actual_format = actual_format.assume_init();
         if ret {
             Some((
                 actual_property_type,
-                actual_format.assume_init(),
-                FromGlibContainer::from_glib_full_num(data, actual_length.assume_init() as _),
+                actual_format,
+                FromGlibContainer::from_glib_full_num(data, actual_length.assume_init() as usize),
             ))
         } else {
             None
         }
     }
 }
+
+#[cfg_attr(feature = "v3_22", deprecated = "Since 3.22")]
+#[doc(alias = "gdk_query_depths")]
+pub fn query_depths() -> Vec<i32> {
+    assert_initialized_main_thread!();
+    unsafe {
+        let mut depths = ptr::null_mut();
+        let mut count = mem::MaybeUninit::uninit();
+        ffi::gdk_query_depths(&mut depths, count.as_mut_ptr());
+        FromGlibContainer::from_glib_none_num(depths, count.assume_init() as usize)
+    }
+}
+
+//#[cfg_attr(feature = "v3_22", deprecated = "Since 3.22")]
+//#[doc(alias = "gdk_query_visual_types")]
+//pub fn query_visual_types(visual_types: /*Unimplemented*/CArray TypeId { ns_id: 1, id: 99 }) -> i32 {
+//    unsafe { TODO: call ffi:gdk_query_visual_types() }
+//}
 
 #[doc(alias = "gdk_selection_convert")]
 pub fn selection_convert(requestor: &Window, selection: &Atom, target: &Atom, time_: u32) {
@@ -353,7 +394,7 @@ pub fn selection_send_notify_for_display(
 
 #[doc(alias = "gdk_set_allowed_backends")]
 pub fn set_allowed_backends(backends: &str) {
-    skip_assert_initialized!();
+    assert_initialized_main_thread!();
     unsafe {
         ffi::gdk_set_allowed_backends(backends.to_glib_none().0);
     }
@@ -455,7 +496,7 @@ pub fn text_property_to_utf8_list_for_display(
     text: &[u8],
 ) -> (i32, Vec<glib::GString>) {
     skip_assert_initialized!();
-    let length = text.len() as _;
+    let length = text.len() as i32;
     unsafe {
         let mut list = ptr::null_mut();
         let ret = ffi::gdk_text_property_to_utf8_list_for_display(

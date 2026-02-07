@@ -2,13 +2,19 @@
 // from gir-files (https://github.com/gtk-rs/gir-files)
 // DO NOT EDIT
 
-use crate::{RecentData, RecentInfo};
-use glib::{
-    prelude::*,
-    signal::{connect_raw, SignalHandlerId},
-    translate::*,
-};
-use std::{boxed::Box as Box_, fmt, mem::transmute, ptr};
+use crate::RecentData;
+use crate::RecentInfo;
+use glib::object::Cast;
+use glib::object::IsA;
+use glib::signal::connect_raw;
+use glib::signal::SignalHandlerId;
+use glib::translate::*;
+use glib::StaticType;
+use glib::ToValue;
+use std::boxed::Box as Box_;
+use std::fmt;
+use std::mem::transmute;
+use std::ptr;
 
 glib::wrapper! {
     #[doc(alias = "GtkRecentManager")]
@@ -33,12 +39,11 @@ impl RecentManager {
     ///
     /// This method returns an instance of [`RecentManagerBuilder`](crate::builders::RecentManagerBuilder) which can be used to create [`RecentManager`] objects.
     pub fn builder() -> RecentManagerBuilder {
-        RecentManagerBuilder::new()
+        RecentManagerBuilder::default()
     }
 
     #[doc(alias = "gtk_recent_manager_get_default")]
     #[doc(alias = "get_default")]
-    #[allow(clippy::should_implement_trait)]
     pub fn default() -> Option<RecentManager> {
         assert_initialized_main_thread!();
         unsafe { from_glib_none(ffi::gtk_recent_manager_get_default()) }
@@ -51,43 +56,79 @@ impl Default for RecentManager {
     }
 }
 
+#[derive(Clone, Default)]
 // rustdoc-stripper-ignore-next
 /// A [builder-pattern] type to construct [`RecentManager`] objects.
 ///
 /// [builder-pattern]: https://doc.rust-lang.org/1.0.0/style/ownership/builders.html
 #[must_use = "The builder must be built to be used"]
 pub struct RecentManagerBuilder {
-    builder: glib::object::ObjectBuilder<'static, RecentManager>,
+    filename: Option<String>,
 }
 
 impl RecentManagerBuilder {
-    fn new() -> Self {
-        Self {
-            builder: glib::object::Object::builder(),
-        }
-    }
-
-    pub fn filename(self, filename: impl Into<glib::GString>) -> Self {
-        Self {
-            builder: self.builder.property("filename", filename.into()),
-        }
+    // rustdoc-stripper-ignore-next
+    /// Create a new [`RecentManagerBuilder`].
+    pub fn new() -> Self {
+        Self::default()
     }
 
     // rustdoc-stripper-ignore-next
     /// Build the [`RecentManager`].
     #[must_use = "Building the object from the builder is usually expensive and is not expected to have side effects"]
     pub fn build(self) -> RecentManager {
-        self.builder.build()
+        let mut properties: Vec<(&str, &dyn ToValue)> = vec![];
+        if let Some(ref filename) = self.filename {
+            properties.push(("filename", filename));
+        }
+        glib::Object::new::<RecentManager>(&properties)
+            .expect("Failed to create an instance of RecentManager")
+    }
+
+    pub fn filename(mut self, filename: &str) -> Self {
+        self.filename = Some(filename.to_string());
+        self
     }
 }
 
-mod sealed {
-    pub trait Sealed {}
-    impl<T: super::IsA<super::RecentManager>> Sealed for T {}
+pub trait RecentManagerExt: 'static {
+    #[doc(alias = "gtk_recent_manager_add_full")]
+    fn add_full(&self, uri: &str, recent_data: &RecentData) -> bool;
+
+    #[doc(alias = "gtk_recent_manager_add_item")]
+    fn add_item(&self, uri: &str) -> bool;
+
+    #[doc(alias = "gtk_recent_manager_get_items")]
+    #[doc(alias = "get_items")]
+    fn items(&self) -> Vec<RecentInfo>;
+
+    #[doc(alias = "gtk_recent_manager_has_item")]
+    fn has_item(&self, uri: &str) -> bool;
+
+    #[doc(alias = "gtk_recent_manager_lookup_item")]
+    fn lookup_item(&self, uri: &str) -> Result<Option<RecentInfo>, glib::Error>;
+
+    #[doc(alias = "gtk_recent_manager_move_item")]
+    fn move_item(&self, uri: &str, new_uri: Option<&str>) -> Result<(), glib::Error>;
+
+    #[doc(alias = "gtk_recent_manager_purge_items")]
+    fn purge_items(&self) -> Result<i32, glib::Error>;
+
+    #[doc(alias = "gtk_recent_manager_remove_item")]
+    fn remove_item(&self, uri: &str) -> Result<(), glib::Error>;
+
+    fn filename(&self) -> Option<glib::GString>;
+
+    fn size(&self) -> i32;
+
+    #[doc(alias = "changed")]
+    fn connect_changed<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "size")]
+    fn connect_size_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
 }
 
-pub trait RecentManagerExt: IsA<RecentManager> + sealed::Sealed + 'static {
-    #[doc(alias = "gtk_recent_manager_add_full")]
+impl<O: IsA<RecentManager>> RecentManagerExt for O {
     fn add_full(&self, uri: &str, recent_data: &RecentData) -> bool {
         unsafe {
             from_glib(ffi::gtk_recent_manager_add_full(
@@ -98,7 +139,6 @@ pub trait RecentManagerExt: IsA<RecentManager> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_recent_manager_add_item")]
     fn add_item(&self, uri: &str) -> bool {
         unsafe {
             from_glib(ffi::gtk_recent_manager_add_item(
@@ -108,8 +148,6 @@ pub trait RecentManagerExt: IsA<RecentManager> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_recent_manager_get_items")]
-    #[doc(alias = "get_items")]
     fn items(&self) -> Vec<RecentInfo> {
         unsafe {
             FromGlibPtrContainer::from_glib_full(ffi::gtk_recent_manager_get_items(
@@ -118,7 +156,6 @@ pub trait RecentManagerExt: IsA<RecentManager> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_recent_manager_has_item")]
     fn has_item(&self, uri: &str) -> bool {
         unsafe {
             from_glib(ffi::gtk_recent_manager_has_item(
@@ -128,7 +165,6 @@ pub trait RecentManagerExt: IsA<RecentManager> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_recent_manager_lookup_item")]
     fn lookup_item(&self, uri: &str) -> Result<Option<RecentInfo>, glib::Error> {
         unsafe {
             let mut error = ptr::null_mut();
@@ -145,7 +181,6 @@ pub trait RecentManagerExt: IsA<RecentManager> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_recent_manager_move_item")]
     fn move_item(&self, uri: &str, new_uri: Option<&str>) -> Result<(), glib::Error> {
         unsafe {
             let mut error = ptr::null_mut();
@@ -155,7 +190,7 @@ pub trait RecentManagerExt: IsA<RecentManager> + sealed::Sealed + 'static {
                 new_uri.to_glib_none().0,
                 &mut error,
             );
-            debug_assert_eq!(is_ok == glib::ffi::GFALSE, !error.is_null());
+            assert_eq!(is_ok == glib::ffi::GFALSE, !error.is_null());
             if error.is_null() {
                 Ok(())
             } else {
@@ -164,7 +199,6 @@ pub trait RecentManagerExt: IsA<RecentManager> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_recent_manager_purge_items")]
     fn purge_items(&self) -> Result<i32, glib::Error> {
         unsafe {
             let mut error = ptr::null_mut();
@@ -178,7 +212,6 @@ pub trait RecentManagerExt: IsA<RecentManager> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_recent_manager_remove_item")]
     fn remove_item(&self, uri: &str) -> Result<(), glib::Error> {
         unsafe {
             let mut error = ptr::null_mut();
@@ -187,7 +220,7 @@ pub trait RecentManagerExt: IsA<RecentManager> + sealed::Sealed + 'static {
                 uri.to_glib_none().0,
                 &mut error,
             );
-            debug_assert_eq!(is_ok == glib::ffi::GFALSE, !error.is_null());
+            assert_eq!(is_ok == glib::ffi::GFALSE, !error.is_null());
             if error.is_null() {
                 Ok(())
             } else {
@@ -197,14 +230,13 @@ pub trait RecentManagerExt: IsA<RecentManager> + sealed::Sealed + 'static {
     }
 
     fn filename(&self) -> Option<glib::GString> {
-        ObjectExt::property(self.as_ref(), "filename")
+        glib::ObjectExt::property(self.as_ref(), "filename")
     }
 
     fn size(&self) -> i32 {
-        ObjectExt::property(self.as_ref(), "size")
+        glib::ObjectExt::property(self.as_ref(), "size")
     }
 
-    #[doc(alias = "changed")]
     fn connect_changed<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn changed_trampoline<P: IsA<RecentManager>, F: Fn(&P) + 'static>(
             this: *mut ffi::GtkRecentManager,
@@ -226,7 +258,6 @@ pub trait RecentManagerExt: IsA<RecentManager> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "size")]
     fn connect_size_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_size_trampoline<P: IsA<RecentManager>, F: Fn(&P) + 'static>(
             this: *mut ffi::GtkRecentManager,
@@ -249,8 +280,6 @@ pub trait RecentManagerExt: IsA<RecentManager> + sealed::Sealed + 'static {
         }
     }
 }
-
-impl<O: IsA<RecentManager>> RecentManagerExt for O {}
 
 impl fmt::Display for RecentManager {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {

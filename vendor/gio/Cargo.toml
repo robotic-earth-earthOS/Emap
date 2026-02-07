@@ -11,9 +11,9 @@
 
 [package]
 edition = "2021"
-rust-version = "1.70"
+rust-version = "1.56"
 name = "gio"
-version = "0.18.4"
+version = "0.15.12"
 authors = ["The gtk-rs Project Developers"]
 build = "build.rs"
 exclude = ["gir-files/*"]
@@ -31,22 +31,16 @@ license = "MIT"
 repository = "https://github.com/gtk-rs/gtk-rs-core"
 
 [package.metadata.docs.rs]
-all-features = true
-rustc-args = [
-    "--cfg",
-    "docsrs",
-]
-rustdoc-args = [
-    "--cfg",
-    "docsrs",
-    "--generate-link-to-definition",
-]
+features = ["dox"]
 
 [lib]
 name = "gio"
 
+[dependencies.bitflags]
+version = "1.0"
+
 [dependencies.ffi]
-version = "0.18"
+version = "0.15.1"
 package = "gio-sys"
 
 [dependencies.futures-channel]
@@ -59,12 +53,8 @@ default-features = false
 [dependencies.futures-io]
 version = "0.3"
 
-[dependencies.futures-util]
-version = "0.3"
-default-features = false
-
 [dependencies.glib]
-version = "0.18"
+version = "0.15.3"
 
 [dependencies.libc]
 version = "0.2"
@@ -72,17 +62,8 @@ version = "0.2"
 [dependencies.once_cell]
 version = "1.0"
 
-[dependencies.pin-project-lite]
-version = "0.2"
-
-[dependencies.smallvec]
-version = "1"
-
 [dependencies.thiserror]
 version = "1"
-
-[dev-dependencies.futures]
-version = "0.3"
 
 [dev-dependencies.futures-util]
 version = "0.3"
@@ -92,10 +73,34 @@ features = ["io"]
 version = "^0.1"
 
 [dev-dependencies.serial_test]
-version = "2"
+version = "0.6"
 
 [features]
+dox = [
+    "ffi/dox",
+    "glib/dox",
+]
+v2_50 = [
+    "ffi/v2_50",
+    "glib/v2_50",
+]
+v2_52 = [
+    "v2_50",
+    "ffi/v2_52",
+    "glib/v2_52",
+]
+v2_54 = [
+    "v2_52",
+    "ffi/v2_54",
+    "glib/v2_54",
+]
+v2_56 = [
+    "v2_54",
+    "ffi/v2_56",
+    "glib/v2_56",
+]
 v2_58 = [
+    "v2_56",
     "ffi/v2_58",
     "glib/v2_58",
 ]
@@ -133,19 +138,4 @@ v2_72 = [
     "v2_70",
     "ffi/v2_72",
     "glib/v2_72",
-]
-v2_74 = [
-    "v2_72",
-    "ffi/v2_74",
-    "glib/v2_74",
-]
-v2_76 = [
-    "v2_74",
-    "ffi/v2_76",
-    "glib/v2_76",
-]
-v2_78 = [
-    "v2_76",
-    "ffi/v2_78",
-    "glib/v2_78",
 ]

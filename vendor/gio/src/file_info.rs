@@ -1,13 +1,9 @@
 // Take a look at the license at the top of the repository in the LICENSE file.
 
-use std::{
-    mem,
-    time::{Duration, SystemTime},
-};
-
-use glib::{translate::*, IntoStrV, StrV};
-
 use crate::FileInfo;
+use glib::translate::*;
+use std::mem;
+use std::time::{Duration, SystemTime};
 
 impl FileInfo {
     #[cfg_attr(feature = "v2_62", deprecated)]
@@ -45,30 +41,6 @@ impl FileInfo {
                     tv_usec: diff.subsec_micros() as _,
                 }),
             );
-        }
-    }
-
-    #[doc(alias = "g_file_info_get_attribute_stringv")]
-    #[doc(alias = "get_attribute_stringv")]
-    pub fn attribute_stringv(&self, attribute: &str) -> StrV {
-        unsafe {
-            FromGlibPtrContainer::from_glib_none(ffi::g_file_info_get_attribute_stringv(
-                self.to_glib_none().0,
-                attribute.to_glib_none().0,
-            ))
-        }
-    }
-
-    #[doc(alias = "g_file_info_set_attribute_stringv")]
-    pub fn set_attribute_stringv(&self, attribute: &str, attr_value: impl IntoStrV) {
-        unsafe {
-            attr_value.run_with_strv(|attr_value| {
-                ffi::g_file_info_set_attribute_stringv(
-                    self.to_glib_none().0,
-                    attribute.to_glib_none().0,
-                    attr_value.as_ptr() as *mut _,
-                );
-            });
         }
     }
 }

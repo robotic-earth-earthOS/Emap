@@ -11,37 +11,26 @@
 
 [package]
 edition = "2021"
-rust-version = "1.70"
+rust-version = "1.56"
 name = "gdk-pixbuf-sys"
-version = "0.18.0"
+version = "0.15.10"
 authors = ["The gtk-rs Project Developers"]
 build = "build.rs"
 description = "FFI bindings to libgdk_pixbuf-2.0"
-homepage = "https://gtk-rs.org/"
-keywords = [
-    "gdk-pixbuf",
-    "ffi",
-    "gtk-rs",
-    "gnome",
-]
+homepage = "http://gtk-rs.org/"
+keywords = ["gdk-pixbuf", "ffi", "gtk-rs", "gnome"]
 license = "MIT"
 repository = "https://github.com/gtk-rs/gtk-rs-core"
-resolver = "1"
-
 [package.metadata.docs.rs]
-all-features = true
-features = []
-rustc-args = [
-    "--cfg",
-    "docsrs",
-]
-rustdoc-args = [
-    "--cfg",
-    "docsrs",
-]
-
+features = ["dox"]
 [package.metadata.system-deps.gdk_pixbuf_2_0]
 name = "gdk-pixbuf-2.0"
+version = "2.32"
+
+[package.metadata.system-deps.gdk_pixbuf_2_0.v2_36]
+version = "2.36"
+
+[package.metadata.system-deps.gdk_pixbuf_2_0.v2_36_8]
 version = "2.36.8"
 
 [package.metadata.system-deps.gdk_pixbuf_2_0.v2_40]
@@ -52,31 +41,31 @@ version = "2.42"
 
 [lib]
 name = "gdk_pixbuf_sys"
-
 [dependencies.gio]
-version = "0.18"
+version = "0.15.1"
 package = "gio-sys"
 
 [dependencies.glib]
-version = "0.18"
+version = "0.15.1"
 package = "glib-sys"
 
 [dependencies.gobject]
-version = "0.18"
+version = "0.15.1"
 package = "gobject-sys"
 
 [dependencies.libc]
 version = "0.2"
-
 [dev-dependencies.shell-words]
 version = "1.0.0"
 
 [dev-dependencies.tempfile]
 version = "3"
-
 [build-dependencies.system-deps]
 version = "6"
 
 [features]
-v2_40 = []
+dox = []
+v2_36 = []
+v2_36_8 = ["v2_36"]
+v2_40 = ["v2_36_8"]
 v2_42 = ["v2_40"]

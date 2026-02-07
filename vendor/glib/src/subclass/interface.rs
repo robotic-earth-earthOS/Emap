@@ -1,9 +1,10 @@
 // Take a look at the license at the top of the repository in the LICENSE file.
 
-use std::{marker, mem};
-
 use super::{InitializingType, Signal};
-use crate::{prelude::*, translate::*, Object, ParamSpec, Type};
+use crate::translate::*;
+use crate::{IsA, Object, ObjectExt, ParamSpec, Type};
+use std::marker;
+use std::mem;
 
 // rustdoc-stripper-ignore-next
 /// Trait for a type list of prerequisite object types.
@@ -126,24 +127,14 @@ pub trait ObjectInterfaceExt: ObjectInterface {
     /// Get interface from an instance.
     ///
     /// This will panic if `obj` does not implement the interface.
-    #[inline]
-    #[deprecated = "Use from_obj() instead"]
     fn from_instance<T: IsA<Object>>(obj: &T) -> &Self {
-        Self::from_obj(obj)
-    }
-
-    /// Get interface from an instance.
-    ///
-    /// This will panic if `obj` does not implement the interface.
-    #[inline]
-    fn from_obj<T: IsA<Object>>(obj: &T) -> &Self {
         assert!(obj.as_ref().type_().is_a(Self::type_()));
 
         unsafe {
             let klass = (*(obj.as_ptr() as *const gobject_ffi::GTypeInstance)).g_class;
             let interface =
                 gobject_ffi::g_type_interface_peek(klass as *mut _, Self::type_().into_glib());
-            debug_assert!(!interface.is_null());
+            assert!(!interface.is_null());
             &*(interface as *const Self)
         }
     }
@@ -207,8 +198,7 @@ pub fn register_interface<T: ObjectInterface>() -> Type {
             gobject_ffi::g_type_interface_add_prerequisite(type_, prerequisite);
         }
 
-        let type_ = Type::from_glib(type_);
-        assert!(type_.is_valid());
+        let type_ = from_glib(type_);
 
         T::type_init(&mut InitializingType::<T>(type_, marker::PhantomData));
 

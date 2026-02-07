@@ -2,8 +2,6 @@
 // from gir-files (https://github.com/gtk-rs/gir-files)
 // DO NOT EDIT
 
-#![cfg(unix)]
-
 use glib_sys::*;
 use std::env;
 use std::error::Error;
@@ -42,7 +40,7 @@ impl Compiler {
         cmd.arg(out);
         let status = cmd.spawn()?.wait()?;
         if !status.success() {
-            return Err(format!("compilation command {cmd:?} failed, {status}").into());
+            return Err(format!("compilation command {:?} failed, {}", &cmd, status).into());
         }
         Ok(())
     }
@@ -58,7 +56,7 @@ fn get_var(name: &str, default: &str) -> Result<Vec<String>, Box<dyn Error>> {
     match env::var(name) {
         Ok(value) => Ok(shell_words::split(&value)?),
         Err(env::VarError::NotPresent) => Ok(shell_words::split(default)?),
-        Err(err) => Err(format!("{name} {err}").into()),
+        Err(err) => Err(format!("{} {}", name, err).into()),
     }
 }
 
@@ -72,7 +70,7 @@ fn pkg_config_cflags(packages: &[&str]) -> Result<Vec<String>, Box<dyn Error>> {
     cmd.args(packages);
     let out = cmd.output()?;
     if !out.status.success() {
-        return Err(format!("command {cmd:?} returned {}", out.status).into());
+        return Err(format!("command {:?} returned {}", &cmd, out.status).into());
     }
     let stdout = str::from_utf8(&out.stdout)?;
     Ok(shell_words::split(stdout.trim())?)
@@ -112,12 +110,18 @@ impl Results {
 }
 
 #[test]
+#[cfg(target_os = "linux")]
 fn cross_validate_constants_with_c() {
     let mut c_constants: Vec<(String, String)> = Vec::new();
 
     for l in get_c_output("constant").unwrap().lines() {
-        let (name, value) = l.split_once(';').expect("Missing ';' separator");
-        c_constants.push((name.to_owned(), value.to_owned()));
+        let mut words = l.trim().split(';');
+        let name = words.next().expect("Failed to parse name").to_owned();
+        let value = words
+            .next()
+            .and_then(|s| s.parse().ok())
+            .expect("Failed to parse value");
+        c_constants.push((name, value));
     }
 
     let mut results = Results::default();
@@ -127,14 +131,15 @@ fn cross_validate_constants_with_c() {
     {
         if rust_name != c_name {
             results.record_failed();
-            eprintln!("Name mismatch:\nRust: {rust_name:?}\nC:    {c_name:?}");
+            eprintln!("Name mismatch:\nRust: {:?}\nC:    {:?}", rust_name, c_name,);
             continue;
         }
 
         if rust_value != c_value {
             results.record_failed();
             eprintln!(
-                "Constant value mismatch for {rust_name}\nRust: {rust_value:?}\nC:    {c_value:?}",
+                "Constant value mismatch for {}\nRust: {:?}\nC:    {:?}",
+                rust_name, rust_value, &c_value
             );
             continue;
         }
@@ -146,15 +151,22 @@ fn cross_validate_constants_with_c() {
 }
 
 #[test]
+#[cfg(target_os = "linux")]
 fn cross_validate_layout_with_c() {
     let mut c_layouts = Vec::new();
 
     for l in get_c_output("layout").unwrap().lines() {
-        let (name, value) = l.split_once(';').expect("Missing first ';' separator");
-        let (size, alignment) = value.split_once(';').expect("Missing second ';' separator");
-        let size = size.parse().expect("Failed to parse size");
-        let alignment = alignment.parse().expect("Failed to parse alignment");
-        c_layouts.push((name.to_owned(), Layout { size, alignment }));
+        let mut words = l.trim().split(';');
+        let name = words.next().expect("Failed to parse name").to_owned();
+        let size = words
+            .next()
+            .and_then(|s| s.parse().ok())
+            .expect("Failed to parse size");
+        let alignment = words
+            .next()
+            .and_then(|s| s.parse().ok())
+            .expect("Failed to parse alignment");
+        c_layouts.push((name, Layout { size, alignment }));
     }
 
     let mut results = Results::default();
@@ -163,13 +175,16 @@ fn cross_validate_layout_with_c() {
     {
         if rust_name != c_name {
             results.record_failed();
-            eprintln!("Name mismatch:\nRust: {rust_name:?}\nC:    {c_name:?}");
+            eprintln!("Name mismatch:\nRust: {:?}\nC:    {:?}", rust_name, c_name,);
             continue;
         }
 
         if rust_layout != c_layout {
             results.record_failed();
-            eprintln!("Layout mismatch for {rust_name}\nRust: {rust_layout:?}\nC:    {c_layout:?}",);
+            eprintln!(
+                "Layout mismatch for {}\nRust: {:?}\nC:    {:?}",
+                rust_name, rust_layout, &c_layout
+            );
             continue;
         }
 
@@ -190,7 +205,7 @@ fn get_c_output(name: &str) -> Result<String, Box<dyn Error>> {
     let mut abi_cmd = Command::new(exe);
     let output = abi_cmd.output()?;
     if !output.status.success() {
-        return Err(format!("command {abi_cmd:?} failed, {output:?}").into());
+        return Err(format!("command {:?} failed, {:?}", &abi_cmd, &output).into());
     }
 
     Ok(String::from_utf8(output.stdout)?)
@@ -562,13 +577,6 @@ const RUST_LAYOUTS: &[(&str, Layout)] = &[
         },
     ),
     (
-        "GPathBuf",
-        Layout {
-            size: size_of::<GPathBuf>(),
-            alignment: align_of::<GPathBuf>(),
-        },
-    ),
-    (
         "GPid",
         Layout {
             size: size_of::<GPid>(),
@@ -755,6 +763,13 @@ const RUST_LAYOUTS: &[(&str, Layout)] = &[
         Layout {
             size: size_of::<GTestLogBuffer>(),
             alignment: align_of::<GTestLogBuffer>(),
+        },
+    ),
+    (
+        "GTestLogMsg",
+        Layout {
+            size: size_of::<GTestLogMsg>(),
+            alignment: align_of::<GTestLogMsg>(),
         },
     ),
     (
@@ -988,7 +1003,6 @@ const RUST_CONSTANTS: &[(&str, &str)] = &[
     ("(guint) G_ASCII_SPACE", "256"),
     ("(guint) G_ASCII_UPPER", "512"),
     ("(guint) G_ASCII_XDIGIT", "1024"),
-    ("G_ATOMIC_REF_COUNT_INIT", "1"),
     ("G_BIG_ENDIAN", "4321"),
     ("(gint) G_BOOKMARK_FILE_ERROR_APP_NOT_REGISTERED", "2"),
     ("(gint) G_BOOKMARK_FILE_ERROR_FILE_NOT_FOUND", "7"),
@@ -1089,8 +1103,6 @@ const RUST_CONSTANTS: &[(&str, &str)] = &[
     ("(guint) G_FORMAT_SIZE_DEFAULT", "0"),
     ("(guint) G_FORMAT_SIZE_IEC_UNITS", "2"),
     ("(guint) G_FORMAT_SIZE_LONG_FORMAT", "1"),
-    ("(guint) G_FORMAT_SIZE_ONLY_UNIT", "16"),
-    ("(guint) G_FORMAT_SIZE_ONLY_VALUE", "8"),
     ("(guint) G_HOOK_FLAG_ACTIVE", "1"),
     ("(guint) G_HOOK_FLAG_IN_CALL", "2"),
     ("(guint) G_HOOK_FLAG_MASK", "15"),
@@ -1120,7 +1132,6 @@ const RUST_CONSTANTS: &[(&str, &str)] = &[
     ("(guint) G_IO_FLAG_IS_WRITEABLE", "8"),
     ("(guint) G_IO_FLAG_MASK", "31"),
     ("(guint) G_IO_FLAG_NONBLOCK", "2"),
-    ("(guint) G_IO_FLAG_NONE", "0"),
     ("(guint) G_IO_FLAG_SET_MASK", "3"),
     ("(guint) G_IO_HUP", "16"),
     ("(guint) G_IO_IN", "1"),
@@ -1170,6 +1181,7 @@ const RUST_CONSTANTS: &[(&str, &str)] = &[
     ("G_LN10", "2.302585"),
     ("G_LN2", "0.693147"),
     ("G_LOG_2_BASE_10", "0.301030"),
+    ("G_LOG_DOMAIN", "0"),
     ("G_LOG_FATAL_MASK", "5"),
     ("(guint) G_LOG_FLAG_FATAL", "2"),
     ("(guint) G_LOG_FLAG_RECURSION", "1"),
@@ -1177,7 +1189,7 @@ const RUST_CONSTANTS: &[(&str, &str)] = &[
     ("(guint) G_LOG_LEVEL_DEBUG", "128"),
     ("(guint) G_LOG_LEVEL_ERROR", "4"),
     ("(guint) G_LOG_LEVEL_INFO", "64"),
-    ("(guint) G_LOG_LEVEL_MASK", "4294967292"),
+    ("(guint) G_LOG_LEVEL_MASK", "-4"),
     ("(guint) G_LOG_LEVEL_MESSAGE", "32"),
     ("G_LOG_LEVEL_USER_SHIFT", "8"),
     ("(guint) G_LOG_LEVEL_WARNING", "16"),
@@ -1191,7 +1203,6 @@ const RUST_CONSTANTS: &[(&str, &str)] = &[
     ("(guint) G_MARKUP_COLLECT_STRDUP", "2"),
     ("(guint) G_MARKUP_COLLECT_STRING", "1"),
     ("(guint) G_MARKUP_COLLECT_TRISTATE", "4"),
-    ("(guint) G_MARKUP_DEFAULT_FLAGS", "0"),
     ("(guint) G_MARKUP_DO_NOT_USE_THIS_UNSUPPORTED_FLAG", "1"),
     ("(gint) G_MARKUP_ERROR_BAD_UTF8", "0"),
     ("(gint) G_MARKUP_ERROR_EMPTY", "1"),
@@ -1248,11 +1259,9 @@ const RUST_CONSTANTS: &[(&str, &str)] = &[
     ("G_PRIORITY_HIGH", "-100"),
     ("G_PRIORITY_HIGH_IDLE", "100"),
     ("G_PRIORITY_LOW", "300"),
-    ("G_REF_COUNT_INIT", "-1"),
     ("(guint) G_REGEX_ANCHORED", "16"),
     ("(guint) G_REGEX_BSR_ANYCRLF", "8388608"),
     ("(guint) G_REGEX_CASELESS", "1"),
-    ("(guint) G_REGEX_DEFAULT", "0"),
     ("(guint) G_REGEX_DOLLAR_ENDONLY", "32"),
     ("(guint) G_REGEX_DOTALL", "4"),
     ("(guint) G_REGEX_DUPNAMES", "524288"),
@@ -1346,7 +1355,6 @@ const RUST_CONSTANTS: &[(&str, &str)] = &[
     ("(guint) G_REGEX_MATCH_ANCHORED", "16"),
     ("(guint) G_REGEX_MATCH_BSR_ANY", "16777216"),
     ("(guint) G_REGEX_MATCH_BSR_ANYCRLF", "8388608"),
-    ("(guint) G_REGEX_MATCH_DEFAULT", "0"),
     ("(guint) G_REGEX_MATCH_NEWLINE_ANY", "4194304"),
     ("(guint) G_REGEX_MATCH_NEWLINE_ANYCRLF", "5242880"),
     ("(guint) G_REGEX_MATCH_NEWLINE_CR", "1048576"),
@@ -1382,9 +1390,7 @@ const RUST_CONSTANTS: &[(&str, &str)] = &[
     ("(gint) G_SLICE_CONFIG_WORKING_SET_MSECS", "3"),
     ("G_SOURCE_CONTINUE", "1"),
     ("G_SOURCE_REMOVE", "0"),
-    ("(guint) G_SPAWN_CHILD_INHERITS_STDERR", "1024"),
     ("(guint) G_SPAWN_CHILD_INHERITS_STDIN", "32"),
-    ("(guint) G_SPAWN_CHILD_INHERITS_STDOUT", "512"),
     ("(guint) G_SPAWN_CLOEXEC_PIPES", "256"),
     ("(guint) G_SPAWN_DEFAULT", "0"),
     ("(guint) G_SPAWN_DO_NOT_REAP_CHILD", "2"),
@@ -1414,7 +1420,6 @@ const RUST_CONSTANTS: &[(&str, &str)] = &[
     ("(guint) G_SPAWN_SEARCH_PATH", "4"),
     ("(guint) G_SPAWN_SEARCH_PATH_FROM_ENVP", "128"),
     ("(guint) G_SPAWN_STDERR_TO_DEV_NULL", "16"),
-    ("(guint) G_SPAWN_STDIN_FROM_DEV_NULL", "2048"),
     ("(guint) G_SPAWN_STDOUT_TO_DEV_NULL", "8"),
     ("G_SQRT2", "1.414214"),
     ("G_STR_DELIMITERS", "_-|> <."),
@@ -1437,11 +1442,9 @@ const RUST_CONSTANTS: &[(&str, &str)] = &[
     ("(gint) G_TEST_RUN_INCOMPLETE", "3"),
     ("(gint) G_TEST_RUN_SKIPPED", "1"),
     ("(gint) G_TEST_RUN_SUCCESS", "0"),
-    ("(guint) G_TEST_SUBPROCESS_DEFAULT", "0"),
     ("(guint) G_TEST_SUBPROCESS_INHERIT_STDERR", "4"),
     ("(guint) G_TEST_SUBPROCESS_INHERIT_STDIN", "1"),
     ("(guint) G_TEST_SUBPROCESS_INHERIT_STDOUT", "2"),
-    ("(guint) G_TEST_TRAP_DEFAULT", "0"),
     ("(guint) G_TEST_TRAP_INHERIT_STDIN", "512"),
     ("(guint) G_TEST_TRAP_SILENCE_STDERR", "256"),
     ("(guint) G_TEST_TRAP_SILENCE_STDOUT", "128"),
@@ -1615,7 +1618,6 @@ const RUST_CONSTANTS: &[(&str, &str)] = &[
     ("(gint) G_UNICODE_SCRIPT_KAITHI", "85"),
     ("(gint) G_UNICODE_SCRIPT_KANNADA", "21"),
     ("(gint) G_UNICODE_SCRIPT_KATAKANA", "22"),
-    ("(gint) G_UNICODE_SCRIPT_KAWI", "163"),
     ("(gint) G_UNICODE_SCRIPT_KAYAH_LI", "67"),
     ("(gint) G_UNICODE_SCRIPT_KHAROSHTHI", "60"),
     ("(gint) G_UNICODE_SCRIPT_KHITAN_SMALL_SCRIPT", "155"),
@@ -1651,7 +1653,6 @@ const RUST_CONSTANTS: &[(&str, &str)] = &[
     ("(gint) G_UNICODE_SCRIPT_MULTANI", "129"),
     ("(gint) G_UNICODE_SCRIPT_MYANMAR", "28"),
     ("(gint) G_UNICODE_SCRIPT_NABATAEAN", "116"),
-    ("(gint) G_UNICODE_SCRIPT_NAG_MUNDARI", "164"),
     ("(gint) G_UNICODE_SCRIPT_NANDINAGARI", "150"),
     ("(gint) G_UNICODE_SCRIPT_NEWA", "135"),
     ("(gint) G_UNICODE_SCRIPT_NEW_TAI_LUE", "54"),
@@ -1810,4 +1811,5 @@ const RUST_CONSTANTS: &[(&str, &str)] = &[
     ),
     ("(gint) G_VARIANT_PARSE_ERROR_VALUE_EXPECTED", "17"),
     ("G_WIN32_MSG_HANDLE", "19981206"),
+    ("g_macro__has_attribute___noreturn__", "0"),
 ];

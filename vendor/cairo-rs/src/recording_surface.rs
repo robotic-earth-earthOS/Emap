@@ -1,11 +1,16 @@
 // Take a look at the license at the top of the repository in the LICENSE file.
 
-use std::{convert::TryFrom, fmt, ops::Deref};
+use std::convert::TryFrom;
+use std::fmt;
+use std::ops::Deref;
 
+use crate::enums::{Content, SurfaceType};
+use crate::error::Error;
+use crate::rectangle::Rectangle;
 #[cfg(feature = "use_glib")]
 use glib::translate::*;
 
-use crate::{Content, Error, Rectangle, Surface, SurfaceType};
+use crate::surface::Surface;
 
 declare_surface!(RecordingSurface, SurfaceType::Recording);
 impl RecordingSurface {

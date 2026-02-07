@@ -2,9 +2,8 @@ use std::borrow::Cow;
 
 use crate::RawString;
 
-/// A scalar TOML [`Value`][crate::Value]'s logical value and its representation in a `&str`
-///
-/// This includes the surrounding whitespace and comments.
+/// A value together with its `to_string` representation,
+/// including surrounding it whitespaces and comments.
 #[derive(Eq, PartialEq, Clone, Hash)]
 pub struct Formatted<T> {
     value: T,
@@ -45,14 +44,12 @@ where
     }
 
     /// Returns the default raw representation.
-    #[cfg(feature = "display")]
     pub fn default_repr(&self) -> Repr {
         self.value.to_repr()
     }
 
     /// Returns a raw representation.
-    #[cfg(feature = "display")]
-    pub fn display_repr(&self) -> Cow<'_, str> {
+    pub fn display_repr(&self) -> Cow<str> {
         self.as_repr()
             .and_then(|r| r.as_raw().as_str())
             .map(Cow::Borrowed)
@@ -61,10 +58,8 @@ where
             })
     }
 
-    /// The location within the original document
-    ///
-    /// This generally requires a [`Document`][crate::Document].
-    pub fn span(&self) -> Option<std::ops::Range<usize>> {
+    /// Returns the location within the original document
+    pub(crate) fn span(&self) -> Option<std::ops::Range<usize>> {
         self.repr.as_ref().and_then(|r| r.span())
     }
 
@@ -87,7 +82,7 @@ where
 
     /// Auto formats the value.
     pub fn fmt(&mut self) {
-        self.repr = None;
+        self.repr = Some(self.value.to_repr());
     }
 }
 
@@ -108,34 +103,21 @@ where
     }
 }
 
-#[cfg(feature = "display")]
 impl<T> std::fmt::Display for Formatted<T>
 where
     T: ValueRepr,
 {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        crate::encode::encode_formatted(self, f, None, ("", ""))
+        crate::encode::Encode::encode(self, f, None, ("", ""))
     }
 }
 
 pub trait ValueRepr: crate::private::Sealed {
     /// The TOML representation of the value
-    #[cfg(feature = "display")]
     fn to_repr(&self) -> Repr;
 }
 
-#[cfg(not(feature = "display"))]
-mod inner {
-    use super::ValueRepr;
-
-    impl ValueRepr for String {}
-    impl ValueRepr for i64 {}
-    impl ValueRepr for f64 {}
-    impl ValueRepr for bool {}
-    impl ValueRepr for toml_datetime::Datetime {}
-}
-
-/// A TOML [`Value`][crate::Value] encoded as a `&str`
+/// TOML-encoded value
 #[derive(Eq, PartialEq, Clone, Hash)]
 pub struct Repr {
     raw_value: RawString,
@@ -143,7 +125,7 @@ pub struct Repr {
 
 impl Repr {
     pub(crate) fn new_unchecked(raw: impl Into<RawString>) -> Self {
-        Self {
+        Repr {
             raw_value: raw.into(),
         }
     }
@@ -153,18 +135,15 @@ impl Repr {
         &self.raw_value
     }
 
-    /// The location within the original document
-    ///
-    /// This generally requires a [`Document`][crate::Document].
-    pub fn span(&self) -> Option<std::ops::Range<usize>> {
+    /// Returns the location within the original document
+    pub(crate) fn span(&self) -> Option<std::ops::Range<usize>> {
         self.raw_value.span()
     }
 
     pub(crate) fn despan(&mut self, input: &str) {
-        self.raw_value.despan(input);
+        self.raw_value.despan(input)
     }
 
-    #[cfg(feature = "display")]
     pub(crate) fn encode(&self, buf: &mut dyn std::fmt::Write, input: &str) -> std::fmt::Result {
         self.as_raw().encode(buf, input)
     }
@@ -206,7 +185,6 @@ impl Decor {
         self.prefix.as_ref()
     }
 
-    #[cfg(feature = "display")]
     pub(crate) fn prefix_encode(
         &self,
         buf: &mut dyn std::fmt::Write,
@@ -216,7 +194,7 @@ impl Decor {
         if let Some(prefix) = self.prefix() {
             prefix.encode_with_default(buf, input, default)
         } else {
-            write!(buf, "{default}")
+            write!(buf, "{}", default)
         }
     }
 
@@ -230,7 +208,6 @@ impl Decor {
         self.suffix.as_ref()
     }
 
-    #[cfg(feature = "display")]
     pub(crate) fn suffix_encode(
         &self,
         buf: &mut dyn std::fmt::Write,
@@ -240,7 +217,7 @@ impl Decor {
         if let Some(suffix) = self.suffix() {
             suffix.encode_with_default(buf, input, default)
         } else {
-            write!(buf, "{default}")
+            write!(buf, "{}", default)
         }
     }
 

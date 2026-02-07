@@ -2,8 +2,9 @@
 
 use gdk::{DragAction, Event, ModifierType};
 use glib::ffi::gboolean;
-use glib::signal::{connect_raw, SignalHandlerId};
+use glib::signal::{connect_raw, Inhibit, SignalHandlerId};
 use glib::translate::*;
+use glib::Continue;
 use std::mem::transmute;
 use std::ptr;
 
@@ -26,13 +27,61 @@ impl TickCallbackId {
     }
 }
 
-mod sealed {
-    pub trait Sealed {}
-    impl<T: glib::IsA<crate::Widget>> Sealed for T {}
+pub trait WidgetExtManual: 'static {
+    #[doc(alias = "gtk_drag_dest_set")]
+    fn drag_dest_set(&self, flags: DestDefaults, targets: &[TargetEntry], actions: DragAction);
+
+    #[doc(alias = "gtk_drag_source_set")]
+    fn drag_source_set(
+        &self,
+        start_button_mask: ModifierType,
+        targets: &[TargetEntry],
+        actions: DragAction,
+    );
+
+    #[doc(alias = "gtk_widget_intersect")]
+    fn intersect(&self, area: &Rectangle, intersection: Option<&mut Rectangle>) -> bool;
+
+    fn connect_map_event<F: Fn(&Self, &Event) -> Inhibit + 'static>(&self, f: F)
+        -> SignalHandlerId;
+
+    fn connect_unmap_event<F: Fn(&Self, &Event) -> Inhibit + 'static>(
+        &self,
+        f: F,
+    ) -> SignalHandlerId;
+
+    #[doc(alias = "gtk_widget_add_tick_callback")]
+    fn add_tick_callback<P: Fn(&Self, &gdk::FrameClock) -> Continue + 'static>(
+        &self,
+        callback: P,
+    ) -> TickCallbackId;
+
+    #[doc(alias = "gtk_widget_add_events")]
+    fn add_events(&self, events: gdk::EventMask);
+
+    #[doc(alias = "gtk_widget_get_events")]
+    #[doc(alias = "get_events")]
+    fn events(&self) -> gdk::EventMask;
+
+    #[doc(alias = "gtk_widget_set_events")]
+    fn set_events(&self, events: gdk::EventMask);
+
+    // rustdoc-stripper-ignore-next
+    /// Calls `gtk_widget_destroy()` on this widget.
+    ///
+    /// # Safety
+    ///
+    /// This will not necessarily entirely remove the widget from existence but
+    /// you must *NOT* query the widget's state subsequently.  Do not call this
+    /// yourself unless you really mean to.
+    #[doc(alias = "gtk_widget_destroy")]
+    unsafe fn destroy(&self);
+
+    #[doc(alias = "gtk_widget_hide_on_delete")]
+    fn hide_on_delete(&self) -> Inhibit;
 }
 
-pub trait WidgetExtManual: IsA<Widget> + sealed::Sealed + 'static {
-    #[doc(alias = "gtk_drag_dest_set")]
+impl<O: IsA<Widget>> WidgetExtManual for O {
     fn drag_dest_set(&self, flags: DestDefaults, targets: &[TargetEntry], actions: DragAction) {
         let stashes: Vec<_> = targets.iter().map(|e| e.to_glib_none()).collect();
         let t: Vec<_> = stashes.iter().map(|stash| unsafe { *stash.0 }).collect();
@@ -52,7 +101,6 @@ pub trait WidgetExtManual: IsA<Widget> + sealed::Sealed + 'static {
         };
     }
 
-    #[doc(alias = "gtk_drag_source_set")]
     fn drag_source_set(
         &self,
         start_button_mask: ModifierType,
@@ -77,7 +125,6 @@ pub trait WidgetExtManual: IsA<Widget> + sealed::Sealed + 'static {
         };
     }
 
-    #[doc(alias = "gtk_widget_intersect")]
     fn intersect(&self, area: &Rectangle, mut intersection: Option<&mut Rectangle>) -> bool {
         unsafe {
             from_glib(ffi::gtk_widget_intersect(
@@ -88,14 +135,11 @@ pub trait WidgetExtManual: IsA<Widget> + sealed::Sealed + 'static {
         }
     }
 
-    fn connect_map_event<F: Fn(&Self, &Event) -> glib::Propagation + 'static>(
+    fn connect_map_event<F: Fn(&Self, &Event) -> Inhibit + 'static>(
         &self,
         f: F,
     ) -> SignalHandlerId {
-        unsafe extern "C" fn event_any_trampoline<
-            T,
-            F: Fn(&T, &Event) -> glib::Propagation + 'static,
-        >(
+        unsafe extern "C" fn event_any_trampoline<T, F: Fn(&T, &Event) -> Inhibit + 'static>(
             this: *mut ffi::GtkWidget,
             event: *mut gdk::ffi::GdkEventAny,
             f: &F,
@@ -122,14 +166,11 @@ pub trait WidgetExtManual: IsA<Widget> + sealed::Sealed + 'static {
         }
     }
 
-    fn connect_unmap_event<F: Fn(&Self, &Event) -> glib::Propagation + 'static>(
+    fn connect_unmap_event<F: Fn(&Self, &Event) -> Inhibit + 'static>(
         &self,
         f: F,
     ) -> SignalHandlerId {
-        unsafe extern "C" fn event_any_trampoline<
-            T,
-            F: Fn(&T, &Event) -> glib::Propagation + 'static,
-        >(
+        unsafe extern "C" fn event_any_trampoline<T, F: Fn(&T, &Event) -> Inhibit + 'static>(
             this: *mut ffi::GtkWidget,
             event: *mut gdk::ffi::GdkEventAny,
             f: &F,
@@ -156,8 +197,7 @@ pub trait WidgetExtManual: IsA<Widget> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_widget_add_tick_callback")]
-    fn add_tick_callback<P: Fn(&Self, &gdk::FrameClock) -> glib::ControlFlow + 'static>(
+    fn add_tick_callback<P: Fn(&Self, &gdk::FrameClock) -> Continue + 'static>(
         &self,
         callback: P,
     ) -> TickCallbackId {
@@ -165,7 +205,7 @@ pub trait WidgetExtManual: IsA<Widget> + sealed::Sealed + 'static {
 
         unsafe extern "C" fn callback_func<
             O: IsA<Widget>,
-            P: Fn(&O, &gdk::FrameClock) -> glib::ControlFlow + 'static,
+            P: Fn(&O, &gdk::FrameClock) -> Continue + 'static,
         >(
             widget: *mut ffi::GtkWidget,
             frame_clock: *mut gdk::ffi::GdkFrameClock,
@@ -181,7 +221,7 @@ pub trait WidgetExtManual: IsA<Widget> + sealed::Sealed + 'static {
 
         unsafe extern "C" fn notify_func<
             O: IsA<Widget>,
-            P: Fn(&O, &gdk::FrameClock) -> glib::ControlFlow + 'static,
+            P: Fn(&O, &gdk::FrameClock) -> Continue + 'static,
         >(
             data: glib::ffi::gpointer,
         ) {
@@ -203,50 +243,34 @@ pub trait WidgetExtManual: IsA<Widget> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_widget_add_events")]
     fn add_events(&self, events: gdk::EventMask) {
         unsafe {
             ffi::gtk_widget_add_events(self.as_ref().to_glib_none().0, events.into_glib() as i32);
         }
     }
 
-    #[doc(alias = "gtk_widget_get_events")]
-    #[doc(alias = "get_events")]
     fn events(&self) -> gdk::EventMask {
         unsafe { from_glib(ffi::gtk_widget_get_events(self.as_ref().to_glib_none().0) as u32) }
     }
 
-    #[doc(alias = "gtk_widget_set_events")]
     fn set_events(&self, events: gdk::EventMask) {
         unsafe {
             ffi::gtk_widget_set_events(self.as_ref().to_glib_none().0, events.into_glib() as i32);
         }
     }
 
-    // rustdoc-stripper-ignore-next
-    /// Calls `gtk_widget_destroy()` on this widget.
-    ///
-    /// # Safety
-    ///
-    /// This will not necessarily entirely remove the widget from existence but
-    /// you must *NOT* query the widget's state subsequently.  Do not call this
-    /// yourself unless you really mean to.
-    #[doc(alias = "gtk_widget_destroy")]
     unsafe fn destroy(&self) {
         ffi::gtk_widget_destroy(self.as_ref().to_glib_none().0);
     }
 
-    #[doc(alias = "gtk_widget_hide_on_delete")]
-    fn hide_on_delete(&self) -> glib::Propagation {
+    fn hide_on_delete(&self) -> Inhibit {
         unsafe {
-            glib::Propagation::from_glib(ffi::gtk_widget_hide_on_delete(
+            Inhibit(from_glib(ffi::gtk_widget_hide_on_delete(
                 self.as_ref().to_glib_none().0,
-            ))
+            )))
         }
     }
 }
-
-impl<O: IsA<Widget>> WidgetExtManual for O {}
 
 pub trait InitializingWidgetExt {
     fn init_template(&self);

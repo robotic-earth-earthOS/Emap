@@ -3,7 +3,8 @@
 // DO NOT EDIT
 
 use crate::Hyperlink;
-use glib::{prelude::*, translate::*};
+use glib::object::IsA;
+use glib::translate::*;
 use std::fmt;
 
 glib::wrapper! {
@@ -19,14 +20,13 @@ impl HyperlinkImpl {
     pub const NONE: Option<&'static HyperlinkImpl> = None;
 }
 
-mod sealed {
-    pub trait Sealed {}
-    impl<T: super::IsA<super::HyperlinkImpl>> Sealed for T {}
-}
-
-pub trait HyperlinkImplExt: IsA<HyperlinkImpl> + sealed::Sealed + 'static {
+pub trait HyperlinkImplExt: 'static {
     #[doc(alias = "atk_hyperlink_impl_get_hyperlink")]
     #[doc(alias = "get_hyperlink")]
+    fn hyperlink(&self) -> Option<Hyperlink>;
+}
+
+impl<O: IsA<HyperlinkImpl>> HyperlinkImplExt for O {
     fn hyperlink(&self) -> Option<Hyperlink> {
         unsafe {
             from_glib_full(ffi::atk_hyperlink_impl_get_hyperlink(
@@ -35,8 +35,6 @@ pub trait HyperlinkImplExt: IsA<HyperlinkImpl> + sealed::Sealed + 'static {
         }
     }
 }
-
-impl<O: IsA<HyperlinkImpl>> HyperlinkImplExt for O {}
 
 impl fmt::Display for HyperlinkImpl {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {

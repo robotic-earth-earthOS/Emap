@@ -10,7 +10,7 @@
 //! Add the following to the `[dependencies]` section of your `Cargo.toml`:
 //!
 //! ```toml
-//! cookie = "0.18"
+//! cookie = "0.16"
 //! ```
 //!
 //! # Features
@@ -70,6 +70,7 @@
 
 #![cfg_attr(all(nightly, doc), feature(doc_cfg))]
 
+#![doc(html_root_url = "https://docs.rs/cookie/0.16")]
 #![deny(missing_docs)]
 
 pub use time;
@@ -78,14 +79,8 @@ mod builder;
 mod parse;
 mod jar;
 mod delta;
-mod same_site;
+mod draft;
 mod expiration;
-
-/// Implementation of [HTTP RFC6265 draft] cookie prefixes.
-///
-/// [HTTP RFC6265 draft]:
-/// https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-rfc6265bis#name-cookie-name-prefixes
-pub mod prefix;
 
 #[cfg(any(feature = "private", feature = "signed"))] #[macro_use] mod secure;
 #[cfg(any(feature = "private", feature = "signed"))] pub use secure::*;
@@ -103,7 +98,7 @@ use crate::parse::parse_cookie;
 pub use crate::parse::ParseError;
 pub use crate::builder::CookieBuilder;
 pub use crate::jar::{CookieJar, Delta, Iter};
-pub use crate::same_site::*;
+pub use crate::draft::*;
 pub use crate::expiration::*;
 
 #[derive(Debug, Clone)]
@@ -115,30 +110,8 @@ enum CookieStr<'c> {
 }
 
 impl<'c> CookieStr<'c> {
-    /// Creates an indexed `CookieStr` that holds the start and end indices of
-    /// `needle` inside of `haystack`, if `needle` is a substring of `haystack`.
-    /// Otherwise returns `None`.
-    ///
-    /// The `needle` can later be retrieved via `to_str()`.
-    fn indexed(needle: &str, haystack: &str) -> Option<CookieStr<'static>> {
-        let haystack_start = haystack.as_ptr() as usize;
-        let needle_start = needle.as_ptr() as usize;
-
-        if needle_start < haystack_start {
-            return None;
-        }
-
-        if (needle_start + needle.len()) > (haystack_start + haystack.len()) {
-            return None;
-        }
-
-        let start = needle_start - haystack_start;
-        let end = start + needle.len();
-        Some(CookieStr::Indexed(start, end))
-    }
-
     /// Retrieves the string `self` corresponds to. If `self` is derived from
-    /// indices, the corresponding subslice of `string` is returned. Otherwise,
+    /// indexes, the corresponding subslice of `string` is returned. Otherwise,
     /// the concrete string is returned.
     ///
     /// # Panics
@@ -181,7 +154,7 @@ impl<'c> CookieStr<'c> {
 
 /// Representation of an HTTP cookie.
 ///
-/// ## Constructing a `Cookie`
+/// # Constructing a `Cookie`
 ///
 /// To construct a cookie with only a name/value, use [`Cookie::new()`]:
 ///
@@ -189,27 +162,21 @@ impl<'c> CookieStr<'c> {
 /// use cookie::Cookie;
 ///
 /// let cookie = Cookie::new("name", "value");
-/// assert_eq!(cookie.to_string(), "name=value");
+/// assert_eq!(&cookie.to_string(), "name=value");
 /// ```
 ///
-/// ## Building a `Cookie`
-///
 /// To construct more elaborate cookies, use [`Cookie::build()`] and
-/// [`CookieBuilder`] methods. `Cookie::build()` accepts any type that
-/// implements `T: Into<Cookie>`. See [`Cookie::build()`] for details.
+/// [`CookieBuilder`] methods:
 ///
 /// ```rust
 /// use cookie::Cookie;
 ///
-/// let cookie = Cookie::build(("name", "value"))
+/// let cookie = Cookie::build("name", "value")
 ///     .domain("www.rust-lang.org")
 ///     .path("/")
 ///     .secure(true)
-///     .http_only(true);
-///
-/// # let mut jar = cookie::CookieJar::new();
-/// jar.add(cookie);
-/// jar.remove(Cookie::build("name").path("/"));
+///     .http_only(true)
+///     .finish();
 /// ```
 #[derive(Debug, Clone)]
 pub struct Cookie<'c> {
@@ -234,8 +201,6 @@ pub struct Cookie<'c> {
     http_only: Option<bool>,
     /// The draft `SameSite` attribute.
     same_site: Option<SameSite>,
-    /// The draft `Partitioned` attribute.
-    partitioned: Option<bool>,
 }
 
 impl<'c> Cookie<'c> {
@@ -247,10 +212,6 @@ impl<'c> Cookie<'c> {
     /// use cookie::Cookie;
     ///
     /// let cookie = Cookie::new("name", "value");
-    /// assert_eq!(cookie.name_value(), ("name", "value"));
-    ///
-    /// // This is equivalent to `from` with a `(name, value)` tuple:
-    /// let cookie = Cookie::from(("name", "value"));
     /// assert_eq!(cookie.name_value(), ("name", "value"));
     /// ```
     pub fn new<N, V>(name: N, value: V) -> Self
@@ -268,7 +229,6 @@ impl<'c> Cookie<'c> {
             secure: None,
             http_only: None,
             same_site: None,
-            partitioned: None,
         }
     }
 
@@ -282,50 +242,29 @@ impl<'c> Cookie<'c> {
     /// let cookie = Cookie::named("name");
     /// assert_eq!(cookie.name(), "name");
     /// assert!(cookie.value().is_empty());
-    ///
-    /// // This is equivalent to `from` with `"name`:
-    /// let cookie = Cookie::from("name");
-    /// assert_eq!(cookie.name(), "name");
-    /// assert!(cookie.value().is_empty());
     /// ```
-    #[deprecated(since = "0.18.0", note = "use `Cookie::build(name)` or `Cookie::from(name)`")]
     pub fn named<N>(name: N) -> Cookie<'c>
         where N: Into<Cow<'c, str>>
     {
         Cookie::new(name, "")
     }
 
-    /// Creates a new [`CookieBuilder`] starting from a `base` cookie.
-    ///
-    /// Any type that implements `T: Into<Cookie>` can be used as a `base`:
-    ///
-    /// | `Into<Cookie>` Type              | Example                | Equivalent To              |
-    /// |----------------------------------|------------------------|----------------------------|
-    /// | `(K, V)`, `K, V: Into<Cow<str>>` | `("name", "value")`    | `Cookie::new(name, value)` |
-    /// | `&str`, `String`, `Cow<str>`     | `"name"`               | `Cookie::new(name, "")`    |
-    /// | [`CookieBuilder`]                | `Cookie::build("foo")` | [`CookieBuilder::build()`] |
+    /// Creates a new `CookieBuilder` instance from the given key and value
+    /// strings.
     ///
     /// # Example
     ///
     /// ```
     /// use cookie::Cookie;
     ///
-    /// // Use `(K, V)` as the base, setting a name and value.
-    /// let b1 = Cookie::build(("name", "value")).path("/");
-    /// assert_eq!(b1.inner().name_value(), ("name", "value"));
-    /// assert_eq!(b1.inner().path(), Some("/"));
-    ///
-    /// // Use `&str` as the base, setting a name and empty value.
-    /// let b2 = Cookie::build(("name"));
-    /// assert_eq!(b2.inner().name_value(), ("name", ""));
-    ///
-    /// // Use `CookieBuilder` as the base, inheriting all properties.
-    /// let b3 = Cookie::build(b1);
-    /// assert_eq!(b3.inner().name_value(), ("name", "value"));
-    /// assert_eq!(b3.inner().path(), Some("/"));
+    /// let c = Cookie::build("foo", "bar").finish();
+    /// assert_eq!(c.name_value(), ("foo", "bar"));
     /// ```
-    pub fn build<C: Into<Cookie<'c>>>(base: C) -> CookieBuilder<'c> {
-        CookieBuilder::from(base.into())
+    pub fn build<N, V>(name: N, value: V) -> CookieBuilder<'c>
+        where N: Into<Cow<'c, str>>,
+              V: Into<Cow<'c, str>>
+    {
+        CookieBuilder::new(name, value)
     }
 
     /// Parses a `Cookie` from the given HTTP cookie header value string. Does
@@ -339,12 +278,11 @@ impl<'c> Cookie<'c> {
     /// let c = Cookie::parse("foo=bar%20baz; HttpOnly").unwrap();
     /// assert_eq!(c.name_value(), ("foo", "bar%20baz"));
     /// assert_eq!(c.http_only(), Some(true));
-    /// assert_eq!(c.secure(), None);
     /// ```
     pub fn parse<S>(s: S) -> Result<Cookie<'c>, ParseError>
         where S: Into<Cow<'c, str>>
     {
-        parse_cookie(s.into(), false)
+        parse_cookie(s, false)
     }
 
     /// Parses a `Cookie` from the given HTTP cookie header value string where
@@ -359,94 +297,13 @@ impl<'c> Cookie<'c> {
     /// let c = Cookie::parse_encoded("foo=bar%20baz; HttpOnly").unwrap();
     /// assert_eq!(c.name_value(), ("foo", "bar baz"));
     /// assert_eq!(c.http_only(), Some(true));
-    /// assert_eq!(c.secure(), None);
     /// ```
     #[cfg(feature = "percent-encode")]
     #[cfg_attr(all(nightly, doc), doc(cfg(feature = "percent-encode")))]
     pub fn parse_encoded<S>(s: S) -> Result<Cookie<'c>, ParseError>
         where S: Into<Cow<'c, str>>
     {
-        parse_cookie(s.into(), true)
-    }
-
-    /// Parses the HTTP `Cookie` header, a series of cookie names and value
-    /// separated by `;`, returning an iterator over the parse results. Each
-    /// item returned by the iterator is a `Result<Cookie, ParseError>` of
-    /// parsing one name/value pair. Empty cookie values (i.e, in `a=1;;b=2`)
-    /// and any excess surrounding whitespace are ignored.
-    ///
-    /// Unlike [`Cookie::split_parse_encoded()`], this method _does **not**_
-    /// percent-decode keys and values.
-    ///
-    /// # Example
-    ///
-    /// ```rust
-    /// use cookie::Cookie;
-    ///
-    /// let string = "name=value; other=key%20value";
-    /// # let values: Vec<_> = Cookie::split_parse(string).collect();
-    /// # assert_eq!(values.len(), 2);
-    /// # assert_eq!(values[0].as_ref().unwrap().name(), "name");
-    /// # assert_eq!(values[1].as_ref().unwrap().name(), "other");
-    /// for cookie in Cookie::split_parse(string) {
-    ///     let cookie = cookie.unwrap();
-    ///     match cookie.name() {
-    ///         "name" => assert_eq!(cookie.value(), "value"),
-    ///         "other" => assert_eq!(cookie.value(), "key%20value"),
-    ///         _ => unreachable!()
-    ///     }
-    /// }
-    /// ```
-    #[inline(always)]
-    pub fn split_parse<S>(string: S) -> SplitCookies<'c>
-        where S: Into<Cow<'c, str>>
-    {
-        SplitCookies {
-            string: string.into(),
-            last: 0,
-            decode: false,
-        }
-    }
-
-    /// Parses the HTTP `Cookie` header, a series of cookie names and value
-    /// separated by `;`, returning an iterator over the parse results. Each
-    /// item returned by the iterator is a `Result<Cookie, ParseError>` of
-    /// parsing one name/value pair. Empty cookie values (i.e, in `a=1;;b=2`)
-    /// and any excess surrounding whitespace are ignored.
-    ///
-    /// Unlike [`Cookie::split_parse()`], this method _does_ percent-decode keys
-    /// and values.
-    ///
-    /// # Example
-    ///
-    /// ```rust
-    /// use cookie::Cookie;
-    ///
-    /// let string = "name=value; other=key%20value";
-    /// # let v: Vec<_> = Cookie::split_parse_encoded(string).collect();
-    /// # assert_eq!(v.len(), 2);
-    /// # assert_eq!(v[0].as_ref().unwrap().name_value(), ("name", "value"));
-    /// # assert_eq!(v[1].as_ref().unwrap().name_value(), ("other", "key value"));
-    /// for cookie in Cookie::split_parse_encoded(string) {
-    ///     let cookie = cookie.unwrap();
-    ///     match cookie.name() {
-    ///         "name" => assert_eq!(cookie.value(), "value"),
-    ///         "other" => assert_eq!(cookie.value(), "key value"),
-    ///         _ => unreachable!()
-    ///     }
-    /// }
-    /// ```
-    #[cfg(feature = "percent-encode")]
-    #[cfg_attr(all(nightly, doc), doc(cfg(feature = "percent-encode")))]
-    #[inline(always)]
-    pub fn split_parse_encoded<S>(string: S) -> SplitCookies<'c>
-        where S: Into<Cow<'c, str>>
-    {
-        SplitCookies {
-            string: string.into(),
-            last: 0,
-            decode: true,
-        }
+        parse_cookie(s, true)
     }
 
     /// Converts `self` into a `Cookie` with a static lifetime with as few
@@ -473,7 +330,6 @@ impl<'c> Cookie<'c> {
             secure: self.secure,
             http_only: self.http_only,
             same_site: self.same_site,
-            partitioned: self.partitioned,
         }
     }
 
@@ -494,9 +350,6 @@ impl<'c> Cookie<'c> {
 
     /// Returns the value of `self`.
     ///
-    /// Does not strip surrounding quotes. See [`Cookie::value_trimmed()`] for a
-    /// version that does.
-    ///
     /// # Example
     ///
     /// ```
@@ -504,60 +357,10 @@ impl<'c> Cookie<'c> {
     ///
     /// let c = Cookie::new("name", "value");
     /// assert_eq!(c.value(), "value");
-    ///
-    /// let c = Cookie::new("name", "\"value\"");
-    /// assert_eq!(c.value(), "\"value\"");
     /// ```
     #[inline]
     pub fn value(&self) -> &str {
         self.value.to_str(self.cookie_string.as_ref())
-    }
-
-    /// Returns the value of `self` with surrounding double-quotes trimmed.
-    ///
-    /// This is _not_ the value of the cookie (_that_ is [`Cookie::value()`]).
-    /// Instead, this is the value with a surrounding pair of double-quotes, if
-    /// any, trimmed away. Quotes are only trimmed when they form a pair and
-    /// never otherwise. The trimmed value is never used for other operations,
-    /// such as equality checking, on `self`.
-    ///
-    /// # Example
-    ///
-    /// ```
-    /// use cookie::Cookie;
-    /// let c0 = Cookie::new("name", "value");
-    /// assert_eq!(c0.value_trimmed(), "value");
-    ///
-    /// let c = Cookie::new("name", "\"value\"");
-    /// assert_eq!(c.value_trimmed(), "value");
-    /// assert!(c != c0);
-    ///
-    /// let c = Cookie::new("name", "\"value");
-    /// assert_eq!(c.value(), "\"value");
-    /// assert_eq!(c.value_trimmed(), "\"value");
-    /// assert!(c != c0);
-    ///
-    /// let c = Cookie::new("name", "\"value\"\"");
-    /// assert_eq!(c.value(), "\"value\"\"");
-    /// assert_eq!(c.value_trimmed(), "value\"");
-    /// assert!(c != c0);
-    /// ```
-    #[inline]
-    pub fn value_trimmed(&self) -> &str {
-        #[inline(always)]
-        fn trim_quotes(s: &str) -> &str {
-            if s.len() < 2 {
-                return s;
-            }
-
-            let bytes = s.as_bytes();
-            match (bytes.first(), bytes.last()) {
-                (Some(b'"'), Some(b'"')) => &s[1..(s.len() - 1)],
-                _ => s
-            }
-        }
-
-        trim_quotes(self.value())
     }
 
     /// Returns the name and value of `self` as a tuple of `(name, value)`.
@@ -573,22 +376,6 @@ impl<'c> Cookie<'c> {
     #[inline]
     pub fn name_value(&self) -> (&str, &str) {
         (self.name(), self.value())
-    }
-
-    /// Returns the name and [trimmed value](Cookie::value_trimmed()) of `self`
-    /// as a tuple of `(name, trimmed_value)`.
-    ///
-    /// # Example
-    ///
-    /// ```
-    /// use cookie::Cookie;
-    ///
-    /// let c = Cookie::new("name", "\"value\"");
-    /// assert_eq!(c.name_value_trimmed(), ("name", "value"));
-    /// ```
-    #[inline]
-    pub fn name_value_trimmed(&self) -> (&str, &str) {
-        (self.name(), self.value_trimmed())
     }
 
     /// Returns whether this cookie was marked `HttpOnly` or not. Returns
@@ -670,43 +457,6 @@ impl<'c> Cookie<'c> {
         self.same_site
     }
 
-    /// Returns whether this cookie was marked `Partitioned` or not. Returns
-    /// `Some(true)` when the cookie was explicitly set (manually or parsed) as
-    /// `Partitioned`, `Some(false)` when `partitioned` was manually set to `false`,
-    /// and `None` otherwise.
-    ///
-    /// **Note:** This cookie attribute is an [HTTP draft]! Its meaning and
-    /// definition are not standardized and therefore subject to change.
-    ///
-    /// [HTTP draft]: https://www.ietf.org/id/draft-cutler-httpbis-partitioned-cookies-01.html
-    ///
-    /// # Example
-    ///
-    /// ```
-    /// use cookie::Cookie;
-    ///
-    /// let c = Cookie::parse("name=value; Partitioned").unwrap();
-    /// assert_eq!(c.partitioned(), Some(true));
-    ///
-    /// let mut c = Cookie::parse("name=value").unwrap();
-    /// assert_eq!(c.partitioned(), None);
-    ///
-    /// let mut c = Cookie::new("name", "value");
-    /// assert_eq!(c.partitioned(), None);
-    ///
-    /// // An explicitly set "false" value.
-    /// c.set_partitioned(false);
-    /// assert_eq!(c.partitioned(), Some(false));
-    ///
-    /// // An explicitly set "true" value.
-    /// c.set_partitioned(true);
-    /// assert_eq!(c.partitioned(), Some(true));
-    /// ```
-    #[inline]
-    pub fn partitioned(&self) -> Option<bool> {
-        self.partitioned
-    }
-
     /// Returns the specified max-age of the cookie if one was specified.
     ///
     /// # Example
@@ -751,10 +501,6 @@ impl<'c> Cookie<'c> {
 
     /// Returns the `Domain` of the cookie if one was specified.
     ///
-    /// This does not consider whether the `Domain` is valid; validation is left
-    /// to higher-level libraries, as needed. However, if the `Domain` starts
-    /// with a leading `.`, the leading `.` is stripped.
-    ///
     /// # Example
     ///
     /// ```
@@ -765,21 +511,11 @@ impl<'c> Cookie<'c> {
     ///
     /// let c = Cookie::parse("name=value; Domain=crates.io").unwrap();
     /// assert_eq!(c.domain(), Some("crates.io"));
-    ///
-    /// let c = Cookie::parse("name=value; Domain=.crates.io").unwrap();
-    /// assert_eq!(c.domain(), Some("crates.io"));
-    ///
-    /// // Note that `..crates.io` is not a valid domain.
-    /// let c = Cookie::parse("name=value; Domain=..crates.io").unwrap();
-    /// assert_eq!(c.domain(), Some(".crates.io"));
     /// ```
     #[inline]
     pub fn domain(&self) -> Option<&str> {
         match self.domain {
-            Some(ref c) => {
-                let domain = c.to_str(self.cookie_string.as_ref());
-                domain.strip_prefix(".").or(Some(domain))
-            },
+            Some(ref c) => Some(c.to_str(self.cookie_string.as_ref())),
             None => None,
         }
     }
@@ -795,7 +531,7 @@ impl<'c> Cookie<'c> {
     /// assert_eq!(c.expires(), None);
     ///
     /// // Here, `cookie.expires_datetime()` returns `None`.
-    /// let c = Cookie::build(("name", "value")).expires(None).build();
+    /// let c = Cookie::build("name", "value").expires(None).finish();
     /// assert_eq!(c.expires(), Some(Expiration::Session));
     ///
     /// let expire_time = "Wed, 21 Oct 2017 07:28:00 GMT";
@@ -819,7 +555,7 @@ impl<'c> Cookie<'c> {
     /// assert_eq!(c.expires_datetime(), None);
     ///
     /// // Here, `cookie.expires()` returns `Some`.
-    /// let c = Cookie::build(("name", "value")).expires(None).build();
+    /// let c = Cookie::build("name", "value").expires(None).finish();
     /// assert_eq!(c.expires_datetime(), None);
     ///
     /// let expire_time = "Wed, 21 Oct 2017 07:28:00 GMT";
@@ -953,43 +689,6 @@ impl<'c> Cookie<'c> {
     #[inline]
     pub fn set_same_site<T: Into<Option<SameSite>>>(&mut self, value: T) {
         self.same_site = value.into();
-    }
-
-    /// Sets the value of `partitioned` in `self` to `value`. If `value` is
-    /// `None`, the field is unset.
-    ///
-    /// **Note:** _Partitioned_ cookies require the `Secure` attribute to be
-    /// set. As such, `Partitioned` cookies are always rendered with the
-    /// `Secure` attribute, irrespective of the `Secure` attribute's setting.
-    ///
-    /// **Note:** This cookie attribute is an [HTTP draft]! Its meaning and
-    /// definition are not standardized and therefore subject to change.
-    ///
-    /// [HTTP draft]: https://www.ietf.org/id/draft-cutler-httpbis-partitioned-cookies-01.html
-    ///
-    /// # Example
-    ///
-    /// ```
-    /// use cookie::Cookie;
-    ///
-    /// let mut c = Cookie::new("name", "value");
-    /// assert_eq!(c.partitioned(), None);
-    ///
-    /// c.set_partitioned(true);
-    /// assert_eq!(c.partitioned(), Some(true));
-    /// assert!(c.to_string().contains("Secure"));
-    ///
-    /// c.set_partitioned(false);
-    /// assert_eq!(c.partitioned(), Some(false));
-    /// assert!(!c.to_string().contains("Secure"));
-    ///
-    /// c.set_partitioned(None);
-    /// assert_eq!(c.partitioned(), None);
-    /// assert!(!c.to_string().contains("Secure"));
-    /// ```
-    #[inline]
-    pub fn set_partitioned<T: Into<Option<bool>>>(&mut self, value: T) {
-        self.partitioned = value.into();
     }
 
     /// Sets the value of `max_age` in `self` to `value`. If `value` is `None`,
@@ -1202,16 +901,13 @@ impl<'c> Cookie<'c> {
 
         if let Some(same_site) = self.same_site() {
             write!(f, "; SameSite={}", same_site)?;
+
+            if same_site.is_none() && self.secure().is_none() {
+                write!(f, "; Secure")?;
+            }
         }
 
-        if let Some(true) = self.partitioned() {
-            write!(f, "; Partitioned")?;
-        }
-
-        if self.secure() == Some(true)
-            || self.partitioned() == Some(true)
-            || self.secure().is_none() && self.same_site() == Some(SameSite::None)
-        {
+        if let Some(true) = self.secure() {
             write!(f, "; Secure")?;
         }
 
@@ -1333,10 +1029,6 @@ impl<'c> Cookie<'c> {
     /// from a raw string, or if `self` doesn't contain a `Domain`, or if the
     /// `Domain` has changed since parsing, returns `None`.
     ///
-    /// Like [`Cookie::domain()`], this does not consider whether `Domain` is
-    /// valid; validation is left to higher-level libraries, as needed. However,
-    /// if `Domain` starts with a leading `.`, the leading `.` is stripped.
-    ///
     /// This method differs from [`Cookie::domain()`] in that it returns a
     /// string with the same lifetime as the originally parsed string. This
     /// lifetime may outlive `self` struct. If a longer lifetime is not
@@ -1348,7 +1040,7 @@ impl<'c> Cookie<'c> {
     /// ```
     /// use cookie::Cookie;
     ///
-    /// let cookie_string = format!("{}={}; Domain=.crates.io", "foo", "bar");
+    /// let cookie_string = format!("{}={}; Domain=crates.io", "foo", "bar");
     ///
     /// //`c` will be dropped at the end of the scope, but `domain` will live on
     /// let domain = {
@@ -1361,10 +1053,7 @@ impl<'c> Cookie<'c> {
     #[inline]
     pub fn domain_raw(&self) -> Option<&'c str> {
         match (self.domain.as_ref(), self.cookie_string.as_ref()) {
-            (Some(domain), Some(string)) => match domain.to_raw_str(string) {
-                Some(s) => s.strip_prefix(".").or(Some(s)),
-                None => None,
-            }
+            (Some(domain), Some(string)) => domain.to_raw_str(string),
             _ => None,
         }
     }
@@ -1381,7 +1070,7 @@ impl<'c> Cookie<'c> {
     /// ```rust
     /// use cookie::Cookie;
     ///
-    /// let mut c = Cookie::build(("my name", "this; value?")).secure(true).build();
+    /// let mut c = Cookie::build("my name", "this; value?").secure(true).finish();
     /// assert_eq!(&c.encoded().to_string(), "my%20name=this%3B%20value%3F; Secure");
     /// assert_eq!(&c.encoded().stripped().to_string(), "my%20name=this%3B%20value%3F");
     /// ```
@@ -1404,7 +1093,7 @@ impl<'c> Cookie<'c> {
     /// ```rust
     /// use cookie::Cookie;
     ///
-    /// let mut c = Cookie::build(("key?", "value")).secure(true).path("/").build();
+    /// let mut c = Cookie::build("key?", "value").secure(true).path("/").finish();
     /// assert_eq!(&c.stripped().to_string(), "key?=value");
     #[cfg_attr(feature = "percent-encode", doc = r##"
 // Note: `encoded()` is only available when `percent-encode` is enabled.
@@ -1414,44 +1103,6 @@ assert_eq!(&c.stripped().encoded().to_string(), "key%3F=value");
     #[inline(always)]
     pub fn stripped<'a>(&'a self) -> Display<'a, 'c> {
         Display::new_stripped(self)
-    }
-}
-
-/// An iterator over cookie parse `Result`s: `Result<Cookie, ParseError>`.
-///
-/// Returned by [`Cookie::split_parse()`] and [`Cookie::split_parse_encoded()`].
-pub struct SplitCookies<'c> {
-    // The source string, which we split and parse.
-    string: Cow<'c, str>,
-    // The index where we last split off.
-    last: usize,
-    // Whether we should percent-decode when parsing.
-    decode: bool,
-}
-
-impl<'c> Iterator for SplitCookies<'c> {
-    type Item = Result<Cookie<'c>, ParseError>;
-
-    fn next(&mut self) -> Option<Self::Item> {
-        while self.last < self.string.len() {
-            let i = self.last;
-            let j = self.string[i..]
-                .find(';')
-                .map(|k| i + k)
-                .unwrap_or(self.string.len());
-
-            self.last = j + 1;
-            if self.string[i..j].chars().all(|c| c.is_whitespace()) {
-                continue;
-            }
-
-            return Some(match self.string {
-                Cow::Borrowed(s) => parse_cookie(s[i..j].trim(), self.decode),
-                Cow::Owned(ref s) => parse_cookie(s[i..j].trim().to_owned(), self.decode),
-            })
-        }
-
-        None
     }
 }
 
@@ -1513,7 +1164,7 @@ mod encoding {
 /// ```rust
 /// use cookie::Cookie;
 ///
-/// let c = Cookie::build(("my name", "this; value%?")).secure(true).build();
+/// let c = Cookie::build("my name", "this; value%?").secure(true).finish();
 /// assert_eq!(&c.stripped().to_string(), "my name=this; value%?");
 #[cfg_attr(feature = "percent-encode", doc = r##"
 // Note: `encoded()` is only available when `percent-encode` is enabled.
@@ -1590,8 +1241,11 @@ impl<'c> fmt::Display for Cookie<'c> {
     /// ```rust
     /// use cookie::Cookie;
     ///
-    /// let mut cookie = Cookie::build(("foo", "bar")).path("/");
-    /// assert_eq!(cookie.to_string(), "foo=bar; Path=/");
+    /// let mut cookie = Cookie::build("foo", "bar")
+    ///     .path("/")
+    ///     .finish();
+    ///
+    /// assert_eq!(&cookie.to_string(), "foo=bar; Path=/");
     /// ```
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{}={}", self.name(), self.value())?;
@@ -1613,7 +1267,6 @@ impl<'a, 'b> PartialEq<Cookie<'b>> for Cookie<'a> {
             && self.value() == other.value()
             && self.http_only() == other.http_only()
             && self.secure() == other.secure()
-            && self.partitioned() == other.partitioned()
             && self.max_age() == other.max_age()
             && self.expires() == other.expires();
 
@@ -1637,51 +1290,6 @@ impl<'a, 'b> PartialEq<Cookie<'b>> for Cookie<'a> {
     }
 }
 
-impl<'a> From<&'a str> for Cookie<'a> {
-    fn from(name: &'a str) -> Self {
-        Cookie::new(name, "")
-    }
-}
-
-impl From<String> for Cookie<'static> {
-    fn from(name: String) -> Self {
-        Cookie::new(name, "")
-    }
-}
-
-impl<'a> From<Cow<'a, str>> for Cookie<'a> {
-    fn from(name: Cow<'a, str>) -> Self {
-        Cookie::new(name, "")
-    }
-}
-
-impl<'a, N, V> From<(N, V)> for Cookie<'a>
-    where N: Into<Cow<'a, str>>,
-          V: Into<Cow<'a, str>>
-{
-    fn from((name, value): (N, V)) -> Self {
-        Cookie::new(name, value)
-    }
-}
-
-impl<'a> From<CookieBuilder<'a>> for Cookie<'a> {
-    fn from(builder: CookieBuilder<'a>) -> Self {
-        builder.build()
-    }
-}
-
-impl<'a> AsRef<Cookie<'a>> for Cookie<'a> {
-    fn as_ref(&self) -> &Cookie<'a> {
-        self
-    }
-}
-
-impl<'a> AsMut<Cookie<'a>> for Cookie<'a> {
-    fn as_mut(&mut self) -> &mut Cookie<'a> {
-        self
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use crate::{Cookie, SameSite, parse::parse_date};
@@ -1692,72 +1300,66 @@ mod tests {
         let cookie = Cookie::new("foo", "bar");
         assert_eq!(&cookie.to_string(), "foo=bar");
 
-        let cookie = Cookie::build(("foo", "bar")).http_only(true);
+        let cookie = Cookie::build("foo", "bar")
+            .http_only(true).finish();
         assert_eq!(&cookie.to_string(), "foo=bar; HttpOnly");
 
-        let cookie = Cookie::build(("foo", "bar")).max_age(Duration::seconds(10));
+        let cookie = Cookie::build("foo", "bar")
+            .max_age(Duration::seconds(10)).finish();
         assert_eq!(&cookie.to_string(), "foo=bar; Max-Age=10");
 
-        let cookie = Cookie::build(("foo", "bar")).secure(true);
+        let cookie = Cookie::build("foo", "bar")
+            .secure(true).finish();
         assert_eq!(&cookie.to_string(), "foo=bar; Secure");
 
-        let cookie = Cookie::build(("foo", "bar")).path("/");
+        let cookie = Cookie::build("foo", "bar")
+            .path("/").finish();
         assert_eq!(&cookie.to_string(), "foo=bar; Path=/");
 
-        let cookie = Cookie::build(("foo", "bar")).domain("www.rust-lang.org");
+        let cookie = Cookie::build("foo", "bar")
+            .domain("www.rust-lang.org").finish();
         assert_eq!(&cookie.to_string(), "foo=bar; Domain=www.rust-lang.org");
-
-        let cookie = Cookie::build(("foo", "bar")).domain(".rust-lang.org");
-        assert_eq!(&cookie.to_string(), "foo=bar; Domain=rust-lang.org");
-
-        let cookie = Cookie::build(("foo", "bar")).domain("rust-lang.org");
-        assert_eq!(&cookie.to_string(), "foo=bar; Domain=rust-lang.org");
 
         let time_str = "Wed, 21 Oct 2015 07:28:00 GMT";
         let expires = parse_date(time_str, &crate::parse::FMT1).unwrap();
-        let cookie = Cookie::build(("foo", "bar")).expires(expires);
+        let cookie = Cookie::build("foo", "bar")
+            .expires(expires).finish();
         assert_eq!(&cookie.to_string(),
                    "foo=bar; Expires=Wed, 21 Oct 2015 07:28:00 GMT");
 
-        let cookie = Cookie::build(("foo", "bar")).same_site(SameSite::Strict);
+        let cookie = Cookie::build("foo", "bar")
+            .same_site(SameSite::Strict).finish();
         assert_eq!(&cookie.to_string(), "foo=bar; SameSite=Strict");
 
-        let cookie = Cookie::build(("foo", "bar")).same_site(SameSite::Lax);
+        let cookie = Cookie::build("foo", "bar")
+            .same_site(SameSite::Lax).finish();
         assert_eq!(&cookie.to_string(), "foo=bar; SameSite=Lax");
 
-        let mut cookie = Cookie::build(("foo", "bar")).same_site(SameSite::None).build();
+        let mut cookie = Cookie::build("foo", "bar")
+            .same_site(SameSite::None).finish();
         assert_eq!(&cookie.to_string(), "foo=bar; SameSite=None; Secure");
 
-        cookie.set_partitioned(true);
-        assert_eq!(&cookie.to_string(), "foo=bar; SameSite=None; Partitioned; Secure");
-
         cookie.set_same_site(None);
-        assert_eq!(&cookie.to_string(), "foo=bar; Partitioned; Secure");
-
-        cookie.set_secure(false);
-        assert_eq!(&cookie.to_string(), "foo=bar; Partitioned; Secure");
-
-        cookie.set_secure(None);
-        assert_eq!(&cookie.to_string(), "foo=bar; Partitioned; Secure");
-
-        cookie.set_partitioned(None);
         assert_eq!(&cookie.to_string(), "foo=bar");
 
-        let mut c = Cookie::build(("foo", "bar")).same_site(SameSite::None).secure(false).build();
-        assert_eq!(&c.to_string(), "foo=bar; SameSite=None");
-        c.set_secure(true);
-        assert_eq!(&c.to_string(), "foo=bar; SameSite=None; Secure");
+        let mut cookie = Cookie::build("foo", "bar")
+            .same_site(SameSite::None)
+            .secure(false)
+            .finish();
+        assert_eq!(&cookie.to_string(), "foo=bar; SameSite=None");
+        cookie.set_secure(true);
+        assert_eq!(&cookie.to_string(), "foo=bar; SameSite=None; Secure");
     }
 
     #[test]
     #[ignore]
     fn format_date_wraps() {
         let expires = OffsetDateTime::UNIX_EPOCH + Duration::MAX;
-        let cookie = Cookie::build(("foo", "bar")).expires(expires);
+        let cookie = Cookie::build("foo", "bar").expires(expires).finish();
         assert_eq!(&cookie.to_string(), "foo=bar; Expires=Fri, 31 Dec 9999 23:59:59 GMT");
 
         let expires = time::macros::datetime!(9999-01-01 0:00 UTC) + Duration::days(1000);
-        let cookie = Cookie::build(("foo", "bar")).expires(expires);
+        let cookie = Cookie::build("foo", "bar").expires(expires).finish();
         assert_eq!(&cookie.to_string(), "foo=bar; Expires=Fri, 31 Dec 9999 23:59:59 GMT");
     }
 
@@ -1810,72 +1412,11 @@ mod tests {
     #[test]
     #[cfg(feature = "percent-encode")]
     fn format_encoded() {
-        let cookie = Cookie::new("foo !%?=", "bar;;, a");
+        let cookie = Cookie::build("foo !%?=", "bar;;, a").finish();
         let cookie_str = cookie.encoded().to_string();
         assert_eq!(&cookie_str, "foo%20!%25%3F%3D=bar%3B%3B%2C%20a");
 
         let cookie = Cookie::parse_encoded(cookie_str).unwrap();
         assert_eq!(cookie.name_value(), ("foo !%?=", "bar;;, a"));
-    }
-
-    #[test]
-    fn split_parse() {
-        let cases = [
-            ("", vec![]),
-            (";;", vec![]),
-            ("name=value", vec![("name", "value")]),
-            ("a=%20", vec![("a", "%20")]),
-            ("a=d#$%^&*()_", vec![("a", "d#$%^&*()_")]),
-            ("  name=value  ", vec![("name", "value")]),
-            ("name=value  ", vec![("name", "value")]),
-            ("name=value;;other=key", vec![("name", "value"), ("other", "key")]),
-            ("name=value;  ;other=key", vec![("name", "value"), ("other", "key")]),
-            ("name=value ;  ;other=key", vec![("name", "value"), ("other", "key")]),
-            ("name=value ;  ; other=key", vec![("name", "value"), ("other", "key")]),
-            ("name=value ;  ; other=key ", vec![("name", "value"), ("other", "key")]),
-            ("name=value ;  ; other=key;; ", vec![("name", "value"), ("other", "key")]),
-            (";name=value ;  ; other=key ", vec![("name", "value"), ("other", "key")]),
-            (";a=1 ;  ; b=2 ", vec![("a", "1"), ("b", "2")]),
-            (";a=1 ;  ; b= ", vec![("a", "1"), ("b", "")]),
-            (";a=1 ;  ; =v ; c=", vec![("a", "1"), ("c", "")]),
-            (" ;   a=1 ;  ; =v ; ;;c=", vec![("a", "1"), ("c", "")]),
-            (" ;   a=1 ;  ; =v ; ;;c===  ", vec![("a", "1"), ("c", "==")]),
-        ];
-
-        for (string, expected) in cases {
-            let actual: Vec<_> = Cookie::split_parse(string)
-                .filter_map(|parse| parse.ok())
-                .map(|c| (c.name_raw().unwrap(), c.value_raw().unwrap()))
-                .collect();
-
-            assert_eq!(expected, actual);
-        }
-    }
-
-    #[test]
-    #[cfg(feature = "percent-encode")]
-    fn split_parse_encoded() {
-        let cases = [
-            ("", vec![]),
-            (";;", vec![]),
-            ("name=val%20ue", vec![("name", "val ue")]),
-            ("foo%20!%25%3F%3D=bar%3B%3B%2C%20a", vec![("foo !%?=", "bar;;, a")]),
-            (
-                "name=val%20ue ; ; foo%20!%25%3F%3D=bar%3B%3B%2C%20a",
-                vec![("name", "val ue"), ("foo !%?=", "bar;;, a")]
-            ),
-        ];
-
-        for (string, expected) in cases {
-            let cookies: Vec<_> = Cookie::split_parse_encoded(string)
-                .filter_map(|parse| parse.ok())
-                .collect();
-
-            let actual: Vec<_> = cookies.iter()
-                .map(|c| c.name_value())
-                .collect();
-
-            assert_eq!(expected, actual);
-        }
     }
 }

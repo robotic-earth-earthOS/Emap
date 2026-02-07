@@ -2,12 +2,18 @@
 // from gir-files (https://github.com/gtk-rs/gir-files)
 // DO NOT EDIT
 
-use crate::{
-    AsyncResult, Cancellable, TlsCertificateRequestFlags, TlsConnection, TlsInteractionResult,
-    TlsPassword,
-};
-use glib::{prelude::*, translate::*};
-use std::{boxed::Box as Box_, fmt, pin::Pin, ptr};
+use crate::AsyncResult;
+use crate::Cancellable;
+use crate::TlsCertificateRequestFlags;
+use crate::TlsConnection;
+use crate::TlsInteractionResult;
+use crate::TlsPassword;
+use glib::object::IsA;
+use glib::translate::*;
+use std::boxed::Box as Box_;
+use std::fmt;
+use std::pin::Pin;
+use std::ptr;
 
 glib::wrapper! {
     #[doc(alias = "GTlsInteraction")]
@@ -22,13 +28,71 @@ impl TlsInteraction {
     pub const NONE: Option<&'static TlsInteraction> = None;
 }
 
-mod sealed {
-    pub trait Sealed {}
-    impl<T: super::IsA<super::TlsInteraction>> Sealed for T {}
+pub trait TlsInteractionExt: 'static {
+    #[doc(alias = "g_tls_interaction_ask_password")]
+    fn ask_password(
+        &self,
+        password: &impl IsA<TlsPassword>,
+        cancellable: Option<&impl IsA<Cancellable>>,
+    ) -> Result<TlsInteractionResult, glib::Error>;
+
+    #[doc(alias = "g_tls_interaction_ask_password_async")]
+    fn ask_password_async<P: FnOnce(Result<TlsInteractionResult, glib::Error>) + 'static>(
+        &self,
+        password: &impl IsA<TlsPassword>,
+        cancellable: Option<&impl IsA<Cancellable>>,
+        callback: P,
+    );
+
+    fn ask_password_future(
+        &self,
+        password: &(impl IsA<TlsPassword> + Clone + 'static),
+    ) -> Pin<
+        Box_<dyn std::future::Future<Output = Result<TlsInteractionResult, glib::Error>> + 'static>,
+    >;
+
+    #[doc(alias = "g_tls_interaction_invoke_ask_password")]
+    fn invoke_ask_password(
+        &self,
+        password: &impl IsA<TlsPassword>,
+        cancellable: Option<&impl IsA<Cancellable>>,
+    ) -> Result<TlsInteractionResult, glib::Error>;
+
+    #[doc(alias = "g_tls_interaction_invoke_request_certificate")]
+    fn invoke_request_certificate(
+        &self,
+        connection: &impl IsA<TlsConnection>,
+        flags: TlsCertificateRequestFlags,
+        cancellable: Option<&impl IsA<Cancellable>>,
+    ) -> Result<TlsInteractionResult, glib::Error>;
+
+    #[doc(alias = "g_tls_interaction_request_certificate")]
+    fn request_certificate(
+        &self,
+        connection: &impl IsA<TlsConnection>,
+        flags: TlsCertificateRequestFlags,
+        cancellable: Option<&impl IsA<Cancellable>>,
+    ) -> Result<TlsInteractionResult, glib::Error>;
+
+    #[doc(alias = "g_tls_interaction_request_certificate_async")]
+    fn request_certificate_async<P: FnOnce(Result<TlsInteractionResult, glib::Error>) + 'static>(
+        &self,
+        connection: &impl IsA<TlsConnection>,
+        flags: TlsCertificateRequestFlags,
+        cancellable: Option<&impl IsA<Cancellable>>,
+        callback: P,
+    );
+
+    fn request_certificate_future(
+        &self,
+        connection: &(impl IsA<TlsConnection> + Clone + 'static),
+        flags: TlsCertificateRequestFlags,
+    ) -> Pin<
+        Box_<dyn std::future::Future<Output = Result<TlsInteractionResult, glib::Error>> + 'static>,
+    >;
 }
 
-pub trait TlsInteractionExt: IsA<TlsInteraction> + sealed::Sealed + 'static {
-    #[doc(alias = "g_tls_interaction_ask_password")]
+impl<O: IsA<TlsInteraction>> TlsInteractionExt for O {
     fn ask_password(
         &self,
         password: &impl IsA<TlsPassword>,
@@ -50,7 +114,6 @@ pub trait TlsInteractionExt: IsA<TlsInteraction> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_tls_interaction_ask_password_async")]
     fn ask_password_async<P: FnOnce(Result<TlsInteractionResult, glib::Error>) + 'static>(
         &self,
         password: &impl IsA<TlsPassword>,
@@ -121,7 +184,6 @@ pub trait TlsInteractionExt: IsA<TlsInteraction> + sealed::Sealed + 'static {
         ))
     }
 
-    #[doc(alias = "g_tls_interaction_invoke_ask_password")]
     fn invoke_ask_password(
         &self,
         password: &impl IsA<TlsPassword>,
@@ -143,7 +205,6 @@ pub trait TlsInteractionExt: IsA<TlsInteraction> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_tls_interaction_invoke_request_certificate")]
     fn invoke_request_certificate(
         &self,
         connection: &impl IsA<TlsConnection>,
@@ -167,7 +228,6 @@ pub trait TlsInteractionExt: IsA<TlsInteraction> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_tls_interaction_request_certificate")]
     fn request_certificate(
         &self,
         connection: &impl IsA<TlsConnection>,
@@ -191,7 +251,6 @@ pub trait TlsInteractionExt: IsA<TlsInteraction> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_tls_interaction_request_certificate_async")]
     fn request_certificate_async<P: FnOnce(Result<TlsInteractionResult, glib::Error>) + 'static>(
         &self,
         connection: &impl IsA<TlsConnection>,
@@ -265,8 +324,6 @@ pub trait TlsInteractionExt: IsA<TlsInteraction> + sealed::Sealed + 'static {
         ))
     }
 }
-
-impl<O: IsA<TlsInteraction>> TlsInteractionExt for O {}
 
 impl fmt::Display for TlsInteraction {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {

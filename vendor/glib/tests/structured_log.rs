@@ -1,11 +1,11 @@
 #![allow(clippy::unnecessary_to_owned)]
 #![allow(clippy::unnecessary_cast)]
 
+#[cfg(feature = "v2_50")]
 #[test]
 fn structured_log() {
-    use std::sync::{Arc, Mutex};
-
     use glib::*;
+    use std::sync::{Arc, Mutex};
 
     let log = Arc::new(Mutex::new(Vec::new()));
     {
@@ -17,7 +17,7 @@ fn structured_log() {
                 .map(|f| {
                     let value = if let Some(data) = f.user_data() {
                         assert!(f.value_str().is_none());
-                        format!("USERDATA: {data}")
+                        format!("USERDATA: {}", data)
                     } else {
                         f.value_str().unwrap().to_owned()
                     };
@@ -83,22 +83,12 @@ fn structured_log() {
             )
         })
         .collect::<Vec<_>>();
-
-    let path = if cfg!(windows) {
-        "glib\\tests\\structured_log.rs"
-    } else {
-        "glib/tests/structured_log.rs"
-    };
-
     assert_eq!(
         log[0],
         (
             LogLevel::Message,
             vec![
                 ("PRIORITY", "5" as &str),
-                ("CODE_FILE", path as &str),
-                ("CODE_LINE", "31" as &str),
-                ("CODE_FUNC", "structured_log::structured_log" as &str),
                 ("MY_META", "abc"),
                 ("MESSAGE", "normal with meta"),
                 ("MY_META2", "def"),
@@ -112,9 +102,6 @@ fn structured_log() {
             LogLevel::Message,
             vec![
                 ("PRIORITY", "5" as &str),
-                ("CODE_FILE", path as &str),
-                ("CODE_LINE", "41" as &str),
-                ("CODE_FUNC", "structured_log::structured_log" as &str),
                 ("MY_META", "abc"),
                 ("MESSAGE", "formatted with meta: 123 456"),
                 ("MY_META2", "defghi"),

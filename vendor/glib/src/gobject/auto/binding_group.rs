@@ -2,13 +2,15 @@
 // from gir-files (https://github.com/gtk-rs/gir-files)
 // DO NOT EDIT
 
-use crate::{
-    prelude::*,
-    signal::{connect_raw, SignalHandlerId},
-    translate::*,
-    Object,
-};
-use std::{boxed::Box as Box_, fmt, mem::transmute};
+use crate::object::IsA;
+use crate::object::ObjectType as ObjectType_;
+use crate::signal::connect_raw;
+use crate::signal::SignalHandlerId;
+use crate::translate::*;
+use crate::Object;
+use std::boxed::Box as Box_;
+use std::fmt;
+use std::mem::transmute;
 
 crate::wrapper! {
     #[doc(alias = "GBindingGroup")]
@@ -45,8 +47,8 @@ impl BindingGroup {
         }
     }
 
-    #[cfg(feature = "v2_72")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "v2_72")))]
+    #[cfg(any(feature = "v2_72", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v2_72")))]
     #[doc(alias = "source")]
     pub fn connect_source_notify<F: Fn(&Self) + Send + Sync + 'static>(
         &self,
@@ -76,8 +78,8 @@ impl BindingGroup {
     }
 }
 
-#[cfg(feature = "v2_72")]
-#[cfg_attr(docsrs, doc(cfg(feature = "v2_72")))]
+#[cfg(any(feature = "v2_72", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v2_72")))]
 impl Default for BindingGroup {
     fn default() -> Self {
         Self::new()

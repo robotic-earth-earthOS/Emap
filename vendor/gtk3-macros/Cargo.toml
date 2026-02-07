@@ -11,24 +11,17 @@
 
 [package]
 edition = "2021"
-rust-version = "1.70"
+rust-version = "1.56"
 name = "gtk3-macros"
-version = "0.18.2"
+version = "0.15.6"
 authors = ["The gtk-rs Project Developers"]
-build = false
 exclude = [
     "gir-files/*",
     "src/composite_template.ui",
 ]
-autolib = false
-autobins = false
-autoexamples = false
-autotests = false
-autobenches = false
-description = "UNMAINTAINED Rust bindings for the GTK 3 library (use gtk4-macros instead)"
+description = "Rust bindings for the GTK 3 library"
 homepage = "https://gtk-rs.org/"
 documentation = "https://gtk-rs.org/gtk3-rs/stable/latest/docs/gtk3_macros/"
-readme = false
 keywords = [
     "gtk",
     "gtk3",
@@ -45,9 +38,10 @@ repository = "https://github.com/gtk-rs/gtk3-rs"
 resolver = "1"
 
 [lib]
-name = "gtk3_macros"
-path = "src/lib.rs"
 proc-macro = true
+
+[dependencies.anyhow]
+version = "1.0"
 
 [dependencies.proc-macro-crate]
 version = "1.0"
@@ -62,8 +56,7 @@ version = "1.0"
 version = "1.0"
 
 [dependencies.syn]
-version = "2.0"
+version = "1.0"
 features = ["full"]
 
-[dev-dependencies.gtk]
-version = "0.18"
+[dev-dependencies]

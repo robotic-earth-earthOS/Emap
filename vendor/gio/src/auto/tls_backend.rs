@@ -3,7 +3,8 @@
 // DO NOT EDIT
 
 use crate::TlsDatabase;
-use glib::{prelude::*, translate::*};
+use glib::object::IsA;
+use glib::translate::*;
 use std::fmt;
 
 glib::wrapper! {
@@ -20,20 +21,53 @@ impl TlsBackend {
 
     #[doc(alias = "g_tls_backend_get_default")]
     #[doc(alias = "get_default")]
-    #[allow(clippy::should_implement_trait)]
     pub fn default() -> TlsBackend {
         unsafe { from_glib_none(ffi::g_tls_backend_get_default()) }
     }
 }
 
-mod sealed {
-    pub trait Sealed {}
-    impl<T: super::IsA<super::TlsBackend>> Sealed for T {}
-}
-
-pub trait TlsBackendExt: IsA<TlsBackend> + sealed::Sealed + 'static {
+pub trait TlsBackendExt: 'static {
     #[doc(alias = "g_tls_backend_get_certificate_type")]
     #[doc(alias = "get_certificate_type")]
+    fn certificate_type(&self) -> glib::types::Type;
+
+    #[doc(alias = "g_tls_backend_get_client_connection_type")]
+    #[doc(alias = "get_client_connection_type")]
+    fn client_connection_type(&self) -> glib::types::Type;
+
+    #[doc(alias = "g_tls_backend_get_default_database")]
+    #[doc(alias = "get_default_database")]
+    fn default_database(&self) -> TlsDatabase;
+
+    #[doc(alias = "g_tls_backend_get_dtls_client_connection_type")]
+    #[doc(alias = "get_dtls_client_connection_type")]
+    fn dtls_client_connection_type(&self) -> glib::types::Type;
+
+    #[doc(alias = "g_tls_backend_get_dtls_server_connection_type")]
+    #[doc(alias = "get_dtls_server_connection_type")]
+    fn dtls_server_connection_type(&self) -> glib::types::Type;
+
+    #[doc(alias = "g_tls_backend_get_file_database_type")]
+    #[doc(alias = "get_file_database_type")]
+    fn file_database_type(&self) -> glib::types::Type;
+
+    #[doc(alias = "g_tls_backend_get_server_connection_type")]
+    #[doc(alias = "get_server_connection_type")]
+    fn server_connection_type(&self) -> glib::types::Type;
+
+    #[cfg(any(feature = "v2_60", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v2_60")))]
+    #[doc(alias = "g_tls_backend_set_default_database")]
+    fn set_default_database(&self, database: Option<&impl IsA<TlsDatabase>>);
+
+    #[doc(alias = "g_tls_backend_supports_dtls")]
+    fn supports_dtls(&self) -> bool;
+
+    #[doc(alias = "g_tls_backend_supports_tls")]
+    fn supports_tls(&self) -> bool;
+}
+
+impl<O: IsA<TlsBackend>> TlsBackendExt for O {
     fn certificate_type(&self) -> glib::types::Type {
         unsafe {
             from_glib(ffi::g_tls_backend_get_certificate_type(
@@ -42,8 +76,6 @@ pub trait TlsBackendExt: IsA<TlsBackend> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_tls_backend_get_client_connection_type")]
-    #[doc(alias = "get_client_connection_type")]
     fn client_connection_type(&self) -> glib::types::Type {
         unsafe {
             from_glib(ffi::g_tls_backend_get_client_connection_type(
@@ -52,8 +84,6 @@ pub trait TlsBackendExt: IsA<TlsBackend> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_tls_backend_get_default_database")]
-    #[doc(alias = "get_default_database")]
     fn default_database(&self) -> TlsDatabase {
         unsafe {
             from_glib_full(ffi::g_tls_backend_get_default_database(
@@ -62,8 +92,6 @@ pub trait TlsBackendExt: IsA<TlsBackend> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_tls_backend_get_dtls_client_connection_type")]
-    #[doc(alias = "get_dtls_client_connection_type")]
     fn dtls_client_connection_type(&self) -> glib::types::Type {
         unsafe {
             from_glib(ffi::g_tls_backend_get_dtls_client_connection_type(
@@ -72,8 +100,6 @@ pub trait TlsBackendExt: IsA<TlsBackend> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_tls_backend_get_dtls_server_connection_type")]
-    #[doc(alias = "get_dtls_server_connection_type")]
     fn dtls_server_connection_type(&self) -> glib::types::Type {
         unsafe {
             from_glib(ffi::g_tls_backend_get_dtls_server_connection_type(
@@ -82,8 +108,6 @@ pub trait TlsBackendExt: IsA<TlsBackend> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_tls_backend_get_file_database_type")]
-    #[doc(alias = "get_file_database_type")]
     fn file_database_type(&self) -> glib::types::Type {
         unsafe {
             from_glib(ffi::g_tls_backend_get_file_database_type(
@@ -92,8 +116,6 @@ pub trait TlsBackendExt: IsA<TlsBackend> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_tls_backend_get_server_connection_type")]
-    #[doc(alias = "get_server_connection_type")]
     fn server_connection_type(&self) -> glib::types::Type {
         unsafe {
             from_glib(ffi::g_tls_backend_get_server_connection_type(
@@ -102,9 +124,8 @@ pub trait TlsBackendExt: IsA<TlsBackend> + sealed::Sealed + 'static {
         }
     }
 
-    #[cfg(feature = "v2_60")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "v2_60")))]
-    #[doc(alias = "g_tls_backend_set_default_database")]
+    #[cfg(any(feature = "v2_60", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v2_60")))]
     fn set_default_database(&self, database: Option<&impl IsA<TlsDatabase>>) {
         unsafe {
             ffi::g_tls_backend_set_default_database(
@@ -114,7 +135,6 @@ pub trait TlsBackendExt: IsA<TlsBackend> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_tls_backend_supports_dtls")]
     fn supports_dtls(&self) -> bool {
         unsafe {
             from_glib(ffi::g_tls_backend_supports_dtls(
@@ -123,7 +143,6 @@ pub trait TlsBackendExt: IsA<TlsBackend> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_tls_backend_supports_tls")]
     fn supports_tls(&self) -> bool {
         unsafe {
             from_glib(ffi::g_tls_backend_supports_tls(
@@ -132,8 +151,6 @@ pub trait TlsBackendExt: IsA<TlsBackend> + sealed::Sealed + 'static {
         }
     }
 }
-
-impl<O: IsA<TlsBackend>> TlsBackendExt for O {}
 
 impl fmt::Display for TlsBackend {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {

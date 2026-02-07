@@ -2,13 +2,22 @@
 // from gir-files (https://github.com/gtk-rs/gir-files)
 // DO NOT EDIT
 
-use crate::{EventController, Gesture, GestureSingle, PropagationPhase, Widget};
-use glib::{
-    prelude::*,
-    signal::{connect_raw, SignalHandlerId},
-    translate::*,
-};
-use std::{boxed::Box as Box_, fmt, mem::transmute};
+use crate::EventController;
+use crate::Gesture;
+use crate::GestureSingle;
+use crate::PropagationPhase;
+use crate::Widget;
+use glib::object::Cast;
+use glib::object::IsA;
+use glib::object::ObjectType as ObjectType_;
+use glib::signal::connect_raw;
+use glib::signal::SignalHandlerId;
+use glib::translate::*;
+use glib::StaticType;
+use glib::ToValue;
+use std::boxed::Box as Box_;
+use std::fmt;
+use std::mem::transmute;
 
 glib::wrapper! {
     #[doc(alias = "GtkGestureMultiPress")]
@@ -36,7 +45,7 @@ impl GestureMultiPress {
     ///
     /// This method returns an instance of [`GestureMultiPressBuilder`](crate::builders::GestureMultiPressBuilder) which can be used to create [`GestureMultiPress`] objects.
     pub fn builder() -> GestureMultiPressBuilder {
-        GestureMultiPressBuilder::new()
+        GestureMultiPressBuilder::default()
     }
 
     #[doc(alias = "gtk_gesture_multi_press_get_area")]
@@ -142,75 +151,97 @@ impl GestureMultiPress {
 
 impl Default for GestureMultiPress {
     fn default() -> Self {
-        glib::object::Object::new::<Self>()
+        glib::object::Object::new::<Self>(&[])
+            .expect("Can't construct GestureMultiPress object with default parameters")
     }
 }
 
+#[derive(Clone, Default)]
 // rustdoc-stripper-ignore-next
 /// A [builder-pattern] type to construct [`GestureMultiPress`] objects.
 ///
 /// [builder-pattern]: https://doc.rust-lang.org/1.0.0/style/ownership/builders.html
 #[must_use = "The builder must be built to be used"]
 pub struct GestureMultiPressBuilder {
-    builder: glib::object::ObjectBuilder<'static, GestureMultiPress>,
+    button: Option<u32>,
+    exclusive: Option<bool>,
+    touch_only: Option<bool>,
+    n_points: Option<u32>,
+    window: Option<gdk::Window>,
+    propagation_phase: Option<PropagationPhase>,
+    widget: Option<Widget>,
 }
 
 impl GestureMultiPressBuilder {
-    fn new() -> Self {
-        Self {
-            builder: glib::object::Object::builder(),
-        }
-    }
-
-    pub fn button(self, button: u32) -> Self {
-        Self {
-            builder: self.builder.property("button", button),
-        }
-    }
-
-    pub fn exclusive(self, exclusive: bool) -> Self {
-        Self {
-            builder: self.builder.property("exclusive", exclusive),
-        }
-    }
-
-    pub fn touch_only(self, touch_only: bool) -> Self {
-        Self {
-            builder: self.builder.property("touch-only", touch_only),
-        }
-    }
-
-    pub fn n_points(self, n_points: u32) -> Self {
-        Self {
-            builder: self.builder.property("n-points", n_points),
-        }
-    }
-
-    pub fn window(self, window: &gdk::Window) -> Self {
-        Self {
-            builder: self.builder.property("window", window.clone()),
-        }
-    }
-
-    pub fn propagation_phase(self, propagation_phase: PropagationPhase) -> Self {
-        Self {
-            builder: self
-                .builder
-                .property("propagation-phase", propagation_phase),
-        }
-    }
-
-    pub fn widget(self, widget: &impl IsA<Widget>) -> Self {
-        Self {
-            builder: self.builder.property("widget", widget.clone().upcast()),
-        }
+    // rustdoc-stripper-ignore-next
+    /// Create a new [`GestureMultiPressBuilder`].
+    pub fn new() -> Self {
+        Self::default()
     }
 
     // rustdoc-stripper-ignore-next
     /// Build the [`GestureMultiPress`].
     #[must_use = "Building the object from the builder is usually expensive and is not expected to have side effects"]
     pub fn build(self) -> GestureMultiPress {
-        self.builder.build()
+        let mut properties: Vec<(&str, &dyn ToValue)> = vec![];
+        if let Some(ref button) = self.button {
+            properties.push(("button", button));
+        }
+        if let Some(ref exclusive) = self.exclusive {
+            properties.push(("exclusive", exclusive));
+        }
+        if let Some(ref touch_only) = self.touch_only {
+            properties.push(("touch-only", touch_only));
+        }
+        if let Some(ref n_points) = self.n_points {
+            properties.push(("n-points", n_points));
+        }
+        if let Some(ref window) = self.window {
+            properties.push(("window", window));
+        }
+        if let Some(ref propagation_phase) = self.propagation_phase {
+            properties.push(("propagation-phase", propagation_phase));
+        }
+        if let Some(ref widget) = self.widget {
+            properties.push(("widget", widget));
+        }
+        glib::Object::new::<GestureMultiPress>(&properties)
+            .expect("Failed to create an instance of GestureMultiPress")
+    }
+
+    pub fn button(mut self, button: u32) -> Self {
+        self.button = Some(button);
+        self
+    }
+
+    pub fn exclusive(mut self, exclusive: bool) -> Self {
+        self.exclusive = Some(exclusive);
+        self
+    }
+
+    pub fn touch_only(mut self, touch_only: bool) -> Self {
+        self.touch_only = Some(touch_only);
+        self
+    }
+
+    pub fn n_points(mut self, n_points: u32) -> Self {
+        self.n_points = Some(n_points);
+        self
+    }
+
+    pub fn window(mut self, window: &gdk::Window) -> Self {
+        self.window = Some(window.clone());
+        self
+    }
+
+    pub fn propagation_phase(mut self, propagation_phase: PropagationPhase) -> Self {
+        self.propagation_phase = Some(propagation_phase);
+        self
+    }
+
+    pub fn widget(mut self, widget: &impl IsA<Widget>) -> Self {
+        self.widget = Some(widget.clone().upcast());
+        self
     }
 }
 

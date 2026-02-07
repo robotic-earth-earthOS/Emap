@@ -2,11 +2,18 @@
 
 // TODO: support marshaller.
 
-use std::{mem, ptr, slice};
+use std::mem;
+use std::ptr;
+use std::slice;
 
 use libc::{c_uint, c_void};
 
-use crate::{prelude::*, translate::*, value::FromValue, Type, Value};
+use crate::translate::{from_glib_none, mut_override, ToGlibPtr, ToGlibPtrMut, Uninitialized};
+use crate::value::FromValue;
+use crate::StaticType;
+use crate::ToValue;
+use crate::Type;
+use crate::Value;
 
 wrapper! {
     #[derive(PartialEq, Eq, PartialOrd, Ord, Debug, Hash)]
@@ -30,8 +37,7 @@ impl RustClosure {
     // rustdoc-stripper-ignore-next
     /// Creates a new closure around a Rust closure.
     ///
-    /// See [`glib::closure!`](macro@crate::closure) for a way to create a closure with concrete
-    /// types.
+    /// See [`glib::closure!`] for a way to create a closure with concrete types.
     ///
     /// # Panics
     ///
@@ -61,8 +67,7 @@ impl RustClosure {
     // rustdoc-stripper-ignore-next
     /// Creates a new closure around a Rust closure.
     ///
-    /// See [`glib::closure_local!`](crate::closure_local) for a way to create a closure with
-    /// concrete types.
+    /// See [`glib::closure_local!`] for a way to create a closure with concrete types.
     ///
     /// # Panics
     ///
@@ -123,21 +128,18 @@ impl RustClosure {
 }
 
 impl From<RustClosure> for Closure {
-    #[inline]
     fn from(c: RustClosure) -> Self {
         c.0
     }
 }
 
 impl AsRef<Closure> for RustClosure {
-    #[inline]
     fn as_ref(&self) -> &Closure {
         &self.0
     }
 }
 
 impl AsRef<Closure> for Closure {
-    #[inline]
     fn as_ref(&self) -> &Closure {
         self
     }
@@ -275,6 +277,7 @@ impl Closure {
         let size = u32::max(4, mem::align_of::<*mut c_void>() as u32)
             + 3 * mem::size_of::<*mut c_void>() as u32;
         let closure = gobject_ffi::g_closure_new_simple(size, ptr::null_mut());
+        assert_ne!(closure, ptr::null_mut());
         let callback = Box::new(callback);
         let ptr: *mut F = Box::into_raw(callback);
         let ptr: *mut c_void = ptr as *mut _;
@@ -309,7 +312,7 @@ impl Closure {
         };
 
         gobject_ffi::g_closure_invoke(
-            self.to_glib_none().0,
+            self.to_glib_none().0 as *mut _,
             result_ptr,
             values.len() as u32,
             mut_override(values.as_ptr()) as *mut gobject_ffi::GValue,
@@ -335,21 +338,19 @@ impl Closure {
     }
 }
 
-pub trait IntoClosureReturnValue {
-    fn into_closure_return_value(self) -> Option<Value>;
+pub trait ToClosureReturnValue {
+    fn to_closure_return_value(&self) -> Option<Value>;
 }
 
-impl IntoClosureReturnValue for () {
-    #[inline]
-    fn into_closure_return_value(self) -> Option<Value> {
+impl ToClosureReturnValue for () {
+    fn to_closure_return_value(&self) -> Option<Value> {
         None
     }
 }
 
-impl<T: Into<Value>> IntoClosureReturnValue for T {
-    #[inline]
-    fn into_closure_return_value(self) -> Option<Value> {
-        Some(self.into())
+impl<T: ToValue> ToClosureReturnValue for T {
+    fn to_closure_return_value(&self) -> Option<Value> {
+        Some(self.to_value())
     }
 }
 
@@ -358,7 +359,6 @@ pub trait TryFromClosureReturnValue: StaticType + Sized + 'static {
 }
 
 impl TryFromClosureReturnValue for () {
-    #[inline]
     fn try_from_closure_return_value(v: Option<Value>) -> Result<Self, crate::BoolError> {
         match v {
             None => Ok(()),
@@ -371,7 +371,6 @@ impl TryFromClosureReturnValue for () {
 }
 
 impl<T: for<'a> FromValue<'a> + StaticType + 'static> TryFromClosureReturnValue for T {
-    #[inline]
     fn try_from_closure_return_value(v: Option<Value>) -> Result<Self, crate::BoolError> {
         v.ok_or_else(|| {
             bool_error!(
@@ -396,10 +395,8 @@ unsafe impl Sync for Closure {}
 
 #[cfg(test)]
 mod tests {
-    use std::sync::{
-        atomic::{AtomicUsize, Ordering},
-        Arc,
-    };
+    use std::sync::atomic::{AtomicUsize, Ordering};
+    use std::sync::Arc;
 
     use super::*;
 

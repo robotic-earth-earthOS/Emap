@@ -1,7 +1,6 @@
 {
   "git": {
-    "sha1": "00133512bfc8bbb8e9be59b20e93406c6a3eeb21",
-    "dirty": true
+    "sha1": "c5ca2dec9812e5b69451eb3e652fe7820779822e"
   },
   "path_in_vcs": "gtk3-macros"
 }

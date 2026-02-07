@@ -2,8 +2,10 @@
 // from gir-files (https://github.com/gtk-rs/gir-files)
 // DO NOT EDIT
 
-use crate::{Icon, NotificationPriority};
-use glib::{prelude::*, translate::*};
+use crate::Icon;
+use crate::NotificationPriority;
+use glib::object::IsA;
+use glib::translate::*;
 use std::fmt;
 
 glib::wrapper! {
@@ -33,7 +35,7 @@ impl Notification {
     }
 
     //#[doc(alias = "g_notification_add_button_with_target")]
-    //pub fn add_button_with_target(&self, label: &str, action: &str, target_format: Option<&str>, : /*Unknown conversion*//*Unimplemented*/Basic: VarArgs) {
+    //pub fn add_button_with_target(&self, label: &str, action: &str, target_format: Option<&str>, : /*Unknown conversion*//*Unimplemented*/Fundamental: VarArgs) {
     //    unsafe { TODO: call ffi:g_notification_add_button_with_target() }
     //}
 
@@ -61,8 +63,8 @@ impl Notification {
         }
     }
 
-    #[cfg(feature = "v2_70")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "v2_70")))]
+    #[cfg(any(feature = "v2_70", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v2_70")))]
     #[doc(alias = "g_notification_set_category")]
     pub fn set_category(&self, category: Option<&str>) {
         unsafe {
@@ -81,7 +83,7 @@ impl Notification {
     }
 
     //#[doc(alias = "g_notification_set_default_action_and_target")]
-    //pub fn set_default_action_and_target(&self, action: &str, target_format: Option<&str>, : /*Unknown conversion*//*Unimplemented*/Basic: VarArgs) {
+    //pub fn set_default_action_and_target(&self, action: &str, target_format: Option<&str>, : /*Unknown conversion*//*Unimplemented*/Fundamental: VarArgs) {
     //    unsafe { TODO: call ffi:g_notification_set_default_action_and_target() }
     //}
 

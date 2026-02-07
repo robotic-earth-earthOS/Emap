@@ -5,11 +5,10 @@
 #![allow(clippy::wrong_self_convention)]
 #![doc = include_str!("../README.md")]
 #![allow(clippy::type_complexity)]
-#![allow(clippy::derived_hash_with_manual_eq)]
+#![allow(clippy::derive_hash_xor_eq)]
 #![allow(clippy::too_many_arguments)]
 #![allow(clippy::missing_safety_doc)]
-#![allow(clippy::new_without_default)]
-#![cfg_attr(docsrs, feature(doc_cfg))]
+#![cfg_attr(feature = "dox", feature(doc_cfg))]
 
 pub use ffi;
 // Re-export gtk dependencies
@@ -44,8 +43,8 @@ pub const STYLE_PROVIDER_PRIORITY_USER: u32 = ffi::GTK_STYLE_PROVIDER_PRIORITY_U
 mod rt;
 
 #[cfg(test)]
-pub(crate) static TEST_THREAD_WORKER: glib::once_cell::sync::Lazy<glib::ThreadPool> =
-    glib::once_cell::sync::Lazy::new(|| {
+pub(crate) static TEST_THREAD_WORKER: once_cell::sync::Lazy<glib::ThreadPool> =
+    once_cell::sync::Lazy::new(|| {
         let pool = glib::ThreadPool::exclusive(1).unwrap();
         pool.push(move || {
             crate::init().expect("Tests failed to initialize gtk");
@@ -80,13 +79,11 @@ mod entry;
 mod entry_buffer;
 mod entry_completion;
 mod enums;
-mod file_chooser;
 mod file_chooser_dialog;
-mod file_filter_info;
 mod fixed;
 mod flow_box;
 mod functions;
-#[cfg(feature = "v3_24")]
+#[cfg(any(feature = "v3_24", feature = "dox"))]
 mod gesture_stylus;
 mod im_context_simple;
 mod image;
@@ -95,9 +92,12 @@ mod list_box;
 mod list_store;
 mod menu;
 mod message_dialog;
+#[cfg(any(feature = "v3_20", feature = "dox"))]
 mod native_dialog;
 mod notebook;
+#[cfg(any(feature = "v3_22", feature = "dox"))]
 mod pad_action_entry;
+#[cfg(any(feature = "v3_22", feature = "dox"))]
 mod pad_controller;
 mod page_range;
 mod print_operation;
@@ -143,7 +143,6 @@ pub use gdk::Rectangle;
 pub use crate::app_chooser::AppChooser;
 pub use crate::border::Border;
 pub use crate::entry_buffer::EntryBuffer;
-pub use crate::file_filter_info::FileFilterInfo;
 pub use crate::page_range::PageRange;
 pub use crate::recent_data::RecentData;
 pub use crate::requisition::Requisition;
@@ -152,4 +151,5 @@ pub use crate::target_entry::TargetEntry;
 pub use crate::tree_sortable::SortColumn;
 pub use crate::widget::TickCallbackId;
 pub use functions::*;
+#[cfg(any(feature = "v3_22", feature = "dox"))]
 pub use pad_action_entry::PadActionEntry;

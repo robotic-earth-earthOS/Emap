@@ -2,7 +2,7 @@
 
 __Rust__ bindings and wrappers for [GLib](https://docs.gtk.org/glib/), part of [gtk-rs-core](https://github.com/gtk-rs/gtk-rs-core).
 
-GLib __2.56__ is the lowest supported version for the underlying library.
+GLib __2.48__ is the lowest supported version for the underlying library.
 
 This library contains bindings to GLib and GObject types and APIs as well as
 common building blocks used in both handmade and machine generated
@@ -16,7 +16,7 @@ crates.
 
 ## Minimum supported Rust version
 
-Currently, the minimum supported Rust version is `1.70.0`.
+Currently, the minimum supported Rust version is `1.56.0`.
 
 ## Dynamic typing
 

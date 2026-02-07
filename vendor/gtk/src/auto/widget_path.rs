@@ -2,8 +2,10 @@
 // from gir-files (https://github.com/gtk-rs/gir-files)
 // DO NOT EDIT
 
-use crate::{StateFlags, Widget};
-use glib::{prelude::*, translate::*};
+use crate::StateFlags;
+use crate::Widget;
+use glib::object::IsA;
+use glib::translate::*;
 use std::fmt;
 
 glib::wrapper! {
@@ -106,6 +108,8 @@ impl WidgetPath {
         }
     }
 
+    #[cfg(any(feature = "v3_20", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
     #[doc(alias = "gtk_widget_path_iter_get_object_name")]
     pub fn iter_get_object_name(&self, pos: i32) -> Option<glib::GString> {
         unsafe {
@@ -224,6 +228,8 @@ impl WidgetPath {
         }
     }
 
+    #[cfg(any(feature = "v3_20", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
     #[doc(alias = "gtk_widget_path_iter_set_object_name")]
     pub fn iter_set_object_name(&self, pos: i32, name: Option<&str>) {
         unsafe {

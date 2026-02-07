@@ -16,52 +16,65 @@ use crate::SizeRequestMode;
 use crate::Widget;
 
 pub trait CellRendererImpl: CellRendererImplExt + ObjectImpl {
-    fn request_mode(&self) -> SizeRequestMode {
-        self.parent_request_mode()
+    fn request_mode(&self, renderer: &Self::Type) -> SizeRequestMode {
+        self.parent_request_mode(renderer)
     }
 
-    fn preferred_width<P: IsA<Widget>>(&self, widget: &P) -> (i32, i32) {
-        self.parent_preferred_width(widget)
+    fn preferred_width<P: IsA<Widget>>(&self, renderer: &Self::Type, widget: &P) -> (i32, i32) {
+        self.parent_preferred_width(renderer, widget)
     }
 
     #[doc(alias = "get_preferred_width_for_height")]
-    fn preferred_width_for_height<P: IsA<Widget>>(&self, widget: &P, height: i32) -> (i32, i32) {
-        self.parent_preferred_width_for_height(widget, height)
+    fn preferred_width_for_height<P: IsA<Widget>>(
+        &self,
+        renderer: &Self::Type,
+        widget: &P,
+        height: i32,
+    ) -> (i32, i32) {
+        self.parent_preferred_width_for_height(renderer, widget, height)
     }
 
     #[doc(alias = "get_preferred_height")]
-    fn preferred_height<P: IsA<Widget>>(&self, widget: &P) -> (i32, i32) {
-        self.parent_preferred_height(widget)
+    fn preferred_height<P: IsA<Widget>>(&self, renderer: &Self::Type, widget: &P) -> (i32, i32) {
+        self.parent_preferred_height(renderer, widget)
     }
 
     #[doc(alias = "get_preferred_height_for_width")]
-    fn preferred_height_for_width<P: IsA<Widget>>(&self, widget: &P, width: i32) -> (i32, i32) {
-        self.parent_preferred_height_for_width(widget, width)
+    fn preferred_height_for_width<P: IsA<Widget>>(
+        &self,
+        renderer: &Self::Type,
+        widget: &P,
+        width: i32,
+    ) -> (i32, i32) {
+        self.parent_preferred_height_for_width(renderer, widget, width)
     }
 
     #[doc(alias = "get_aligned_area")]
     fn aligned_area<P: IsA<Widget>>(
         &self,
+        renderer: &Self::Type,
         widget: &P,
         flags: CellRendererState,
         cell_area: &gdk::Rectangle,
     ) -> gdk::Rectangle {
-        self.parent_aligned_area(widget, flags, cell_area)
+        self.parent_aligned_area(renderer, widget, flags, cell_area)
     }
 
     fn render<P: IsA<Widget>>(
         &self,
+        renderer: &Self::Type,
         cr: &cairo::Context,
         widget: &P,
         background_area: &gdk::Rectangle,
         cell_area: &gdk::Rectangle,
         flags: CellRendererState,
     ) {
-        self.parent_render(cr, widget, background_area, cell_area, flags);
+        self.parent_render(renderer, cr, widget, background_area, cell_area, flags);
     }
 
     fn activate<P: IsA<Widget>>(
         &self,
+        renderer: &Self::Type,
         event: Option<&gdk::Event>,
         widget: &P,
         path: &str,
@@ -69,11 +82,20 @@ pub trait CellRendererImpl: CellRendererImplExt + ObjectImpl {
         cell_area: &gdk::Rectangle,
         flags: CellRendererState,
     ) -> bool {
-        self.parent_activate(event, widget, path, background_area, cell_area, flags)
+        self.parent_activate(
+            renderer,
+            event,
+            widget,
+            path,
+            background_area,
+            cell_area,
+            flags,
+        )
     }
 
     fn start_editing<P: IsA<Widget>>(
         &self,
+        renderer: &Self::Type,
         event: Option<&gdk::Event>,
         widget: &P,
         path: &str,
@@ -81,49 +103,117 @@ pub trait CellRendererImpl: CellRendererImplExt + ObjectImpl {
         cell_area: &gdk::Rectangle,
         flags: CellRendererState,
     ) -> Option<CellEditable> {
-        self.parent_start_editing(event, widget, path, background_area, cell_area, flags)
+        self.parent_start_editing(
+            renderer,
+            event,
+            widget,
+            path,
+            background_area,
+            cell_area,
+            flags,
+        )
     }
 
-    fn editing_canceled(&self) {
-        self.parent_editing_canceled()
+    fn editing_canceled(&self, renderer: &Self::Type) {
+        self.parent_editing_canceled(renderer)
     }
 
-    fn editing_started(&self, editable: &CellEditable, path: &str) {
-        self.parent_editing_started(editable, path)
+    fn editing_started(&self, renderer: &Self::Type, editable: &CellEditable, path: &str) {
+        self.parent_editing_started(renderer, editable, path)
     }
 }
 
-mod sealed {
-    pub trait Sealed {}
-    impl<T: super::CellRendererImpl> Sealed for T {}
+pub trait CellRendererImplExt: ObjectSubclass {
+    fn parent_request_mode(&self, renderer: &Self::Type) -> SizeRequestMode;
+    fn parent_preferred_width<P: IsA<Widget>>(
+        &self,
+        renderer: &Self::Type,
+        widget: &P,
+    ) -> (i32, i32);
+    fn parent_preferred_width_for_height<P: IsA<Widget>>(
+        &self,
+        renderer: &Self::Type,
+        widget: &P,
+        height: i32,
+    ) -> (i32, i32);
+    fn parent_preferred_height<P: IsA<Widget>>(
+        &self,
+        renderer: &Self::Type,
+        widget: &P,
+    ) -> (i32, i32);
+    fn parent_preferred_height_for_width<P: IsA<Widget>>(
+        &self,
+        renderer: &Self::Type,
+        widget: &P,
+        width: i32,
+    ) -> (i32, i32);
+    fn parent_aligned_area<P: IsA<Widget>>(
+        &self,
+        renderer: &Self::Type,
+        widget: &P,
+        flags: CellRendererState,
+        cell_area: &gdk::Rectangle,
+    ) -> gdk::Rectangle;
+    fn parent_render<P: IsA<Widget>>(
+        &self,
+        renderer: &Self::Type,
+        cr: &cairo::Context,
+        widget: &P,
+        background_area: &gdk::Rectangle,
+        cell_area: &gdk::Rectangle,
+        flags: CellRendererState,
+    );
+    fn parent_activate<P: IsA<Widget>>(
+        &self,
+        renderer: &Self::Type,
+        event: Option<&gdk::Event>,
+        widget: &P,
+        path: &str,
+        background_area: &gdk::Rectangle,
+        cell_area: &gdk::Rectangle,
+        flags: CellRendererState,
+    ) -> bool;
+    fn parent_start_editing<P: IsA<Widget>>(
+        &self,
+        renderer: &Self::Type,
+        event: Option<&gdk::Event>,
+        widget: &P,
+        path: &str,
+        background_area: &gdk::Rectangle,
+        cell_area: &gdk::Rectangle,
+        flags: CellRendererState,
+    ) -> Option<CellEditable>;
+    fn parent_editing_canceled(&self, renderer: &Self::Type);
+    fn parent_editing_started(&self, renderer: &Self::Type, editable: &CellEditable, path: &str);
 }
 
-pub trait CellRendererImplExt: ObjectSubclass + sealed::Sealed {
-    fn parent_request_mode(&self) -> SizeRequestMode {
+impl<T: CellRendererImpl> CellRendererImplExt for T {
+    fn parent_request_mode(&self, renderer: &Self::Type) -> SizeRequestMode {
         unsafe {
-            let data = Self::type_data();
+            let data = T::type_data();
             let parent_class = data.as_ref().parent_class() as *mut ffi::GtkCellRendererClass;
             let f = (*parent_class).get_request_mode.unwrap();
-            from_glib(f(self
-                .obj()
+            from_glib(f(renderer
                 .unsafe_cast_ref::<CellRenderer>()
                 .to_glib_none()
                 .0))
         }
     }
-    fn parent_preferred_width<P: IsA<Widget>>(&self, widget: &P) -> (i32, i32) {
+
+    fn parent_preferred_width<P: IsA<Widget>>(
+        &self,
+        renderer: &Self::Type,
+        widget: &P,
+    ) -> (i32, i32) {
         unsafe {
-            let data = Self::type_data();
+            let data = T::type_data();
             let parent_class = data.as_ref().parent_class() as *mut ffi::GtkCellRendererClass;
             let f = (*parent_class).get_preferred_width.unwrap();
 
             let mut minimum_size = mem::MaybeUninit::uninit();
             let mut natural_size = mem::MaybeUninit::uninit();
             f(
-                self.obj()
-                    .unsafe_cast_ref::<CellRenderer>()
-                    .to_glib_none()
-                    .0,
+                renderer.unsafe_cast_ref::<CellRenderer>().to_glib_none().0,
                 widget.as_ref().to_glib_none().0,
                 minimum_size.as_mut_ptr(),
                 natural_size.as_mut_ptr(),
@@ -131,23 +221,22 @@ pub trait CellRendererImplExt: ObjectSubclass + sealed::Sealed {
             (minimum_size.assume_init(), natural_size.assume_init())
         }
     }
+
     fn parent_preferred_width_for_height<P: IsA<Widget>>(
         &self,
+        renderer: &Self::Type,
         widget: &P,
         height: i32,
     ) -> (i32, i32) {
         unsafe {
-            let data = Self::type_data();
+            let data = T::type_data();
             let parent_class = data.as_ref().parent_class() as *mut ffi::GtkCellRendererClass;
             let f = (*parent_class).get_preferred_width_for_height.unwrap();
 
             let mut minimum_size = mem::MaybeUninit::uninit();
             let mut natural_size = mem::MaybeUninit::uninit();
             f(
-                self.obj()
-                    .unsafe_cast_ref::<CellRenderer>()
-                    .to_glib_none()
-                    .0,
+                renderer.unsafe_cast_ref::<CellRenderer>().to_glib_none().0,
                 widget.as_ref().to_glib_none().0,
                 height,
                 minimum_size.as_mut_ptr(),
@@ -156,18 +245,19 @@ pub trait CellRendererImplExt: ObjectSubclass + sealed::Sealed {
             (minimum_size.assume_init(), natural_size.assume_init())
         }
     }
-    fn parent_preferred_height<P: IsA<Widget>>(&self, widget: &P) -> (i32, i32) {
+    fn parent_preferred_height<P: IsA<Widget>>(
+        &self,
+        renderer: &Self::Type,
+        widget: &P,
+    ) -> (i32, i32) {
         unsafe {
-            let data = Self::type_data();
+            let data = T::type_data();
             let parent_class = data.as_ref().parent_class() as *mut ffi::GtkCellRendererClass;
             let f = (*parent_class).get_preferred_height.unwrap();
             let mut minimum_size = mem::MaybeUninit::uninit();
             let mut natural_size = mem::MaybeUninit::uninit();
             f(
-                self.obj()
-                    .unsafe_cast_ref::<CellRenderer>()
-                    .to_glib_none()
-                    .0,
+                renderer.unsafe_cast_ref::<CellRenderer>().to_glib_none().0,
                 widget.as_ref().to_glib_none().0,
                 minimum_size.as_mut_ptr(),
                 natural_size.as_mut_ptr(),
@@ -177,20 +267,18 @@ pub trait CellRendererImplExt: ObjectSubclass + sealed::Sealed {
     }
     fn parent_preferred_height_for_width<P: IsA<Widget>>(
         &self,
+        renderer: &Self::Type,
         widget: &P,
         width: i32,
     ) -> (i32, i32) {
         unsafe {
-            let data = Self::type_data();
+            let data = T::type_data();
             let parent_class = data.as_ref().parent_class() as *mut ffi::GtkCellRendererClass;
             let f = (*parent_class).get_preferred_height_for_width.unwrap();
             let mut minimum_size = mem::MaybeUninit::uninit();
             let mut natural_size = mem::MaybeUninit::uninit();
             f(
-                self.obj()
-                    .unsafe_cast_ref::<CellRenderer>()
-                    .to_glib_none()
-                    .0,
+                renderer.unsafe_cast_ref::<CellRenderer>().to_glib_none().0,
                 widget.as_ref().to_glib_none().0,
                 width,
                 minimum_size.as_mut_ptr(),
@@ -199,22 +287,21 @@ pub trait CellRendererImplExt: ObjectSubclass + sealed::Sealed {
             (minimum_size.assume_init(), natural_size.assume_init())
         }
     }
+
     fn parent_aligned_area<P: IsA<Widget>>(
         &self,
+        renderer: &Self::Type,
         widget: &P,
         flags: CellRendererState,
         cell_area: &gdk::Rectangle,
     ) -> gdk::Rectangle {
         unsafe {
-            let data = Self::type_data();
+            let data = T::type_data();
             let parent_class = data.as_ref().parent_class() as *mut ffi::GtkCellRendererClass;
             let mut aligned_area = gdk::Rectangle::uninitialized();
             let f = (*parent_class).get_aligned_area.unwrap();
             f(
-                self.obj()
-                    .unsafe_cast_ref::<CellRenderer>()
-                    .to_glib_none()
-                    .0,
+                renderer.unsafe_cast_ref::<CellRenderer>().to_glib_none().0,
                 widget.as_ref().to_glib_none().0,
                 flags.into_glib(),
                 cell_area.to_glib_none().0,
@@ -223,8 +310,10 @@ pub trait CellRendererImplExt: ObjectSubclass + sealed::Sealed {
             aligned_area
         }
     }
+
     fn parent_render<P: IsA<Widget>>(
         &self,
+        renderer: &Self::Type,
         cr: &cairo::Context,
         widget: &P,
         background_area: &gdk::Rectangle,
@@ -232,14 +321,11 @@ pub trait CellRendererImplExt: ObjectSubclass + sealed::Sealed {
         flags: CellRendererState,
     ) {
         unsafe {
-            let data = Self::type_data();
+            let data = T::type_data();
             let parent_class = data.as_ref().parent_class() as *mut ffi::GtkCellRendererClass;
             if let Some(f) = (*parent_class).render {
                 f(
-                    self.obj()
-                        .unsafe_cast_ref::<CellRenderer>()
-                        .to_glib_none()
-                        .0,
+                    renderer.unsafe_cast_ref::<CellRenderer>().to_glib_none().0,
                     cr.to_glib_none().0,
                     widget.as_ref().to_glib_none().0,
                     background_area.to_glib_none().0,
@@ -249,8 +335,10 @@ pub trait CellRendererImplExt: ObjectSubclass + sealed::Sealed {
             }
         }
     }
+
     fn parent_activate<P: IsA<Widget>>(
         &self,
+        renderer: &Self::Type,
         event: Option<&gdk::Event>,
         widget: &P,
         path: &str,
@@ -259,14 +347,11 @@ pub trait CellRendererImplExt: ObjectSubclass + sealed::Sealed {
         flags: CellRendererState,
     ) -> bool {
         unsafe {
-            let data = Self::type_data();
+            let data = T::type_data();
             let parent_class = data.as_ref().parent_class() as *mut ffi::GtkCellRendererClass;
             if let Some(f) = (*parent_class).activate {
                 from_glib(f(
-                    self.obj()
-                        .unsafe_cast_ref::<CellRenderer>()
-                        .to_glib_none()
-                        .0,
+                    renderer.unsafe_cast_ref::<CellRenderer>().to_glib_none().0,
                     mut_override(event.to_glib_none().0),
                     widget.as_ref().to_glib_none().0,
                     path.to_glib_none().0,
@@ -279,8 +364,10 @@ pub trait CellRendererImplExt: ObjectSubclass + sealed::Sealed {
             }
         }
     }
+
     fn parent_start_editing<P: IsA<Widget>>(
         &self,
+        renderer: &Self::Type,
         event: Option<&gdk::Event>,
         widget: &P,
         path: &str,
@@ -289,14 +376,11 @@ pub trait CellRendererImplExt: ObjectSubclass + sealed::Sealed {
         flags: CellRendererState,
     ) -> Option<CellEditable> {
         unsafe {
-            let data = Self::type_data();
+            let data = T::type_data();
             let parent_class = data.as_ref().parent_class() as *mut ffi::GtkCellRendererClass;
             if let Some(f) = (*parent_class).start_editing {
                 from_glib_none(f(
-                    self.obj()
-                        .unsafe_cast_ref::<CellRenderer>()
-                        .to_glib_none()
-                        .0,
+                    renderer.unsafe_cast_ref::<CellRenderer>().to_glib_none().0,
                     mut_override(event.to_glib_none().0),
                     widget.as_ref().to_glib_none().0,
                     path.to_glib_none().0,
@@ -309,29 +393,24 @@ pub trait CellRendererImplExt: ObjectSubclass + sealed::Sealed {
             }
         }
     }
-    fn parent_editing_canceled(&self) {
+
+    fn parent_editing_canceled(&self, renderer: &Self::Type) {
         unsafe {
-            let data = Self::type_data();
+            let data = T::type_data();
             let parent_class = data.as_ref().parent_class() as *mut ffi::GtkCellRendererClass;
             if let Some(f) = (*parent_class).editing_canceled {
-                f(self
-                    .obj()
-                    .unsafe_cast_ref::<CellRenderer>()
-                    .to_glib_none()
-                    .0)
+                f(renderer.unsafe_cast_ref::<CellRenderer>().to_glib_none().0)
             }
         }
     }
-    fn parent_editing_started(&self, editable: &CellEditable, path: &str) {
+
+    fn parent_editing_started(&self, renderer: &Self::Type, editable: &CellEditable, path: &str) {
         unsafe {
-            let data = Self::type_data();
+            let data = T::type_data();
             let parent_class = data.as_ref().parent_class() as *mut ffi::GtkCellRendererClass;
             if let Some(f) = (*parent_class).editing_started {
                 f(
-                    self.obj()
-                        .unsafe_cast_ref::<CellRenderer>()
-                        .to_glib_none()
-                        .0,
+                    renderer.unsafe_cast_ref::<CellRenderer>().to_glib_none().0,
                     editable.to_glib_none().0,
                     path.to_glib_none().0,
                 )
@@ -339,8 +418,6 @@ pub trait CellRendererImplExt: ObjectSubclass + sealed::Sealed {
         }
     }
 }
-
-impl<T: CellRendererImpl> CellRendererImplExt for T {}
 
 unsafe impl<T: CellRendererImpl> IsSubclassable<T> for CellRenderer {
     fn class_init(class: &mut ::glib::Class<Self>) {
@@ -372,8 +449,9 @@ unsafe extern "C" fn cell_renderer_get_request_mode<T: CellRendererImpl>(
 ) -> ffi::GtkSizeRequestMode {
     let instance = &*(ptr as *mut T::Instance);
     let imp = instance.imp();
+    let wrap: Borrowed<CellRenderer> = from_glib_borrow(ptr);
 
-    imp.request_mode().into_glib()
+    imp.request_mode(wrap.unsafe_cast_ref()).into_glib()
 }
 
 unsafe extern "C" fn cell_renderer_get_preferred_width<T: CellRendererImpl>(
@@ -384,9 +462,10 @@ unsafe extern "C" fn cell_renderer_get_preferred_width<T: CellRendererImpl>(
 ) {
     let instance = &*(ptr as *mut T::Instance);
     let imp = instance.imp();
+    let wrap: Borrowed<CellRenderer> = from_glib_borrow(ptr);
     let widget: Borrowed<Widget> = from_glib_borrow(wdgtptr);
 
-    let (min_size, nat_size) = imp.preferred_width(&*widget);
+    let (min_size, nat_size) = imp.preferred_width(wrap.unsafe_cast_ref(), &*widget);
     if !minptr.is_null() {
         *minptr = min_size;
     }
@@ -404,9 +483,11 @@ unsafe extern "C" fn cell_renderer_get_preferred_height_for_width<T: CellRendere
 ) {
     let instance = &*(ptr as *mut T::Instance);
     let imp = instance.imp();
+    let wrap: Borrowed<CellRenderer> = from_glib_borrow(ptr);
     let widget: Borrowed<Widget> = from_glib_borrow(wdgtptr);
 
-    let (min_height, nat_height) = imp.preferred_height_for_width(&*widget, width);
+    let (min_height, nat_height) =
+        imp.preferred_height_for_width(wrap.unsafe_cast_ref(), &*widget, width);
     if !min_height_ptr.is_null() {
         *min_height_ptr = min_height;
     }
@@ -423,9 +504,10 @@ unsafe extern "C" fn cell_renderer_get_preferred_height<T: CellRendererImpl>(
 ) {
     let instance = &*(ptr as *mut T::Instance);
     let imp = instance.imp();
+    let wrap: Borrowed<CellRenderer> = from_glib_borrow(ptr);
     let widget: Borrowed<Widget> = from_glib_borrow(wdgtptr);
 
-    let (min_size, nat_size) = imp.preferred_height(&*widget);
+    let (min_size, nat_size) = imp.preferred_height(wrap.unsafe_cast_ref(), &*widget);
     if !minptr.is_null() {
         *minptr = min_size;
     }
@@ -443,9 +525,11 @@ unsafe extern "C" fn cell_renderer_get_preferred_width_for_height<T: CellRendere
 ) {
     let instance = &*(ptr as *mut T::Instance);
     let imp = instance.imp();
+    let wrap: Borrowed<CellRenderer> = from_glib_borrow(ptr);
     let widget: Borrowed<Widget> = from_glib_borrow(wdgtptr);
 
-    let (min_width, nat_width) = imp.preferred_width_for_height(&*widget, height);
+    let (min_width, nat_width) =
+        imp.preferred_width_for_height(wrap.unsafe_cast_ref(), &*widget, height);
     if !min_width_ptr.is_null() {
         *min_width_ptr = min_width;
     }
@@ -463,9 +547,15 @@ unsafe extern "C" fn cell_renderer_get_aligned_area<T: CellRendererImpl>(
 ) {
     let instance = &*(ptr as *mut T::Instance);
     let imp = instance.imp();
+    let wrap: Borrowed<CellRenderer> = from_glib_borrow(ptr);
     let widget: Borrowed<Widget> = from_glib_borrow(wdgtptr);
 
-    let rectangle = imp.aligned_area(&*widget, from_glib(flags), &from_glib_borrow(cellarea));
+    let rectangle = imp.aligned_area(
+        wrap.unsafe_cast_ref(),
+        &*widget,
+        from_glib(flags),
+        &from_glib_borrow(cellarea),
+    );
     *alignedptr = *rectangle.to_glib_none().0;
 }
 
@@ -479,10 +569,12 @@ unsafe extern "C" fn cell_renderer_render<T: CellRendererImpl>(
 ) {
     let instance = &*(ptr as *mut T::Instance);
     let imp = instance.imp();
+    let wrap: Borrowed<CellRenderer> = from_glib_borrow(ptr);
     let widget: Borrowed<Widget> = from_glib_borrow(wdgtptr);
     let cr: Borrowed<cairo::Context> = from_glib_borrow(crptr);
 
     imp.render(
+        wrap.unsafe_cast_ref(),
         &cr,
         &*widget,
         &from_glib_borrow(bgptr),
@@ -502,10 +594,12 @@ unsafe extern "C" fn cell_renderer_activate<T: CellRendererImpl>(
 ) -> glib::ffi::gboolean {
     let instance = &*(ptr as *mut T::Instance);
     let imp = instance.imp();
+    let wrap: Borrowed<CellRenderer> = from_glib_borrow(ptr);
     let widget: Borrowed<Widget> = from_glib_borrow(wdgtptr);
     let evt: Borrowed<Option<gdk::Event>> = from_glib_borrow(evtptr);
 
     imp.activate(
+        wrap.unsafe_cast_ref(),
         evt.as_ref().as_ref(),
         &*widget,
         &GString::from_glib_borrow(pathptr),
@@ -527,10 +621,12 @@ unsafe extern "C" fn cell_renderer_start_editing<T: CellRendererImpl>(
 ) -> *mut ffi::GtkCellEditable {
     let instance = &*(ptr as *mut T::Instance);
     let imp = instance.imp();
+    let wrap: Borrowed<CellRenderer> = from_glib_borrow(ptr);
     let widget: Borrowed<Widget> = from_glib_borrow(wdgtptr);
     let evt: Borrowed<Option<gdk::Event>> = from_glib_borrow(evtptr);
 
     imp.start_editing(
+        wrap.unsafe_cast_ref(),
         evt.as_ref().as_ref(),
         &*widget,
         &GString::from_glib_borrow(pathptr),
@@ -547,8 +643,9 @@ unsafe extern "C" fn cell_renderer_editing_canceled<T: CellRendererImpl>(
 ) {
     let instance = &*(ptr as *mut T::Instance);
     let imp = instance.imp();
+    let wrap: Borrowed<CellRenderer> = from_glib_borrow(ptr);
 
-    imp.editing_canceled();
+    imp.editing_canceled(wrap.unsafe_cast_ref());
 }
 
 unsafe extern "C" fn cell_renderer_editing_started<T: CellRendererImpl>(
@@ -558,7 +655,12 @@ unsafe extern "C" fn cell_renderer_editing_started<T: CellRendererImpl>(
 ) {
     let instance = &*(ptr as *mut T::Instance);
     let imp = instance.imp();
+    let wrap: Borrowed<CellRenderer> = from_glib_borrow(ptr);
     let editable = from_glib_borrow(editableptr);
 
-    imp.editing_started(&editable, &GString::from_glib_borrow(pathptr));
+    imp.editing_started(
+        wrap.unsafe_cast_ref(),
+        &editable,
+        &GString::from_glib_borrow(pathptr),
+    );
 }

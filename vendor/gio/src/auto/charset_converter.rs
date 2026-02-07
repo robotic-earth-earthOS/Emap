@@ -2,13 +2,19 @@
 // from gir-files (https://github.com/gtk-rs/gir-files)
 // DO NOT EDIT
 
-use crate::{Converter, Initable};
-use glib::{
-    prelude::*,
-    signal::{connect_raw, SignalHandlerId},
-    translate::*,
-};
-use std::{boxed::Box as Box_, fmt, mem::transmute, ptr};
+use crate::Converter;
+use crate::Initable;
+use glib::object::Cast;
+use glib::object::ObjectType as ObjectType_;
+use glib::signal::connect_raw;
+use glib::signal::SignalHandlerId;
+use glib::translate::*;
+use glib::StaticType;
+use glib::ToValue;
+use std::boxed::Box as Box_;
+use std::fmt;
+use std::mem::transmute;
+use std::ptr;
 
 glib::wrapper! {
     #[doc(alias = "GCharsetConverter")]
@@ -42,7 +48,7 @@ impl CharsetConverter {
     ///
     /// This method returns an instance of [`CharsetConverterBuilder`](crate::builders::CharsetConverterBuilder) which can be used to create [`CharsetConverter`] objects.
     pub fn builder() -> CharsetConverterBuilder {
-        CharsetConverterBuilder::new()
+        CharsetConverterBuilder::default()
     }
 
     #[doc(alias = "g_charset_converter_get_num_fallbacks")]
@@ -73,12 +79,12 @@ impl CharsetConverter {
 
     #[doc(alias = "from-charset")]
     pub fn from_charset(&self) -> Option<glib::GString> {
-        ObjectExt::property(self, "from-charset")
+        glib::ObjectExt::property(self, "from-charset")
     }
 
     #[doc(alias = "to-charset")]
     pub fn to_charset(&self) -> Option<glib::GString> {
-        ObjectExt::property(self, "to-charset")
+        glib::ObjectExt::property(self, "to-charset")
     }
 
     #[doc(alias = "use-fallback")]
@@ -107,49 +113,61 @@ impl CharsetConverter {
 
 impl Default for CharsetConverter {
     fn default() -> Self {
-        glib::object::Object::new::<Self>()
+        glib::object::Object::new::<Self>(&[])
+            .expect("Can't construct CharsetConverter object with default parameters")
     }
 }
 
+#[derive(Clone, Default)]
 // rustdoc-stripper-ignore-next
 /// A [builder-pattern] type to construct [`CharsetConverter`] objects.
 ///
 /// [builder-pattern]: https://doc.rust-lang.org/1.0.0/style/ownership/builders.html
 #[must_use = "The builder must be built to be used"]
 pub struct CharsetConverterBuilder {
-    builder: glib::object::ObjectBuilder<'static, CharsetConverter>,
+    from_charset: Option<String>,
+    to_charset: Option<String>,
+    use_fallback: Option<bool>,
 }
 
 impl CharsetConverterBuilder {
-    fn new() -> Self {
-        Self {
-            builder: glib::object::Object::builder(),
-        }
-    }
-
-    pub fn from_charset(self, from_charset: impl Into<glib::GString>) -> Self {
-        Self {
-            builder: self.builder.property("from-charset", from_charset.into()),
-        }
-    }
-
-    pub fn to_charset(self, to_charset: impl Into<glib::GString>) -> Self {
-        Self {
-            builder: self.builder.property("to-charset", to_charset.into()),
-        }
-    }
-
-    pub fn use_fallback(self, use_fallback: bool) -> Self {
-        Self {
-            builder: self.builder.property("use-fallback", use_fallback),
-        }
+    // rustdoc-stripper-ignore-next
+    /// Create a new [`CharsetConverterBuilder`].
+    pub fn new() -> Self {
+        Self::default()
     }
 
     // rustdoc-stripper-ignore-next
     /// Build the [`CharsetConverter`].
     #[must_use = "Building the object from the builder is usually expensive and is not expected to have side effects"]
     pub fn build(self) -> CharsetConverter {
-        self.builder.build()
+        let mut properties: Vec<(&str, &dyn ToValue)> = vec![];
+        if let Some(ref from_charset) = self.from_charset {
+            properties.push(("from-charset", from_charset));
+        }
+        if let Some(ref to_charset) = self.to_charset {
+            properties.push(("to-charset", to_charset));
+        }
+        if let Some(ref use_fallback) = self.use_fallback {
+            properties.push(("use-fallback", use_fallback));
+        }
+        glib::Object::new::<CharsetConverter>(&properties)
+            .expect("Failed to create an instance of CharsetConverter")
+    }
+
+    pub fn from_charset(mut self, from_charset: &str) -> Self {
+        self.from_charset = Some(from_charset.to_string());
+        self
+    }
+
+    pub fn to_charset(mut self, to_charset: &str) -> Self {
+        self.to_charset = Some(to_charset.to_string());
+        self
+    }
+
+    pub fn use_fallback(mut self, use_fallback: bool) -> Self {
+        self.use_fallback = Some(use_fallback);
+        self
     }
 }
 

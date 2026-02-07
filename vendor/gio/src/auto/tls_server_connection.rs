@@ -2,13 +2,21 @@
 // from gir-files (https://github.com/gtk-rs/gir-files)
 // DO NOT EDIT
 
-use crate::{IOStream, TlsAuthenticationMode, TlsCertificate, TlsConnection};
-use glib::{
-    prelude::*,
-    signal::{connect_raw, SignalHandlerId},
-    translate::*,
-};
-use std::{boxed::Box as Box_, fmt, mem::transmute, ptr};
+use crate::IOStream;
+use crate::TlsAuthenticationMode;
+use crate::TlsCertificate;
+use crate::TlsConnection;
+use glib::object::Cast;
+use glib::object::IsA;
+use glib::signal::connect_raw;
+use glib::signal::SignalHandlerId;
+use glib::translate::*;
+use glib::StaticType;
+use glib::ToValue;
+use std::boxed::Box as Box_;
+use std::fmt;
+use std::mem::transmute;
+use std::ptr;
 
 glib::wrapper! {
     #[doc(alias = "GTlsServerConnection")]
@@ -43,23 +51,26 @@ impl TlsServerConnection {
     }
 }
 
-mod sealed {
-    pub trait Sealed {}
-    impl<T: super::IsA<super::TlsServerConnection>> Sealed for T {}
+pub trait TlsServerConnectionExt: 'static {
+    #[doc(alias = "authentication-mode")]
+    fn authentication_mode(&self) -> TlsAuthenticationMode;
+
+    #[doc(alias = "authentication-mode")]
+    fn set_authentication_mode(&self, authentication_mode: TlsAuthenticationMode);
+
+    #[doc(alias = "authentication-mode")]
+    fn connect_authentication_mode_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
 }
 
-pub trait TlsServerConnectionExt: IsA<TlsServerConnection> + sealed::Sealed + 'static {
-    #[doc(alias = "authentication-mode")]
+impl<O: IsA<TlsServerConnection>> TlsServerConnectionExt for O {
     fn authentication_mode(&self) -> TlsAuthenticationMode {
-        ObjectExt::property(self.as_ref(), "authentication-mode")
+        glib::ObjectExt::property(self.as_ref(), "authentication-mode")
     }
 
-    #[doc(alias = "authentication-mode")]
     fn set_authentication_mode(&self, authentication_mode: TlsAuthenticationMode) {
-        ObjectExt::set_property(self.as_ref(), "authentication-mode", authentication_mode)
+        glib::ObjectExt::set_property(self.as_ref(), "authentication-mode", &authentication_mode)
     }
 
-    #[doc(alias = "authentication-mode")]
     fn connect_authentication_mode_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_authentication_mode_trampoline<
             P: IsA<TlsServerConnection>,
@@ -85,8 +96,6 @@ pub trait TlsServerConnectionExt: IsA<TlsServerConnection> + sealed::Sealed + 's
         }
     }
 }
-
-impl<O: IsA<TlsServerConnection>> TlsServerConnectionExt for O {}
 
 impl fmt::Display for TlsServerConnection {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {

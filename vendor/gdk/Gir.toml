@@ -2,7 +2,7 @@
 girs_directories = ["../gir-files"]
 library = "Gdk"
 version = "3.0"
-min_cfg_version = "3.22"
+min_cfg_version = "3.18"
 target_path = "."
 work_mode = "normal"
 generate_safety_asserts = true
@@ -18,15 +18,10 @@ generate = [
     "Gdk.CrossingMode",
     "Gdk.CursorType",
     "Gdk.DeviceManager",
-    "Gdk.DevicePad",
-    "Gdk.DevicePadFeature",
-    "Gdk.DeviceTool",
-    "Gdk.DeviceToolType",
     "Gdk.DeviceType",
     "Gdk.DragAction",
     "Gdk.DragCancelReason",
     "Gdk.DragProtocol",
-    "Gdk.DrawingContext",
     "Gdk.EventMask",
     "Gdk.EventSequence",
     "Gdk.FrameClockPhase",
@@ -218,9 +213,6 @@ status = "generate"
     [[object.function]]
     name = "init_check"
     ignore = true # TODO: manually implement
-    [[object.function]]
-    name = "set_allowed_backends"
-    assertion = "skip"
 
 [[object]]
 name = "Gdk.Cursor"
@@ -238,8 +230,6 @@ status = "generate"
 [[object]]
 name = "Gdk.Device"
 status = "generate"
-final_type = false
-manual_traits = ["DeviceExtManual"]
     [[object.function]]
     name = "get_display"
         [object.function.return]
@@ -251,8 +241,31 @@ manual_traits = ["DeviceExtManual"]
     name = "get_history"
     manual = true # need to call "free_history" function by hand
     [[object.property]]
+    name = "tool"
+    version = "3.22"
+    [[object.property]]
     name = "type"
     generate = ["get", "notify"]
+
+[[object]]
+name = "Gdk.DevicePad"
+status = "generate"
+version = "3.22"
+
+[[object]]
+name = "Gdk.DevicePadFeature"
+status = "generate"
+version = "3.22"
+
+[[object]]
+name = "Gdk.DeviceTool"
+status = "generate"
+version = "3.22"
+
+[[object]]
+name = "Gdk.DeviceToolType"
+status = "generate"
+version = "3.22"
 
 [[object]]
 name = "Gdk.Display"
@@ -298,6 +311,11 @@ status = "generate"
     name = "get_source_window"
         [object.function.return]
         nullable = false
+
+[[object]]
+name = "Gdk.DrawingContext"
+status = "generate"
+version = "3.22"
 
 [[object]]
 name = "Gdk.EventType"
@@ -371,7 +389,16 @@ status = "generate"
 [[object]]
 name = "Gdk.Monitor"
 status = "generate"
-final_type = false
+version = "3.22"
+    [[object.property]]
+    name = "subpixel-layout"
+    version = "3.22"
+    [[object.property]]
+    name = "manufacturer"
+    version = "3.22"
+    [[object.property]]
+    name = "model"
+    version = "3.22"
 
 [[object]]
 name = "Gdk.Rectangle"
@@ -429,7 +456,7 @@ status = "generate"
 [[object]]
 name = "Gdk.Seat"
 status = "generate"
-final_type = false
+version = "3.20"
 
 [[object]]
 name = "Gdk.Visual"

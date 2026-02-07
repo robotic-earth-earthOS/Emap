@@ -11,24 +11,23 @@ use super::cell_renderer::CellRendererImpl;
 use crate::CellRendererToggle;
 
 pub trait CellRendererToggleImpl: CellRendererToggleImplExt + CellRendererImpl {
-    fn toggled(&self, path: &str) {
-        self.parent_toggled(path);
+    fn toggled(&self, renderer: &Self::Type, path: &str) {
+        self.parent_toggled(renderer, path);
     }
 }
 
-mod sealed {
-    pub trait Sealed {}
-    impl<T: super::CellRendererToggleImpl> Sealed for T {}
+pub trait CellRendererToggleImplExt: ObjectSubclass {
+    fn parent_toggled(&self, renderer: &Self::Type, path: &str);
 }
 
-pub trait CellRendererToggleImplExt: ObjectSubclass + sealed::Sealed {
-    fn parent_toggled(&self, path: &str) {
+impl<T: CellRendererToggleImpl> CellRendererToggleImplExt for T {
+    fn parent_toggled(&self, renderer: &Self::Type, path: &str) {
         unsafe {
-            let data = Self::type_data();
+            let data = T::type_data();
             let parent_class = data.as_ref().parent_class() as *mut ffi::GtkCellRendererToggleClass;
             if let Some(f) = (*parent_class).toggled {
                 f(
-                    self.obj()
+                    renderer
                         .unsafe_cast_ref::<CellRendererToggle>()
                         .to_glib_none()
                         .0,
@@ -38,8 +37,6 @@ pub trait CellRendererToggleImplExt: ObjectSubclass + sealed::Sealed {
         }
     }
 }
-
-impl<T: CellRendererToggleImpl> CellRendererToggleImplExt for T {}
 
 unsafe impl<T: CellRendererToggleImpl> IsSubclassable<T> for CellRendererToggle {
     fn class_init(class: &mut ::glib::Class<Self>) {
@@ -60,6 +57,7 @@ unsafe extern "C" fn cell_renderer_toggle_toggled<T: CellRendererToggleImpl>(
 ) {
     let instance = &*(ptr as *mut T::Instance);
     let imp = instance.imp();
+    let wrap: Borrowed<CellRendererToggle> = from_glib_borrow(ptr);
 
-    imp.toggled(&GString::from_glib_borrow(path))
+    imp.toggled(wrap.unsafe_cast_ref(), &GString::from_glib_borrow(path))
 }

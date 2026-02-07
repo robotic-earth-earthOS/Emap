@@ -1,15 +1,12 @@
 // Take a look at the license at the top of the repository in the LICENSE file.
 
-use std::{
-    borrow::Borrow,
-    cmp::{Eq, Ord, Ordering, PartialEq, PartialOrd},
-    fmt,
-    hash::{Hash, Hasher},
-    ops::Deref,
-    slice,
-};
-
 use crate::translate::*;
+use std::borrow::Borrow;
+use std::cmp::{Eq, Ord, Ordering, PartialEq, PartialOrd};
+use std::fmt;
+use std::hash::{Hash, Hasher};
+use std::ops::Deref;
+use std::slice;
 
 wrapper! {
     // rustdoc-stripper-ignore-next
@@ -43,7 +40,6 @@ impl Bytes {
     // rustdoc-stripper-ignore-next
     /// Copies `data` into a new shared slice.
     #[doc(alias = "g_bytes_new")]
-    #[inline]
     fn new<T: AsRef<[u8]>>(data: T) -> Bytes {
         let data = data.as_ref();
         unsafe { from_glib_full(ffi::g_bytes_new(data.as_ptr() as *const _, data.len())) }
@@ -52,7 +48,6 @@ impl Bytes {
     // rustdoc-stripper-ignore-next
     /// Creates a view into static `data` without copying.
     #[doc(alias = "g_bytes_new_static")]
-    #[inline]
     pub fn from_static(data: &'static [u8]) -> Bytes {
         unsafe {
             from_glib_full(ffi::g_bytes_new_static(
@@ -90,7 +85,6 @@ unsafe impl Send for Bytes {}
 unsafe impl Sync for Bytes {}
 
 impl<'a, T: ?Sized + Borrow<[u8]> + 'a> From<&'a T> for Bytes {
-    #[inline]
     fn from(value: &'a T) -> Bytes {
         Bytes::new(value.borrow())
     }
@@ -99,23 +93,21 @@ impl<'a, T: ?Sized + Borrow<[u8]> + 'a> From<&'a T> for Bytes {
 impl fmt::Debug for Bytes {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         f.debug_struct("Bytes")
-            .field("ptr", &ToGlibPtr::<*const _>::to_glib_none(self).0)
+            .field("ptr", &self.to_glib_none().0)
             .field("data", &&self[..])
             .finish()
     }
 }
 
 impl AsRef<[u8]> for Bytes {
-    #[inline]
     fn as_ref(&self) -> &[u8] {
-        self
+        &*self
     }
 }
 
 impl Deref for Bytes {
     type Target = [u8];
 
-    #[inline]
     fn deref(&self) -> &[u8] {
         unsafe {
             let mut len = 0;
@@ -131,12 +123,11 @@ impl Deref for Bytes {
 
 impl PartialEq for Bytes {
     #[doc(alias = "g_bytes_equal")]
-    #[inline]
     fn eq(&self, other: &Self) -> bool {
         unsafe {
             from_glib(ffi::g_bytes_equal(
-                ToGlibPtr::<*const _>::to_glib_none(self).0 as *const _,
-                ToGlibPtr::<*const _>::to_glib_none(other).0 as *const _,
+                self.to_glib_none().0 as *const _,
+                other.to_glib_none().0 as *const _,
             ))
         }
     }
@@ -145,19 +136,23 @@ impl PartialEq for Bytes {
 impl Eq for Bytes {}
 
 impl PartialOrd for Bytes {
-    #[inline]
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        Some(self.cmp(other))
+        unsafe {
+            let ret = ffi::g_bytes_compare(
+                self.to_glib_none().0 as *const _,
+                other.to_glib_none().0 as *const _,
+            );
+            ret.partial_cmp(&0)
+        }
     }
 }
 
 impl Ord for Bytes {
-    #[inline]
     fn cmp(&self, other: &Self) -> Ordering {
         unsafe {
             let ret = ffi::g_bytes_compare(
-                ToGlibPtr::<*const _>::to_glib_none(self).0 as *const _,
-                ToGlibPtr::<*const _>::to_glib_none(other).0 as *const _,
+                self.to_glib_none().0 as *const _,
+                other.to_glib_none().0 as *const _,
             );
             ret.cmp(&0)
         }
@@ -211,7 +206,6 @@ impl_cmp!(Bytes, Vec<u8>);
 impl_cmp!(&'a Bytes, Vec<u8>);
 
 impl Hash for Bytes {
-    #[inline]
     fn hash<H: Hasher>(&self, state: &mut H) {
         self.len().hash(state);
         Hash::hash_slice(self, state)
@@ -220,9 +214,8 @@ impl Hash for Bytes {
 
 #[cfg(test)]
 mod tests {
-    use std::collections::HashSet;
-
     use super::*;
+    use std::collections::HashSet;
 
     #[test]
     fn eq() {

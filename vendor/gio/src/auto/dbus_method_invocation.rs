@@ -2,13 +2,16 @@
 // from gir-files (https://github.com/gtk-rs/gir-files)
 // DO NOT EDIT
 
-#[cfg(unix)]
-#[cfg_attr(docsrs, doc(cfg(unix)))]
+use crate::DBusConnection;
+use crate::DBusMessage;
+use crate::DBusMethodInfo;
+use crate::DBusPropertyInfo;
+#[cfg(any(unix, feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(unix)))]
 use crate::UnixFDList;
-use crate::{DBusConnection, DBusMessage, DBusMethodInfo, DBusPropertyInfo};
-#[cfg(unix)]
-#[cfg_attr(docsrs, doc(cfg(unix)))]
-use glib::prelude::*;
+#[cfg(any(unix, feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(unix)))]
+use glib::object::IsA;
 use glib::translate::*;
 use std::fmt;
 
@@ -114,15 +117,15 @@ impl DBusMethodInvocation {
 
     //#[doc(alias = "g_dbus_method_invocation_get_user_data")]
     //#[doc(alias = "get_user_data")]
-    //pub fn user_data(&self) -> /*Unimplemented*/Option<Basic: Pointer> {
+    //pub fn user_data(&self) -> /*Unimplemented*/Option<Fundamental: Pointer> {
     //    unsafe { TODO: call ffi:g_dbus_method_invocation_get_user_data() }
     //}
 
     #[doc(alias = "g_dbus_method_invocation_return_dbus_error")]
-    pub fn return_dbus_error(self, error_name: &str, error_message: &str) {
+    pub fn return_dbus_error(&self, error_name: &str, error_message: &str) {
         unsafe {
             ffi::g_dbus_method_invocation_return_dbus_error(
-                self.into_glib_ptr(),
+                self.to_glib_full(),
                 error_name.to_glib_none().0,
                 error_message.to_glib_none().0,
             );
@@ -130,36 +133,36 @@ impl DBusMethodInvocation {
     }
 
     //#[doc(alias = "g_dbus_method_invocation_return_error")]
-    //pub fn return_error(self, domain: glib::Quark, code: i32, format: &str, : /*Unknown conversion*//*Unimplemented*/Basic: VarArgs) {
+    //pub fn return_error(&self, domain: glib::Quark, code: i32, format: &str, : /*Unknown conversion*//*Unimplemented*/Fundamental: VarArgs) {
     //    unsafe { TODO: call ffi:g_dbus_method_invocation_return_error() }
     //}
 
     //#[doc(alias = "g_dbus_method_invocation_return_error_valist")]
-    //pub fn return_error_valist(self, domain: glib::Quark, code: i32, format: &str, var_args: /*Unknown conversion*//*Unimplemented*/Unsupported) {
+    //pub fn return_error_valist(&self, domain: glib::Quark, code: i32, format: &str, var_args: /*Unknown conversion*//*Unimplemented*/Unsupported) {
     //    unsafe { TODO: call ffi:g_dbus_method_invocation_return_error_valist() }
     //}
 
     #[doc(alias = "g_dbus_method_invocation_return_value")]
-    pub fn return_value(self, parameters: Option<&glib::Variant>) {
+    pub fn return_value(&self, parameters: Option<&glib::Variant>) {
         unsafe {
             ffi::g_dbus_method_invocation_return_value(
-                self.into_glib_ptr(),
+                self.to_glib_full(),
                 parameters.to_glib_none().0,
             );
         }
     }
 
-    #[cfg(unix)]
-    #[cfg_attr(docsrs, doc(cfg(unix)))]
+    #[cfg(any(unix, feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(unix)))]
     #[doc(alias = "g_dbus_method_invocation_return_value_with_unix_fd_list")]
     pub fn return_value_with_unix_fd_list(
-        self,
+        &self,
         parameters: Option<&glib::Variant>,
         fd_list: Option<&impl IsA<UnixFDList>>,
     ) {
         unsafe {
             ffi::g_dbus_method_invocation_return_value_with_unix_fd_list(
-                self.into_glib_ptr(),
+                self.to_glib_full(),
                 parameters.to_glib_none().0,
                 fd_list.map(|p| p.as_ref()).to_glib_none().0,
             );

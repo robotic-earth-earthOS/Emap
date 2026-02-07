@@ -2,12 +2,14 @@
 // from gir-files (https://github.com/gtk-rs/gir-files)
 // DO NOT EDIT
 
-use glib::{
-    prelude::*,
-    signal::{connect_raw, SignalHandlerId},
-    translate::*,
-};
-use std::{boxed::Box as Box_, fmt, mem::transmute};
+use glib::object::Cast;
+use glib::object::IsA;
+use glib::signal::connect_raw;
+use glib::signal::SignalHandlerId;
+use glib::translate::*;
+use std::boxed::Box as Box_;
+use std::fmt;
+use std::mem::transmute;
 
 glib::wrapper! {
     #[doc(alias = "GtkAccelGroup")]
@@ -44,13 +46,63 @@ impl Default for AccelGroup {
     }
 }
 
-mod sealed {
-    pub trait Sealed {}
-    impl<T: super::IsA<super::AccelGroup>> Sealed for T {}
+pub trait AccelGroupExt: 'static {
+    #[doc(alias = "gtk_accel_group_activate")]
+    fn activate(
+        &self,
+        accel_quark: glib::Quark,
+        acceleratable: &impl IsA<glib::Object>,
+        accel_key: u32,
+        accel_mods: gdk::ModifierType,
+    ) -> bool;
+
+    #[doc(alias = "gtk_accel_group_disconnect")]
+    fn disconnect(&self, closure: Option<&glib::Closure>) -> bool;
+
+    #[doc(alias = "gtk_accel_group_disconnect_key")]
+    fn disconnect_key(&self, accel_key: u32, accel_mods: gdk::ModifierType) -> bool;
+
+    //#[doc(alias = "gtk_accel_group_find")]
+    //fn find(&self, find_func: /*Unimplemented*/FnMut(/*Ignored*/AccelKey, &glib::Closure) -> bool, data: /*Unimplemented*/Option<Fundamental: Pointer>) -> /*Ignored*/Option<AccelKey>;
+
+    #[doc(alias = "gtk_accel_group_get_is_locked")]
+    #[doc(alias = "get_is_locked")]
+    fn is_locked(&self) -> bool;
+
+    #[doc(alias = "gtk_accel_group_get_modifier_mask")]
+    #[doc(alias = "get_modifier_mask")]
+    fn modifier_mask(&self) -> gdk::ModifierType;
+
+    #[doc(alias = "gtk_accel_group_lock")]
+    fn lock(&self);
+
+    #[doc(alias = "gtk_accel_group_unlock")]
+    fn unlock(&self);
+
+    #[doc(alias = "accel-activate")]
+    fn connect_accel_activate<
+        F: Fn(&Self, &glib::Object, u32, gdk::ModifierType) -> bool + 'static,
+    >(
+        &self,
+        detail: Option<&str>,
+        f: F,
+    ) -> SignalHandlerId;
+
+    #[doc(alias = "accel-changed")]
+    fn connect_accel_changed<F: Fn(&Self, u32, gdk::ModifierType, &glib::Closure) + 'static>(
+        &self,
+        detail: Option<&str>,
+        f: F,
+    ) -> SignalHandlerId;
+
+    #[doc(alias = "is-locked")]
+    fn connect_is_locked_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "modifier-mask")]
+    fn connect_modifier_mask_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
 }
 
-pub trait AccelGroupExt: IsA<AccelGroup> + sealed::Sealed + 'static {
-    #[doc(alias = "gtk_accel_group_activate")]
+impl<O: IsA<AccelGroup>> AccelGroupExt for O {
     fn activate(
         &self,
         accel_quark: glib::Quark,
@@ -69,7 +121,6 @@ pub trait AccelGroupExt: IsA<AccelGroup> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_accel_group_disconnect")]
     fn disconnect(&self, closure: Option<&glib::Closure>) -> bool {
         unsafe {
             from_glib(ffi::gtk_accel_group_disconnect(
@@ -79,7 +130,6 @@ pub trait AccelGroupExt: IsA<AccelGroup> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_accel_group_disconnect_key")]
     fn disconnect_key(&self, accel_key: u32, accel_mods: gdk::ModifierType) -> bool {
         unsafe {
             from_glib(ffi::gtk_accel_group_disconnect_key(
@@ -90,13 +140,10 @@ pub trait AccelGroupExt: IsA<AccelGroup> + sealed::Sealed + 'static {
         }
     }
 
-    //#[doc(alias = "gtk_accel_group_find")]
-    //fn find(&self, find_func: /*Unimplemented*/FnMut(/*Ignored*/AccelKey, &glib::Closure) -> bool, data: /*Unimplemented*/Option<Basic: Pointer>) -> /*Ignored*/Option<AccelKey> {
+    //fn find(&self, find_func: /*Unimplemented*/FnMut(/*Ignored*/AccelKey, &glib::Closure) -> bool, data: /*Unimplemented*/Option<Fundamental: Pointer>) -> /*Ignored*/Option<AccelKey> {
     //    unsafe { TODO: call ffi:gtk_accel_group_find() }
     //}
 
-    #[doc(alias = "gtk_accel_group_get_is_locked")]
-    #[doc(alias = "get_is_locked")]
     fn is_locked(&self) -> bool {
         unsafe {
             from_glib(ffi::gtk_accel_group_get_is_locked(
@@ -105,8 +152,6 @@ pub trait AccelGroupExt: IsA<AccelGroup> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_accel_group_get_modifier_mask")]
-    #[doc(alias = "get_modifier_mask")]
     fn modifier_mask(&self) -> gdk::ModifierType {
         unsafe {
             from_glib(ffi::gtk_accel_group_get_modifier_mask(
@@ -115,21 +160,18 @@ pub trait AccelGroupExt: IsA<AccelGroup> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_accel_group_lock")]
     fn lock(&self) {
         unsafe {
             ffi::gtk_accel_group_lock(self.as_ref().to_glib_none().0);
         }
     }
 
-    #[doc(alias = "gtk_accel_group_unlock")]
     fn unlock(&self) {
         unsafe {
             ffi::gtk_accel_group_unlock(self.as_ref().to_glib_none().0);
         }
     }
 
-    #[doc(alias = "accel-activate")]
     fn connect_accel_activate<
         F: Fn(&Self, &glib::Object, u32, gdk::ModifierType) -> bool + 'static,
     >(
@@ -158,7 +200,7 @@ pub trait AccelGroupExt: IsA<AccelGroup> + sealed::Sealed + 'static {
         }
         unsafe {
             let f: Box_<F> = Box_::new(f);
-            let detailed_signal_name = detail.map(|name| format!("accel-activate::{name}\0"));
+            let detailed_signal_name = detail.map(|name| format!("accel-activate::{}\0", name));
             let signal_name: &[u8] = detailed_signal_name
                 .as_ref()
                 .map_or(&b"accel-activate\0"[..], |n| n.as_bytes());
@@ -173,7 +215,6 @@ pub trait AccelGroupExt: IsA<AccelGroup> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "accel-changed")]
     fn connect_accel_changed<F: Fn(&Self, u32, gdk::ModifierType, &glib::Closure) + 'static>(
         &self,
         detail: Option<&str>,
@@ -199,7 +240,7 @@ pub trait AccelGroupExt: IsA<AccelGroup> + sealed::Sealed + 'static {
         }
         unsafe {
             let f: Box_<F> = Box_::new(f);
-            let detailed_signal_name = detail.map(|name| format!("accel-changed::{name}\0"));
+            let detailed_signal_name = detail.map(|name| format!("accel-changed::{}\0", name));
             let signal_name: &[u8] = detailed_signal_name
                 .as_ref()
                 .map_or(&b"accel-changed\0"[..], |n| n.as_bytes());
@@ -214,7 +255,6 @@ pub trait AccelGroupExt: IsA<AccelGroup> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "is-locked")]
     fn connect_is_locked_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_is_locked_trampoline<
             P: IsA<AccelGroup>,
@@ -240,7 +280,6 @@ pub trait AccelGroupExt: IsA<AccelGroup> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "modifier-mask")]
     fn connect_modifier_mask_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_modifier_mask_trampoline<
             P: IsA<AccelGroup>,
@@ -266,8 +305,6 @@ pub trait AccelGroupExt: IsA<AccelGroup> + sealed::Sealed + 'static {
         }
     }
 }
-
-impl<O: IsA<AccelGroup>> AccelGroupExt for O {}
 
 impl fmt::Display for AccelGroup {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {

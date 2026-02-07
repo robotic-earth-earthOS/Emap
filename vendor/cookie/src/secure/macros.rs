@@ -11,10 +11,10 @@ macro_rules! assert_simple_behaviour {
         $secure.add(Cookie::new("another", "two"));
         assert_eq!($clear.iter().count(), 2);
 
-        $clear.remove("another");
+        $clear.remove(Cookie::named("another"));
         assert_eq!($clear.iter().count(), 1);
 
-        $secure.remove("name");
+        $secure.remove(Cookie::named("name"));
         assert_eq!($clear.iter().count(), 0);
     })
 }

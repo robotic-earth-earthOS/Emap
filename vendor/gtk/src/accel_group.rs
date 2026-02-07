@@ -6,12 +6,23 @@ use glib::object::{Cast, IsA};
 use glib::translate::*;
 use glib::ToValue;
 
-mod sealed {
-    pub trait Sealed {}
-    impl<T: glib::IsA<crate::AccelGroup>> Sealed for T {}
+pub trait AccelGroupExtManual: 'static {
+    fn connect_accel_group<F>(
+        &self,
+        accel_key: u32,
+        accel_mods: gdk::ModifierType,
+        accel_flags: AccelFlags,
+        func: F,
+    ) -> glib::Closure
+    where
+        F: Fn(&Self, &glib::Object, u32, gdk::ModifierType) -> bool + 'static;
+
+    fn connect_accel_group_by_path<F>(&self, accel_path: &str, func: F) -> glib::Closure
+    where
+        F: Fn(&Self, &glib::Object, u32, gdk::ModifierType) -> bool + 'static;
 }
 
-pub trait AccelGroupExtManual: IsA<AccelGroup> + sealed::Sealed + 'static {
+impl<O: IsA<AccelGroup>> AccelGroupExtManual for O {
     fn connect_accel_group<F>(
         &self,
         accel_key: u32,
@@ -97,5 +108,3 @@ pub trait AccelGroupExtManual: IsA<AccelGroup> + sealed::Sealed + 'static {
         closure
     }
 }
-
-impl<O: IsA<AccelGroup>> AccelGroupExtManual for O {}

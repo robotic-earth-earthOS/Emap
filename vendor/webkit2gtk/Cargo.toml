@@ -12,7 +12,7 @@
 [package]
 edition = "2021"
 name = "webkit2gtk"
-version = "2.0.1"
+version = "0.18.2"
 description = "Rust bindings for webkit-gtk library"
 readme = "README.md"
 keywords = [
@@ -28,17 +28,6 @@ categories = [
 license = "MIT"
 repository = "https://github.com/tauri-apps/webkit2gtk-rs"
 
-[package.metadata.docs.rs]
-all-features = true
-rustc-args = [
-    "--cfg",
-    "docsrs",
-]
-rustdoc-args = [
-    "--cfg",
-    "docsrs",
-]
-
 [lib]
 name = "webkit2gtk"
 
@@ -46,42 +35,41 @@ name = "webkit2gtk"
 version = "^1.0"
 
 [dependencies.cairo-rs]
-version = "^0.18.0"
+version = "^0.15.0"
 
 [dependencies.ffi]
-version = "2.0.1"
+version = "^0.18"
 package = "webkit2gtk-sys"
 
 [dependencies.gdk]
-version = "^0.18.0"
+version = "^0.15.0"
 
 [dependencies.gdk-sys]
-version = "^0.18.0"
+version = "^0.15.0"
 
 [dependencies.gio]
-version = "^0.18.0"
+version = "^0.15.0"
 
 [dependencies.gio-sys]
-version = "^0.18.0"
+version = "^0.15.0"
 
 [dependencies.glib]
-version = "^0.18.0"
+version = "^0.15.0"
 
 [dependencies.glib-sys]
-version = "^0.18.0"
+version = "^0.15.0"
 
 [dependencies.gobject-sys]
-version = "^0.18.0"
+version = "^0.15.0"
 
 [dependencies.gtk]
-version = "^0.18.0"
+version = "^0.15.0"
 
 [dependencies.gtk-sys]
-version = "^0.18.0"
+version = "^0.15.0"
 
-[dependencies.java_script_core]
-version = "=1.1"
-package = "javascriptcore-rs"
+[dependencies.javascriptcore-rs]
+version = "^0.16.0"
 
 [dependencies.libc]
 version = "^0.2"
@@ -89,9 +77,8 @@ version = "^0.2"
 [dependencies.once_cell]
 version = "1.8"
 
-[dependencies.soup]
-version = "0.5"
-package = "soup3"
+[dependencies.soup2]
+version = "^0.2.0"
 
 [features]
 v2_10 = [
@@ -151,15 +138,7 @@ v2_36 = [
     "v2_34",
     "ffi/v2_36",
 ]
-v2_38 = [
-    "v2_36",
-    "ffi/v2_38",
-]
 v2_4 = ["v2_2"]
-v2_40 = [
-    "v2_38",
-    "ffi/v2_40",
-]
 v2_6 = [
     "v2_4",
     "ffi/v2_6",

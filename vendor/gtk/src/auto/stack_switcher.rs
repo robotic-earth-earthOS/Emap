@@ -2,13 +2,20 @@
 // from gir-files (https://github.com/gtk-rs/gir-files)
 // DO NOT EDIT
 
-use crate::{Box, Buildable, Container, Orientable, Stack, Widget};
-use glib::{
-    prelude::*,
-    signal::{connect_raw, SignalHandlerId},
-    translate::*,
-};
-use std::{boxed::Box as Box_, fmt, mem::transmute};
+use crate::Box;
+use crate::Buildable;
+use crate::Container;
+use crate::Orientable;
+use crate::Stack;
+use crate::Widget;
+use glib::object::Cast;
+use glib::object::IsA;
+use glib::signal::connect_raw;
+use glib::signal::SignalHandlerId;
+use glib::translate::*;
+use std::boxed::Box as Box_;
+use std::fmt;
+use std::mem::transmute;
 
 glib::wrapper! {
     #[doc(alias = "GtkStackSwitcher")]
@@ -35,14 +42,19 @@ impl Default for StackSwitcher {
     }
 }
 
-mod sealed {
-    pub trait Sealed {}
-    impl<T: super::IsA<super::StackSwitcher>> Sealed for T {}
-}
-
-pub trait StackSwitcherExt: IsA<StackSwitcher> + sealed::Sealed + 'static {
+pub trait StackSwitcherExt: 'static {
     #[doc(alias = "gtk_stack_switcher_get_stack")]
     #[doc(alias = "get_stack")]
+    fn stack(&self) -> Option<Stack>;
+
+    #[doc(alias = "gtk_stack_switcher_set_stack")]
+    fn set_stack(&self, stack: Option<&impl IsA<Stack>>);
+
+    #[doc(alias = "stack")]
+    fn connect_stack_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+}
+
+impl<O: IsA<StackSwitcher>> StackSwitcherExt for O {
     fn stack(&self) -> Option<Stack> {
         unsafe {
             from_glib_none(ffi::gtk_stack_switcher_get_stack(
@@ -51,7 +63,6 @@ pub trait StackSwitcherExt: IsA<StackSwitcher> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_stack_switcher_set_stack")]
     fn set_stack(&self, stack: Option<&impl IsA<Stack>>) {
         unsafe {
             ffi::gtk_stack_switcher_set_stack(
@@ -61,7 +72,6 @@ pub trait StackSwitcherExt: IsA<StackSwitcher> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "stack")]
     fn connect_stack_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_stack_trampoline<P: IsA<StackSwitcher>, F: Fn(&P) + 'static>(
             this: *mut ffi::GtkStackSwitcher,
@@ -84,8 +94,6 @@ pub trait StackSwitcherExt: IsA<StackSwitcher> + sealed::Sealed + 'static {
         }
     }
 }
-
-impl<O: IsA<StackSwitcher>> StackSwitcherExt for O {}
 
 impl fmt::Display for StackSwitcher {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {

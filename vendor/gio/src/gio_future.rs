@@ -1,41 +1,43 @@
 // Take a look at the license at the top of the repository in the LICENSE file.
 
-use std::{
-    future::Future,
-    pin::{self, Pin},
-};
-
 use futures_channel::oneshot;
 use futures_core::{
     task::{Context, Poll},
     FusedFuture,
 };
+use std::future::Future;
+use std::pin::{self, Pin};
 
-use crate::{prelude::*, Cancellable};
+use crate::prelude::*;
+use crate::Cancellable;
 
-pub struct GioFuture<F, O, T> {
+use glib::thread_guard::ThreadGuard;
+
+pub struct GioFuture<F, O, T, E> {
     obj: O,
     schedule_operation: Option<F>,
     cancellable: Option<Cancellable>,
-    receiver: Option<oneshot::Receiver<T>>,
+    receiver: Option<oneshot::Receiver<Result<T, E>>>,
 }
 
-pub struct GioFutureResult<T> {
-    sender: oneshot::Sender<T>,
+pub struct GioFutureResult<T, E> {
+    sender: ThreadGuard<oneshot::Sender<Result<T, E>>>,
 }
 
-impl<T> GioFutureResult<T> {
-    pub fn resolve(self, res: T) {
-        let _ = self.sender.send(res);
+unsafe impl<T, E> Send for GioFutureResult<T, E> {}
+
+impl<T, E> GioFutureResult<T, E> {
+    pub fn resolve(self, res: Result<T, E>) {
+        let _ = self.sender.into_inner().send(res);
     }
 }
 
-impl<F, O, T: 'static> GioFuture<F, O, T>
+impl<F, O, T: 'static, E: 'static> GioFuture<F, O, T, E>
 where
     O: Clone + 'static,
-    F: FnOnce(&O, &Cancellable, GioFutureResult<T>) + 'static,
+    F: FnOnce(&O, &Cancellable, GioFutureResult<T, E>) + 'static,
 {
-    pub fn new(obj: &O, schedule_operation: F) -> GioFuture<F, O, T> {
+    pub fn new(obj: &O, schedule_operation: F) -> GioFuture<F, O, T, E> {
         GioFuture {
             obj: obj.clone(),
             schedule_operation: Some(schedule_operation),
@@ -45,14 +47,14 @@ where
     }
 }
 
-impl<F, O, T> Future for GioFuture<F, O, T>
+impl<F, O, T, E> Future for GioFuture<F, O, T, E>
 where
     O: Clone + 'static,
-    F: FnOnce(&O, &Cancellable, GioFutureResult<T>) + 'static,
+    F: FnOnce(&O, &Cancellable, GioFutureResult<T, E>) + 'static,
 {
-    type Output = T;
+    type Output = Result<T, E>;
 
-    fn poll(mut self: pin::Pin<&mut Self>, ctx: &mut Context) -> Poll<T> {
+    fn poll(mut self: pin::Pin<&mut Self>, ctx: &mut Context) -> Poll<Result<T, E>> {
         let GioFuture {
             ref obj,
             ref mut schedule_operation,
@@ -80,7 +82,9 @@ where
             schedule_operation(
                 obj,
                 cancellable.as_ref().unwrap(),
-                GioFutureResult { sender: send },
+                GioFutureResult {
+                    sender: ThreadGuard::new(send),
+                },
             );
 
             *receiver = Some(recv);
@@ -105,10 +109,10 @@ where
     }
 }
 
-impl<F, O, T> FusedFuture for GioFuture<F, O, T>
+impl<F, O, T, E> FusedFuture for GioFuture<F, O, T, E>
 where
     O: Clone + 'static,
-    F: FnOnce(&O, &Cancellable, GioFutureResult<T>) + 'static,
+    F: FnOnce(&O, &Cancellable, GioFutureResult<T, E>) + 'static,
 {
     fn is_terminated(&self) -> bool {
         self.schedule_operation.is_none()
@@ -119,7 +123,7 @@ where
     }
 }
 
-impl<F, O, T> Drop for GioFuture<F, O, T> {
+impl<F, O, T, E> Drop for GioFuture<F, O, T, E> {
     fn drop(&mut self) {
         if let Some(cancellable) = self.cancellable.take() {
             cancellable.cancel();
@@ -128,4 +132,4 @@ impl<F, O, T> Drop for GioFuture<F, O, T> {
     }
 }
 
-impl<F, O, T> Unpin for GioFuture<F, O, T> {}
+impl<F, O, T, E> Unpin for GioFuture<F, O, T, E> {}

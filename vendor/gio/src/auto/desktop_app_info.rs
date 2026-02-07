@@ -2,12 +2,16 @@
 // from gir-files (https://github.com/gtk-rs/gir-files)
 // DO NOT EDIT
 
-use crate::{AppInfo, AppLaunchContext};
-use glib::{prelude::*, translate::*};
-#[cfg(feature = "v2_60")]
-#[cfg_attr(docsrs, doc(cfg(feature = "v2_60")))]
+use crate::AppInfo;
+use crate::AppLaunchContext;
+use glib::object::IsA;
+use glib::translate::*;
+use std::boxed::Box as Box_;
+use std::fmt;
+#[cfg(any(feature = "v2_60", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v2_60")))]
 use std::mem;
-use std::{boxed::Box as Box_, fmt, ptr};
+use std::ptr;
 
 glib::wrapper! {
     #[doc(alias = "GDesktopAppInfo")]
@@ -108,6 +112,8 @@ impl DesktopAppInfo {
         }
     }
 
+    #[cfg(any(feature = "v2_56", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v2_56")))]
     #[doc(alias = "g_desktop_app_info_get_locale_string")]
     #[doc(alias = "get_locale_string")]
     pub fn locale_string(&self, key: &str) -> Option<glib::GString> {
@@ -157,8 +163,8 @@ impl DesktopAppInfo {
         }
     }
 
-    #[cfg(feature = "v2_60")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "v2_60")))]
+    #[cfg(any(feature = "v2_60", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v2_60")))]
     #[doc(alias = "g_desktop_app_info_get_string_list")]
     #[doc(alias = "get_string_list")]
     pub fn string_list(&self, key: &str) -> Vec<glib::GString> {
@@ -170,7 +176,7 @@ impl DesktopAppInfo {
                     key.to_glib_none().0,
                     length.as_mut_ptr(),
                 ),
-                length.assume_init() as _,
+                length.assume_init() as usize,
             );
             ret
         }
@@ -211,9 +217,9 @@ impl DesktopAppInfo {
         pid_callback: Option<&mut dyn (FnMut(&DesktopAppInfo, glib::Pid))>,
     ) -> Result<(), glib::Error> {
         let user_setup_data: Box_<Option<Box_<dyn FnOnce() + 'static>>> = Box_::new(user_setup);
-        unsafe extern "C" fn user_setup_func(data: glib::ffi::gpointer) {
+        unsafe extern "C" fn user_setup_func(user_data: glib::ffi::gpointer) {
             let callback: Box_<Option<Box_<dyn FnOnce() + 'static>>> =
-                Box_::from_raw(data as *mut _);
+                Box_::from_raw(user_data as *mut _);
             let callback = (*callback).expect("cannot get closure...");
             callback()
         }
@@ -237,7 +243,7 @@ impl DesktopAppInfo {
                 callback(&appinfo, pid)
             } else {
                 panic!("cannot get closure...")
-            }
+            };
         }
         let pid_callback = if pid_callback_data.is_some() {
             Some(pid_callback_func as _)
@@ -260,7 +266,7 @@ impl DesktopAppInfo {
                 super_callback1 as *const _ as usize as *mut _,
                 &mut error,
             );
-            debug_assert_eq!(is_ok == glib::ffi::GFALSE, !error.is_null());
+            assert_eq!(is_ok == glib::ffi::GFALSE, !error.is_null());
             if error.is_null() {
                 Ok(())
             } else {

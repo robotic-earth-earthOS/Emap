@@ -2,16 +2,15 @@
 
 use std::io::Write;
 
-use crate::error::ParserError;
+use crate::error::ErrMode;
 use crate::stream::Stream;
 use crate::*;
 
-pub(crate) struct Trace<P, D, I, O, E>
+pub struct Trace<P, D, I, O, E>
 where
     P: Parser<I, O, E>,
     I: Stream,
     D: std::fmt::Display,
-    E: ParserError<I>,
 {
     parser: P,
     name: D,
@@ -26,10 +25,9 @@ where
     P: Parser<I, O, E>,
     I: Stream,
     D: std::fmt::Display,
-    E: ParserError<I>,
 {
     #[inline(always)]
-    pub(crate) fn new(parser: P, name: D) -> Self {
+    pub fn new(parser: P, name: D) -> Self {
         Self {
             parser,
             name,
@@ -46,10 +44,9 @@ where
     P: Parser<I, O, E>,
     I: Stream,
     D: std::fmt::Display,
-    E: ParserError<I>,
 {
     #[inline]
-    fn parse_next(&mut self, i: &mut I) -> Result<O, E> {
+    fn parse_next(&mut self, i: &mut I) -> PResult<O, E> {
         let depth = Depth::new();
         let original = i.checkpoint();
         start(*depth, &self.name, self.call_count, i);
@@ -65,19 +62,19 @@ where
     }
 }
 
-pub(crate) struct Depth {
+pub struct Depth {
     depth: usize,
     inc: bool,
 }
 
 impl Depth {
-    pub(crate) fn new() -> Self {
+    pub fn new() -> Self {
         let depth = DEPTH.fetch_add(1, std::sync::atomic::Ordering::SeqCst);
         let inc = true;
         Self { depth, inc }
     }
 
-    pub(crate) fn existing() -> Self {
+    pub fn existing() -> Self {
         let depth = DEPTH.load(std::sync::atomic::Ordering::SeqCst);
         let inc = false;
         Self { depth, inc }
@@ -99,7 +96,7 @@ impl AsRef<usize> for Depth {
     }
 }
 
-impl core::ops::Deref for Depth {
+impl crate::lib::std::ops::Deref for Depth {
     type Target = usize;
 
     #[inline(always)]
@@ -110,7 +107,7 @@ impl core::ops::Deref for Depth {
 
 static DEPTH: std::sync::atomic::AtomicUsize = std::sync::atomic::AtomicUsize::new(0);
 
-pub(crate) enum Severity {
+pub enum Severity {
     Success,
     Backtrack,
     Cut,
@@ -118,19 +115,19 @@ pub(crate) enum Severity {
 }
 
 impl Severity {
-    pub(crate) fn with_result<T, I: Stream, E: ParserError<I>>(result: &Result<T, E>) -> Self {
+    pub fn with_result<T, E>(result: &Result<T, ErrMode<E>>) -> Self {
         match result {
             Ok(_) => Self::Success,
-            Err(e) if e.is_backtrack() => Self::Backtrack,
-            Err(e) if e.is_incomplete() => Self::Incomplete,
-            _ => Self::Cut,
+            Err(ErrMode::Backtrack(_)) => Self::Backtrack,
+            Err(ErrMode::Cut(_)) => Self::Cut,
+            Err(ErrMode::Incomplete(_)) => Self::Incomplete,
         }
     }
 }
 
-pub(crate) fn start<I: Stream>(
+pub fn start<I: Stream>(
     depth: usize,
-    name: &dyn core::fmt::Display,
+    name: &dyn crate::lib::std::fmt::Display,
     count: usize,
     input: &I,
 ) {
@@ -149,7 +146,7 @@ pub(crate) fn start<I: Stream>(
 
     // The debug version of `slice` might be wider, either due to rendering one byte as two nibbles or
     // escaping in strings.
-    let mut debug_slice = format!("{:?}", crate::util::from_fn(|f| input.trace(f)));
+    let mut debug_slice = format!("{:#?}", input.raw());
     let (debug_slice, eof) = if let Some(debug_offset) = debug_slice
         .char_indices()
         .enumerate()
@@ -181,9 +178,9 @@ pub(crate) fn start<I: Stream>(
     );
 }
 
-pub(crate) fn end(
+pub fn end(
     depth: usize,
-    name: &dyn core::fmt::Display,
+    name: &dyn crate::lib::std::fmt::Display,
     count: usize,
     consumed: usize,
     severity: Severity,
@@ -202,7 +199,7 @@ pub(crate) fn end(
     let (status_style, status) = match severity {
         Severity::Success => {
             let style = anstyle::Style::new().fg_color(Some(anstyle::AnsiColor::Green.into()));
-            let status = format!("+{consumed}");
+            let status = format!("+{}", consumed);
             (style, status)
         }
         Severity::Backtrack => (
@@ -231,7 +228,7 @@ pub(crate) fn end(
     );
 }
 
-pub(crate) fn result(depth: usize, name: &dyn core::fmt::Display, severity: Severity) {
+pub fn result(depth: usize, name: &dyn crate::lib::std::fmt::Display, severity: Severity) {
     let gutter_style = anstyle::Style::new().bold();
 
     let (call_width, _) = column_widths();
@@ -289,7 +286,7 @@ fn term_width() -> usize {
 }
 
 fn query_width() -> Option<usize> {
-    use is_terminal_polyfill::IsTerminal;
+    use is_terminal::IsTerminal;
     if std::io::stderr().is_terminal() {
         terminal_size::terminal_size().map(|(w, _h)| w.0.into())
     } else {

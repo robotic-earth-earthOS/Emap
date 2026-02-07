@@ -2,7 +2,8 @@
 // from gir-files (https://github.com/gtk-rs/gir-files)
 // DO NOT EDIT
 
-use crate::{translate::*, ChecksumType};
+use crate::translate::*;
+use crate::ChecksumType;
 
 crate::wrapper! {
     #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -30,7 +31,7 @@ impl Checksum {
 
     #[doc(alias = "g_checksum_update")]
     pub fn update(&mut self, data: &[u8]) {
-        let length = data.len() as _;
+        let length = data.len() as isize;
         unsafe {
             ffi::g_checksum_update(self.to_glib_none_mut().0, data.to_glib_none().0, length);
         }

@@ -1,7 +1,6 @@
 {
   "git": {
-    "sha1": "00133512bfc8bbb8e9be59b20e93406c6a3eeb21",
-    "dirty": true
+    "sha1": "909866ea2f87b6af46de48bc0ce9cb90db6ca523"
   },
   "path_in_vcs": "gdk/sys"
 }

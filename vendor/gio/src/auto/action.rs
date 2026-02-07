@@ -2,12 +2,15 @@
 // from gir-files (https://github.com/gtk-rs/gir-files)
 // DO NOT EDIT
 
-use glib::{
-    prelude::*,
-    signal::{connect_raw, SignalHandlerId},
-    translate::*,
-};
-use std::{boxed::Box as Box_, fmt, mem::transmute, ptr};
+use glib::object::Cast;
+use glib::object::IsA;
+use glib::signal::connect_raw;
+use glib::signal::SignalHandlerId;
+use glib::translate::*;
+use std::boxed::Box as Box_;
+use std::fmt;
+use std::mem::transmute;
+use std::ptr;
 
 glib::wrapper! {
     #[doc(alias = "GAction")]
@@ -29,7 +32,7 @@ impl Action {
     #[doc(alias = "g_action_parse_detailed_name")]
     pub fn parse_detailed_name(
         detailed_name: &str,
-    ) -> Result<(glib::GString, Option<glib::Variant>), glib::Error> {
+    ) -> Result<(glib::GString, glib::Variant), glib::Error> {
         unsafe {
             let mut action_name = ptr::null_mut();
             let mut target_value = ptr::null_mut();
@@ -40,7 +43,7 @@ impl Action {
                 &mut target_value,
                 &mut error,
             );
-            debug_assert_eq!(is_ok == glib::ffi::GFALSE, !error.is_null());
+            assert_eq!(is_ok == glib::ffi::GFALSE, !error.is_null());
             if error.is_null() {
                 Ok((from_glib_full(action_name), from_glib_full(target_value)))
             } else {
@@ -63,40 +66,74 @@ impl Action {
     }
 }
 
-mod sealed {
-    pub trait Sealed {}
-    impl<T: super::IsA<super::Action>> Sealed for T {}
+pub trait ActionExt: 'static {
+    #[doc(alias = "g_action_activate")]
+    fn activate(&self, parameter: Option<&glib::Variant>);
+
+    #[doc(alias = "g_action_change_state")]
+    fn change_state(&self, value: &glib::Variant);
+
+    #[doc(alias = "g_action_get_enabled")]
+    #[doc(alias = "get_enabled")]
+    fn is_enabled(&self) -> bool;
+
+    #[doc(alias = "g_action_get_name")]
+    #[doc(alias = "get_name")]
+    fn name(&self) -> glib::GString;
+
+    #[doc(alias = "g_action_get_parameter_type")]
+    #[doc(alias = "get_parameter_type")]
+    fn parameter_type(&self) -> Option<glib::VariantType>;
+
+    #[doc(alias = "g_action_get_state")]
+    #[doc(alias = "get_state")]
+    fn state(&self) -> Option<glib::Variant>;
+
+    #[doc(alias = "g_action_get_state_hint")]
+    #[doc(alias = "get_state_hint")]
+    fn state_hint(&self) -> Option<glib::Variant>;
+
+    #[doc(alias = "g_action_get_state_type")]
+    #[doc(alias = "get_state_type")]
+    fn state_type(&self) -> Option<glib::VariantType>;
+
+    #[doc(alias = "enabled")]
+    fn connect_enabled_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "name")]
+    fn connect_name_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "parameter-type")]
+    fn connect_parameter_type_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "state")]
+    fn connect_state_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "state-type")]
+    fn connect_state_type_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
 }
 
-pub trait ActionExt: IsA<Action> + sealed::Sealed + 'static {
-    #[doc(alias = "g_action_activate")]
+impl<O: IsA<Action>> ActionExt for O {
     fn activate(&self, parameter: Option<&glib::Variant>) {
         unsafe {
             ffi::g_action_activate(self.as_ref().to_glib_none().0, parameter.to_glib_none().0);
         }
     }
 
-    #[doc(alias = "g_action_change_state")]
     fn change_state(&self, value: &glib::Variant) {
         unsafe {
             ffi::g_action_change_state(self.as_ref().to_glib_none().0, value.to_glib_none().0);
         }
     }
 
-    #[doc(alias = "g_action_get_enabled")]
-    #[doc(alias = "get_enabled")]
     fn is_enabled(&self) -> bool {
         unsafe { from_glib(ffi::g_action_get_enabled(self.as_ref().to_glib_none().0)) }
     }
 
-    #[doc(alias = "g_action_get_name")]
-    #[doc(alias = "get_name")]
     fn name(&self) -> glib::GString {
         unsafe { from_glib_none(ffi::g_action_get_name(self.as_ref().to_glib_none().0)) }
     }
 
-    #[doc(alias = "g_action_get_parameter_type")]
-    #[doc(alias = "get_parameter_type")]
     fn parameter_type(&self) -> Option<glib::VariantType> {
         unsafe {
             from_glib_none(ffi::g_action_get_parameter_type(
@@ -105,25 +142,18 @@ pub trait ActionExt: IsA<Action> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_action_get_state")]
-    #[doc(alias = "get_state")]
     fn state(&self) -> Option<glib::Variant> {
         unsafe { from_glib_full(ffi::g_action_get_state(self.as_ref().to_glib_none().0)) }
     }
 
-    #[doc(alias = "g_action_get_state_hint")]
-    #[doc(alias = "get_state_hint")]
     fn state_hint(&self) -> Option<glib::Variant> {
         unsafe { from_glib_full(ffi::g_action_get_state_hint(self.as_ref().to_glib_none().0)) }
     }
 
-    #[doc(alias = "g_action_get_state_type")]
-    #[doc(alias = "get_state_type")]
     fn state_type(&self) -> Option<glib::VariantType> {
         unsafe { from_glib_none(ffi::g_action_get_state_type(self.as_ref().to_glib_none().0)) }
     }
 
-    #[doc(alias = "enabled")]
     fn connect_enabled_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_enabled_trampoline<P: IsA<Action>, F: Fn(&P) + 'static>(
             this: *mut ffi::GAction,
@@ -146,7 +176,6 @@ pub trait ActionExt: IsA<Action> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "name")]
     fn connect_name_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_name_trampoline<P: IsA<Action>, F: Fn(&P) + 'static>(
             this: *mut ffi::GAction,
@@ -169,7 +198,6 @@ pub trait ActionExt: IsA<Action> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "parameter-type")]
     fn connect_parameter_type_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_parameter_type_trampoline<
             P: IsA<Action>,
@@ -195,7 +223,6 @@ pub trait ActionExt: IsA<Action> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "state")]
     fn connect_state_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_state_trampoline<P: IsA<Action>, F: Fn(&P) + 'static>(
             this: *mut ffi::GAction,
@@ -218,7 +245,6 @@ pub trait ActionExt: IsA<Action> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "state-type")]
     fn connect_state_type_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_state_type_trampoline<P: IsA<Action>, F: Fn(&P) + 'static>(
             this: *mut ffi::GAction,
@@ -241,8 +267,6 @@ pub trait ActionExt: IsA<Action> + sealed::Sealed + 'static {
         }
     }
 }
-
-impl<O: IsA<Action>> ActionExt for O {}
 
 impl fmt::Display for Action {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {

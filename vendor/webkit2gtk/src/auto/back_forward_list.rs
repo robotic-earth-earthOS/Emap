@@ -3,7 +3,9 @@
 // DO NOT EDIT
 
 use crate::BackForwardListItem;
-use glib::{prelude::*, translate::*};
+use glib::object::IsA;
+use glib::translate::*;
+use std::fmt;
 
 glib::wrapper! {
     #[doc(alias = "WebKitBackForwardList")]
@@ -18,14 +20,48 @@ impl BackForwardList {
   pub const NONE: Option<&'static BackForwardList> = None;
 }
 
-mod sealed {
-  pub trait Sealed {}
-  impl<T: super::IsA<super::BackForwardList>> Sealed for T {}
-}
-
-pub trait BackForwardListExt: IsA<BackForwardList> + sealed::Sealed + 'static {
+pub trait BackForwardListExt: 'static {
   #[doc(alias = "webkit_back_forward_list_get_back_item")]
   #[doc(alias = "get_back_item")]
+  fn back_item(&self) -> Option<BackForwardListItem>;
+
+  #[doc(alias = "webkit_back_forward_list_get_back_list")]
+  #[doc(alias = "get_back_list")]
+  fn back_list(&self) -> Vec<BackForwardListItem>;
+
+  #[doc(alias = "webkit_back_forward_list_get_back_list_with_limit")]
+  #[doc(alias = "get_back_list_with_limit")]
+  fn back_list_with_limit(&self, limit: u32) -> Vec<BackForwardListItem>;
+
+  #[doc(alias = "webkit_back_forward_list_get_current_item")]
+  #[doc(alias = "get_current_item")]
+  fn current_item(&self) -> Option<BackForwardListItem>;
+
+  #[doc(alias = "webkit_back_forward_list_get_forward_item")]
+  #[doc(alias = "get_forward_item")]
+  fn forward_item(&self) -> Option<BackForwardListItem>;
+
+  #[doc(alias = "webkit_back_forward_list_get_forward_list")]
+  #[doc(alias = "get_forward_list")]
+  fn forward_list(&self) -> Vec<BackForwardListItem>;
+
+  #[doc(alias = "webkit_back_forward_list_get_forward_list_with_limit")]
+  #[doc(alias = "get_forward_list_with_limit")]
+  fn forward_list_with_limit(&self, limit: u32) -> Vec<BackForwardListItem>;
+
+  #[doc(alias = "webkit_back_forward_list_get_length")]
+  #[doc(alias = "get_length")]
+  fn length(&self) -> u32;
+
+  #[doc(alias = "webkit_back_forward_list_get_nth_item")]
+  #[doc(alias = "get_nth_item")]
+  fn nth_item(&self, index: i32) -> Option<BackForwardListItem>;
+
+  //#[doc(alias = "changed")]
+  //fn connect_changed<Unsupported or ignored types>(&self, f: F) -> SignalHandlerId;
+}
+
+impl<O: IsA<BackForwardList>> BackForwardListExt for O {
   fn back_item(&self) -> Option<BackForwardListItem> {
     unsafe {
       from_glib_none(ffi::webkit_back_forward_list_get_back_item(
@@ -34,8 +70,6 @@ pub trait BackForwardListExt: IsA<BackForwardList> + sealed::Sealed + 'static {
     }
   }
 
-  #[doc(alias = "webkit_back_forward_list_get_back_list")]
-  #[doc(alias = "get_back_list")]
   fn back_list(&self) -> Vec<BackForwardListItem> {
     unsafe {
       FromGlibPtrContainer::from_glib_container(ffi::webkit_back_forward_list_get_back_list(
@@ -44,8 +78,6 @@ pub trait BackForwardListExt: IsA<BackForwardList> + sealed::Sealed + 'static {
     }
   }
 
-  #[doc(alias = "webkit_back_forward_list_get_back_list_with_limit")]
-  #[doc(alias = "get_back_list_with_limit")]
   fn back_list_with_limit(&self, limit: u32) -> Vec<BackForwardListItem> {
     unsafe {
       FromGlibPtrContainer::from_glib_container(
@@ -57,8 +89,6 @@ pub trait BackForwardListExt: IsA<BackForwardList> + sealed::Sealed + 'static {
     }
   }
 
-  #[doc(alias = "webkit_back_forward_list_get_current_item")]
-  #[doc(alias = "get_current_item")]
   fn current_item(&self) -> Option<BackForwardListItem> {
     unsafe {
       from_glib_none(ffi::webkit_back_forward_list_get_current_item(
@@ -67,8 +97,6 @@ pub trait BackForwardListExt: IsA<BackForwardList> + sealed::Sealed + 'static {
     }
   }
 
-  #[doc(alias = "webkit_back_forward_list_get_forward_item")]
-  #[doc(alias = "get_forward_item")]
   fn forward_item(&self) -> Option<BackForwardListItem> {
     unsafe {
       from_glib_none(ffi::webkit_back_forward_list_get_forward_item(
@@ -77,8 +105,6 @@ pub trait BackForwardListExt: IsA<BackForwardList> + sealed::Sealed + 'static {
     }
   }
 
-  #[doc(alias = "webkit_back_forward_list_get_forward_list")]
-  #[doc(alias = "get_forward_list")]
   fn forward_list(&self) -> Vec<BackForwardListItem> {
     unsafe {
       FromGlibPtrContainer::from_glib_container(ffi::webkit_back_forward_list_get_forward_list(
@@ -87,8 +113,6 @@ pub trait BackForwardListExt: IsA<BackForwardList> + sealed::Sealed + 'static {
     }
   }
 
-  #[doc(alias = "webkit_back_forward_list_get_forward_list_with_limit")]
-  #[doc(alias = "get_forward_list_with_limit")]
   fn forward_list_with_limit(&self, limit: u32) -> Vec<BackForwardListItem> {
     unsafe {
       FromGlibPtrContainer::from_glib_container(
@@ -100,14 +124,10 @@ pub trait BackForwardListExt: IsA<BackForwardList> + sealed::Sealed + 'static {
     }
   }
 
-  #[doc(alias = "webkit_back_forward_list_get_length")]
-  #[doc(alias = "get_length")]
   fn length(&self) -> u32 {
     unsafe { ffi::webkit_back_forward_list_get_length(self.as_ref().to_glib_none().0) }
   }
 
-  #[doc(alias = "webkit_back_forward_list_get_nth_item")]
-  #[doc(alias = "get_nth_item")]
   fn nth_item(&self, index: i32) -> Option<BackForwardListItem> {
     unsafe {
       from_glib_none(ffi::webkit_back_forward_list_get_nth_item(
@@ -117,10 +137,13 @@ pub trait BackForwardListExt: IsA<BackForwardList> + sealed::Sealed + 'static {
     }
   }
 
-  //#[doc(alias = "changed")]
   //fn connect_changed<Unsupported or ignored types>(&self, f: F) -> SignalHandlerId {
   //    Unimplemented items_removed: *.Pointer
   //}
 }
 
-impl<O: IsA<BackForwardList>> BackForwardListExt for O {}
+impl fmt::Display for BackForwardList {
+  fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    f.write_str("BackForwardList")
+  }
+}

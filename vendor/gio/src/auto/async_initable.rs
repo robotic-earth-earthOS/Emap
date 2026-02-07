@@ -2,9 +2,14 @@
 // from gir-files (https://github.com/gtk-rs/gir-files)
 // DO NOT EDIT
 
-use crate::{AsyncResult, Cancellable};
-use glib::{prelude::*, translate::*};
-use std::{boxed::Box as Box_, fmt, pin::Pin, ptr};
+use crate::AsyncResult;
+use crate::Cancellable;
+use glib::object::IsA;
+use glib::translate::*;
+use std::boxed::Box as Box_;
+use std::fmt;
+use std::pin::Pin;
+use std::ptr;
 
 glib::wrapper! {
     #[doc(alias = "GAsyncInitable")]
@@ -19,13 +24,22 @@ impl AsyncInitable {
     pub const NONE: Option<&'static AsyncInitable> = None;
 }
 
-mod sealed {
-    pub trait Sealed {}
-    impl<T: super::IsA<super::AsyncInitable>> Sealed for T {}
+pub trait AsyncInitableExt: 'static {
+    #[doc(alias = "g_async_initable_init_async")]
+    unsafe fn init_async<P: FnOnce(Result<(), glib::Error>) + 'static>(
+        &self,
+        io_priority: glib::Priority,
+        cancellable: Option<&impl IsA<Cancellable>>,
+        callback: P,
+    );
+
+    unsafe fn init_future(
+        &self,
+        io_priority: glib::Priority,
+    ) -> Pin<Box_<dyn std::future::Future<Output = Result<(), glib::Error>> + 'static>>;
 }
 
-pub trait AsyncInitableExt: IsA<AsyncInitable> + sealed::Sealed + 'static {
-    #[doc(alias = "g_async_initable_init_async")]
+impl<O: IsA<AsyncInitable>> AsyncInitableExt for O {
     unsafe fn init_async<P: FnOnce(Result<(), glib::Error>) + 'static>(
         &self,
         io_priority: glib::Priority,
@@ -85,8 +99,6 @@ pub trait AsyncInitableExt: IsA<AsyncInitable> + sealed::Sealed + 'static {
         ))
     }
 }
-
-impl<O: IsA<AsyncInitable>> AsyncInitableExt for O {}
 
 impl fmt::Display for AsyncInitable {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {

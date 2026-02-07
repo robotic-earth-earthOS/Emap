@@ -1,8 +1,9 @@
 // Take a look at the license at the top of the repository in the LICENSE file.
 
-use glib::translate::*;
+use crate::FileAttributeInfo;
+use crate::FileAttributeInfoList;
 
-use crate::{FileAttributeInfo, FileAttributeInfoList};
+use glib::translate::*;
 
 impl FileAttributeInfoList {
     #[doc(alias = "g_file_attribute_info_list_lookup")]
@@ -22,7 +23,7 @@ impl FileAttributeInfoList {
 
     pub fn attributes(&self) -> Vec<FileAttributeInfo> {
         unsafe {
-            let ptr: *const _ = self.to_glib_none().0;
+            let ptr = self.to_glib_none().0;
             FromGlibContainer::from_glib_none_num((*ptr).infos, (*ptr).n_infos as usize)
         }
     }

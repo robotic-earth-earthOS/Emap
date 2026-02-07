@@ -1,25 +1,42 @@
 [package]
 name = "gtk-sys"
-version = "0.18.2"
+version = "0.15.3"
 links = "gtk-3"
 build = "build.rs"
 authors = ["The gtk-rs Project Developers"]
-description = "UNMAINTAINED FFI bindings to libgtk-3 (use gtk4-sys instead)"
-homepage = "https://gtk-rs.org/"
+description = "FFI bindings to libgtk-3"
+homepage = "http://gtk-rs.org/"
 keywords = ["gtk", "ffi", "gtk-rs", "gnome"]
 license = "MIT"
 repository = "https://github.com/gtk-rs/gtk3-rs"
 edition = "2021"
-rust-version = "1.70"
-
+rust-version = "1.56"
 [package.metadata.docs.rs]
-rustdoc-args = ["--cfg", "docsrs"]
-features = []
-rustc-args = ["--cfg", "docsrs"]
-
+features = ["dox"]
 [package.metadata.system-deps."gtk+_3_0"]
 name = "gtk+-3.0"
+version = "3.18"
+
+[package.metadata.system-deps."gtk+_3_0".v3_20]
+version = "3.20"
+
+[package.metadata.system-deps."gtk+_3_0".v3_22]
 version = "3.22"
+
+[package.metadata.system-deps."gtk+_3_0".v3_22_6]
+version = "3.22.6"
+
+[package.metadata.system-deps."gtk+_3_0".v3_22_26]
+version = "3.22.26"
+
+[package.metadata.system-deps."gtk+_3_0".v3_22_27]
+version = "3.22.27"
+
+[package.metadata.system-deps."gtk+_3_0".v3_22_29]
+version = "3.22.29"
+
+[package.metadata.system-deps."gtk+_3_0".v3_22_30]
+version = "3.22.30"
 
 [package.metadata.system-deps."gtk+_3_0".v3_24]
 version = "3.24"
@@ -47,49 +64,49 @@ libc = "0.2"
 
 [dependencies.glib]
 package = "glib-sys"
-version = "0.18"
-branch = "0.18"
+version = "0.15.1"
 git = "https://github.com/gtk-rs/gtk-rs-core"
+branch = "0.15"
 
 [dependencies.gobject]
 package = "gobject-sys"
-version = "0.18"
-branch = "0.18"
+version = "0.15.1"
 git = "https://github.com/gtk-rs/gtk-rs-core"
+branch = "0.15"
 
 [dependencies.gio]
 package = "gio-sys"
-version = "0.18"
-branch = "0.18"
+version = "0.15.1"
 git = "https://github.com/gtk-rs/gtk-rs-core"
+branch = "0.15"
 
 [dependencies.atk]
 package = "atk-sys"
-version = "0.18"
 path = "../../atk/sys"
+version = "0.15.1"
 
-[dependencies.gdk_pixbuf]
+[dependencies.gdk-pixbuf]
 package = "gdk-pixbuf-sys"
-version = "0.18"
-branch = "0.18"
+version = "0.15.1"
 git = "https://github.com/gtk-rs/gtk-rs-core"
+branch = "0.15"
 
 [dependencies.gdk]
 package = "gdk-sys"
-version = "0.18"
 path = "../../gdk/sys"
+version = "0.15.1"
 
 [dependencies.pango]
 package = "pango-sys"
-version = "0.18"
-branch = "0.18"
+version = "0.15.1"
 git = "https://github.com/gtk-rs/gtk-rs-core"
+branch = "0.15"
 
 [dependencies.cairo]
 package = "cairo-sys-rs"
-version = "0.18"
-branch = "0.18"
+version = "0.15.1"
 git = "https://github.com/gtk-rs/gtk-rs-core"
+branch = "0.15"
 
 [build-dependencies]
 system-deps = "6"
@@ -99,9 +116,17 @@ shell-words = "1.0.0"
 tempfile = "3"
 
 [features]
-v3_24 = []
+v3_20 = []
+v3_22 = ["v3_20"]
+v3_22_6 = ["v3_22"]
+v3_22_26 = ["v3_22_6"]
+v3_22_27 = ["v3_22_26"]
+v3_22_29 = ["v3_22_27"]
+v3_22_30 = ["v3_22_29"]
+v3_24 = ["v3_22_29"]
 v3_24_8 = ["v3_24_1"]
 v3_24_9 = ["v3_24_8"]
 v3_24_11 = ["v3_24_9"]
 v3_24_30 = ["v3_24_11"]
+dox = []
 v3_24_1 = ["v3_24"]

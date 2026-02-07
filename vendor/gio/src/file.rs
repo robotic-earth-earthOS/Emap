@@ -1,177 +1,152 @@
 // Take a look at the license at the top of the repository in the LICENSE file.
 
-#[cfg(feature = "v2_74")]
-use std::boxed::Box as Box_;
-use std::{cell::RefCell, mem, pin::Pin, ptr};
+use crate::Cancellable;
+use crate::File;
+use crate::FileCreateFlags;
+use crate::FileEnumerator;
+use crate::FileQueryInfoFlags;
+use glib::object::IsA;
+use glib::translate::*;
+use std::cell::RefCell;
+use std::mem;
+use std::pin::Pin;
+use std::ptr;
 
-use glib::{prelude::*, translate::*};
-
-#[cfg(feature = "v2_74")]
-use crate::FileIOStream;
-use crate::{Cancellable, File, FileCreateFlags, FileEnumerator, FileQueryInfoFlags};
-
-impl File {
-    #[cfg(feature = "v2_74")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "v2_74")))]
-    #[doc(alias = "g_file_new_tmp_async")]
-    pub fn new_tmp_async<P: FnOnce(Result<(File, FileIOStream), glib::Error>) + 'static>(
-        tmpl: Option<impl AsRef<std::path::Path>>,
-        io_priority: glib::Priority,
-        cancellable: Option<&impl IsA<Cancellable>>,
-        callback: P,
-    ) {
-        let main_context = glib::MainContext::ref_thread_default();
-        let is_main_context_owner = main_context.is_owner();
-        let has_acquired_main_context = (!is_main_context_owner)
-            .then(|| main_context.acquire().ok())
-            .flatten();
-        assert!(
-            is_main_context_owner || has_acquired_main_context.is_some(),
-            "Async operations only allowed if the thread is owning the MainContext"
-        );
-
-        let user_data: Box_<glib::thread_guard::ThreadGuard<P>> =
-            Box_::new(glib::thread_guard::ThreadGuard::new(callback));
-        unsafe extern "C" fn new_tmp_async_trampoline<
-            P: FnOnce(Result<(File, FileIOStream), glib::Error>) + 'static,
-        >(
-            _source_object: *mut glib::gobject_ffi::GObject,
-            res: *mut crate::ffi::GAsyncResult,
-            user_data: glib::ffi::gpointer,
-        ) {
-            let mut error = ptr::null_mut();
-            let mut iostream = ptr::null_mut();
-            let ret = ffi::g_file_new_tmp_finish(res, &mut iostream, &mut error);
-            let result = if error.is_null() {
-                Ok((from_glib_full(ret), from_glib_full(iostream)))
-            } else {
-                Err(from_glib_full(error))
-            };
-            let callback: Box_<glib::thread_guard::ThreadGuard<P>> =
-                Box_::from_raw(user_data as *mut _);
-            let callback: P = callback.into_inner();
-            callback(result);
-        }
-        let callback = new_tmp_async_trampoline::<P>;
-        unsafe {
-            ffi::g_file_new_tmp_async(
-                tmpl.as_ref().map(|p| p.as_ref()).to_glib_none().0,
-                io_priority.into_glib(),
-                cancellable.map(|p| p.as_ref()).to_glib_none().0,
-                Some(callback),
-                Box_::into_raw(user_data) as *mut _,
-            );
-        }
-    }
-
-    #[cfg(feature = "v2_74")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "v2_74")))]
-    pub fn new_tmp_future(
-        tmpl: Option<impl AsRef<std::path::Path>>,
-        io_priority: glib::Priority,
-    ) -> Pin<
-        Box_<dyn std::future::Future<Output = Result<(File, FileIOStream), glib::Error>> + 'static>,
-    > {
-        let tmpl = tmpl.map(|tmpl| tmpl.as_ref().to_owned());
-        Box_::pin(crate::GioFuture::new(
-            &(),
-            move |_obj, cancellable, send| {
-                Self::new_tmp_async(
-                    tmpl.as_ref()
-                        .map(<std::path::PathBuf as std::borrow::Borrow<std::path::Path>>::borrow),
-                    io_priority,
-                    Some(cancellable),
-                    move |res| {
-                        send.resolve(res);
-                    },
-                );
-            },
-        ))
-    }
-
-    #[cfg(feature = "v2_74")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "v2_74")))]
-    #[doc(alias = "g_file_new_tmp_dir_async")]
-    pub fn new_tmp_dir_async<P: FnOnce(Result<File, glib::Error>) + 'static>(
-        tmpl: Option<impl AsRef<std::path::Path>>,
-        io_priority: glib::Priority,
-        cancellable: Option<&impl IsA<Cancellable>>,
-        callback: P,
-    ) {
-        let main_context = glib::MainContext::ref_thread_default();
-        let is_main_context_owner = main_context.is_owner();
-        let has_acquired_main_context = (!is_main_context_owner)
-            .then(|| main_context.acquire().ok())
-            .flatten();
-        assert!(
-            is_main_context_owner || has_acquired_main_context.is_some(),
-            "Async operations only allowed if the thread is owning the MainContext"
-        );
-
-        let user_data: Box_<glib::thread_guard::ThreadGuard<P>> =
-            Box_::new(glib::thread_guard::ThreadGuard::new(callback));
-        unsafe extern "C" fn new_tmp_dir_async_trampoline<
-            P: FnOnce(Result<File, glib::Error>) + 'static,
-        >(
-            _source_object: *mut glib::gobject_ffi::GObject,
-            res: *mut crate::ffi::GAsyncResult,
-            user_data: glib::ffi::gpointer,
-        ) {
-            let mut error = ptr::null_mut();
-            let ret = ffi::g_file_new_tmp_dir_finish(res, &mut error);
-            let result = if error.is_null() {
-                Ok(from_glib_full(ret))
-            } else {
-                Err(from_glib_full(error))
-            };
-            let callback: Box_<glib::thread_guard::ThreadGuard<P>> =
-                Box_::from_raw(user_data as *mut _);
-            let callback: P = callback.into_inner();
-            callback(result);
-        }
-        let callback = new_tmp_dir_async_trampoline::<P>;
-        unsafe {
-            ffi::g_file_new_tmp_dir_async(
-                tmpl.as_ref().map(|p| p.as_ref()).to_glib_none().0,
-                io_priority.into_glib(),
-                cancellable.map(|p| p.as_ref()).to_glib_none().0,
-                Some(callback),
-                Box_::into_raw(user_data) as *mut _,
-            );
-        }
-    }
-
-    #[cfg(feature = "v2_74")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "v2_74")))]
-    pub fn new_tmp_dir_future(
-        tmpl: Option<impl AsRef<std::path::Path>>,
-        io_priority: glib::Priority,
-    ) -> Pin<Box_<dyn std::future::Future<Output = Result<File, glib::Error>> + 'static>> {
-        let tmpl = tmpl.map(|tmpl| tmpl.as_ref().to_owned());
-        Box_::pin(crate::GioFuture::new(
-            &(),
-            move |_obj, cancellable, send| {
-                Self::new_tmp_dir_async(
-                    tmpl.as_ref()
-                        .map(<std::path::PathBuf as std::borrow::Borrow<std::path::Path>>::borrow),
-                    io_priority,
-                    Some(cancellable),
-                    move |res| {
-                        send.resolve(res);
-                    },
-                );
-            },
-        ))
-    }
-}
-
-mod sealed {
-    pub trait Sealed {}
-    impl<T: super::IsA<super::File>> Sealed for T {}
-}
-
-pub trait FileExtManual: sealed::Sealed + IsA<File> + Sized {
+pub trait FileExtManual: Sized {
     #[doc(alias = "g_file_replace_contents_async")]
+    fn replace_contents_async<
+        B: AsRef<[u8]> + Send + 'static,
+        R: FnOnce(Result<(B, glib::GString), (B, glib::Error)>) + 'static,
+        C: IsA<Cancellable>,
+    >(
+        &self,
+        contents: B,
+        etag: Option<&str>,
+        make_backup: bool,
+        flags: FileCreateFlags,
+        cancellable: Option<&C>,
+        callback: R,
+    );
+
+    fn replace_contents_future<B: AsRef<[u8]> + Send + 'static>(
+        &self,
+        contents: B,
+        etag: Option<&str>,
+        make_backup: bool,
+        flags: FileCreateFlags,
+    ) -> Pin<
+        Box<
+            dyn std::future::Future<Output = Result<(B, glib::GString), (B, glib::Error)>>
+                + 'static,
+        >,
+    >;
+
+    #[doc(alias = "g_file_enumerate_children_async")]
+    fn enumerate_children_async<
+        P: IsA<Cancellable>,
+        Q: FnOnce(Result<FileEnumerator, glib::Error>) + 'static,
+    >(
+        &self,
+        attributes: &'static str,
+        flags: FileQueryInfoFlags,
+        io_priority: glib::Priority,
+        cancellable: Option<&P>,
+        callback: Q,
+    );
+
+    fn enumerate_children_future(
+        &self,
+        attributes: &'static str,
+        flags: FileQueryInfoFlags,
+        io_priority: glib::Priority,
+    ) -> Pin<Box<dyn std::future::Future<Output = Result<FileEnumerator, glib::Error>> + 'static>>;
+
+    #[doc(alias = "g_file_copy_async")]
+    fn copy_async<Q: FnOnce(Result<(), glib::Error>) + 'static>(
+        &self,
+        destination: &impl IsA<File>,
+        flags: crate::FileCopyFlags,
+        io_priority: glib::Priority,
+        cancellable: Option<&impl IsA<Cancellable>>,
+        progress_callback: Option<Box<dyn FnMut(i64, i64)>>,
+        callback: Q,
+    );
+
+    fn copy_future(
+        &self,
+        destination: &(impl IsA<File> + Clone + 'static),
+        flags: crate::FileCopyFlags,
+        io_priority: glib::Priority,
+    ) -> (
+        Pin<Box<dyn std::future::Future<Output = Result<(), glib::Error>> + 'static>>,
+        Pin<Box<dyn futures_core::stream::Stream<Item = (i64, i64)> + 'static>>,
+    );
+
+    #[doc(alias = "g_file_load_partial_contents_async")]
+    fn load_partial_contents_async<
+        P: FnMut(&[u8]) -> bool + 'static,
+        Q: FnOnce(Result<(Vec<u8>, Option<glib::GString>), glib::Error>) + 'static,
+    >(
+        &self,
+        cancellable: Option<&impl IsA<Cancellable>>,
+        read_more_callback: P,
+        callback: Q,
+    );
+
+    #[doc(alias = "g_file_measure_disk_usage")]
+    fn measure_disk_usage(
+        &self,
+        flags: crate::FileMeasureFlags,
+        cancellable: Option<&impl IsA<Cancellable>>,
+        progress_callback: Option<Box<dyn FnMut(bool, u64, u64, u64) + 'static>>,
+    ) -> Result<(u64, u64, u64), glib::Error>;
+
+    #[doc(alias = "g_file_measure_disk_usage_async")]
+    fn measure_disk_usage_async<P: FnOnce(Result<(u64, u64, u64), glib::Error>) + 'static>(
+        &self,
+        flags: crate::FileMeasureFlags,
+        io_priority: glib::Priority,
+        cancellable: Option<&impl IsA<Cancellable>>,
+        progress_callback: Option<Box<dyn FnMut(bool, u64, u64, u64) + 'static>>,
+        callback: P,
+    );
+
+    fn measure_disk_usage_future(
+        &self,
+        flags: crate::FileMeasureFlags,
+        io_priority: glib::Priority,
+    ) -> (
+        Pin<Box<dyn std::future::Future<Output = Result<(u64, u64, u64), glib::Error>> + 'static>>,
+        Pin<Box<dyn futures_core::stream::Stream<Item = (bool, u64, u64, u64)> + 'static>>,
+    );
+
+    #[cfg(any(feature = "v2_72", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v2_72")))]
+    #[doc(alias = "g_file_move_async")]
+    fn move_async<Q: FnOnce(Result<(), glib::Error>) + 'static>(
+        &self,
+        destination: &impl IsA<File>,
+        flags: crate::FileCopyFlags,
+        io_priority: glib::Priority,
+        cancellable: Option<&impl IsA<Cancellable>>,
+        progress_callback: Option<Box<dyn FnMut(i64, i64)>>,
+        callback: Q,
+    );
+
+    #[cfg(any(feature = "v2_72", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v2_72")))]
+    fn move_future(
+        &self,
+        destination: &(impl IsA<File> + Clone + 'static),
+        flags: crate::FileCopyFlags,
+        io_priority: glib::Priority,
+    ) -> (
+        Pin<Box<dyn std::future::Future<Output = Result<(), glib::Error>> + 'static>>,
+        Pin<Box<dyn futures_core::stream::Stream<Item = (i64, i64)> + 'static>>,
+    );
+}
+
+impl<O: IsA<File>> FileExtManual for O {
     fn replace_contents_async<
         B: AsRef<[u8]> + Send + 'static,
         R: FnOnce(Result<(B, glib::GString), (B, glib::Error)>) + 'static,
@@ -280,13 +255,12 @@ pub trait FileExtManual: sealed::Sealed + IsA<File> + Sized {
         ))
     }
 
-    #[doc(alias = "g_file_enumerate_children_async")]
     fn enumerate_children_async<
         P: IsA<Cancellable>,
         Q: FnOnce(Result<FileEnumerator, glib::Error>) + 'static,
     >(
         &self,
-        attributes: &str,
+        attributes: &'static str,
         flags: FileQueryInfoFlags,
         io_priority: glib::Priority,
         cancellable: Option<&P>,
@@ -340,17 +314,16 @@ pub trait FileExtManual: sealed::Sealed + IsA<File> + Sized {
 
     fn enumerate_children_future(
         &self,
-        attributes: &str,
+        attributes: &'static str,
         flags: FileQueryInfoFlags,
         io_priority: glib::Priority,
     ) -> Pin<Box<dyn std::future::Future<Output = Result<FileEnumerator, glib::Error>> + 'static>>
     {
-        let attributes = attributes.to_owned();
         Box::pin(crate::GioFuture::new(
             self,
             move |obj, cancellable, send| {
                 obj.enumerate_children_async(
-                    &attributes,
+                    attributes,
                     flags,
                     io_priority,
                     Some(cancellable),
@@ -362,7 +335,6 @@ pub trait FileExtManual: sealed::Sealed + IsA<File> + Sized {
         ))
     }
 
-    #[doc(alias = "g_file_copy_async")]
     fn copy_async<Q: FnOnce(Result<(), glib::Error>) + 'static>(
         &self,
         destination: &impl IsA<File>,
@@ -484,7 +456,6 @@ pub trait FileExtManual: sealed::Sealed + IsA<File> + Sized {
         (fut, Box::pin(receiver))
     }
 
-    #[doc(alias = "g_file_load_partial_contents_async")]
     fn load_partial_contents_async<
         P: FnMut(&[u8]) -> bool + 'static,
         Q: FnOnce(Result<(Vec<u8>, Option<glib::GString>), glib::Error>) + 'static,
@@ -533,7 +504,7 @@ pub trait FileExtManual: sealed::Sealed + IsA<File> + Sized {
             );
             let result = if error.is_null() {
                 Ok((
-                    FromGlibContainer::from_glib_full_num(contents, length.assume_init() as _),
+                    FromGlibContainer::from_glib_full_num(contents, length.assume_init() as usize),
                     from_glib_full(etag_out),
                 ))
             } else {
@@ -582,7 +553,6 @@ pub trait FileExtManual: sealed::Sealed + IsA<File> + Sized {
         }
     }
 
-    #[doc(alias = "g_file_measure_disk_usage")]
     fn measure_disk_usage(
         &self,
         flags: crate::FileMeasureFlags,
@@ -642,7 +612,6 @@ pub trait FileExtManual: sealed::Sealed + IsA<File> + Sized {
         }
     }
 
-    #[doc(alias = "g_file_measure_disk_usage_async")]
     fn measure_disk_usage_async<P: FnOnce(Result<(u64, u64, u64), glib::Error>) + 'static>(
         &self,
         flags: crate::FileMeasureFlags,
@@ -795,9 +764,8 @@ pub trait FileExtManual: sealed::Sealed + IsA<File> + Sized {
         (fut, Box::pin(receiver))
     }
 
-    #[cfg(feature = "v2_72")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "v2_72")))]
-    #[doc(alias = "g_file_move_async")]
+    #[cfg(any(feature = "v2_72", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v2_72")))]
     fn move_async<Q: FnOnce(Result<(), glib::Error>) + 'static>(
         &self,
         destination: &impl IsA<File>,
@@ -885,86 +853,8 @@ pub trait FileExtManual: sealed::Sealed + IsA<File> + Sized {
         }
     }
 
-    #[cfg(feature = "v2_74")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "v2_74")))]
-    #[doc(alias = "g_file_make_symbolic_link_async")]
-    fn make_symbolic_link_async<P: FnOnce(Result<(), glib::Error>) + 'static>(
-        &self,
-        symlink_value: impl AsRef<std::path::Path>,
-        io_priority: glib::Priority,
-        cancellable: Option<&impl IsA<Cancellable>>,
-        callback: P,
-    ) {
-        let main_context = glib::MainContext::ref_thread_default();
-        let is_main_context_owner = main_context.is_owner();
-        let has_acquired_main_context = (!is_main_context_owner)
-            .then(|| main_context.acquire().ok())
-            .flatten();
-        assert!(
-            is_main_context_owner || has_acquired_main_context.is_some(),
-            "Async operations only allowed if the thread is owning the MainContext"
-        );
-
-        let user_data: Box_<glib::thread_guard::ThreadGuard<P>> =
-            Box_::new(glib::thread_guard::ThreadGuard::new(callback));
-        unsafe extern "C" fn make_symbolic_link_async_trampoline<
-            P: FnOnce(Result<(), glib::Error>) + 'static,
-        >(
-            _source_object: *mut glib::gobject_ffi::GObject,
-            res: *mut crate::ffi::GAsyncResult,
-            user_data: glib::ffi::gpointer,
-        ) {
-            let mut error = ptr::null_mut();
-            let _ =
-                ffi::g_file_make_symbolic_link_finish(_source_object as *mut _, res, &mut error);
-            let result = if error.is_null() {
-                Ok(())
-            } else {
-                Err(from_glib_full(error))
-            };
-            let callback: Box_<glib::thread_guard::ThreadGuard<P>> =
-                Box_::from_raw(user_data as *mut _);
-            let callback: P = callback.into_inner();
-            callback(result);
-        }
-        let callback = make_symbolic_link_async_trampoline::<P>;
-        unsafe {
-            ffi::g_file_make_symbolic_link_async(
-                self.as_ref().to_glib_none().0,
-                symlink_value.as_ref().to_glib_none().0,
-                io_priority.into_glib(),
-                cancellable.map(|p| p.as_ref()).to_glib_none().0,
-                Some(callback),
-                Box_::into_raw(user_data) as *mut _,
-            );
-        }
-    }
-
-    #[cfg(feature = "v2_74")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "v2_74")))]
-    fn make_symbolic_link_future(
-        &self,
-        symlink_value: impl AsRef<std::path::Path>,
-        io_priority: glib::Priority,
-    ) -> Pin<Box_<dyn std::future::Future<Output = Result<(), glib::Error>> + 'static>> {
-        let symlink_value = symlink_value.as_ref().to_owned();
-        Box_::pin(crate::GioFuture::new(
-            self,
-            move |obj, cancellable, send| {
-                obj.make_symbolic_link_async(
-                    &symlink_value,
-                    io_priority,
-                    Some(cancellable),
-                    move |res| {
-                        send.resolve(res);
-                    },
-                );
-            },
-        ))
-    }
-
-    #[cfg(feature = "v2_72")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "v2_72")))]
+    #[cfg(any(feature = "v2_72", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v2_72")))]
     fn move_future(
         &self,
         destination: &(impl IsA<File> + Clone + 'static),
@@ -999,5 +889,3 @@ pub trait FileExtManual: sealed::Sealed + IsA<File> + Sized {
         (fut, Box::pin(receiver))
     }
 }
-
-impl<O: IsA<File>> FileExtManual for O {}

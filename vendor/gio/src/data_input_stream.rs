@@ -1,18 +1,105 @@
 // Take a look at the license at the top of the repository in the LICENSE file.
 
-use std::{boxed::Box as Box_, mem, pin::Pin, ptr};
+use crate::Cancellable;
+use crate::DataInputStream;
+use glib::object::IsA;
+use glib::translate::*;
+use glib::GString;
+use std::boxed::Box as Box_;
+use std::mem;
+use std::pin::Pin;
+use std::ptr;
 
-use glib::{prelude::*, translate::*, GString};
+pub trait DataInputStreamExtManual: 'static {
+    #[doc(alias = "g_data_input_stream_read_line")]
+    fn read_line<P: IsA<Cancellable>>(
+        &self,
+        cancellable: Option<&P>,
+    ) -> Result<Vec<u8>, glib::Error>;
 
-use crate::{Cancellable, DataInputStream};
+    #[doc(alias = "g_data_input_stream_read_line_async")]
+    fn read_line_async<P: IsA<Cancellable>, Q: FnOnce(Result<Vec<u8>, glib::Error>) + 'static>(
+        &self,
+        io_priority: glib::Priority,
+        cancellable: Option<&P>,
+        callback: Q,
+    );
 
-mod sealed {
-    pub trait Sealed {}
-    impl<T: super::IsA<super::DataInputStream>> Sealed for T {}
+    fn read_line_future(
+        &self,
+        io_priority: glib::Priority,
+    ) -> Pin<Box_<dyn std::future::Future<Output = Result<Vec<u8>, glib::Error>> + 'static>>;
+
+    #[doc(alias = "g_data_input_stream_read_line_utf8")]
+    fn read_line_utf8<P: IsA<Cancellable>>(
+        &self,
+        cancellable: Option<&P>,
+    ) -> Result<Option<GString>, glib::Error>;
+
+    fn read_line_utf8_async<
+        P: IsA<Cancellable>,
+        Q: FnOnce(Result<Option<GString>, glib::Error>) + 'static,
+    >(
+        &self,
+        io_priority: glib::Priority,
+        cancellable: Option<&P>,
+        callback: Q,
+    );
+
+    fn read_line_utf8_future(
+        &self,
+        io_priority: glib::Priority,
+    ) -> Pin<Box_<dyn std::future::Future<Output = Result<Option<GString>, glib::Error>> + 'static>>;
+
+    #[cfg_attr(feature = "v2_56", deprecated)]
+    #[doc(alias = "g_data_input_stream_read_until")]
+    fn read_until<P: IsA<Cancellable>>(
+        &self,
+        stop_chars: &[u8],
+        cancellable: Option<&P>,
+    ) -> Result<Vec<u8>, glib::Error>;
+
+    #[cfg_attr(feature = "v2_56", deprecated)]
+    #[doc(alias = "g_data_input_stream_read_until_async")]
+    fn read_until_async<P: IsA<Cancellable>, Q: FnOnce(Result<Vec<u8>, glib::Error>) + 'static>(
+        &self,
+        stop_chars: &[u8],
+        io_priority: glib::Priority,
+        cancellable: Option<&P>,
+        callback: Q,
+    );
+
+    #[cfg_attr(feature = "v2_56", deprecated)]
+    fn read_until_future(
+        &self,
+        stop_chars: &[u8],
+        io_priority: glib::Priority,
+    ) -> Pin<Box_<dyn std::future::Future<Output = Result<Vec<u8>, glib::Error>> + 'static>>;
+
+    #[doc(alias = "g_data_input_stream_read_upto")]
+    fn read_upto<P: IsA<Cancellable>>(
+        &self,
+        stop_chars: &[u8],
+        cancellable: Option<&P>,
+    ) -> Result<Vec<u8>, glib::Error>;
+
+    #[doc(alias = "g_data_input_stream_read_upto_async")]
+    fn read_upto_async<P: IsA<Cancellable>, Q: FnOnce(Result<Vec<u8>, glib::Error>) + 'static>(
+        &self,
+        stop_chars: &[u8],
+        io_priority: glib::Priority,
+        cancellable: Option<&P>,
+        callback: Q,
+    );
+
+    fn read_upto_future(
+        &self,
+        stop_chars: &[u8],
+        io_priority: glib::Priority,
+    ) -> Pin<Box_<dyn std::future::Future<Output = Result<Vec<u8>, glib::Error>> + 'static>>;
 }
 
-pub trait DataInputStreamExtManual: sealed::Sealed + IsA<DataInputStream> + 'static {
-    #[doc(alias = "g_data_input_stream_read_line")]
+impl<O: IsA<DataInputStream>> DataInputStreamExtManual for O {
     fn read_line<P: IsA<Cancellable>>(
         &self,
         cancellable: Option<&P>,
@@ -35,7 +122,6 @@ pub trait DataInputStreamExtManual: sealed::Sealed + IsA<DataInputStream> + 'sta
         }
     }
 
-    #[doc(alias = "g_data_input_stream_read_line_async")]
     fn read_line_async<P: IsA<Cancellable>, Q: FnOnce(Result<Vec<u8>, glib::Error>) + 'static>(
         &self,
         io_priority: glib::Priority,
@@ -106,7 +192,6 @@ pub trait DataInputStreamExtManual: sealed::Sealed + IsA<DataInputStream> + 'sta
         ))
     }
 
-    #[doc(alias = "g_data_input_stream_read_line_utf8")]
     fn read_line_utf8<P: IsA<Cancellable>>(
         &self,
         cancellable: Option<&P>,
@@ -199,7 +284,126 @@ pub trait DataInputStreamExtManual: sealed::Sealed + IsA<DataInputStream> + 'sta
         ))
     }
 
-    #[doc(alias = "g_data_input_stream_read_upto")]
+    fn read_until<P: IsA<Cancellable>>(
+        &self,
+        stop_chars: &[u8],
+        cancellable: Option<&P>,
+    ) -> Result<Vec<u8>, glib::Error> {
+        // Need to ensure that it does not contain a NUL byte and then NUL-terminate it ourselves
+        assert!(!stop_chars.contains(&b'0'));
+        let stop_chars = stop_chars
+            .iter()
+            .copied()
+            .chain(std::iter::once(b'0'))
+            .collect::<Vec<_>>();
+
+        unsafe {
+            let mut error = ptr::null_mut();
+            let mut length = mem::MaybeUninit::uninit();
+            let ret = ffi::g_data_input_stream_read_until(
+                self.as_ref().to_glib_none().0,
+                stop_chars.to_glib_none().0 as *const _,
+                length.as_mut_ptr(),
+                cancellable.map(|p| p.as_ref()).to_glib_none().0,
+                &mut error,
+            );
+            let length = length.assume_init();
+            if error.is_null() {
+                Ok(FromGlibContainer::from_glib_full_num(
+                    ret as *const u8,
+                    length,
+                ))
+            } else {
+                Err(from_glib_full(error))
+            }
+        }
+    }
+
+    fn read_until_async<P: IsA<Cancellable>, Q: FnOnce(Result<Vec<u8>, glib::Error>) + 'static>(
+        &self,
+        stop_chars: &[u8],
+        io_priority: glib::Priority,
+        cancellable: Option<&P>,
+        callback: Q,
+    ) {
+        let main_context = glib::MainContext::ref_thread_default();
+        let is_main_context_owner = main_context.is_owner();
+        let has_acquired_main_context = (!is_main_context_owner)
+            .then(|| main_context.acquire().ok())
+            .flatten();
+        assert!(
+            is_main_context_owner || has_acquired_main_context.is_some(),
+            "Async operations only allowed if the thread is owning the MainContext"
+        );
+
+        let user_data: Box_<glib::thread_guard::ThreadGuard<Q>> =
+            Box_::new(glib::thread_guard::ThreadGuard::new(callback));
+        unsafe extern "C" fn read_until_async_trampoline<
+            Q: FnOnce(Result<Vec<u8>, glib::Error>) + 'static,
+        >(
+            _source_object: *mut glib::gobject_ffi::GObject,
+            res: *mut ffi::GAsyncResult,
+            user_data: glib::ffi::gpointer,
+        ) {
+            let mut error = ptr::null_mut();
+            let mut length = mem::MaybeUninit::uninit();
+            let ret = ffi::g_data_input_stream_read_until_finish(
+                _source_object as *mut _,
+                res,
+                length.as_mut_ptr(),
+                &mut error,
+            );
+            let result = if error.is_null() {
+                let length = length.assume_init();
+                Ok(FromGlibContainer::from_glib_full_num(
+                    ret as *const _,
+                    length,
+                ))
+            } else {
+                Err(from_glib_full(error))
+            };
+            let callback: Box_<glib::thread_guard::ThreadGuard<Q>> =
+                Box_::from_raw(user_data as *mut _);
+            let callback = callback.into_inner();
+            callback(result);
+        }
+        // Need to ensure that it does not contain a NUL byte and then NUL-terminate it ourselves
+        assert!(!stop_chars.contains(&b'0'));
+        let stop_chars = stop_chars
+            .iter()
+            .copied()
+            .chain(std::iter::once(b'0'))
+            .collect::<Vec<_>>();
+
+        let callback = read_until_async_trampoline::<Q>;
+        unsafe {
+            ffi::g_data_input_stream_read_until_async(
+                self.as_ref().to_glib_none().0,
+                stop_chars.to_glib_none().0 as *const _,
+                io_priority.into_glib(),
+                cancellable.map(|p| p.as_ref()).to_glib_none().0,
+                Some(callback),
+                Box_::into_raw(user_data) as *mut _,
+            );
+        }
+    }
+
+    fn read_until_future(
+        &self,
+        stop_chars: &[u8],
+        io_priority: glib::Priority,
+    ) -> Pin<Box_<dyn std::future::Future<Output = Result<Vec<u8>, glib::Error>> + 'static>> {
+        let stop_chars = Vec::from(stop_chars);
+        Box_::pin(crate::GioFuture::new(
+            self,
+            move |obj, cancellable, send| {
+                obj.read_until_async(&stop_chars, io_priority, Some(cancellable), move |res| {
+                    send.resolve(res);
+                });
+            },
+        ))
+    }
+
     fn read_upto<P: IsA<Cancellable>>(
         &self,
         stop_chars: &[u8],
@@ -220,7 +424,7 @@ pub trait DataInputStreamExtManual: sealed::Sealed + IsA<DataInputStream> + 'sta
             if error.is_null() {
                 let length = length.assume_init();
                 Ok(FromGlibContainer::from_glib_full_num(
-                    ret as *mut u8,
+                    ret as *const _,
                     length,
                 ))
             } else {
@@ -229,7 +433,6 @@ pub trait DataInputStreamExtManual: sealed::Sealed + IsA<DataInputStream> + 'sta
         }
     }
 
-    #[doc(alias = "g_data_input_stream_read_upto_async")]
     fn read_upto_async<P: IsA<Cancellable>, Q: FnOnce(Result<Vec<u8>, glib::Error>) + 'static>(
         &self,
         stop_chars: &[u8],
@@ -268,7 +471,7 @@ pub trait DataInputStreamExtManual: sealed::Sealed + IsA<DataInputStream> + 'sta
             let result = if error.is_null() {
                 let length = length.assume_init();
                 Ok(FromGlibContainer::from_glib_full_num(
-                    ret as *mut u8,
+                    ret as *const _,
                     length,
                 ))
             } else {
@@ -309,5 +512,3 @@ pub trait DataInputStreamExtManual: sealed::Sealed + IsA<DataInputStream> + 'sta
         ))
     }
 }
-
-impl<O: IsA<DataInputStream>> DataInputStreamExtManual for O {}

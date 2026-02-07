@@ -3,7 +3,8 @@
 // DO NOT EDIT
 
 use crate::InputStream;
-use glib::{prelude::*, translate::*};
+use glib::object::IsA;
+use glib::translate::*;
 use std::fmt;
 
 glib::wrapper! {
@@ -19,13 +20,15 @@ impl PollableInputStream {
     pub const NONE: Option<&'static PollableInputStream> = None;
 }
 
-mod sealed {
-    pub trait Sealed {}
-    impl<T: super::IsA<super::PollableInputStream>> Sealed for T {}
+pub trait PollableInputStreamExt: 'static {
+    #[doc(alias = "g_pollable_input_stream_can_poll")]
+    fn can_poll(&self) -> bool;
+
+    #[doc(alias = "g_pollable_input_stream_is_readable")]
+    fn is_readable(&self) -> bool;
 }
 
-pub trait PollableInputStreamExt: IsA<PollableInputStream> + sealed::Sealed + 'static {
-    #[doc(alias = "g_pollable_input_stream_can_poll")]
+impl<O: IsA<PollableInputStream>> PollableInputStreamExt for O {
     fn can_poll(&self) -> bool {
         unsafe {
             from_glib(ffi::g_pollable_input_stream_can_poll(
@@ -34,7 +37,6 @@ pub trait PollableInputStreamExt: IsA<PollableInputStream> + sealed::Sealed + 's
         }
     }
 
-    #[doc(alias = "g_pollable_input_stream_is_readable")]
     fn is_readable(&self) -> bool {
         unsafe {
             from_glib(ffi::g_pollable_input_stream_is_readable(
@@ -43,8 +45,6 @@ pub trait PollableInputStreamExt: IsA<PollableInputStream> + sealed::Sealed + 's
         }
     }
 }
-
-impl<O: IsA<PollableInputStream>> PollableInputStreamExt for O {}
 
 impl fmt::Display for PollableInputStream {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {

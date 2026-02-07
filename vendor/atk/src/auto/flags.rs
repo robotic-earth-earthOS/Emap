@@ -2,15 +2,19 @@
 // from gir-files (https://github.com/gtk-rs/gir-files)
 // DO NOT EDIT
 
-use glib::{bitflags::bitflags, prelude::*, translate::*};
+use bitflags::bitflags;
+use glib::translate::*;
+use glib::value::FromValue;
+use glib::value::ToValue;
+use glib::StaticType;
+use glib::Type;
 use std::fmt;
 
 bitflags! {
-    #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
     #[doc(alias = "AtkHyperlinkStateFlags")]
     pub struct HyperlinkStateFlags: u32 {
         #[doc(alias = "ATK_HYPERLINK_IS_INLINE")]
-        const INLINE = ffi::ATK_HYPERLINK_IS_INLINE as _;
+        const INLINE = ffi::ATK_HYPERLINK_IS_INLINE as u32;
     }
 }
 
@@ -24,7 +28,6 @@ impl fmt::Display for HyperlinkStateFlags {
 impl IntoGlib for HyperlinkStateFlags {
     type GlibType = ffi::AtkHyperlinkStateFlags;
 
-    #[inline]
     fn into_glib(self) -> ffi::AtkHyperlinkStateFlags {
         self.bits()
     }
@@ -32,7 +35,6 @@ impl IntoGlib for HyperlinkStateFlags {
 
 #[doc(hidden)]
 impl FromGlib<ffi::AtkHyperlinkStateFlags> for HyperlinkStateFlags {
-    #[inline]
     unsafe fn from_glib(value: ffi::AtkHyperlinkStateFlags) -> Self {
         skip_assert_initialized!();
         Self::from_bits_truncate(value)
@@ -40,19 +42,8 @@ impl FromGlib<ffi::AtkHyperlinkStateFlags> for HyperlinkStateFlags {
 }
 
 impl StaticType for HyperlinkStateFlags {
-    #[inline]
-    fn static_type() -> glib::Type {
+    fn static_type() -> Type {
         unsafe { from_glib(ffi::atk_hyperlink_state_flags_get_type()) }
-    }
-}
-
-impl glib::HasParamSpec for HyperlinkStateFlags {
-    type ParamSpec = glib::ParamSpecFlags;
-    type SetValue = Self;
-    type BuilderFn = fn(&str) -> glib::ParamSpecFlagsBuilder<Self>;
-
-    fn param_spec_builder() -> Self::BuilderFn {
-        |name| Self::ParamSpec::builder(name)
     }
 }
 
@@ -60,10 +51,9 @@ impl glib::value::ValueType for HyperlinkStateFlags {
     type Type = Self;
 }
 
-unsafe impl<'a> glib::value::FromValue<'a> for HyperlinkStateFlags {
+unsafe impl<'a> FromValue<'a> for HyperlinkStateFlags {
     type Checker = glib::value::GenericValueTypeChecker<Self>;
 
-    #[inline]
     unsafe fn from_value(value: &'a glib::Value) -> Self {
         skip_assert_initialized!();
         from_glib(glib::gobject_ffi::g_value_get_flags(value.to_glib_none().0))
@@ -71,7 +61,6 @@ unsafe impl<'a> glib::value::FromValue<'a> for HyperlinkStateFlags {
 }
 
 impl ToValue for HyperlinkStateFlags {
-    #[inline]
     fn to_value(&self) -> glib::Value {
         let mut value = glib::Value::for_value_type::<Self>();
         unsafe {
@@ -80,16 +69,7 @@ impl ToValue for HyperlinkStateFlags {
         value
     }
 
-    #[inline]
     fn value_type(&self) -> glib::Type {
         Self::static_type()
-    }
-}
-
-impl From<HyperlinkStateFlags> for glib::Value {
-    #[inline]
-    fn from(v: HyperlinkStateFlags) -> Self {
-        skip_assert_initialized!();
-        ToValue::to_value(&v)
     }
 }

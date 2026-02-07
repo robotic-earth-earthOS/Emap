@@ -2,16 +2,26 @@
 // from gir-files (https://github.com/gtk-rs/gir-files)
 // DO NOT EDIT
 
-use crate::{
-    AsyncResult, Cancellable, Socket, SocketAddress, SocketConnection, SocketListenerEvent,
-    SocketProtocol, SocketType,
-};
-use glib::{
-    prelude::*,
-    signal::{connect_raw, SignalHandlerId},
-    translate::*,
-};
-use std::{boxed::Box as Box_, fmt, mem::transmute, pin::Pin, ptr};
+use crate::AsyncResult;
+use crate::Cancellable;
+use crate::Socket;
+use crate::SocketAddress;
+use crate::SocketConnection;
+use crate::SocketListenerEvent;
+use crate::SocketProtocol;
+use crate::SocketType;
+use glib::object::Cast;
+use glib::object::IsA;
+use glib::signal::connect_raw;
+use glib::signal::SignalHandlerId;
+use glib::translate::*;
+use glib::StaticType;
+use glib::ToValue;
+use std::boxed::Box as Box_;
+use std::fmt;
+use std::mem::transmute;
+use std::pin::Pin;
+use std::ptr;
 
 glib::wrapper! {
     #[doc(alias = "GSocketListener")]
@@ -37,13 +47,108 @@ impl Default for SocketListener {
     }
 }
 
-mod sealed {
-    pub trait Sealed {}
-    impl<T: super::IsA<super::SocketListener>> Sealed for T {}
+pub trait SocketListenerExt: 'static {
+    #[doc(alias = "g_socket_listener_accept")]
+    fn accept(
+        &self,
+        cancellable: Option<&impl IsA<Cancellable>>,
+    ) -> Result<(SocketConnection, Option<glib::Object>), glib::Error>;
+
+    #[doc(alias = "g_socket_listener_accept_async")]
+    fn accept_async<
+        P: FnOnce(Result<(SocketConnection, Option<glib::Object>), glib::Error>) + 'static,
+    >(
+        &self,
+        cancellable: Option<&impl IsA<Cancellable>>,
+        callback: P,
+    );
+
+    fn accept_future(
+        &self,
+    ) -> Pin<
+        Box_<
+            dyn std::future::Future<
+                    Output = Result<(SocketConnection, Option<glib::Object>), glib::Error>,
+                > + 'static,
+        >,
+    >;
+
+    #[doc(alias = "g_socket_listener_accept_socket")]
+    fn accept_socket(
+        &self,
+        cancellable: Option<&impl IsA<Cancellable>>,
+    ) -> Result<(Socket, Option<glib::Object>), glib::Error>;
+
+    #[doc(alias = "g_socket_listener_accept_socket_async")]
+    fn accept_socket_async<
+        P: FnOnce(Result<(Socket, Option<glib::Object>), glib::Error>) + 'static,
+    >(
+        &self,
+        cancellable: Option<&impl IsA<Cancellable>>,
+        callback: P,
+    );
+
+    fn accept_socket_future(
+        &self,
+    ) -> Pin<
+        Box_<
+            dyn std::future::Future<Output = Result<(Socket, Option<glib::Object>), glib::Error>>
+                + 'static,
+        >,
+    >;
+
+    #[doc(alias = "g_socket_listener_add_address")]
+    fn add_address(
+        &self,
+        address: &impl IsA<SocketAddress>,
+        type_: SocketType,
+        protocol: SocketProtocol,
+        source_object: Option<&impl IsA<glib::Object>>,
+    ) -> Result<SocketAddress, glib::Error>;
+
+    #[doc(alias = "g_socket_listener_add_any_inet_port")]
+    fn add_any_inet_port(
+        &self,
+        source_object: Option<&impl IsA<glib::Object>>,
+    ) -> Result<u16, glib::Error>;
+
+    #[doc(alias = "g_socket_listener_add_inet_port")]
+    fn add_inet_port(
+        &self,
+        port: u16,
+        source_object: Option<&impl IsA<glib::Object>>,
+    ) -> Result<(), glib::Error>;
+
+    #[doc(alias = "g_socket_listener_add_socket")]
+    fn add_socket(
+        &self,
+        socket: &impl IsA<Socket>,
+        source_object: Option<&impl IsA<glib::Object>>,
+    ) -> Result<(), glib::Error>;
+
+    #[doc(alias = "g_socket_listener_close")]
+    fn close(&self);
+
+    #[doc(alias = "g_socket_listener_set_backlog")]
+    fn set_backlog(&self, listen_backlog: i32);
+
+    #[doc(alias = "listen-backlog")]
+    fn listen_backlog(&self) -> i32;
+
+    #[doc(alias = "listen-backlog")]
+    fn set_listen_backlog(&self, listen_backlog: i32);
+
+    #[doc(alias = "event")]
+    fn connect_event<F: Fn(&Self, SocketListenerEvent, &Socket) + 'static>(
+        &self,
+        f: F,
+    ) -> SignalHandlerId;
+
+    #[doc(alias = "listen-backlog")]
+    fn connect_listen_backlog_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
 }
 
-pub trait SocketListenerExt: IsA<SocketListener> + sealed::Sealed + 'static {
-    #[doc(alias = "g_socket_listener_accept")]
+impl<O: IsA<SocketListener>> SocketListenerExt for O {
     fn accept(
         &self,
         cancellable: Option<&impl IsA<Cancellable>>,
@@ -65,7 +170,6 @@ pub trait SocketListenerExt: IsA<SocketListener> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_socket_listener_accept_async")]
     fn accept_async<
         P: FnOnce(Result<(SocketConnection, Option<glib::Object>), glib::Error>) + 'static,
     >(
@@ -140,7 +244,6 @@ pub trait SocketListenerExt: IsA<SocketListener> + sealed::Sealed + 'static {
         ))
     }
 
-    #[doc(alias = "g_socket_listener_accept_socket")]
     fn accept_socket(
         &self,
         cancellable: Option<&impl IsA<Cancellable>>,
@@ -162,7 +265,6 @@ pub trait SocketListenerExt: IsA<SocketListener> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_socket_listener_accept_socket_async")]
     fn accept_socket_async<
         P: FnOnce(Result<(Socket, Option<glib::Object>), glib::Error>) + 'static,
     >(
@@ -236,7 +338,6 @@ pub trait SocketListenerExt: IsA<SocketListener> + sealed::Sealed + 'static {
         ))
     }
 
-    #[doc(alias = "g_socket_listener_add_address")]
     fn add_address(
         &self,
         address: &impl IsA<SocketAddress>,
@@ -256,7 +357,7 @@ pub trait SocketListenerExt: IsA<SocketListener> + sealed::Sealed + 'static {
                 &mut effective_address,
                 &mut error,
             );
-            debug_assert_eq!(is_ok == glib::ffi::GFALSE, !error.is_null());
+            assert_eq!(is_ok == glib::ffi::GFALSE, !error.is_null());
             if error.is_null() {
                 Ok(from_glib_full(effective_address))
             } else {
@@ -265,7 +366,6 @@ pub trait SocketListenerExt: IsA<SocketListener> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_socket_listener_add_any_inet_port")]
     fn add_any_inet_port(
         &self,
         source_object: Option<&impl IsA<glib::Object>>,
@@ -285,7 +385,6 @@ pub trait SocketListenerExt: IsA<SocketListener> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_socket_listener_add_inet_port")]
     fn add_inet_port(
         &self,
         port: u16,
@@ -299,7 +398,7 @@ pub trait SocketListenerExt: IsA<SocketListener> + sealed::Sealed + 'static {
                 source_object.map(|p| p.as_ref()).to_glib_none().0,
                 &mut error,
             );
-            debug_assert_eq!(is_ok == glib::ffi::GFALSE, !error.is_null());
+            assert_eq!(is_ok == glib::ffi::GFALSE, !error.is_null());
             if error.is_null() {
                 Ok(())
             } else {
@@ -308,7 +407,6 @@ pub trait SocketListenerExt: IsA<SocketListener> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_socket_listener_add_socket")]
     fn add_socket(
         &self,
         socket: &impl IsA<Socket>,
@@ -322,7 +420,7 @@ pub trait SocketListenerExt: IsA<SocketListener> + sealed::Sealed + 'static {
                 source_object.map(|p| p.as_ref()).to_glib_none().0,
                 &mut error,
             );
-            debug_assert_eq!(is_ok == glib::ffi::GFALSE, !error.is_null());
+            assert_eq!(is_ok == glib::ffi::GFALSE, !error.is_null());
             if error.is_null() {
                 Ok(())
             } else {
@@ -331,31 +429,26 @@ pub trait SocketListenerExt: IsA<SocketListener> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_socket_listener_close")]
     fn close(&self) {
         unsafe {
             ffi::g_socket_listener_close(self.as_ref().to_glib_none().0);
         }
     }
 
-    #[doc(alias = "g_socket_listener_set_backlog")]
     fn set_backlog(&self, listen_backlog: i32) {
         unsafe {
             ffi::g_socket_listener_set_backlog(self.as_ref().to_glib_none().0, listen_backlog);
         }
     }
 
-    #[doc(alias = "listen-backlog")]
     fn listen_backlog(&self) -> i32 {
-        ObjectExt::property(self.as_ref(), "listen-backlog")
+        glib::ObjectExt::property(self.as_ref(), "listen-backlog")
     }
 
-    #[doc(alias = "listen-backlog")]
     fn set_listen_backlog(&self, listen_backlog: i32) {
-        ObjectExt::set_property(self.as_ref(), "listen-backlog", listen_backlog)
+        glib::ObjectExt::set_property(self.as_ref(), "listen-backlog", &listen_backlog)
     }
 
-    #[doc(alias = "event")]
     fn connect_event<F: Fn(&Self, SocketListenerEvent, &Socket) + 'static>(
         &self,
         f: F,
@@ -389,7 +482,6 @@ pub trait SocketListenerExt: IsA<SocketListener> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "listen-backlog")]
     fn connect_listen_backlog_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_listen_backlog_trampoline<
             P: IsA<SocketListener>,
@@ -415,8 +507,6 @@ pub trait SocketListenerExt: IsA<SocketListener> + sealed::Sealed + 'static {
         }
     }
 }
-
-impl<O: IsA<SocketListener>> SocketListenerExt for O {}
 
 impl fmt::Display for SocketListener {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {

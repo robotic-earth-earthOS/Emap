@@ -2,8 +2,10 @@
 // from gir-files (https://github.com/gtk-rs/gir-files)
 // DO NOT EDIT
 
-use crate::{Pixbuf, PixbufAnimation};
-use glib::{prelude::*, translate::*};
+use crate::Pixbuf;
+use crate::PixbufAnimation;
+use glib::object::Cast;
+use glib::translate::*;
 use std::fmt;
 
 glib::wrapper! {

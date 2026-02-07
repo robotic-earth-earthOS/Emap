@@ -2,21 +2,25 @@
 // from gir-files (https://github.com/gtk-rs/gir-files)
 // DO NOT EDIT
 
-use glib::{bitflags::bitflags, prelude::*, translate::*};
+use bitflags::bitflags;
+use glib::translate::*;
+use glib::value::FromValue;
+use glib::value::ToValue;
+use glib::StaticType;
+use glib::Type;
 use std::fmt;
 
 bitflags! {
-    #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
     #[doc(alias = "GAppInfoCreateFlags")]
     pub struct AppInfoCreateFlags: u32 {
         #[doc(alias = "G_APP_INFO_CREATE_NONE")]
-        const NONE = ffi::G_APP_INFO_CREATE_NONE as _;
+        const NONE = ffi::G_APP_INFO_CREATE_NONE as u32;
         #[doc(alias = "G_APP_INFO_CREATE_NEEDS_TERMINAL")]
-        const NEEDS_TERMINAL = ffi::G_APP_INFO_CREATE_NEEDS_TERMINAL as _;
+        const NEEDS_TERMINAL = ffi::G_APP_INFO_CREATE_NEEDS_TERMINAL as u32;
         #[doc(alias = "G_APP_INFO_CREATE_SUPPORTS_URIS")]
-        const SUPPORTS_URIS = ffi::G_APP_INFO_CREATE_SUPPORTS_URIS as _;
+        const SUPPORTS_URIS = ffi::G_APP_INFO_CREATE_SUPPORTS_URIS as u32;
         #[doc(alias = "G_APP_INFO_CREATE_SUPPORTS_STARTUP_NOTIFICATION")]
-        const SUPPORTS_STARTUP_NOTIFICATION = ffi::G_APP_INFO_CREATE_SUPPORTS_STARTUP_NOTIFICATION as _;
+        const SUPPORTS_STARTUP_NOTIFICATION = ffi::G_APP_INFO_CREATE_SUPPORTS_STARTUP_NOTIFICATION as u32;
     }
 }
 
@@ -30,7 +34,6 @@ impl fmt::Display for AppInfoCreateFlags {
 impl IntoGlib for AppInfoCreateFlags {
     type GlibType = ffi::GAppInfoCreateFlags;
 
-    #[inline]
     fn into_glib(self) -> ffi::GAppInfoCreateFlags {
         self.bits()
     }
@@ -38,27 +41,14 @@ impl IntoGlib for AppInfoCreateFlags {
 
 #[doc(hidden)]
 impl FromGlib<ffi::GAppInfoCreateFlags> for AppInfoCreateFlags {
-    #[inline]
     unsafe fn from_glib(value: ffi::GAppInfoCreateFlags) -> Self {
         Self::from_bits_truncate(value)
     }
 }
 
 impl StaticType for AppInfoCreateFlags {
-    #[inline]
-    #[doc(alias = "g_app_info_create_flags_get_type")]
-    fn static_type() -> glib::Type {
+    fn static_type() -> Type {
         unsafe { from_glib(ffi::g_app_info_create_flags_get_type()) }
-    }
-}
-
-impl glib::HasParamSpec for AppInfoCreateFlags {
-    type ParamSpec = glib::ParamSpecFlags;
-    type SetValue = Self;
-    type BuilderFn = fn(&str) -> glib::ParamSpecFlagsBuilder<Self>;
-
-    fn param_spec_builder() -> Self::BuilderFn {
-        Self::ParamSpec::builder
     }
 }
 
@@ -66,17 +56,15 @@ impl glib::value::ValueType for AppInfoCreateFlags {
     type Type = Self;
 }
 
-unsafe impl<'a> glib::value::FromValue<'a> for AppInfoCreateFlags {
+unsafe impl<'a> FromValue<'a> for AppInfoCreateFlags {
     type Checker = glib::value::GenericValueTypeChecker<Self>;
 
-    #[inline]
     unsafe fn from_value(value: &'a glib::Value) -> Self {
         from_glib(glib::gobject_ffi::g_value_get_flags(value.to_glib_none().0))
     }
 }
 
 impl ToValue for AppInfoCreateFlags {
-    #[inline]
     fn to_value(&self) -> glib::Value {
         let mut value = glib::Value::for_value_type::<Self>();
         unsafe {
@@ -85,43 +73,34 @@ impl ToValue for AppInfoCreateFlags {
         value
     }
 
-    #[inline]
     fn value_type(&self) -> glib::Type {
         Self::static_type()
     }
 }
 
-impl From<AppInfoCreateFlags> for glib::Value {
-    #[inline]
-    fn from(v: AppInfoCreateFlags) -> Self {
-        ToValue::to_value(&v)
-    }
-}
-
 bitflags! {
-    #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
     #[doc(alias = "GApplicationFlags")]
     pub struct ApplicationFlags: u32 {
         #[doc(alias = "G_APPLICATION_FLAGS_NONE")]
-        const FLAGS_NONE = ffi::G_APPLICATION_FLAGS_NONE as _;
+        const FLAGS_NONE = ffi::G_APPLICATION_FLAGS_NONE as u32;
         #[doc(alias = "G_APPLICATION_IS_SERVICE")]
-        const IS_SERVICE = ffi::G_APPLICATION_IS_SERVICE as _;
+        const IS_SERVICE = ffi::G_APPLICATION_IS_SERVICE as u32;
         #[doc(alias = "G_APPLICATION_IS_LAUNCHER")]
-        const IS_LAUNCHER = ffi::G_APPLICATION_IS_LAUNCHER as _;
+        const IS_LAUNCHER = ffi::G_APPLICATION_IS_LAUNCHER as u32;
         #[doc(alias = "G_APPLICATION_HANDLES_OPEN")]
-        const HANDLES_OPEN = ffi::G_APPLICATION_HANDLES_OPEN as _;
+        const HANDLES_OPEN = ffi::G_APPLICATION_HANDLES_OPEN as u32;
         #[doc(alias = "G_APPLICATION_HANDLES_COMMAND_LINE")]
-        const HANDLES_COMMAND_LINE = ffi::G_APPLICATION_HANDLES_COMMAND_LINE as _;
+        const HANDLES_COMMAND_LINE = ffi::G_APPLICATION_HANDLES_COMMAND_LINE as u32;
         #[doc(alias = "G_APPLICATION_SEND_ENVIRONMENT")]
-        const SEND_ENVIRONMENT = ffi::G_APPLICATION_SEND_ENVIRONMENT as _;
+        const SEND_ENVIRONMENT = ffi::G_APPLICATION_SEND_ENVIRONMENT as u32;
         #[doc(alias = "G_APPLICATION_NON_UNIQUE")]
-        const NON_UNIQUE = ffi::G_APPLICATION_NON_UNIQUE as _;
+        const NON_UNIQUE = ffi::G_APPLICATION_NON_UNIQUE as u32;
         #[doc(alias = "G_APPLICATION_CAN_OVERRIDE_APP_ID")]
-        const CAN_OVERRIDE_APP_ID = ffi::G_APPLICATION_CAN_OVERRIDE_APP_ID as _;
+        const CAN_OVERRIDE_APP_ID = ffi::G_APPLICATION_CAN_OVERRIDE_APP_ID as u32;
         #[doc(alias = "G_APPLICATION_ALLOW_REPLACEMENT")]
-        const ALLOW_REPLACEMENT = ffi::G_APPLICATION_ALLOW_REPLACEMENT as _;
+        const ALLOW_REPLACEMENT = ffi::G_APPLICATION_ALLOW_REPLACEMENT as u32;
         #[doc(alias = "G_APPLICATION_REPLACE")]
-        const REPLACE = ffi::G_APPLICATION_REPLACE as _;
+        const REPLACE = ffi::G_APPLICATION_REPLACE as u32;
     }
 }
 
@@ -135,7 +114,6 @@ impl fmt::Display for ApplicationFlags {
 impl IntoGlib for ApplicationFlags {
     type GlibType = ffi::GApplicationFlags;
 
-    #[inline]
     fn into_glib(self) -> ffi::GApplicationFlags {
         self.bits()
     }
@@ -143,27 +121,14 @@ impl IntoGlib for ApplicationFlags {
 
 #[doc(hidden)]
 impl FromGlib<ffi::GApplicationFlags> for ApplicationFlags {
-    #[inline]
     unsafe fn from_glib(value: ffi::GApplicationFlags) -> Self {
         Self::from_bits_truncate(value)
     }
 }
 
 impl StaticType for ApplicationFlags {
-    #[inline]
-    #[doc(alias = "g_application_flags_get_type")]
-    fn static_type() -> glib::Type {
+    fn static_type() -> Type {
         unsafe { from_glib(ffi::g_application_flags_get_type()) }
-    }
-}
-
-impl glib::HasParamSpec for ApplicationFlags {
-    type ParamSpec = glib::ParamSpecFlags;
-    type SetValue = Self;
-    type BuilderFn = fn(&str) -> glib::ParamSpecFlagsBuilder<Self>;
-
-    fn param_spec_builder() -> Self::BuilderFn {
-        Self::ParamSpec::builder
     }
 }
 
@@ -171,17 +136,15 @@ impl glib::value::ValueType for ApplicationFlags {
     type Type = Self;
 }
 
-unsafe impl<'a> glib::value::FromValue<'a> for ApplicationFlags {
+unsafe impl<'a> FromValue<'a> for ApplicationFlags {
     type Checker = glib::value::GenericValueTypeChecker<Self>;
 
-    #[inline]
     unsafe fn from_value(value: &'a glib::Value) -> Self {
         from_glib(glib::gobject_ffi::g_value_get_flags(value.to_glib_none().0))
     }
 }
 
 impl ToValue for ApplicationFlags {
-    #[inline]
     fn to_value(&self) -> glib::Value {
         let mut value = glib::Value::for_value_type::<Self>();
         unsafe {
@@ -190,35 +153,26 @@ impl ToValue for ApplicationFlags {
         value
     }
 
-    #[inline]
     fn value_type(&self) -> glib::Type {
         Self::static_type()
     }
 }
 
-impl From<ApplicationFlags> for glib::Value {
-    #[inline]
-    fn from(v: ApplicationFlags) -> Self {
-        ToValue::to_value(&v)
-    }
-}
-
 bitflags! {
-    #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
     #[doc(alias = "GAskPasswordFlags")]
     pub struct AskPasswordFlags: u32 {
         #[doc(alias = "G_ASK_PASSWORD_NEED_PASSWORD")]
-        const NEED_PASSWORD = ffi::G_ASK_PASSWORD_NEED_PASSWORD as _;
+        const NEED_PASSWORD = ffi::G_ASK_PASSWORD_NEED_PASSWORD as u32;
         #[doc(alias = "G_ASK_PASSWORD_NEED_USERNAME")]
-        const NEED_USERNAME = ffi::G_ASK_PASSWORD_NEED_USERNAME as _;
+        const NEED_USERNAME = ffi::G_ASK_PASSWORD_NEED_USERNAME as u32;
         #[doc(alias = "G_ASK_PASSWORD_NEED_DOMAIN")]
-        const NEED_DOMAIN = ffi::G_ASK_PASSWORD_NEED_DOMAIN as _;
+        const NEED_DOMAIN = ffi::G_ASK_PASSWORD_NEED_DOMAIN as u32;
         #[doc(alias = "G_ASK_PASSWORD_SAVING_SUPPORTED")]
-        const SAVING_SUPPORTED = ffi::G_ASK_PASSWORD_SAVING_SUPPORTED as _;
+        const SAVING_SUPPORTED = ffi::G_ASK_PASSWORD_SAVING_SUPPORTED as u32;
         #[doc(alias = "G_ASK_PASSWORD_ANONYMOUS_SUPPORTED")]
-        const ANONYMOUS_SUPPORTED = ffi::G_ASK_PASSWORD_ANONYMOUS_SUPPORTED as _;
+        const ANONYMOUS_SUPPORTED = ffi::G_ASK_PASSWORD_ANONYMOUS_SUPPORTED as u32;
         #[doc(alias = "G_ASK_PASSWORD_TCRYPT")]
-        const TCRYPT = ffi::G_ASK_PASSWORD_TCRYPT as _;
+        const TCRYPT = ffi::G_ASK_PASSWORD_TCRYPT as u32;
     }
 }
 
@@ -232,7 +186,6 @@ impl fmt::Display for AskPasswordFlags {
 impl IntoGlib for AskPasswordFlags {
     type GlibType = ffi::GAskPasswordFlags;
 
-    #[inline]
     fn into_glib(self) -> ffi::GAskPasswordFlags {
         self.bits()
     }
@@ -240,27 +193,14 @@ impl IntoGlib for AskPasswordFlags {
 
 #[doc(hidden)]
 impl FromGlib<ffi::GAskPasswordFlags> for AskPasswordFlags {
-    #[inline]
     unsafe fn from_glib(value: ffi::GAskPasswordFlags) -> Self {
         Self::from_bits_truncate(value)
     }
 }
 
 impl StaticType for AskPasswordFlags {
-    #[inline]
-    #[doc(alias = "g_ask_password_flags_get_type")]
-    fn static_type() -> glib::Type {
+    fn static_type() -> Type {
         unsafe { from_glib(ffi::g_ask_password_flags_get_type()) }
-    }
-}
-
-impl glib::HasParamSpec for AskPasswordFlags {
-    type ParamSpec = glib::ParamSpecFlags;
-    type SetValue = Self;
-    type BuilderFn = fn(&str) -> glib::ParamSpecFlagsBuilder<Self>;
-
-    fn param_spec_builder() -> Self::BuilderFn {
-        Self::ParamSpec::builder
     }
 }
 
@@ -268,17 +208,15 @@ impl glib::value::ValueType for AskPasswordFlags {
     type Type = Self;
 }
 
-unsafe impl<'a> glib::value::FromValue<'a> for AskPasswordFlags {
+unsafe impl<'a> FromValue<'a> for AskPasswordFlags {
     type Checker = glib::value::GenericValueTypeChecker<Self>;
 
-    #[inline]
     unsafe fn from_value(value: &'a glib::Value) -> Self {
         from_glib(glib::gobject_ffi::g_value_get_flags(value.to_glib_none().0))
     }
 }
 
 impl ToValue for AskPasswordFlags {
-    #[inline]
     fn to_value(&self) -> glib::Value {
         let mut value = glib::Value::for_value_type::<Self>();
         unsafe {
@@ -287,31 +225,22 @@ impl ToValue for AskPasswordFlags {
         value
     }
 
-    #[inline]
     fn value_type(&self) -> glib::Type {
         Self::static_type()
     }
 }
 
-impl From<AskPasswordFlags> for glib::Value {
-    #[inline]
-    fn from(v: AskPasswordFlags) -> Self {
-        ToValue::to_value(&v)
-    }
-}
-
 bitflags! {
-    #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
     #[doc(alias = "GBusNameOwnerFlags")]
     pub struct BusNameOwnerFlags: u32 {
         #[doc(alias = "G_BUS_NAME_OWNER_FLAGS_NONE")]
-        const NONE = ffi::G_BUS_NAME_OWNER_FLAGS_NONE as _;
+        const NONE = ffi::G_BUS_NAME_OWNER_FLAGS_NONE as u32;
         #[doc(alias = "G_BUS_NAME_OWNER_FLAGS_ALLOW_REPLACEMENT")]
-        const ALLOW_REPLACEMENT = ffi::G_BUS_NAME_OWNER_FLAGS_ALLOW_REPLACEMENT as _;
+        const ALLOW_REPLACEMENT = ffi::G_BUS_NAME_OWNER_FLAGS_ALLOW_REPLACEMENT as u32;
         #[doc(alias = "G_BUS_NAME_OWNER_FLAGS_REPLACE")]
-        const REPLACE = ffi::G_BUS_NAME_OWNER_FLAGS_REPLACE as _;
+        const REPLACE = ffi::G_BUS_NAME_OWNER_FLAGS_REPLACE as u32;
         #[doc(alias = "G_BUS_NAME_OWNER_FLAGS_DO_NOT_QUEUE")]
-        const DO_NOT_QUEUE = ffi::G_BUS_NAME_OWNER_FLAGS_DO_NOT_QUEUE as _;
+        const DO_NOT_QUEUE = ffi::G_BUS_NAME_OWNER_FLAGS_DO_NOT_QUEUE as u32;
     }
 }
 
@@ -325,7 +254,6 @@ impl fmt::Display for BusNameOwnerFlags {
 impl IntoGlib for BusNameOwnerFlags {
     type GlibType = ffi::GBusNameOwnerFlags;
 
-    #[inline]
     fn into_glib(self) -> ffi::GBusNameOwnerFlags {
         self.bits()
     }
@@ -333,27 +261,14 @@ impl IntoGlib for BusNameOwnerFlags {
 
 #[doc(hidden)]
 impl FromGlib<ffi::GBusNameOwnerFlags> for BusNameOwnerFlags {
-    #[inline]
     unsafe fn from_glib(value: ffi::GBusNameOwnerFlags) -> Self {
         Self::from_bits_truncate(value)
     }
 }
 
 impl StaticType for BusNameOwnerFlags {
-    #[inline]
-    #[doc(alias = "g_bus_name_owner_flags_get_type")]
-    fn static_type() -> glib::Type {
+    fn static_type() -> Type {
         unsafe { from_glib(ffi::g_bus_name_owner_flags_get_type()) }
-    }
-}
-
-impl glib::HasParamSpec for BusNameOwnerFlags {
-    type ParamSpec = glib::ParamSpecFlags;
-    type SetValue = Self;
-    type BuilderFn = fn(&str) -> glib::ParamSpecFlagsBuilder<Self>;
-
-    fn param_spec_builder() -> Self::BuilderFn {
-        Self::ParamSpec::builder
     }
 }
 
@@ -361,17 +276,15 @@ impl glib::value::ValueType for BusNameOwnerFlags {
     type Type = Self;
 }
 
-unsafe impl<'a> glib::value::FromValue<'a> for BusNameOwnerFlags {
+unsafe impl<'a> FromValue<'a> for BusNameOwnerFlags {
     type Checker = glib::value::GenericValueTypeChecker<Self>;
 
-    #[inline]
     unsafe fn from_value(value: &'a glib::Value) -> Self {
         from_glib(glib::gobject_ffi::g_value_get_flags(value.to_glib_none().0))
     }
 }
 
 impl ToValue for BusNameOwnerFlags {
-    #[inline]
     fn to_value(&self) -> glib::Value {
         let mut value = glib::Value::for_value_type::<Self>();
         unsafe {
@@ -380,27 +293,18 @@ impl ToValue for BusNameOwnerFlags {
         value
     }
 
-    #[inline]
     fn value_type(&self) -> glib::Type {
         Self::static_type()
     }
 }
 
-impl From<BusNameOwnerFlags> for glib::Value {
-    #[inline]
-    fn from(v: BusNameOwnerFlags) -> Self {
-        ToValue::to_value(&v)
-    }
-}
-
 bitflags! {
-    #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
     #[doc(alias = "GBusNameWatcherFlags")]
     pub struct BusNameWatcherFlags: u32 {
         #[doc(alias = "G_BUS_NAME_WATCHER_FLAGS_NONE")]
-        const NONE = ffi::G_BUS_NAME_WATCHER_FLAGS_NONE as _;
+        const NONE = ffi::G_BUS_NAME_WATCHER_FLAGS_NONE as u32;
         #[doc(alias = "G_BUS_NAME_WATCHER_FLAGS_AUTO_START")]
-        const AUTO_START = ffi::G_BUS_NAME_WATCHER_FLAGS_AUTO_START as _;
+        const AUTO_START = ffi::G_BUS_NAME_WATCHER_FLAGS_AUTO_START as u32;
     }
 }
 
@@ -414,7 +318,6 @@ impl fmt::Display for BusNameWatcherFlags {
 impl IntoGlib for BusNameWatcherFlags {
     type GlibType = ffi::GBusNameWatcherFlags;
 
-    #[inline]
     fn into_glib(self) -> ffi::GBusNameWatcherFlags {
         self.bits()
     }
@@ -422,27 +325,14 @@ impl IntoGlib for BusNameWatcherFlags {
 
 #[doc(hidden)]
 impl FromGlib<ffi::GBusNameWatcherFlags> for BusNameWatcherFlags {
-    #[inline]
     unsafe fn from_glib(value: ffi::GBusNameWatcherFlags) -> Self {
         Self::from_bits_truncate(value)
     }
 }
 
 impl StaticType for BusNameWatcherFlags {
-    #[inline]
-    #[doc(alias = "g_bus_name_watcher_flags_get_type")]
-    fn static_type() -> glib::Type {
+    fn static_type() -> Type {
         unsafe { from_glib(ffi::g_bus_name_watcher_flags_get_type()) }
-    }
-}
-
-impl glib::HasParamSpec for BusNameWatcherFlags {
-    type ParamSpec = glib::ParamSpecFlags;
-    type SetValue = Self;
-    type BuilderFn = fn(&str) -> glib::ParamSpecFlagsBuilder<Self>;
-
-    fn param_spec_builder() -> Self::BuilderFn {
-        Self::ParamSpec::builder
     }
 }
 
@@ -450,17 +340,15 @@ impl glib::value::ValueType for BusNameWatcherFlags {
     type Type = Self;
 }
 
-unsafe impl<'a> glib::value::FromValue<'a> for BusNameWatcherFlags {
+unsafe impl<'a> FromValue<'a> for BusNameWatcherFlags {
     type Checker = glib::value::GenericValueTypeChecker<Self>;
 
-    #[inline]
     unsafe fn from_value(value: &'a glib::Value) -> Self {
         from_glib(glib::gobject_ffi::g_value_get_flags(value.to_glib_none().0))
     }
 }
 
 impl ToValue for BusNameWatcherFlags {
-    #[inline]
     fn to_value(&self) -> glib::Value {
         let mut value = glib::Value::for_value_type::<Self>();
         unsafe {
@@ -469,29 +357,20 @@ impl ToValue for BusNameWatcherFlags {
         value
     }
 
-    #[inline]
     fn value_type(&self) -> glib::Type {
         Self::static_type()
     }
 }
 
-impl From<BusNameWatcherFlags> for glib::Value {
-    #[inline]
-    fn from(v: BusNameWatcherFlags) -> Self {
-        ToValue::to_value(&v)
-    }
-}
-
 bitflags! {
-    #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
     #[doc(alias = "GConverterFlags")]
     pub struct ConverterFlags: u32 {
         #[doc(alias = "G_CONVERTER_NO_FLAGS")]
-        const NONE = ffi::G_CONVERTER_NO_FLAGS as _;
+        const NONE = ffi::G_CONVERTER_NO_FLAGS as u32;
         #[doc(alias = "G_CONVERTER_INPUT_AT_END")]
-        const INPUT_AT_END = ffi::G_CONVERTER_INPUT_AT_END as _;
+        const INPUT_AT_END = ffi::G_CONVERTER_INPUT_AT_END as u32;
         #[doc(alias = "G_CONVERTER_FLUSH")]
-        const FLUSH = ffi::G_CONVERTER_FLUSH as _;
+        const FLUSH = ffi::G_CONVERTER_FLUSH as u32;
     }
 }
 
@@ -505,7 +384,6 @@ impl fmt::Display for ConverterFlags {
 impl IntoGlib for ConverterFlags {
     type GlibType = ffi::GConverterFlags;
 
-    #[inline]
     fn into_glib(self) -> ffi::GConverterFlags {
         self.bits()
     }
@@ -513,27 +391,14 @@ impl IntoGlib for ConverterFlags {
 
 #[doc(hidden)]
 impl FromGlib<ffi::GConverterFlags> for ConverterFlags {
-    #[inline]
     unsafe fn from_glib(value: ffi::GConverterFlags) -> Self {
         Self::from_bits_truncate(value)
     }
 }
 
 impl StaticType for ConverterFlags {
-    #[inline]
-    #[doc(alias = "g_converter_flags_get_type")]
-    fn static_type() -> glib::Type {
+    fn static_type() -> Type {
         unsafe { from_glib(ffi::g_converter_flags_get_type()) }
-    }
-}
-
-impl glib::HasParamSpec for ConverterFlags {
-    type ParamSpec = glib::ParamSpecFlags;
-    type SetValue = Self;
-    type BuilderFn = fn(&str) -> glib::ParamSpecFlagsBuilder<Self>;
-
-    fn param_spec_builder() -> Self::BuilderFn {
-        Self::ParamSpec::builder
     }
 }
 
@@ -541,17 +406,15 @@ impl glib::value::ValueType for ConverterFlags {
     type Type = Self;
 }
 
-unsafe impl<'a> glib::value::FromValue<'a> for ConverterFlags {
+unsafe impl<'a> FromValue<'a> for ConverterFlags {
     type Checker = glib::value::GenericValueTypeChecker<Self>;
 
-    #[inline]
     unsafe fn from_value(value: &'a glib::Value) -> Self {
         from_glib(glib::gobject_ffi::g_value_get_flags(value.to_glib_none().0))
     }
 }
 
 impl ToValue for ConverterFlags {
-    #[inline]
     fn to_value(&self) -> glib::Value {
         let mut value = glib::Value::for_value_type::<Self>();
         unsafe {
@@ -560,29 +423,20 @@ impl ToValue for ConverterFlags {
         value
     }
 
-    #[inline]
     fn value_type(&self) -> glib::Type {
         Self::static_type()
     }
 }
 
-impl From<ConverterFlags> for glib::Value {
-    #[inline]
-    fn from(v: ConverterFlags) -> Self {
-        ToValue::to_value(&v)
-    }
-}
-
 bitflags! {
-    #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
     #[doc(alias = "GDBusCallFlags")]
     pub struct DBusCallFlags: u32 {
         #[doc(alias = "G_DBUS_CALL_FLAGS_NONE")]
-        const NONE = ffi::G_DBUS_CALL_FLAGS_NONE as _;
+        const NONE = ffi::G_DBUS_CALL_FLAGS_NONE as u32;
         #[doc(alias = "G_DBUS_CALL_FLAGS_NO_AUTO_START")]
-        const NO_AUTO_START = ffi::G_DBUS_CALL_FLAGS_NO_AUTO_START as _;
+        const NO_AUTO_START = ffi::G_DBUS_CALL_FLAGS_NO_AUTO_START as u32;
         #[doc(alias = "G_DBUS_CALL_FLAGS_ALLOW_INTERACTIVE_AUTHORIZATION")]
-        const ALLOW_INTERACTIVE_AUTHORIZATION = ffi::G_DBUS_CALL_FLAGS_ALLOW_INTERACTIVE_AUTHORIZATION as _;
+        const ALLOW_INTERACTIVE_AUTHORIZATION = ffi::G_DBUS_CALL_FLAGS_ALLOW_INTERACTIVE_AUTHORIZATION as u32;
     }
 }
 
@@ -596,7 +450,6 @@ impl fmt::Display for DBusCallFlags {
 impl IntoGlib for DBusCallFlags {
     type GlibType = ffi::GDBusCallFlags;
 
-    #[inline]
     fn into_glib(self) -> ffi::GDBusCallFlags {
         self.bits()
     }
@@ -604,27 +457,14 @@ impl IntoGlib for DBusCallFlags {
 
 #[doc(hidden)]
 impl FromGlib<ffi::GDBusCallFlags> for DBusCallFlags {
-    #[inline]
     unsafe fn from_glib(value: ffi::GDBusCallFlags) -> Self {
         Self::from_bits_truncate(value)
     }
 }
 
 impl StaticType for DBusCallFlags {
-    #[inline]
-    #[doc(alias = "g_dbus_call_flags_get_type")]
-    fn static_type() -> glib::Type {
+    fn static_type() -> Type {
         unsafe { from_glib(ffi::g_dbus_call_flags_get_type()) }
-    }
-}
-
-impl glib::HasParamSpec for DBusCallFlags {
-    type ParamSpec = glib::ParamSpecFlags;
-    type SetValue = Self;
-    type BuilderFn = fn(&str) -> glib::ParamSpecFlagsBuilder<Self>;
-
-    fn param_spec_builder() -> Self::BuilderFn {
-        Self::ParamSpec::builder
     }
 }
 
@@ -632,17 +472,15 @@ impl glib::value::ValueType for DBusCallFlags {
     type Type = Self;
 }
 
-unsafe impl<'a> glib::value::FromValue<'a> for DBusCallFlags {
+unsafe impl<'a> FromValue<'a> for DBusCallFlags {
     type Checker = glib::value::GenericValueTypeChecker<Self>;
 
-    #[inline]
     unsafe fn from_value(value: &'a glib::Value) -> Self {
         from_glib(glib::gobject_ffi::g_value_get_flags(value.to_glib_none().0))
     }
 }
 
 impl ToValue for DBusCallFlags {
-    #[inline]
     fn to_value(&self) -> glib::Value {
         let mut value = glib::Value::for_value_type::<Self>();
         unsafe {
@@ -651,27 +489,18 @@ impl ToValue for DBusCallFlags {
         value
     }
 
-    #[inline]
     fn value_type(&self) -> glib::Type {
         Self::static_type()
     }
 }
 
-impl From<DBusCallFlags> for glib::Value {
-    #[inline]
-    fn from(v: DBusCallFlags) -> Self {
-        ToValue::to_value(&v)
-    }
-}
-
 bitflags! {
-    #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
     #[doc(alias = "GDBusCapabilityFlags")]
     pub struct DBusCapabilityFlags: u32 {
         #[doc(alias = "G_DBUS_CAPABILITY_FLAGS_NONE")]
-        const NONE = ffi::G_DBUS_CAPABILITY_FLAGS_NONE as _;
+        const NONE = ffi::G_DBUS_CAPABILITY_FLAGS_NONE as u32;
         #[doc(alias = "G_DBUS_CAPABILITY_FLAGS_UNIX_FD_PASSING")]
-        const UNIX_FD_PASSING = ffi::G_DBUS_CAPABILITY_FLAGS_UNIX_FD_PASSING as _;
+        const UNIX_FD_PASSING = ffi::G_DBUS_CAPABILITY_FLAGS_UNIX_FD_PASSING as u32;
     }
 }
 
@@ -685,7 +514,6 @@ impl fmt::Display for DBusCapabilityFlags {
 impl IntoGlib for DBusCapabilityFlags {
     type GlibType = ffi::GDBusCapabilityFlags;
 
-    #[inline]
     fn into_glib(self) -> ffi::GDBusCapabilityFlags {
         self.bits()
     }
@@ -693,27 +521,14 @@ impl IntoGlib for DBusCapabilityFlags {
 
 #[doc(hidden)]
 impl FromGlib<ffi::GDBusCapabilityFlags> for DBusCapabilityFlags {
-    #[inline]
     unsafe fn from_glib(value: ffi::GDBusCapabilityFlags) -> Self {
         Self::from_bits_truncate(value)
     }
 }
 
 impl StaticType for DBusCapabilityFlags {
-    #[inline]
-    #[doc(alias = "g_dbus_capability_flags_get_type")]
-    fn static_type() -> glib::Type {
+    fn static_type() -> Type {
         unsafe { from_glib(ffi::g_dbus_capability_flags_get_type()) }
-    }
-}
-
-impl glib::HasParamSpec for DBusCapabilityFlags {
-    type ParamSpec = glib::ParamSpecFlags;
-    type SetValue = Self;
-    type BuilderFn = fn(&str) -> glib::ParamSpecFlagsBuilder<Self>;
-
-    fn param_spec_builder() -> Self::BuilderFn {
-        Self::ParamSpec::builder
     }
 }
 
@@ -721,17 +536,15 @@ impl glib::value::ValueType for DBusCapabilityFlags {
     type Type = Self;
 }
 
-unsafe impl<'a> glib::value::FromValue<'a> for DBusCapabilityFlags {
+unsafe impl<'a> FromValue<'a> for DBusCapabilityFlags {
     type Checker = glib::value::GenericValueTypeChecker<Self>;
 
-    #[inline]
     unsafe fn from_value(value: &'a glib::Value) -> Self {
         from_glib(glib::gobject_ffi::g_value_get_flags(value.to_glib_none().0))
     }
 }
 
 impl ToValue for DBusCapabilityFlags {
-    #[inline]
     fn to_value(&self) -> glib::Value {
         let mut value = glib::Value::for_value_type::<Self>();
         unsafe {
@@ -740,41 +553,28 @@ impl ToValue for DBusCapabilityFlags {
         value
     }
 
-    #[inline]
     fn value_type(&self) -> glib::Type {
         Self::static_type()
     }
 }
 
-impl From<DBusCapabilityFlags> for glib::Value {
-    #[inline]
-    fn from(v: DBusCapabilityFlags) -> Self {
-        ToValue::to_value(&v)
-    }
-}
-
 bitflags! {
-    #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
     #[doc(alias = "GDBusConnectionFlags")]
     pub struct DBusConnectionFlags: u32 {
         #[doc(alias = "G_DBUS_CONNECTION_FLAGS_NONE")]
-        const NONE = ffi::G_DBUS_CONNECTION_FLAGS_NONE as _;
+        const NONE = ffi::G_DBUS_CONNECTION_FLAGS_NONE as u32;
         #[doc(alias = "G_DBUS_CONNECTION_FLAGS_AUTHENTICATION_CLIENT")]
-        const AUTHENTICATION_CLIENT = ffi::G_DBUS_CONNECTION_FLAGS_AUTHENTICATION_CLIENT as _;
+        const AUTHENTICATION_CLIENT = ffi::G_DBUS_CONNECTION_FLAGS_AUTHENTICATION_CLIENT as u32;
         #[doc(alias = "G_DBUS_CONNECTION_FLAGS_AUTHENTICATION_SERVER")]
-        const AUTHENTICATION_SERVER = ffi::G_DBUS_CONNECTION_FLAGS_AUTHENTICATION_SERVER as _;
+        const AUTHENTICATION_SERVER = ffi::G_DBUS_CONNECTION_FLAGS_AUTHENTICATION_SERVER as u32;
         #[doc(alias = "G_DBUS_CONNECTION_FLAGS_AUTHENTICATION_ALLOW_ANONYMOUS")]
-        const AUTHENTICATION_ALLOW_ANONYMOUS = ffi::G_DBUS_CONNECTION_FLAGS_AUTHENTICATION_ALLOW_ANONYMOUS as _;
+        const AUTHENTICATION_ALLOW_ANONYMOUS = ffi::G_DBUS_CONNECTION_FLAGS_AUTHENTICATION_ALLOW_ANONYMOUS as u32;
         #[doc(alias = "G_DBUS_CONNECTION_FLAGS_MESSAGE_BUS_CONNECTION")]
-        const MESSAGE_BUS_CONNECTION = ffi::G_DBUS_CONNECTION_FLAGS_MESSAGE_BUS_CONNECTION as _;
+        const MESSAGE_BUS_CONNECTION = ffi::G_DBUS_CONNECTION_FLAGS_MESSAGE_BUS_CONNECTION as u32;
         #[doc(alias = "G_DBUS_CONNECTION_FLAGS_DELAY_MESSAGE_PROCESSING")]
-        const DELAY_MESSAGE_PROCESSING = ffi::G_DBUS_CONNECTION_FLAGS_DELAY_MESSAGE_PROCESSING as _;
+        const DELAY_MESSAGE_PROCESSING = ffi::G_DBUS_CONNECTION_FLAGS_DELAY_MESSAGE_PROCESSING as u32;
         #[doc(alias = "G_DBUS_CONNECTION_FLAGS_AUTHENTICATION_REQUIRE_SAME_USER")]
-        const AUTHENTICATION_REQUIRE_SAME_USER = ffi::G_DBUS_CONNECTION_FLAGS_AUTHENTICATION_REQUIRE_SAME_USER as _;
-        #[cfg(feature = "v2_74")]
-        #[cfg_attr(docsrs, doc(cfg(feature = "v2_74")))]
-        #[doc(alias = "G_DBUS_CONNECTION_FLAGS_CROSS_NAMESPACE")]
-        const CROSS_NAMESPACE = ffi::G_DBUS_CONNECTION_FLAGS_CROSS_NAMESPACE as _;
+        const AUTHENTICATION_REQUIRE_SAME_USER = ffi::G_DBUS_CONNECTION_FLAGS_AUTHENTICATION_REQUIRE_SAME_USER as u32;
     }
 }
 
@@ -788,7 +588,6 @@ impl fmt::Display for DBusConnectionFlags {
 impl IntoGlib for DBusConnectionFlags {
     type GlibType = ffi::GDBusConnectionFlags;
 
-    #[inline]
     fn into_glib(self) -> ffi::GDBusConnectionFlags {
         self.bits()
     }
@@ -796,27 +595,14 @@ impl IntoGlib for DBusConnectionFlags {
 
 #[doc(hidden)]
 impl FromGlib<ffi::GDBusConnectionFlags> for DBusConnectionFlags {
-    #[inline]
     unsafe fn from_glib(value: ffi::GDBusConnectionFlags) -> Self {
         Self::from_bits_truncate(value)
     }
 }
 
 impl StaticType for DBusConnectionFlags {
-    #[inline]
-    #[doc(alias = "g_dbus_connection_flags_get_type")]
-    fn static_type() -> glib::Type {
+    fn static_type() -> Type {
         unsafe { from_glib(ffi::g_dbus_connection_flags_get_type()) }
-    }
-}
-
-impl glib::HasParamSpec for DBusConnectionFlags {
-    type ParamSpec = glib::ParamSpecFlags;
-    type SetValue = Self;
-    type BuilderFn = fn(&str) -> glib::ParamSpecFlagsBuilder<Self>;
-
-    fn param_spec_builder() -> Self::BuilderFn {
-        Self::ParamSpec::builder
     }
 }
 
@@ -824,17 +610,15 @@ impl glib::value::ValueType for DBusConnectionFlags {
     type Type = Self;
 }
 
-unsafe impl<'a> glib::value::FromValue<'a> for DBusConnectionFlags {
+unsafe impl<'a> FromValue<'a> for DBusConnectionFlags {
     type Checker = glib::value::GenericValueTypeChecker<Self>;
 
-    #[inline]
     unsafe fn from_value(value: &'a glib::Value) -> Self {
         from_glib(glib::gobject_ffi::g_value_get_flags(value.to_glib_none().0))
     }
 }
 
 impl ToValue for DBusConnectionFlags {
-    #[inline]
     fn to_value(&self) -> glib::Value {
         let mut value = glib::Value::for_value_type::<Self>();
         unsafe {
@@ -843,27 +627,18 @@ impl ToValue for DBusConnectionFlags {
         value
     }
 
-    #[inline]
     fn value_type(&self) -> glib::Type {
         Self::static_type()
     }
 }
 
-impl From<DBusConnectionFlags> for glib::Value {
-    #[inline]
-    fn from(v: DBusConnectionFlags) -> Self {
-        ToValue::to_value(&v)
-    }
-}
-
 bitflags! {
-    #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
     #[doc(alias = "GDBusInterfaceSkeletonFlags")]
     pub struct DBusInterfaceSkeletonFlags: u32 {
         #[doc(alias = "G_DBUS_INTERFACE_SKELETON_FLAGS_NONE")]
-        const NONE = ffi::G_DBUS_INTERFACE_SKELETON_FLAGS_NONE as _;
+        const NONE = ffi::G_DBUS_INTERFACE_SKELETON_FLAGS_NONE as u32;
         #[doc(alias = "G_DBUS_INTERFACE_SKELETON_FLAGS_HANDLE_METHOD_INVOCATIONS_IN_THREAD")]
-        const HANDLE_METHOD_INVOCATIONS_IN_THREAD = ffi::G_DBUS_INTERFACE_SKELETON_FLAGS_HANDLE_METHOD_INVOCATIONS_IN_THREAD as _;
+        const HANDLE_METHOD_INVOCATIONS_IN_THREAD = ffi::G_DBUS_INTERFACE_SKELETON_FLAGS_HANDLE_METHOD_INVOCATIONS_IN_THREAD as u32;
     }
 }
 
@@ -877,7 +652,6 @@ impl fmt::Display for DBusInterfaceSkeletonFlags {
 impl IntoGlib for DBusInterfaceSkeletonFlags {
     type GlibType = ffi::GDBusInterfaceSkeletonFlags;
 
-    #[inline]
     fn into_glib(self) -> ffi::GDBusInterfaceSkeletonFlags {
         self.bits()
     }
@@ -885,27 +659,14 @@ impl IntoGlib for DBusInterfaceSkeletonFlags {
 
 #[doc(hidden)]
 impl FromGlib<ffi::GDBusInterfaceSkeletonFlags> for DBusInterfaceSkeletonFlags {
-    #[inline]
     unsafe fn from_glib(value: ffi::GDBusInterfaceSkeletonFlags) -> Self {
         Self::from_bits_truncate(value)
     }
 }
 
 impl StaticType for DBusInterfaceSkeletonFlags {
-    #[inline]
-    #[doc(alias = "g_dbus_interface_skeleton_flags_get_type")]
-    fn static_type() -> glib::Type {
+    fn static_type() -> Type {
         unsafe { from_glib(ffi::g_dbus_interface_skeleton_flags_get_type()) }
-    }
-}
-
-impl glib::HasParamSpec for DBusInterfaceSkeletonFlags {
-    type ParamSpec = glib::ParamSpecFlags;
-    type SetValue = Self;
-    type BuilderFn = fn(&str) -> glib::ParamSpecFlagsBuilder<Self>;
-
-    fn param_spec_builder() -> Self::BuilderFn {
-        Self::ParamSpec::builder
     }
 }
 
@@ -913,17 +674,15 @@ impl glib::value::ValueType for DBusInterfaceSkeletonFlags {
     type Type = Self;
 }
 
-unsafe impl<'a> glib::value::FromValue<'a> for DBusInterfaceSkeletonFlags {
+unsafe impl<'a> FromValue<'a> for DBusInterfaceSkeletonFlags {
     type Checker = glib::value::GenericValueTypeChecker<Self>;
 
-    #[inline]
     unsafe fn from_value(value: &'a glib::Value) -> Self {
         from_glib(glib::gobject_ffi::g_value_get_flags(value.to_glib_none().0))
     }
 }
 
 impl ToValue for DBusInterfaceSkeletonFlags {
-    #[inline]
     fn to_value(&self) -> glib::Value {
         let mut value = glib::Value::for_value_type::<Self>();
         unsafe {
@@ -932,31 +691,22 @@ impl ToValue for DBusInterfaceSkeletonFlags {
         value
     }
 
-    #[inline]
     fn value_type(&self) -> glib::Type {
         Self::static_type()
     }
 }
 
-impl From<DBusInterfaceSkeletonFlags> for glib::Value {
-    #[inline]
-    fn from(v: DBusInterfaceSkeletonFlags) -> Self {
-        ToValue::to_value(&v)
-    }
-}
-
 bitflags! {
-    #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
     #[doc(alias = "GDBusMessageFlags")]
     pub struct DBusMessageFlags: u32 {
         #[doc(alias = "G_DBUS_MESSAGE_FLAGS_NONE")]
-        const NONE = ffi::G_DBUS_MESSAGE_FLAGS_NONE as _;
+        const NONE = ffi::G_DBUS_MESSAGE_FLAGS_NONE as u32;
         #[doc(alias = "G_DBUS_MESSAGE_FLAGS_NO_REPLY_EXPECTED")]
-        const NO_REPLY_EXPECTED = ffi::G_DBUS_MESSAGE_FLAGS_NO_REPLY_EXPECTED as _;
+        const NO_REPLY_EXPECTED = ffi::G_DBUS_MESSAGE_FLAGS_NO_REPLY_EXPECTED as u32;
         #[doc(alias = "G_DBUS_MESSAGE_FLAGS_NO_AUTO_START")]
-        const NO_AUTO_START = ffi::G_DBUS_MESSAGE_FLAGS_NO_AUTO_START as _;
+        const NO_AUTO_START = ffi::G_DBUS_MESSAGE_FLAGS_NO_AUTO_START as u32;
         #[doc(alias = "G_DBUS_MESSAGE_FLAGS_ALLOW_INTERACTIVE_AUTHORIZATION")]
-        const ALLOW_INTERACTIVE_AUTHORIZATION = ffi::G_DBUS_MESSAGE_FLAGS_ALLOW_INTERACTIVE_AUTHORIZATION as _;
+        const ALLOW_INTERACTIVE_AUTHORIZATION = ffi::G_DBUS_MESSAGE_FLAGS_ALLOW_INTERACTIVE_AUTHORIZATION as u32;
     }
 }
 
@@ -970,7 +720,6 @@ impl fmt::Display for DBusMessageFlags {
 impl IntoGlib for DBusMessageFlags {
     type GlibType = ffi::GDBusMessageFlags;
 
-    #[inline]
     fn into_glib(self) -> ffi::GDBusMessageFlags {
         self.bits()
     }
@@ -978,27 +727,14 @@ impl IntoGlib for DBusMessageFlags {
 
 #[doc(hidden)]
 impl FromGlib<ffi::GDBusMessageFlags> for DBusMessageFlags {
-    #[inline]
     unsafe fn from_glib(value: ffi::GDBusMessageFlags) -> Self {
         Self::from_bits_truncate(value)
     }
 }
 
 impl StaticType for DBusMessageFlags {
-    #[inline]
-    #[doc(alias = "g_dbus_message_flags_get_type")]
-    fn static_type() -> glib::Type {
+    fn static_type() -> Type {
         unsafe { from_glib(ffi::g_dbus_message_flags_get_type()) }
-    }
-}
-
-impl glib::HasParamSpec for DBusMessageFlags {
-    type ParamSpec = glib::ParamSpecFlags;
-    type SetValue = Self;
-    type BuilderFn = fn(&str) -> glib::ParamSpecFlagsBuilder<Self>;
-
-    fn param_spec_builder() -> Self::BuilderFn {
-        Self::ParamSpec::builder
     }
 }
 
@@ -1006,17 +742,15 @@ impl glib::value::ValueType for DBusMessageFlags {
     type Type = Self;
 }
 
-unsafe impl<'a> glib::value::FromValue<'a> for DBusMessageFlags {
+unsafe impl<'a> FromValue<'a> for DBusMessageFlags {
     type Checker = glib::value::GenericValueTypeChecker<Self>;
 
-    #[inline]
     unsafe fn from_value(value: &'a glib::Value) -> Self {
         from_glib(glib::gobject_ffi::g_value_get_flags(value.to_glib_none().0))
     }
 }
 
 impl ToValue for DBusMessageFlags {
-    #[inline]
     fn to_value(&self) -> glib::Value {
         let mut value = glib::Value::for_value_type::<Self>();
         unsafe {
@@ -1025,128 +759,30 @@ impl ToValue for DBusMessageFlags {
         value
     }
 
-    #[inline]
     fn value_type(&self) -> glib::Type {
         Self::static_type()
     }
 }
 
-impl From<DBusMessageFlags> for glib::Value {
-    #[inline]
-    fn from(v: DBusMessageFlags) -> Self {
-        ToValue::to_value(&v)
-    }
-}
-
 bitflags! {
-    #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
-    #[doc(alias = "GDBusObjectManagerClientFlags")]
-    pub struct DBusObjectManagerClientFlags: u32 {
-        #[doc(alias = "G_DBUS_OBJECT_MANAGER_CLIENT_FLAGS_NONE")]
-        const NONE = ffi::G_DBUS_OBJECT_MANAGER_CLIENT_FLAGS_NONE as _;
-        #[doc(alias = "G_DBUS_OBJECT_MANAGER_CLIENT_FLAGS_DO_NOT_AUTO_START")]
-        const DO_NOT_AUTO_START = ffi::G_DBUS_OBJECT_MANAGER_CLIENT_FLAGS_DO_NOT_AUTO_START as _;
-    }
-}
-
-impl fmt::Display for DBusObjectManagerClientFlags {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        <Self as fmt::Debug>::fmt(self, f)
-    }
-}
-
-#[doc(hidden)]
-impl IntoGlib for DBusObjectManagerClientFlags {
-    type GlibType = ffi::GDBusObjectManagerClientFlags;
-
-    #[inline]
-    fn into_glib(self) -> ffi::GDBusObjectManagerClientFlags {
-        self.bits()
-    }
-}
-
-#[doc(hidden)]
-impl FromGlib<ffi::GDBusObjectManagerClientFlags> for DBusObjectManagerClientFlags {
-    #[inline]
-    unsafe fn from_glib(value: ffi::GDBusObjectManagerClientFlags) -> Self {
-        Self::from_bits_truncate(value)
-    }
-}
-
-impl StaticType for DBusObjectManagerClientFlags {
-    #[inline]
-    #[doc(alias = "g_dbus_object_manager_client_flags_get_type")]
-    fn static_type() -> glib::Type {
-        unsafe { from_glib(ffi::g_dbus_object_manager_client_flags_get_type()) }
-    }
-}
-
-impl glib::HasParamSpec for DBusObjectManagerClientFlags {
-    type ParamSpec = glib::ParamSpecFlags;
-    type SetValue = Self;
-    type BuilderFn = fn(&str) -> glib::ParamSpecFlagsBuilder<Self>;
-
-    fn param_spec_builder() -> Self::BuilderFn {
-        Self::ParamSpec::builder
-    }
-}
-
-impl glib::value::ValueType for DBusObjectManagerClientFlags {
-    type Type = Self;
-}
-
-unsafe impl<'a> glib::value::FromValue<'a> for DBusObjectManagerClientFlags {
-    type Checker = glib::value::GenericValueTypeChecker<Self>;
-
-    #[inline]
-    unsafe fn from_value(value: &'a glib::Value) -> Self {
-        from_glib(glib::gobject_ffi::g_value_get_flags(value.to_glib_none().0))
-    }
-}
-
-impl ToValue for DBusObjectManagerClientFlags {
-    #[inline]
-    fn to_value(&self) -> glib::Value {
-        let mut value = glib::Value::for_value_type::<Self>();
-        unsafe {
-            glib::gobject_ffi::g_value_set_flags(value.to_glib_none_mut().0, self.into_glib());
-        }
-        value
-    }
-
-    #[inline]
-    fn value_type(&self) -> glib::Type {
-        Self::static_type()
-    }
-}
-
-impl From<DBusObjectManagerClientFlags> for glib::Value {
-    #[inline]
-    fn from(v: DBusObjectManagerClientFlags) -> Self {
-        ToValue::to_value(&v)
-    }
-}
-
-bitflags! {
-    #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
     #[doc(alias = "GDBusProxyFlags")]
     pub struct DBusProxyFlags: u32 {
         #[doc(alias = "G_DBUS_PROXY_FLAGS_NONE")]
-        const NONE = ffi::G_DBUS_PROXY_FLAGS_NONE as _;
+        const NONE = ffi::G_DBUS_PROXY_FLAGS_NONE as u32;
         #[doc(alias = "G_DBUS_PROXY_FLAGS_DO_NOT_LOAD_PROPERTIES")]
-        const DO_NOT_LOAD_PROPERTIES = ffi::G_DBUS_PROXY_FLAGS_DO_NOT_LOAD_PROPERTIES as _;
+        const DO_NOT_LOAD_PROPERTIES = ffi::G_DBUS_PROXY_FLAGS_DO_NOT_LOAD_PROPERTIES as u32;
         #[doc(alias = "G_DBUS_PROXY_FLAGS_DO_NOT_CONNECT_SIGNALS")]
-        const DO_NOT_CONNECT_SIGNALS = ffi::G_DBUS_PROXY_FLAGS_DO_NOT_CONNECT_SIGNALS as _;
+        const DO_NOT_CONNECT_SIGNALS = ffi::G_DBUS_PROXY_FLAGS_DO_NOT_CONNECT_SIGNALS as u32;
         #[doc(alias = "G_DBUS_PROXY_FLAGS_DO_NOT_AUTO_START")]
-        const DO_NOT_AUTO_START = ffi::G_DBUS_PROXY_FLAGS_DO_NOT_AUTO_START as _;
+        const DO_NOT_AUTO_START = ffi::G_DBUS_PROXY_FLAGS_DO_NOT_AUTO_START as u32;
         #[doc(alias = "G_DBUS_PROXY_FLAGS_GET_INVALIDATED_PROPERTIES")]
-        const GET_INVALIDATED_PROPERTIES = ffi::G_DBUS_PROXY_FLAGS_GET_INVALIDATED_PROPERTIES as _;
+        const GET_INVALIDATED_PROPERTIES = ffi::G_DBUS_PROXY_FLAGS_GET_INVALIDATED_PROPERTIES as u32;
         #[doc(alias = "G_DBUS_PROXY_FLAGS_DO_NOT_AUTO_START_AT_CONSTRUCTION")]
-        const DO_NOT_AUTO_START_AT_CONSTRUCTION = ffi::G_DBUS_PROXY_FLAGS_DO_NOT_AUTO_START_AT_CONSTRUCTION as _;
-        #[cfg(feature = "v2_70")]
-        #[cfg_attr(docsrs, doc(cfg(feature = "v2_70")))]
+        const DO_NOT_AUTO_START_AT_CONSTRUCTION = ffi::G_DBUS_PROXY_FLAGS_DO_NOT_AUTO_START_AT_CONSTRUCTION as u32;
+        #[cfg(any(feature = "v2_70", feature = "dox"))]
+        #[cfg_attr(feature = "dox", doc(cfg(feature = "v2_70")))]
         #[doc(alias = "G_DBUS_PROXY_FLAGS_NO_MATCH_RULE")]
-        const NO_MATCH_RULE = ffi::G_DBUS_PROXY_FLAGS_NO_MATCH_RULE as _;
+        const NO_MATCH_RULE = ffi::G_DBUS_PROXY_FLAGS_NO_MATCH_RULE as u32;
     }
 }
 
@@ -1160,7 +796,6 @@ impl fmt::Display for DBusProxyFlags {
 impl IntoGlib for DBusProxyFlags {
     type GlibType = ffi::GDBusProxyFlags;
 
-    #[inline]
     fn into_glib(self) -> ffi::GDBusProxyFlags {
         self.bits()
     }
@@ -1168,27 +803,14 @@ impl IntoGlib for DBusProxyFlags {
 
 #[doc(hidden)]
 impl FromGlib<ffi::GDBusProxyFlags> for DBusProxyFlags {
-    #[inline]
     unsafe fn from_glib(value: ffi::GDBusProxyFlags) -> Self {
         Self::from_bits_truncate(value)
     }
 }
 
 impl StaticType for DBusProxyFlags {
-    #[inline]
-    #[doc(alias = "g_dbus_proxy_flags_get_type")]
-    fn static_type() -> glib::Type {
+    fn static_type() -> Type {
         unsafe { from_glib(ffi::g_dbus_proxy_flags_get_type()) }
-    }
-}
-
-impl glib::HasParamSpec for DBusProxyFlags {
-    type ParamSpec = glib::ParamSpecFlags;
-    type SetValue = Self;
-    type BuilderFn = fn(&str) -> glib::ParamSpecFlagsBuilder<Self>;
-
-    fn param_spec_builder() -> Self::BuilderFn {
-        Self::ParamSpec::builder
     }
 }
 
@@ -1196,17 +818,15 @@ impl glib::value::ValueType for DBusProxyFlags {
     type Type = Self;
 }
 
-unsafe impl<'a> glib::value::FromValue<'a> for DBusProxyFlags {
+unsafe impl<'a> FromValue<'a> for DBusProxyFlags {
     type Checker = glib::value::GenericValueTypeChecker<Self>;
 
-    #[inline]
     unsafe fn from_value(value: &'a glib::Value) -> Self {
         from_glib(glib::gobject_ffi::g_value_get_flags(value.to_glib_none().0))
     }
 }
 
 impl ToValue for DBusProxyFlags {
-    #[inline]
     fn to_value(&self) -> glib::Value {
         let mut value = glib::Value::for_value_type::<Self>();
         unsafe {
@@ -1215,27 +835,18 @@ impl ToValue for DBusProxyFlags {
         value
     }
 
-    #[inline]
     fn value_type(&self) -> glib::Type {
         Self::static_type()
     }
 }
 
-impl From<DBusProxyFlags> for glib::Value {
-    #[inline]
-    fn from(v: DBusProxyFlags) -> Self {
-        ToValue::to_value(&v)
-    }
-}
-
 bitflags! {
-    #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
     #[doc(alias = "GDBusSendMessageFlags")]
     pub struct DBusSendMessageFlags: u32 {
         #[doc(alias = "G_DBUS_SEND_MESSAGE_FLAGS_NONE")]
-        const NONE = ffi::G_DBUS_SEND_MESSAGE_FLAGS_NONE as _;
+        const NONE = ffi::G_DBUS_SEND_MESSAGE_FLAGS_NONE as u32;
         #[doc(alias = "G_DBUS_SEND_MESSAGE_FLAGS_PRESERVE_SERIAL")]
-        const PRESERVE_SERIAL = ffi::G_DBUS_SEND_MESSAGE_FLAGS_PRESERVE_SERIAL as _;
+        const PRESERVE_SERIAL = ffi::G_DBUS_SEND_MESSAGE_FLAGS_PRESERVE_SERIAL as u32;
     }
 }
 
@@ -1249,7 +860,6 @@ impl fmt::Display for DBusSendMessageFlags {
 impl IntoGlib for DBusSendMessageFlags {
     type GlibType = ffi::GDBusSendMessageFlags;
 
-    #[inline]
     fn into_glib(self) -> ffi::GDBusSendMessageFlags {
         self.bits()
     }
@@ -1257,27 +867,14 @@ impl IntoGlib for DBusSendMessageFlags {
 
 #[doc(hidden)]
 impl FromGlib<ffi::GDBusSendMessageFlags> for DBusSendMessageFlags {
-    #[inline]
     unsafe fn from_glib(value: ffi::GDBusSendMessageFlags) -> Self {
         Self::from_bits_truncate(value)
     }
 }
 
 impl StaticType for DBusSendMessageFlags {
-    #[inline]
-    #[doc(alias = "g_dbus_send_message_flags_get_type")]
-    fn static_type() -> glib::Type {
+    fn static_type() -> Type {
         unsafe { from_glib(ffi::g_dbus_send_message_flags_get_type()) }
-    }
-}
-
-impl glib::HasParamSpec for DBusSendMessageFlags {
-    type ParamSpec = glib::ParamSpecFlags;
-    type SetValue = Self;
-    type BuilderFn = fn(&str) -> glib::ParamSpecFlagsBuilder<Self>;
-
-    fn param_spec_builder() -> Self::BuilderFn {
-        Self::ParamSpec::builder
     }
 }
 
@@ -1285,17 +882,15 @@ impl glib::value::ValueType for DBusSendMessageFlags {
     type Type = Self;
 }
 
-unsafe impl<'a> glib::value::FromValue<'a> for DBusSendMessageFlags {
+unsafe impl<'a> FromValue<'a> for DBusSendMessageFlags {
     type Checker = glib::value::GenericValueTypeChecker<Self>;
 
-    #[inline]
     unsafe fn from_value(value: &'a glib::Value) -> Self {
         from_glib(glib::gobject_ffi::g_value_get_flags(value.to_glib_none().0))
     }
 }
 
 impl ToValue for DBusSendMessageFlags {
-    #[inline]
     fn to_value(&self) -> glib::Value {
         let mut value = glib::Value::for_value_type::<Self>();
         unsafe {
@@ -1304,31 +899,22 @@ impl ToValue for DBusSendMessageFlags {
         value
     }
 
-    #[inline]
     fn value_type(&self) -> glib::Type {
         Self::static_type()
     }
 }
 
-impl From<DBusSendMessageFlags> for glib::Value {
-    #[inline]
-    fn from(v: DBusSendMessageFlags) -> Self {
-        ToValue::to_value(&v)
-    }
-}
-
 bitflags! {
-    #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
     #[doc(alias = "GDBusServerFlags")]
     pub struct DBusServerFlags: u32 {
         #[doc(alias = "G_DBUS_SERVER_FLAGS_NONE")]
-        const NONE = ffi::G_DBUS_SERVER_FLAGS_NONE as _;
+        const NONE = ffi::G_DBUS_SERVER_FLAGS_NONE as u32;
         #[doc(alias = "G_DBUS_SERVER_FLAGS_RUN_IN_THREAD")]
-        const RUN_IN_THREAD = ffi::G_DBUS_SERVER_FLAGS_RUN_IN_THREAD as _;
+        const RUN_IN_THREAD = ffi::G_DBUS_SERVER_FLAGS_RUN_IN_THREAD as u32;
         #[doc(alias = "G_DBUS_SERVER_FLAGS_AUTHENTICATION_ALLOW_ANONYMOUS")]
-        const AUTHENTICATION_ALLOW_ANONYMOUS = ffi::G_DBUS_SERVER_FLAGS_AUTHENTICATION_ALLOW_ANONYMOUS as _;
+        const AUTHENTICATION_ALLOW_ANONYMOUS = ffi::G_DBUS_SERVER_FLAGS_AUTHENTICATION_ALLOW_ANONYMOUS as u32;
         #[doc(alias = "G_DBUS_SERVER_FLAGS_AUTHENTICATION_REQUIRE_SAME_USER")]
-        const AUTHENTICATION_REQUIRE_SAME_USER = ffi::G_DBUS_SERVER_FLAGS_AUTHENTICATION_REQUIRE_SAME_USER as _;
+        const AUTHENTICATION_REQUIRE_SAME_USER = ffi::G_DBUS_SERVER_FLAGS_AUTHENTICATION_REQUIRE_SAME_USER as u32;
     }
 }
 
@@ -1342,7 +928,6 @@ impl fmt::Display for DBusServerFlags {
 impl IntoGlib for DBusServerFlags {
     type GlibType = ffi::GDBusServerFlags;
 
-    #[inline]
     fn into_glib(self) -> ffi::GDBusServerFlags {
         self.bits()
     }
@@ -1350,27 +935,14 @@ impl IntoGlib for DBusServerFlags {
 
 #[doc(hidden)]
 impl FromGlib<ffi::GDBusServerFlags> for DBusServerFlags {
-    #[inline]
     unsafe fn from_glib(value: ffi::GDBusServerFlags) -> Self {
         Self::from_bits_truncate(value)
     }
 }
 
 impl StaticType for DBusServerFlags {
-    #[inline]
-    #[doc(alias = "g_dbus_server_flags_get_type")]
-    fn static_type() -> glib::Type {
+    fn static_type() -> Type {
         unsafe { from_glib(ffi::g_dbus_server_flags_get_type()) }
-    }
-}
-
-impl glib::HasParamSpec for DBusServerFlags {
-    type ParamSpec = glib::ParamSpecFlags;
-    type SetValue = Self;
-    type BuilderFn = fn(&str) -> glib::ParamSpecFlagsBuilder<Self>;
-
-    fn param_spec_builder() -> Self::BuilderFn {
-        Self::ParamSpec::builder
     }
 }
 
@@ -1378,17 +950,15 @@ impl glib::value::ValueType for DBusServerFlags {
     type Type = Self;
 }
 
-unsafe impl<'a> glib::value::FromValue<'a> for DBusServerFlags {
+unsafe impl<'a> FromValue<'a> for DBusServerFlags {
     type Checker = glib::value::GenericValueTypeChecker<Self>;
 
-    #[inline]
     unsafe fn from_value(value: &'a glib::Value) -> Self {
         from_glib(glib::gobject_ffi::g_value_get_flags(value.to_glib_none().0))
     }
 }
 
 impl ToValue for DBusServerFlags {
-    #[inline]
     fn to_value(&self) -> glib::Value {
         let mut value = glib::Value::for_value_type::<Self>();
         unsafe {
@@ -1397,31 +967,22 @@ impl ToValue for DBusServerFlags {
         value
     }
 
-    #[inline]
     fn value_type(&self) -> glib::Type {
         Self::static_type()
     }
 }
 
-impl From<DBusServerFlags> for glib::Value {
-    #[inline]
-    fn from(v: DBusServerFlags) -> Self {
-        ToValue::to_value(&v)
-    }
-}
-
 bitflags! {
-    #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
     #[doc(alias = "GDBusSignalFlags")]
     pub struct DBusSignalFlags: u32 {
         #[doc(alias = "G_DBUS_SIGNAL_FLAGS_NONE")]
-        const NONE = ffi::G_DBUS_SIGNAL_FLAGS_NONE as _;
+        const NONE = ffi::G_DBUS_SIGNAL_FLAGS_NONE as u32;
         #[doc(alias = "G_DBUS_SIGNAL_FLAGS_NO_MATCH_RULE")]
-        const NO_MATCH_RULE = ffi::G_DBUS_SIGNAL_FLAGS_NO_MATCH_RULE as _;
+        const NO_MATCH_RULE = ffi::G_DBUS_SIGNAL_FLAGS_NO_MATCH_RULE as u32;
         #[doc(alias = "G_DBUS_SIGNAL_FLAGS_MATCH_ARG0_NAMESPACE")]
-        const MATCH_ARG0_NAMESPACE = ffi::G_DBUS_SIGNAL_FLAGS_MATCH_ARG0_NAMESPACE as _;
+        const MATCH_ARG0_NAMESPACE = ffi::G_DBUS_SIGNAL_FLAGS_MATCH_ARG0_NAMESPACE as u32;
         #[doc(alias = "G_DBUS_SIGNAL_FLAGS_MATCH_ARG0_PATH")]
-        const MATCH_ARG0_PATH = ffi::G_DBUS_SIGNAL_FLAGS_MATCH_ARG0_PATH as _;
+        const MATCH_ARG0_PATH = ffi::G_DBUS_SIGNAL_FLAGS_MATCH_ARG0_PATH as u32;
     }
 }
 
@@ -1435,7 +996,6 @@ impl fmt::Display for DBusSignalFlags {
 impl IntoGlib for DBusSignalFlags {
     type GlibType = ffi::GDBusSignalFlags;
 
-    #[inline]
     fn into_glib(self) -> ffi::GDBusSignalFlags {
         self.bits()
     }
@@ -1443,27 +1003,14 @@ impl IntoGlib for DBusSignalFlags {
 
 #[doc(hidden)]
 impl FromGlib<ffi::GDBusSignalFlags> for DBusSignalFlags {
-    #[inline]
     unsafe fn from_glib(value: ffi::GDBusSignalFlags) -> Self {
         Self::from_bits_truncate(value)
     }
 }
 
 impl StaticType for DBusSignalFlags {
-    #[inline]
-    #[doc(alias = "g_dbus_signal_flags_get_type")]
-    fn static_type() -> glib::Type {
+    fn static_type() -> Type {
         unsafe { from_glib(ffi::g_dbus_signal_flags_get_type()) }
-    }
-}
-
-impl glib::HasParamSpec for DBusSignalFlags {
-    type ParamSpec = glib::ParamSpecFlags;
-    type SetValue = Self;
-    type BuilderFn = fn(&str) -> glib::ParamSpecFlagsBuilder<Self>;
-
-    fn param_spec_builder() -> Self::BuilderFn {
-        Self::ParamSpec::builder
     }
 }
 
@@ -1471,17 +1018,15 @@ impl glib::value::ValueType for DBusSignalFlags {
     type Type = Self;
 }
 
-unsafe impl<'a> glib::value::FromValue<'a> for DBusSignalFlags {
+unsafe impl<'a> FromValue<'a> for DBusSignalFlags {
     type Checker = glib::value::GenericValueTypeChecker<Self>;
 
-    #[inline]
     unsafe fn from_value(value: &'a glib::Value) -> Self {
         from_glib(glib::gobject_ffi::g_value_get_flags(value.to_glib_none().0))
     }
 }
 
 impl ToValue for DBusSignalFlags {
-    #[inline]
     fn to_value(&self) -> glib::Value {
         let mut value = glib::Value::for_value_type::<Self>();
         unsafe {
@@ -1490,25 +1035,16 @@ impl ToValue for DBusSignalFlags {
         value
     }
 
-    #[inline]
     fn value_type(&self) -> glib::Type {
         Self::static_type()
     }
 }
 
-impl From<DBusSignalFlags> for glib::Value {
-    #[inline]
-    fn from(v: DBusSignalFlags) -> Self {
-        ToValue::to_value(&v)
-    }
-}
-
 bitflags! {
-    #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
     #[doc(alias = "GDriveStartFlags")]
     pub struct DriveStartFlags: u32 {
         #[doc(alias = "G_DRIVE_START_NONE")]
-        const NONE = ffi::G_DRIVE_START_NONE as _;
+        const NONE = ffi::G_DRIVE_START_NONE as u32;
     }
 }
 
@@ -1522,7 +1058,6 @@ impl fmt::Display for DriveStartFlags {
 impl IntoGlib for DriveStartFlags {
     type GlibType = ffi::GDriveStartFlags;
 
-    #[inline]
     fn into_glib(self) -> ffi::GDriveStartFlags {
         self.bits()
     }
@@ -1530,27 +1065,14 @@ impl IntoGlib for DriveStartFlags {
 
 #[doc(hidden)]
 impl FromGlib<ffi::GDriveStartFlags> for DriveStartFlags {
-    #[inline]
     unsafe fn from_glib(value: ffi::GDriveStartFlags) -> Self {
         Self::from_bits_truncate(value)
     }
 }
 
 impl StaticType for DriveStartFlags {
-    #[inline]
-    #[doc(alias = "g_drive_start_flags_get_type")]
-    fn static_type() -> glib::Type {
+    fn static_type() -> Type {
         unsafe { from_glib(ffi::g_drive_start_flags_get_type()) }
-    }
-}
-
-impl glib::HasParamSpec for DriveStartFlags {
-    type ParamSpec = glib::ParamSpecFlags;
-    type SetValue = Self;
-    type BuilderFn = fn(&str) -> glib::ParamSpecFlagsBuilder<Self>;
-
-    fn param_spec_builder() -> Self::BuilderFn {
-        Self::ParamSpec::builder
     }
 }
 
@@ -1558,17 +1080,15 @@ impl glib::value::ValueType for DriveStartFlags {
     type Type = Self;
 }
 
-unsafe impl<'a> glib::value::FromValue<'a> for DriveStartFlags {
+unsafe impl<'a> FromValue<'a> for DriveStartFlags {
     type Checker = glib::value::GenericValueTypeChecker<Self>;
 
-    #[inline]
     unsafe fn from_value(value: &'a glib::Value) -> Self {
         from_glib(glib::gobject_ffi::g_value_get_flags(value.to_glib_none().0))
     }
 }
 
 impl ToValue for DriveStartFlags {
-    #[inline]
     fn to_value(&self) -> glib::Value {
         let mut value = glib::Value::for_value_type::<Self>();
         unsafe {
@@ -1577,29 +1097,20 @@ impl ToValue for DriveStartFlags {
         value
     }
 
-    #[inline]
     fn value_type(&self) -> glib::Type {
         Self::static_type()
     }
 }
 
-impl From<DriveStartFlags> for glib::Value {
-    #[inline]
-    fn from(v: DriveStartFlags) -> Self {
-        ToValue::to_value(&v)
-    }
-}
-
 bitflags! {
-    #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
     #[doc(alias = "GFileAttributeInfoFlags")]
     pub struct FileAttributeInfoFlags: u32 {
         #[doc(alias = "G_FILE_ATTRIBUTE_INFO_NONE")]
-        const NONE = ffi::G_FILE_ATTRIBUTE_INFO_NONE as _;
+        const NONE = ffi::G_FILE_ATTRIBUTE_INFO_NONE as u32;
         #[doc(alias = "G_FILE_ATTRIBUTE_INFO_COPY_WITH_FILE")]
-        const COPY_WITH_FILE = ffi::G_FILE_ATTRIBUTE_INFO_COPY_WITH_FILE as _;
+        const COPY_WITH_FILE = ffi::G_FILE_ATTRIBUTE_INFO_COPY_WITH_FILE as u32;
         #[doc(alias = "G_FILE_ATTRIBUTE_INFO_COPY_WHEN_MOVED")]
-        const COPY_WHEN_MOVED = ffi::G_FILE_ATTRIBUTE_INFO_COPY_WHEN_MOVED as _;
+        const COPY_WHEN_MOVED = ffi::G_FILE_ATTRIBUTE_INFO_COPY_WHEN_MOVED as u32;
     }
 }
 
@@ -1613,7 +1124,6 @@ impl fmt::Display for FileAttributeInfoFlags {
 impl IntoGlib for FileAttributeInfoFlags {
     type GlibType = ffi::GFileAttributeInfoFlags;
 
-    #[inline]
     fn into_glib(self) -> ffi::GFileAttributeInfoFlags {
         self.bits()
     }
@@ -1621,27 +1131,14 @@ impl IntoGlib for FileAttributeInfoFlags {
 
 #[doc(hidden)]
 impl FromGlib<ffi::GFileAttributeInfoFlags> for FileAttributeInfoFlags {
-    #[inline]
     unsafe fn from_glib(value: ffi::GFileAttributeInfoFlags) -> Self {
         Self::from_bits_truncate(value)
     }
 }
 
 impl StaticType for FileAttributeInfoFlags {
-    #[inline]
-    #[doc(alias = "g_file_attribute_info_flags_get_type")]
-    fn static_type() -> glib::Type {
+    fn static_type() -> Type {
         unsafe { from_glib(ffi::g_file_attribute_info_flags_get_type()) }
-    }
-}
-
-impl glib::HasParamSpec for FileAttributeInfoFlags {
-    type ParamSpec = glib::ParamSpecFlags;
-    type SetValue = Self;
-    type BuilderFn = fn(&str) -> glib::ParamSpecFlagsBuilder<Self>;
-
-    fn param_spec_builder() -> Self::BuilderFn {
-        Self::ParamSpec::builder
     }
 }
 
@@ -1649,17 +1146,15 @@ impl glib::value::ValueType for FileAttributeInfoFlags {
     type Type = Self;
 }
 
-unsafe impl<'a> glib::value::FromValue<'a> for FileAttributeInfoFlags {
+unsafe impl<'a> FromValue<'a> for FileAttributeInfoFlags {
     type Checker = glib::value::GenericValueTypeChecker<Self>;
 
-    #[inline]
     unsafe fn from_value(value: &'a glib::Value) -> Self {
         from_glib(glib::gobject_ffi::g_value_get_flags(value.to_glib_none().0))
     }
 }
 
 impl ToValue for FileAttributeInfoFlags {
-    #[inline]
     fn to_value(&self) -> glib::Value {
         let mut value = glib::Value::for_value_type::<Self>();
         unsafe {
@@ -1668,37 +1163,28 @@ impl ToValue for FileAttributeInfoFlags {
         value
     }
 
-    #[inline]
     fn value_type(&self) -> glib::Type {
         Self::static_type()
     }
 }
 
-impl From<FileAttributeInfoFlags> for glib::Value {
-    #[inline]
-    fn from(v: FileAttributeInfoFlags) -> Self {
-        ToValue::to_value(&v)
-    }
-}
-
 bitflags! {
-    #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
     #[doc(alias = "GFileCopyFlags")]
     pub struct FileCopyFlags: u32 {
         #[doc(alias = "G_FILE_COPY_NONE")]
-        const NONE = ffi::G_FILE_COPY_NONE as _;
+        const NONE = ffi::G_FILE_COPY_NONE as u32;
         #[doc(alias = "G_FILE_COPY_OVERWRITE")]
-        const OVERWRITE = ffi::G_FILE_COPY_OVERWRITE as _;
+        const OVERWRITE = ffi::G_FILE_COPY_OVERWRITE as u32;
         #[doc(alias = "G_FILE_COPY_BACKUP")]
-        const BACKUP = ffi::G_FILE_COPY_BACKUP as _;
+        const BACKUP = ffi::G_FILE_COPY_BACKUP as u32;
         #[doc(alias = "G_FILE_COPY_NOFOLLOW_SYMLINKS")]
-        const NOFOLLOW_SYMLINKS = ffi::G_FILE_COPY_NOFOLLOW_SYMLINKS as _;
+        const NOFOLLOW_SYMLINKS = ffi::G_FILE_COPY_NOFOLLOW_SYMLINKS as u32;
         #[doc(alias = "G_FILE_COPY_ALL_METADATA")]
-        const ALL_METADATA = ffi::G_FILE_COPY_ALL_METADATA as _;
+        const ALL_METADATA = ffi::G_FILE_COPY_ALL_METADATA as u32;
         #[doc(alias = "G_FILE_COPY_NO_FALLBACK_FOR_MOVE")]
-        const NO_FALLBACK_FOR_MOVE = ffi::G_FILE_COPY_NO_FALLBACK_FOR_MOVE as _;
+        const NO_FALLBACK_FOR_MOVE = ffi::G_FILE_COPY_NO_FALLBACK_FOR_MOVE as u32;
         #[doc(alias = "G_FILE_COPY_TARGET_DEFAULT_PERMS")]
-        const TARGET_DEFAULT_PERMS = ffi::G_FILE_COPY_TARGET_DEFAULT_PERMS as _;
+        const TARGET_DEFAULT_PERMS = ffi::G_FILE_COPY_TARGET_DEFAULT_PERMS as u32;
     }
 }
 
@@ -1712,7 +1198,6 @@ impl fmt::Display for FileCopyFlags {
 impl IntoGlib for FileCopyFlags {
     type GlibType = ffi::GFileCopyFlags;
 
-    #[inline]
     fn into_glib(self) -> ffi::GFileCopyFlags {
         self.bits()
     }
@@ -1720,27 +1205,14 @@ impl IntoGlib for FileCopyFlags {
 
 #[doc(hidden)]
 impl FromGlib<ffi::GFileCopyFlags> for FileCopyFlags {
-    #[inline]
     unsafe fn from_glib(value: ffi::GFileCopyFlags) -> Self {
         Self::from_bits_truncate(value)
     }
 }
 
 impl StaticType for FileCopyFlags {
-    #[inline]
-    #[doc(alias = "g_file_copy_flags_get_type")]
-    fn static_type() -> glib::Type {
+    fn static_type() -> Type {
         unsafe { from_glib(ffi::g_file_copy_flags_get_type()) }
-    }
-}
-
-impl glib::HasParamSpec for FileCopyFlags {
-    type ParamSpec = glib::ParamSpecFlags;
-    type SetValue = Self;
-    type BuilderFn = fn(&str) -> glib::ParamSpecFlagsBuilder<Self>;
-
-    fn param_spec_builder() -> Self::BuilderFn {
-        Self::ParamSpec::builder
     }
 }
 
@@ -1748,17 +1220,15 @@ impl glib::value::ValueType for FileCopyFlags {
     type Type = Self;
 }
 
-unsafe impl<'a> glib::value::FromValue<'a> for FileCopyFlags {
+unsafe impl<'a> FromValue<'a> for FileCopyFlags {
     type Checker = glib::value::GenericValueTypeChecker<Self>;
 
-    #[inline]
     unsafe fn from_value(value: &'a glib::Value) -> Self {
         from_glib(glib::gobject_ffi::g_value_get_flags(value.to_glib_none().0))
     }
 }
 
 impl ToValue for FileCopyFlags {
-    #[inline]
     fn to_value(&self) -> glib::Value {
         let mut value = glib::Value::for_value_type::<Self>();
         unsafe {
@@ -1767,29 +1237,20 @@ impl ToValue for FileCopyFlags {
         value
     }
 
-    #[inline]
     fn value_type(&self) -> glib::Type {
         Self::static_type()
     }
 }
 
-impl From<FileCopyFlags> for glib::Value {
-    #[inline]
-    fn from(v: FileCopyFlags) -> Self {
-        ToValue::to_value(&v)
-    }
-}
-
 bitflags! {
-    #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
     #[doc(alias = "GFileCreateFlags")]
     pub struct FileCreateFlags: u32 {
         #[doc(alias = "G_FILE_CREATE_NONE")]
-        const NONE = ffi::G_FILE_CREATE_NONE as _;
+        const NONE = ffi::G_FILE_CREATE_NONE as u32;
         #[doc(alias = "G_FILE_CREATE_PRIVATE")]
-        const PRIVATE = ffi::G_FILE_CREATE_PRIVATE as _;
+        const PRIVATE = ffi::G_FILE_CREATE_PRIVATE as u32;
         #[doc(alias = "G_FILE_CREATE_REPLACE_DESTINATION")]
-        const REPLACE_DESTINATION = ffi::G_FILE_CREATE_REPLACE_DESTINATION as _;
+        const REPLACE_DESTINATION = ffi::G_FILE_CREATE_REPLACE_DESTINATION as u32;
     }
 }
 
@@ -1803,7 +1264,6 @@ impl fmt::Display for FileCreateFlags {
 impl IntoGlib for FileCreateFlags {
     type GlibType = ffi::GFileCreateFlags;
 
-    #[inline]
     fn into_glib(self) -> ffi::GFileCreateFlags {
         self.bits()
     }
@@ -1811,27 +1271,14 @@ impl IntoGlib for FileCreateFlags {
 
 #[doc(hidden)]
 impl FromGlib<ffi::GFileCreateFlags> for FileCreateFlags {
-    #[inline]
     unsafe fn from_glib(value: ffi::GFileCreateFlags) -> Self {
         Self::from_bits_truncate(value)
     }
 }
 
 impl StaticType for FileCreateFlags {
-    #[inline]
-    #[doc(alias = "g_file_create_flags_get_type")]
-    fn static_type() -> glib::Type {
+    fn static_type() -> Type {
         unsafe { from_glib(ffi::g_file_create_flags_get_type()) }
-    }
-}
-
-impl glib::HasParamSpec for FileCreateFlags {
-    type ParamSpec = glib::ParamSpecFlags;
-    type SetValue = Self;
-    type BuilderFn = fn(&str) -> glib::ParamSpecFlagsBuilder<Self>;
-
-    fn param_spec_builder() -> Self::BuilderFn {
-        Self::ParamSpec::builder
     }
 }
 
@@ -1839,17 +1286,15 @@ impl glib::value::ValueType for FileCreateFlags {
     type Type = Self;
 }
 
-unsafe impl<'a> glib::value::FromValue<'a> for FileCreateFlags {
+unsafe impl<'a> FromValue<'a> for FileCreateFlags {
     type Checker = glib::value::GenericValueTypeChecker<Self>;
 
-    #[inline]
     unsafe fn from_value(value: &'a glib::Value) -> Self {
         from_glib(glib::gobject_ffi::g_value_get_flags(value.to_glib_none().0))
     }
 }
 
 impl ToValue for FileCreateFlags {
-    #[inline]
     fn to_value(&self) -> glib::Value {
         let mut value = glib::Value::for_value_type::<Self>();
         unsafe {
@@ -1858,31 +1303,22 @@ impl ToValue for FileCreateFlags {
         value
     }
 
-    #[inline]
     fn value_type(&self) -> glib::Type {
         Self::static_type()
     }
 }
 
-impl From<FileCreateFlags> for glib::Value {
-    #[inline]
-    fn from(v: FileCreateFlags) -> Self {
-        ToValue::to_value(&v)
-    }
-}
-
 bitflags! {
-    #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
     #[doc(alias = "GFileMeasureFlags")]
     pub struct FileMeasureFlags: u32 {
         #[doc(alias = "G_FILE_MEASURE_NONE")]
-        const NONE = ffi::G_FILE_MEASURE_NONE as _;
+        const NONE = ffi::G_FILE_MEASURE_NONE as u32;
         #[doc(alias = "G_FILE_MEASURE_REPORT_ANY_ERROR")]
-        const REPORT_ANY_ERROR = ffi::G_FILE_MEASURE_REPORT_ANY_ERROR as _;
+        const REPORT_ANY_ERROR = ffi::G_FILE_MEASURE_REPORT_ANY_ERROR as u32;
         #[doc(alias = "G_FILE_MEASURE_APPARENT_SIZE")]
-        const APPARENT_SIZE = ffi::G_FILE_MEASURE_APPARENT_SIZE as _;
+        const APPARENT_SIZE = ffi::G_FILE_MEASURE_APPARENT_SIZE as u32;
         #[doc(alias = "G_FILE_MEASURE_NO_XDEV")]
-        const NO_XDEV = ffi::G_FILE_MEASURE_NO_XDEV as _;
+        const NO_XDEV = ffi::G_FILE_MEASURE_NO_XDEV as u32;
     }
 }
 
@@ -1896,7 +1332,6 @@ impl fmt::Display for FileMeasureFlags {
 impl IntoGlib for FileMeasureFlags {
     type GlibType = ffi::GFileMeasureFlags;
 
-    #[inline]
     fn into_glib(self) -> ffi::GFileMeasureFlags {
         self.bits()
     }
@@ -1904,27 +1339,14 @@ impl IntoGlib for FileMeasureFlags {
 
 #[doc(hidden)]
 impl FromGlib<ffi::GFileMeasureFlags> for FileMeasureFlags {
-    #[inline]
     unsafe fn from_glib(value: ffi::GFileMeasureFlags) -> Self {
         Self::from_bits_truncate(value)
     }
 }
 
 impl StaticType for FileMeasureFlags {
-    #[inline]
-    #[doc(alias = "g_file_measure_flags_get_type")]
-    fn static_type() -> glib::Type {
+    fn static_type() -> Type {
         unsafe { from_glib(ffi::g_file_measure_flags_get_type()) }
-    }
-}
-
-impl glib::HasParamSpec for FileMeasureFlags {
-    type ParamSpec = glib::ParamSpecFlags;
-    type SetValue = Self;
-    type BuilderFn = fn(&str) -> glib::ParamSpecFlagsBuilder<Self>;
-
-    fn param_spec_builder() -> Self::BuilderFn {
-        Self::ParamSpec::builder
     }
 }
 
@@ -1932,17 +1354,15 @@ impl glib::value::ValueType for FileMeasureFlags {
     type Type = Self;
 }
 
-unsafe impl<'a> glib::value::FromValue<'a> for FileMeasureFlags {
+unsafe impl<'a> FromValue<'a> for FileMeasureFlags {
     type Checker = glib::value::GenericValueTypeChecker<Self>;
 
-    #[inline]
     unsafe fn from_value(value: &'a glib::Value) -> Self {
         from_glib(glib::gobject_ffi::g_value_get_flags(value.to_glib_none().0))
     }
 }
 
 impl ToValue for FileMeasureFlags {
-    #[inline]
     fn to_value(&self) -> glib::Value {
         let mut value = glib::Value::for_value_type::<Self>();
         unsafe {
@@ -1951,33 +1371,24 @@ impl ToValue for FileMeasureFlags {
         value
     }
 
-    #[inline]
     fn value_type(&self) -> glib::Type {
         Self::static_type()
     }
 }
 
-impl From<FileMeasureFlags> for glib::Value {
-    #[inline]
-    fn from(v: FileMeasureFlags) -> Self {
-        ToValue::to_value(&v)
-    }
-}
-
 bitflags! {
-    #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
     #[doc(alias = "GFileMonitorFlags")]
     pub struct FileMonitorFlags: u32 {
         #[doc(alias = "G_FILE_MONITOR_NONE")]
-        const NONE = ffi::G_FILE_MONITOR_NONE as _;
+        const NONE = ffi::G_FILE_MONITOR_NONE as u32;
         #[doc(alias = "G_FILE_MONITOR_WATCH_MOUNTS")]
-        const WATCH_MOUNTS = ffi::G_FILE_MONITOR_WATCH_MOUNTS as _;
+        const WATCH_MOUNTS = ffi::G_FILE_MONITOR_WATCH_MOUNTS as u32;
         #[doc(alias = "G_FILE_MONITOR_SEND_MOVED")]
-        const SEND_MOVED = ffi::G_FILE_MONITOR_SEND_MOVED as _;
+        const SEND_MOVED = ffi::G_FILE_MONITOR_SEND_MOVED as u32;
         #[doc(alias = "G_FILE_MONITOR_WATCH_HARD_LINKS")]
-        const WATCH_HARD_LINKS = ffi::G_FILE_MONITOR_WATCH_HARD_LINKS as _;
+        const WATCH_HARD_LINKS = ffi::G_FILE_MONITOR_WATCH_HARD_LINKS as u32;
         #[doc(alias = "G_FILE_MONITOR_WATCH_MOVES")]
-        const WATCH_MOVES = ffi::G_FILE_MONITOR_WATCH_MOVES as _;
+        const WATCH_MOVES = ffi::G_FILE_MONITOR_WATCH_MOVES as u32;
     }
 }
 
@@ -1991,7 +1402,6 @@ impl fmt::Display for FileMonitorFlags {
 impl IntoGlib for FileMonitorFlags {
     type GlibType = ffi::GFileMonitorFlags;
 
-    #[inline]
     fn into_glib(self) -> ffi::GFileMonitorFlags {
         self.bits()
     }
@@ -1999,27 +1409,14 @@ impl IntoGlib for FileMonitorFlags {
 
 #[doc(hidden)]
 impl FromGlib<ffi::GFileMonitorFlags> for FileMonitorFlags {
-    #[inline]
     unsafe fn from_glib(value: ffi::GFileMonitorFlags) -> Self {
         Self::from_bits_truncate(value)
     }
 }
 
 impl StaticType for FileMonitorFlags {
-    #[inline]
-    #[doc(alias = "g_file_monitor_flags_get_type")]
-    fn static_type() -> glib::Type {
+    fn static_type() -> Type {
         unsafe { from_glib(ffi::g_file_monitor_flags_get_type()) }
-    }
-}
-
-impl glib::HasParamSpec for FileMonitorFlags {
-    type ParamSpec = glib::ParamSpecFlags;
-    type SetValue = Self;
-    type BuilderFn = fn(&str) -> glib::ParamSpecFlagsBuilder<Self>;
-
-    fn param_spec_builder() -> Self::BuilderFn {
-        Self::ParamSpec::builder
     }
 }
 
@@ -2027,17 +1424,15 @@ impl glib::value::ValueType for FileMonitorFlags {
     type Type = Self;
 }
 
-unsafe impl<'a> glib::value::FromValue<'a> for FileMonitorFlags {
+unsafe impl<'a> FromValue<'a> for FileMonitorFlags {
     type Checker = glib::value::GenericValueTypeChecker<Self>;
 
-    #[inline]
     unsafe fn from_value(value: &'a glib::Value) -> Self {
         from_glib(glib::gobject_ffi::g_value_get_flags(value.to_glib_none().0))
     }
 }
 
 impl ToValue for FileMonitorFlags {
-    #[inline]
     fn to_value(&self) -> glib::Value {
         let mut value = glib::Value::for_value_type::<Self>();
         unsafe {
@@ -2046,27 +1441,18 @@ impl ToValue for FileMonitorFlags {
         value
     }
 
-    #[inline]
     fn value_type(&self) -> glib::Type {
         Self::static_type()
     }
 }
 
-impl From<FileMonitorFlags> for glib::Value {
-    #[inline]
-    fn from(v: FileMonitorFlags) -> Self {
-        ToValue::to_value(&v)
-    }
-}
-
 bitflags! {
-    #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
     #[doc(alias = "GFileQueryInfoFlags")]
     pub struct FileQueryInfoFlags: u32 {
         #[doc(alias = "G_FILE_QUERY_INFO_NONE")]
-        const NONE = ffi::G_FILE_QUERY_INFO_NONE as _;
+        const NONE = ffi::G_FILE_QUERY_INFO_NONE as u32;
         #[doc(alias = "G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS")]
-        const NOFOLLOW_SYMLINKS = ffi::G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS as _;
+        const NOFOLLOW_SYMLINKS = ffi::G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS as u32;
     }
 }
 
@@ -2080,7 +1466,6 @@ impl fmt::Display for FileQueryInfoFlags {
 impl IntoGlib for FileQueryInfoFlags {
     type GlibType = ffi::GFileQueryInfoFlags;
 
-    #[inline]
     fn into_glib(self) -> ffi::GFileQueryInfoFlags {
         self.bits()
     }
@@ -2088,27 +1473,14 @@ impl IntoGlib for FileQueryInfoFlags {
 
 #[doc(hidden)]
 impl FromGlib<ffi::GFileQueryInfoFlags> for FileQueryInfoFlags {
-    #[inline]
     unsafe fn from_glib(value: ffi::GFileQueryInfoFlags) -> Self {
         Self::from_bits_truncate(value)
     }
 }
 
 impl StaticType for FileQueryInfoFlags {
-    #[inline]
-    #[doc(alias = "g_file_query_info_flags_get_type")]
-    fn static_type() -> glib::Type {
+    fn static_type() -> Type {
         unsafe { from_glib(ffi::g_file_query_info_flags_get_type()) }
-    }
-}
-
-impl glib::HasParamSpec for FileQueryInfoFlags {
-    type ParamSpec = glib::ParamSpecFlags;
-    type SetValue = Self;
-    type BuilderFn = fn(&str) -> glib::ParamSpecFlagsBuilder<Self>;
-
-    fn param_spec_builder() -> Self::BuilderFn {
-        Self::ParamSpec::builder
     }
 }
 
@@ -2116,17 +1488,15 @@ impl glib::value::ValueType for FileQueryInfoFlags {
     type Type = Self;
 }
 
-unsafe impl<'a> glib::value::FromValue<'a> for FileQueryInfoFlags {
+unsafe impl<'a> FromValue<'a> for FileQueryInfoFlags {
     type Checker = glib::value::GenericValueTypeChecker<Self>;
 
-    #[inline]
     unsafe fn from_value(value: &'a glib::Value) -> Self {
         from_glib(glib::gobject_ffi::g_value_get_flags(value.to_glib_none().0))
     }
 }
 
 impl ToValue for FileQueryInfoFlags {
-    #[inline]
     fn to_value(&self) -> glib::Value {
         let mut value = glib::Value::for_value_type::<Self>();
         unsafe {
@@ -2135,31 +1505,22 @@ impl ToValue for FileQueryInfoFlags {
         value
     }
 
-    #[inline]
     fn value_type(&self) -> glib::Type {
         Self::static_type()
     }
 }
 
-impl From<FileQueryInfoFlags> for glib::Value {
-    #[inline]
-    fn from(v: FileQueryInfoFlags) -> Self {
-        ToValue::to_value(&v)
-    }
-}
-
 bitflags! {
-    #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
     #[doc(alias = "GIOStreamSpliceFlags")]
     pub struct IOStreamSpliceFlags: u32 {
         #[doc(alias = "G_IO_STREAM_SPLICE_NONE")]
-        const NONE = ffi::G_IO_STREAM_SPLICE_NONE as _;
+        const NONE = ffi::G_IO_STREAM_SPLICE_NONE as u32;
         #[doc(alias = "G_IO_STREAM_SPLICE_CLOSE_STREAM1")]
-        const CLOSE_STREAM1 = ffi::G_IO_STREAM_SPLICE_CLOSE_STREAM1 as _;
+        const CLOSE_STREAM1 = ffi::G_IO_STREAM_SPLICE_CLOSE_STREAM1 as u32;
         #[doc(alias = "G_IO_STREAM_SPLICE_CLOSE_STREAM2")]
-        const CLOSE_STREAM2 = ffi::G_IO_STREAM_SPLICE_CLOSE_STREAM2 as _;
+        const CLOSE_STREAM2 = ffi::G_IO_STREAM_SPLICE_CLOSE_STREAM2 as u32;
         #[doc(alias = "G_IO_STREAM_SPLICE_WAIT_FOR_BOTH")]
-        const WAIT_FOR_BOTH = ffi::G_IO_STREAM_SPLICE_WAIT_FOR_BOTH as _;
+        const WAIT_FOR_BOTH = ffi::G_IO_STREAM_SPLICE_WAIT_FOR_BOTH as u32;
     }
 }
 
@@ -2173,7 +1534,6 @@ impl fmt::Display for IOStreamSpliceFlags {
 impl IntoGlib for IOStreamSpliceFlags {
     type GlibType = ffi::GIOStreamSpliceFlags;
 
-    #[inline]
     fn into_glib(self) -> ffi::GIOStreamSpliceFlags {
         self.bits()
     }
@@ -2181,27 +1541,14 @@ impl IntoGlib for IOStreamSpliceFlags {
 
 #[doc(hidden)]
 impl FromGlib<ffi::GIOStreamSpliceFlags> for IOStreamSpliceFlags {
-    #[inline]
     unsafe fn from_glib(value: ffi::GIOStreamSpliceFlags) -> Self {
         Self::from_bits_truncate(value)
     }
 }
 
 impl StaticType for IOStreamSpliceFlags {
-    #[inline]
-    #[doc(alias = "g_io_stream_splice_flags_get_type")]
-    fn static_type() -> glib::Type {
+    fn static_type() -> Type {
         unsafe { from_glib(ffi::g_io_stream_splice_flags_get_type()) }
-    }
-}
-
-impl glib::HasParamSpec for IOStreamSpliceFlags {
-    type ParamSpec = glib::ParamSpecFlags;
-    type SetValue = Self;
-    type BuilderFn = fn(&str) -> glib::ParamSpecFlagsBuilder<Self>;
-
-    fn param_spec_builder() -> Self::BuilderFn {
-        Self::ParamSpec::builder
     }
 }
 
@@ -2209,17 +1556,15 @@ impl glib::value::ValueType for IOStreamSpliceFlags {
     type Type = Self;
 }
 
-unsafe impl<'a> glib::value::FromValue<'a> for IOStreamSpliceFlags {
+unsafe impl<'a> FromValue<'a> for IOStreamSpliceFlags {
     type Checker = glib::value::GenericValueTypeChecker<Self>;
 
-    #[inline]
     unsafe fn from_value(value: &'a glib::Value) -> Self {
         from_glib(glib::gobject_ffi::g_value_get_flags(value.to_glib_none().0))
     }
 }
 
 impl ToValue for IOStreamSpliceFlags {
-    #[inline]
     fn to_value(&self) -> glib::Value {
         let mut value = glib::Value::for_value_type::<Self>();
         unsafe {
@@ -2228,25 +1573,16 @@ impl ToValue for IOStreamSpliceFlags {
         value
     }
 
-    #[inline]
     fn value_type(&self) -> glib::Type {
         Self::static_type()
     }
 }
 
-impl From<IOStreamSpliceFlags> for glib::Value {
-    #[inline]
-    fn from(v: IOStreamSpliceFlags) -> Self {
-        ToValue::to_value(&v)
-    }
-}
-
 bitflags! {
-    #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
     #[doc(alias = "GMountMountFlags")]
     pub struct MountMountFlags: u32 {
         #[doc(alias = "G_MOUNT_MOUNT_NONE")]
-        const NONE = ffi::G_MOUNT_MOUNT_NONE as _;
+        const NONE = ffi::G_MOUNT_MOUNT_NONE as u32;
     }
 }
 
@@ -2260,7 +1596,6 @@ impl fmt::Display for MountMountFlags {
 impl IntoGlib for MountMountFlags {
     type GlibType = ffi::GMountMountFlags;
 
-    #[inline]
     fn into_glib(self) -> ffi::GMountMountFlags {
         self.bits()
     }
@@ -2268,27 +1603,14 @@ impl IntoGlib for MountMountFlags {
 
 #[doc(hidden)]
 impl FromGlib<ffi::GMountMountFlags> for MountMountFlags {
-    #[inline]
     unsafe fn from_glib(value: ffi::GMountMountFlags) -> Self {
         Self::from_bits_truncate(value)
     }
 }
 
 impl StaticType for MountMountFlags {
-    #[inline]
-    #[doc(alias = "g_mount_mount_flags_get_type")]
-    fn static_type() -> glib::Type {
+    fn static_type() -> Type {
         unsafe { from_glib(ffi::g_mount_mount_flags_get_type()) }
-    }
-}
-
-impl glib::HasParamSpec for MountMountFlags {
-    type ParamSpec = glib::ParamSpecFlags;
-    type SetValue = Self;
-    type BuilderFn = fn(&str) -> glib::ParamSpecFlagsBuilder<Self>;
-
-    fn param_spec_builder() -> Self::BuilderFn {
-        Self::ParamSpec::builder
     }
 }
 
@@ -2296,17 +1618,15 @@ impl glib::value::ValueType for MountMountFlags {
     type Type = Self;
 }
 
-unsafe impl<'a> glib::value::FromValue<'a> for MountMountFlags {
+unsafe impl<'a> FromValue<'a> for MountMountFlags {
     type Checker = glib::value::GenericValueTypeChecker<Self>;
 
-    #[inline]
     unsafe fn from_value(value: &'a glib::Value) -> Self {
         from_glib(glib::gobject_ffi::g_value_get_flags(value.to_glib_none().0))
     }
 }
 
 impl ToValue for MountMountFlags {
-    #[inline]
     fn to_value(&self) -> glib::Value {
         let mut value = glib::Value::for_value_type::<Self>();
         unsafe {
@@ -2315,27 +1635,18 @@ impl ToValue for MountMountFlags {
         value
     }
 
-    #[inline]
     fn value_type(&self) -> glib::Type {
         Self::static_type()
     }
 }
 
-impl From<MountMountFlags> for glib::Value {
-    #[inline]
-    fn from(v: MountMountFlags) -> Self {
-        ToValue::to_value(&v)
-    }
-}
-
 bitflags! {
-    #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
     #[doc(alias = "GMountUnmountFlags")]
     pub struct MountUnmountFlags: u32 {
         #[doc(alias = "G_MOUNT_UNMOUNT_NONE")]
-        const NONE = ffi::G_MOUNT_UNMOUNT_NONE as _;
+        const NONE = ffi::G_MOUNT_UNMOUNT_NONE as u32;
         #[doc(alias = "G_MOUNT_UNMOUNT_FORCE")]
-        const FORCE = ffi::G_MOUNT_UNMOUNT_FORCE as _;
+        const FORCE = ffi::G_MOUNT_UNMOUNT_FORCE as u32;
     }
 }
 
@@ -2349,7 +1660,6 @@ impl fmt::Display for MountUnmountFlags {
 impl IntoGlib for MountUnmountFlags {
     type GlibType = ffi::GMountUnmountFlags;
 
-    #[inline]
     fn into_glib(self) -> ffi::GMountUnmountFlags {
         self.bits()
     }
@@ -2357,27 +1667,14 @@ impl IntoGlib for MountUnmountFlags {
 
 #[doc(hidden)]
 impl FromGlib<ffi::GMountUnmountFlags> for MountUnmountFlags {
-    #[inline]
     unsafe fn from_glib(value: ffi::GMountUnmountFlags) -> Self {
         Self::from_bits_truncate(value)
     }
 }
 
 impl StaticType for MountUnmountFlags {
-    #[inline]
-    #[doc(alias = "g_mount_unmount_flags_get_type")]
-    fn static_type() -> glib::Type {
+    fn static_type() -> Type {
         unsafe { from_glib(ffi::g_mount_unmount_flags_get_type()) }
-    }
-}
-
-impl glib::HasParamSpec for MountUnmountFlags {
-    type ParamSpec = glib::ParamSpecFlags;
-    type SetValue = Self;
-    type BuilderFn = fn(&str) -> glib::ParamSpecFlagsBuilder<Self>;
-
-    fn param_spec_builder() -> Self::BuilderFn {
-        Self::ParamSpec::builder
     }
 }
 
@@ -2385,17 +1682,15 @@ impl glib::value::ValueType for MountUnmountFlags {
     type Type = Self;
 }
 
-unsafe impl<'a> glib::value::FromValue<'a> for MountUnmountFlags {
+unsafe impl<'a> FromValue<'a> for MountUnmountFlags {
     type Checker = glib::value::GenericValueTypeChecker<Self>;
 
-    #[inline]
     unsafe fn from_value(value: &'a glib::Value) -> Self {
         from_glib(glib::gobject_ffi::g_value_get_flags(value.to_glib_none().0))
     }
 }
 
 impl ToValue for MountUnmountFlags {
-    #[inline]
     fn to_value(&self) -> glib::Value {
         let mut value = glib::Value::for_value_type::<Self>();
         unsafe {
@@ -2404,29 +1699,20 @@ impl ToValue for MountUnmountFlags {
         value
     }
 
-    #[inline]
     fn value_type(&self) -> glib::Type {
         Self::static_type()
     }
 }
 
-impl From<MountUnmountFlags> for glib::Value {
-    #[inline]
-    fn from(v: MountUnmountFlags) -> Self {
-        ToValue::to_value(&v)
-    }
-}
-
 bitflags! {
-    #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
     #[doc(alias = "GOutputStreamSpliceFlags")]
     pub struct OutputStreamSpliceFlags: u32 {
         #[doc(alias = "G_OUTPUT_STREAM_SPLICE_NONE")]
-        const NONE = ffi::G_OUTPUT_STREAM_SPLICE_NONE as _;
+        const NONE = ffi::G_OUTPUT_STREAM_SPLICE_NONE as u32;
         #[doc(alias = "G_OUTPUT_STREAM_SPLICE_CLOSE_SOURCE")]
-        const CLOSE_SOURCE = ffi::G_OUTPUT_STREAM_SPLICE_CLOSE_SOURCE as _;
+        const CLOSE_SOURCE = ffi::G_OUTPUT_STREAM_SPLICE_CLOSE_SOURCE as u32;
         #[doc(alias = "G_OUTPUT_STREAM_SPLICE_CLOSE_TARGET")]
-        const CLOSE_TARGET = ffi::G_OUTPUT_STREAM_SPLICE_CLOSE_TARGET as _;
+        const CLOSE_TARGET = ffi::G_OUTPUT_STREAM_SPLICE_CLOSE_TARGET as u32;
     }
 }
 
@@ -2440,7 +1726,6 @@ impl fmt::Display for OutputStreamSpliceFlags {
 impl IntoGlib for OutputStreamSpliceFlags {
     type GlibType = ffi::GOutputStreamSpliceFlags;
 
-    #[inline]
     fn into_glib(self) -> ffi::GOutputStreamSpliceFlags {
         self.bits()
     }
@@ -2448,27 +1733,14 @@ impl IntoGlib for OutputStreamSpliceFlags {
 
 #[doc(hidden)]
 impl FromGlib<ffi::GOutputStreamSpliceFlags> for OutputStreamSpliceFlags {
-    #[inline]
     unsafe fn from_glib(value: ffi::GOutputStreamSpliceFlags) -> Self {
         Self::from_bits_truncate(value)
     }
 }
 
 impl StaticType for OutputStreamSpliceFlags {
-    #[inline]
-    #[doc(alias = "g_output_stream_splice_flags_get_type")]
-    fn static_type() -> glib::Type {
+    fn static_type() -> Type {
         unsafe { from_glib(ffi::g_output_stream_splice_flags_get_type()) }
-    }
-}
-
-impl glib::HasParamSpec for OutputStreamSpliceFlags {
-    type ParamSpec = glib::ParamSpecFlags;
-    type SetValue = Self;
-    type BuilderFn = fn(&str) -> glib::ParamSpecFlagsBuilder<Self>;
-
-    fn param_spec_builder() -> Self::BuilderFn {
-        Self::ParamSpec::builder
     }
 }
 
@@ -2476,17 +1748,15 @@ impl glib::value::ValueType for OutputStreamSpliceFlags {
     type Type = Self;
 }
 
-unsafe impl<'a> glib::value::FromValue<'a> for OutputStreamSpliceFlags {
+unsafe impl<'a> FromValue<'a> for OutputStreamSpliceFlags {
     type Checker = glib::value::GenericValueTypeChecker<Self>;
 
-    #[inline]
     unsafe fn from_value(value: &'a glib::Value) -> Self {
         from_glib(glib::gobject_ffi::g_value_get_flags(value.to_glib_none().0))
     }
 }
 
 impl ToValue for OutputStreamSpliceFlags {
-    #[inline]
     fn to_value(&self) -> glib::Value {
         let mut value = glib::Value::for_value_type::<Self>();
         unsafe {
@@ -2495,107 +1765,80 @@ impl ToValue for OutputStreamSpliceFlags {
         value
     }
 
-    #[inline]
     fn value_type(&self) -> glib::Type {
         Self::static_type()
     }
 }
 
-impl From<OutputStreamSpliceFlags> for glib::Value {
-    #[inline]
-    fn from(v: OutputStreamSpliceFlags) -> Self {
-        ToValue::to_value(&v)
-    }
-}
-
-#[cfg(feature = "v2_60")]
+#[cfg(any(feature = "v2_60", feature = "dox"))]
 bitflags! {
-    #[cfg_attr(docsrs, doc(cfg(feature = "v2_60")))]
-    #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v2_60")))]
     #[doc(alias = "GResolverNameLookupFlags")]
     pub struct ResolverNameLookupFlags: u32 {
         #[doc(alias = "G_RESOLVER_NAME_LOOKUP_FLAGS_DEFAULT")]
-        const DEFAULT = ffi::G_RESOLVER_NAME_LOOKUP_FLAGS_DEFAULT as _;
+        const DEFAULT = ffi::G_RESOLVER_NAME_LOOKUP_FLAGS_DEFAULT as u32;
         #[doc(alias = "G_RESOLVER_NAME_LOOKUP_FLAGS_IPV4_ONLY")]
-        const IPV4_ONLY = ffi::G_RESOLVER_NAME_LOOKUP_FLAGS_IPV4_ONLY as _;
+        const IPV4_ONLY = ffi::G_RESOLVER_NAME_LOOKUP_FLAGS_IPV4_ONLY as u32;
         #[doc(alias = "G_RESOLVER_NAME_LOOKUP_FLAGS_IPV6_ONLY")]
-        const IPV6_ONLY = ffi::G_RESOLVER_NAME_LOOKUP_FLAGS_IPV6_ONLY as _;
+        const IPV6_ONLY = ffi::G_RESOLVER_NAME_LOOKUP_FLAGS_IPV6_ONLY as u32;
     }
 }
 
-#[cfg(feature = "v2_60")]
-#[cfg_attr(docsrs, doc(cfg(feature = "v2_60")))]
+#[cfg(any(feature = "v2_60", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v2_60")))]
 impl fmt::Display for ResolverNameLookupFlags {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         <Self as fmt::Debug>::fmt(self, f)
     }
 }
 
-#[cfg(feature = "v2_60")]
-#[cfg_attr(docsrs, doc(cfg(feature = "v2_60")))]
+#[cfg(any(feature = "v2_60", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v2_60")))]
 #[doc(hidden)]
 impl IntoGlib for ResolverNameLookupFlags {
     type GlibType = ffi::GResolverNameLookupFlags;
 
-    #[inline]
     fn into_glib(self) -> ffi::GResolverNameLookupFlags {
         self.bits()
     }
 }
 
-#[cfg(feature = "v2_60")]
-#[cfg_attr(docsrs, doc(cfg(feature = "v2_60")))]
+#[cfg(any(feature = "v2_60", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v2_60")))]
 #[doc(hidden)]
 impl FromGlib<ffi::GResolverNameLookupFlags> for ResolverNameLookupFlags {
-    #[inline]
     unsafe fn from_glib(value: ffi::GResolverNameLookupFlags) -> Self {
         Self::from_bits_truncate(value)
     }
 }
 
-#[cfg(feature = "v2_60")]
-#[cfg_attr(docsrs, doc(cfg(feature = "v2_60")))]
+#[cfg(any(feature = "v2_60", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v2_60")))]
 impl StaticType for ResolverNameLookupFlags {
-    #[inline]
-    #[doc(alias = "g_resolver_name_lookup_flags_get_type")]
-    fn static_type() -> glib::Type {
+    fn static_type() -> Type {
         unsafe { from_glib(ffi::g_resolver_name_lookup_flags_get_type()) }
     }
 }
 
-#[cfg(feature = "v2_60")]
-#[cfg_attr(docsrs, doc(cfg(feature = "v2_60")))]
-impl glib::HasParamSpec for ResolverNameLookupFlags {
-    type ParamSpec = glib::ParamSpecFlags;
-    type SetValue = Self;
-    type BuilderFn = fn(&str) -> glib::ParamSpecFlagsBuilder<Self>;
-
-    fn param_spec_builder() -> Self::BuilderFn {
-        Self::ParamSpec::builder
-    }
-}
-
-#[cfg(feature = "v2_60")]
-#[cfg_attr(docsrs, doc(cfg(feature = "v2_60")))]
+#[cfg(any(feature = "v2_60", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v2_60")))]
 impl glib::value::ValueType for ResolverNameLookupFlags {
     type Type = Self;
 }
 
-#[cfg(feature = "v2_60")]
-#[cfg_attr(docsrs, doc(cfg(feature = "v2_60")))]
-unsafe impl<'a> glib::value::FromValue<'a> for ResolverNameLookupFlags {
+#[cfg(any(feature = "v2_60", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v2_60")))]
+unsafe impl<'a> FromValue<'a> for ResolverNameLookupFlags {
     type Checker = glib::value::GenericValueTypeChecker<Self>;
 
-    #[inline]
     unsafe fn from_value(value: &'a glib::Value) -> Self {
         from_glib(glib::gobject_ffi::g_value_get_flags(value.to_glib_none().0))
     }
 }
 
-#[cfg(feature = "v2_60")]
-#[cfg_attr(docsrs, doc(cfg(feature = "v2_60")))]
+#[cfg(any(feature = "v2_60", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v2_60")))]
 impl ToValue for ResolverNameLookupFlags {
-    #[inline]
     fn to_value(&self) -> glib::Value {
         let mut value = glib::Value::for_value_type::<Self>();
         unsafe {
@@ -2604,27 +1847,16 @@ impl ToValue for ResolverNameLookupFlags {
         value
     }
 
-    #[inline]
     fn value_type(&self) -> glib::Type {
         Self::static_type()
     }
 }
 
-#[cfg(feature = "v2_60")]
-#[cfg_attr(docsrs, doc(cfg(feature = "v2_60")))]
-impl From<ResolverNameLookupFlags> for glib::Value {
-    #[inline]
-    fn from(v: ResolverNameLookupFlags) -> Self {
-        ToValue::to_value(&v)
-    }
-}
-
 bitflags! {
-    #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
     #[doc(alias = "GResourceLookupFlags")]
     pub struct ResourceLookupFlags: u32 {
         #[doc(alias = "G_RESOURCE_LOOKUP_FLAGS_NONE")]
-        const NONE = ffi::G_RESOURCE_LOOKUP_FLAGS_NONE as _;
+        const NONE = ffi::G_RESOURCE_LOOKUP_FLAGS_NONE as u32;
     }
 }
 
@@ -2638,7 +1870,6 @@ impl fmt::Display for ResourceLookupFlags {
 impl IntoGlib for ResourceLookupFlags {
     type GlibType = ffi::GResourceLookupFlags;
 
-    #[inline]
     fn into_glib(self) -> ffi::GResourceLookupFlags {
         self.bits()
     }
@@ -2646,27 +1877,14 @@ impl IntoGlib for ResourceLookupFlags {
 
 #[doc(hidden)]
 impl FromGlib<ffi::GResourceLookupFlags> for ResourceLookupFlags {
-    #[inline]
     unsafe fn from_glib(value: ffi::GResourceLookupFlags) -> Self {
         Self::from_bits_truncate(value)
     }
 }
 
 impl StaticType for ResourceLookupFlags {
-    #[inline]
-    #[doc(alias = "g_resource_lookup_flags_get_type")]
-    fn static_type() -> glib::Type {
+    fn static_type() -> Type {
         unsafe { from_glib(ffi::g_resource_lookup_flags_get_type()) }
-    }
-}
-
-impl glib::HasParamSpec for ResourceLookupFlags {
-    type ParamSpec = glib::ParamSpecFlags;
-    type SetValue = Self;
-    type BuilderFn = fn(&str) -> glib::ParamSpecFlagsBuilder<Self>;
-
-    fn param_spec_builder() -> Self::BuilderFn {
-        Self::ParamSpec::builder
     }
 }
 
@@ -2674,17 +1892,15 @@ impl glib::value::ValueType for ResourceLookupFlags {
     type Type = Self;
 }
 
-unsafe impl<'a> glib::value::FromValue<'a> for ResourceLookupFlags {
+unsafe impl<'a> FromValue<'a> for ResourceLookupFlags {
     type Checker = glib::value::GenericValueTypeChecker<Self>;
 
-    #[inline]
     unsafe fn from_value(value: &'a glib::Value) -> Self {
         from_glib(glib::gobject_ffi::g_value_get_flags(value.to_glib_none().0))
     }
 }
 
 impl ToValue for ResourceLookupFlags {
-    #[inline]
     fn to_value(&self) -> glib::Value {
         let mut value = glib::Value::for_value_type::<Self>();
         unsafe {
@@ -2693,35 +1909,26 @@ impl ToValue for ResourceLookupFlags {
         value
     }
 
-    #[inline]
     fn value_type(&self) -> glib::Type {
         Self::static_type()
     }
 }
 
-impl From<ResourceLookupFlags> for glib::Value {
-    #[inline]
-    fn from(v: ResourceLookupFlags) -> Self {
-        ToValue::to_value(&v)
-    }
-}
-
 bitflags! {
-    #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
     #[doc(alias = "GSettingsBindFlags")]
     pub struct SettingsBindFlags: u32 {
         #[doc(alias = "G_SETTINGS_BIND_DEFAULT")]
-        const DEFAULT = ffi::G_SETTINGS_BIND_DEFAULT as _;
+        const DEFAULT = ffi::G_SETTINGS_BIND_DEFAULT as u32;
         #[doc(alias = "G_SETTINGS_BIND_GET")]
-        const GET = ffi::G_SETTINGS_BIND_GET as _;
+        const GET = ffi::G_SETTINGS_BIND_GET as u32;
         #[doc(alias = "G_SETTINGS_BIND_SET")]
-        const SET = ffi::G_SETTINGS_BIND_SET as _;
+        const SET = ffi::G_SETTINGS_BIND_SET as u32;
         #[doc(alias = "G_SETTINGS_BIND_NO_SENSITIVITY")]
-        const NO_SENSITIVITY = ffi::G_SETTINGS_BIND_NO_SENSITIVITY as _;
+        const NO_SENSITIVITY = ffi::G_SETTINGS_BIND_NO_SENSITIVITY as u32;
         #[doc(alias = "G_SETTINGS_BIND_GET_NO_CHANGES")]
-        const GET_NO_CHANGES = ffi::G_SETTINGS_BIND_GET_NO_CHANGES as _;
+        const GET_NO_CHANGES = ffi::G_SETTINGS_BIND_GET_NO_CHANGES as u32;
         #[doc(alias = "G_SETTINGS_BIND_INVERT_BOOLEAN")]
-        const INVERT_BOOLEAN = ffi::G_SETTINGS_BIND_INVERT_BOOLEAN as _;
+        const INVERT_BOOLEAN = ffi::G_SETTINGS_BIND_INVERT_BOOLEAN as u32;
     }
 }
 
@@ -2735,7 +1942,6 @@ impl fmt::Display for SettingsBindFlags {
 impl IntoGlib for SettingsBindFlags {
     type GlibType = ffi::GSettingsBindFlags;
 
-    #[inline]
     fn into_glib(self) -> ffi::GSettingsBindFlags {
         self.bits()
     }
@@ -2743,27 +1949,14 @@ impl IntoGlib for SettingsBindFlags {
 
 #[doc(hidden)]
 impl FromGlib<ffi::GSettingsBindFlags> for SettingsBindFlags {
-    #[inline]
     unsafe fn from_glib(value: ffi::GSettingsBindFlags) -> Self {
         Self::from_bits_truncate(value)
     }
 }
 
 impl StaticType for SettingsBindFlags {
-    #[inline]
-    #[doc(alias = "g_settings_bind_flags_get_type")]
-    fn static_type() -> glib::Type {
+    fn static_type() -> Type {
         unsafe { from_glib(ffi::g_settings_bind_flags_get_type()) }
-    }
-}
-
-impl glib::HasParamSpec for SettingsBindFlags {
-    type ParamSpec = glib::ParamSpecFlags;
-    type SetValue = Self;
-    type BuilderFn = fn(&str) -> glib::ParamSpecFlagsBuilder<Self>;
-
-    fn param_spec_builder() -> Self::BuilderFn {
-        Self::ParamSpec::builder
     }
 }
 
@@ -2771,17 +1964,15 @@ impl glib::value::ValueType for SettingsBindFlags {
     type Type = Self;
 }
 
-unsafe impl<'a> glib::value::FromValue<'a> for SettingsBindFlags {
+unsafe impl<'a> FromValue<'a> for SettingsBindFlags {
     type Checker = glib::value::GenericValueTypeChecker<Self>;
 
-    #[inline]
     unsafe fn from_value(value: &'a glib::Value) -> Self {
         from_glib(glib::gobject_ffi::g_value_get_flags(value.to_glib_none().0))
     }
 }
 
 impl ToValue for SettingsBindFlags {
-    #[inline]
     fn to_value(&self) -> glib::Value {
         let mut value = glib::Value::for_value_type::<Self>();
         unsafe {
@@ -2790,45 +1981,36 @@ impl ToValue for SettingsBindFlags {
         value
     }
 
-    #[inline]
     fn value_type(&self) -> glib::Type {
         Self::static_type()
     }
 }
 
-impl From<SettingsBindFlags> for glib::Value {
-    #[inline]
-    fn from(v: SettingsBindFlags) -> Self {
-        ToValue::to_value(&v)
-    }
-}
-
 bitflags! {
-    #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
     #[doc(alias = "GSubprocessFlags")]
     pub struct SubprocessFlags: u32 {
         #[doc(alias = "G_SUBPROCESS_FLAGS_NONE")]
-        const NONE = ffi::G_SUBPROCESS_FLAGS_NONE as _;
+        const NONE = ffi::G_SUBPROCESS_FLAGS_NONE as u32;
         #[doc(alias = "G_SUBPROCESS_FLAGS_STDIN_PIPE")]
-        const STDIN_PIPE = ffi::G_SUBPROCESS_FLAGS_STDIN_PIPE as _;
+        const STDIN_PIPE = ffi::G_SUBPROCESS_FLAGS_STDIN_PIPE as u32;
         #[doc(alias = "G_SUBPROCESS_FLAGS_STDIN_INHERIT")]
-        const STDIN_INHERIT = ffi::G_SUBPROCESS_FLAGS_STDIN_INHERIT as _;
+        const STDIN_INHERIT = ffi::G_SUBPROCESS_FLAGS_STDIN_INHERIT as u32;
         #[doc(alias = "G_SUBPROCESS_FLAGS_STDOUT_PIPE")]
-        const STDOUT_PIPE = ffi::G_SUBPROCESS_FLAGS_STDOUT_PIPE as _;
+        const STDOUT_PIPE = ffi::G_SUBPROCESS_FLAGS_STDOUT_PIPE as u32;
         #[doc(alias = "G_SUBPROCESS_FLAGS_STDOUT_SILENCE")]
-        const STDOUT_SILENCE = ffi::G_SUBPROCESS_FLAGS_STDOUT_SILENCE as _;
+        const STDOUT_SILENCE = ffi::G_SUBPROCESS_FLAGS_STDOUT_SILENCE as u32;
         #[doc(alias = "G_SUBPROCESS_FLAGS_STDERR_PIPE")]
-        const STDERR_PIPE = ffi::G_SUBPROCESS_FLAGS_STDERR_PIPE as _;
+        const STDERR_PIPE = ffi::G_SUBPROCESS_FLAGS_STDERR_PIPE as u32;
         #[doc(alias = "G_SUBPROCESS_FLAGS_STDERR_SILENCE")]
-        const STDERR_SILENCE = ffi::G_SUBPROCESS_FLAGS_STDERR_SILENCE as _;
+        const STDERR_SILENCE = ffi::G_SUBPROCESS_FLAGS_STDERR_SILENCE as u32;
         #[doc(alias = "G_SUBPROCESS_FLAGS_STDERR_MERGE")]
-        const STDERR_MERGE = ffi::G_SUBPROCESS_FLAGS_STDERR_MERGE as _;
+        const STDERR_MERGE = ffi::G_SUBPROCESS_FLAGS_STDERR_MERGE as u32;
         #[doc(alias = "G_SUBPROCESS_FLAGS_INHERIT_FDS")]
-        const INHERIT_FDS = ffi::G_SUBPROCESS_FLAGS_INHERIT_FDS as _;
-        #[cfg(feature = "v2_72")]
-        #[cfg_attr(docsrs, doc(cfg(feature = "v2_72")))]
+        const INHERIT_FDS = ffi::G_SUBPROCESS_FLAGS_INHERIT_FDS as u32;
+        #[cfg(any(feature = "v2_72", feature = "dox"))]
+        #[cfg_attr(feature = "dox", doc(cfg(feature = "v2_72")))]
         #[doc(alias = "G_SUBPROCESS_FLAGS_SEARCH_PATH_FROM_ENVP")]
-        const SEARCH_PATH_FROM_ENVP = ffi::G_SUBPROCESS_FLAGS_SEARCH_PATH_FROM_ENVP as _;
+        const SEARCH_PATH_FROM_ENVP = ffi::G_SUBPROCESS_FLAGS_SEARCH_PATH_FROM_ENVP as u32;
     }
 }
 
@@ -2842,7 +2024,6 @@ impl fmt::Display for SubprocessFlags {
 impl IntoGlib for SubprocessFlags {
     type GlibType = ffi::GSubprocessFlags;
 
-    #[inline]
     fn into_glib(self) -> ffi::GSubprocessFlags {
         self.bits()
     }
@@ -2850,27 +2031,14 @@ impl IntoGlib for SubprocessFlags {
 
 #[doc(hidden)]
 impl FromGlib<ffi::GSubprocessFlags> for SubprocessFlags {
-    #[inline]
     unsafe fn from_glib(value: ffi::GSubprocessFlags) -> Self {
         Self::from_bits_truncate(value)
     }
 }
 
 impl StaticType for SubprocessFlags {
-    #[inline]
-    #[doc(alias = "g_subprocess_flags_get_type")]
-    fn static_type() -> glib::Type {
+    fn static_type() -> Type {
         unsafe { from_glib(ffi::g_subprocess_flags_get_type()) }
-    }
-}
-
-impl glib::HasParamSpec for SubprocessFlags {
-    type ParamSpec = glib::ParamSpecFlags;
-    type SetValue = Self;
-    type BuilderFn = fn(&str) -> glib::ParamSpecFlagsBuilder<Self>;
-
-    fn param_spec_builder() -> Self::BuilderFn {
-        Self::ParamSpec::builder
     }
 }
 
@@ -2878,17 +2046,15 @@ impl glib::value::ValueType for SubprocessFlags {
     type Type = Self;
 }
 
-unsafe impl<'a> glib::value::FromValue<'a> for SubprocessFlags {
+unsafe impl<'a> FromValue<'a> for SubprocessFlags {
     type Checker = glib::value::GenericValueTypeChecker<Self>;
 
-    #[inline]
     unsafe fn from_value(value: &'a glib::Value) -> Self {
         from_glib(glib::gobject_ffi::g_value_get_flags(value.to_glib_none().0))
     }
 }
 
 impl ToValue for SubprocessFlags {
-    #[inline]
     fn to_value(&self) -> glib::Value {
         let mut value = glib::Value::for_value_type::<Self>();
         unsafe {
@@ -2897,39 +2063,30 @@ impl ToValue for SubprocessFlags {
         value
     }
 
-    #[inline]
     fn value_type(&self) -> glib::Type {
         Self::static_type()
     }
 }
 
-impl From<SubprocessFlags> for glib::Value {
-    #[inline]
-    fn from(v: SubprocessFlags) -> Self {
-        ToValue::to_value(&v)
-    }
-}
-
 bitflags! {
-    #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
     #[doc(alias = "GTlsCertificateFlags")]
     pub struct TlsCertificateFlags: u32 {
         #[doc(alias = "G_TLS_CERTIFICATE_UNKNOWN_CA")]
-        const UNKNOWN_CA = ffi::G_TLS_CERTIFICATE_UNKNOWN_CA as _;
+        const UNKNOWN_CA = ffi::G_TLS_CERTIFICATE_UNKNOWN_CA as u32;
         #[doc(alias = "G_TLS_CERTIFICATE_BAD_IDENTITY")]
-        const BAD_IDENTITY = ffi::G_TLS_CERTIFICATE_BAD_IDENTITY as _;
+        const BAD_IDENTITY = ffi::G_TLS_CERTIFICATE_BAD_IDENTITY as u32;
         #[doc(alias = "G_TLS_CERTIFICATE_NOT_ACTIVATED")]
-        const NOT_ACTIVATED = ffi::G_TLS_CERTIFICATE_NOT_ACTIVATED as _;
+        const NOT_ACTIVATED = ffi::G_TLS_CERTIFICATE_NOT_ACTIVATED as u32;
         #[doc(alias = "G_TLS_CERTIFICATE_EXPIRED")]
-        const EXPIRED = ffi::G_TLS_CERTIFICATE_EXPIRED as _;
+        const EXPIRED = ffi::G_TLS_CERTIFICATE_EXPIRED as u32;
         #[doc(alias = "G_TLS_CERTIFICATE_REVOKED")]
-        const REVOKED = ffi::G_TLS_CERTIFICATE_REVOKED as _;
+        const REVOKED = ffi::G_TLS_CERTIFICATE_REVOKED as u32;
         #[doc(alias = "G_TLS_CERTIFICATE_INSECURE")]
-        const INSECURE = ffi::G_TLS_CERTIFICATE_INSECURE as _;
+        const INSECURE = ffi::G_TLS_CERTIFICATE_INSECURE as u32;
         #[doc(alias = "G_TLS_CERTIFICATE_GENERIC_ERROR")]
-        const GENERIC_ERROR = ffi::G_TLS_CERTIFICATE_GENERIC_ERROR as _;
+        const GENERIC_ERROR = ffi::G_TLS_CERTIFICATE_GENERIC_ERROR as u32;
         #[doc(alias = "G_TLS_CERTIFICATE_VALIDATE_ALL")]
-        const VALIDATE_ALL = ffi::G_TLS_CERTIFICATE_VALIDATE_ALL as _;
+        const VALIDATE_ALL = ffi::G_TLS_CERTIFICATE_VALIDATE_ALL as u32;
     }
 }
 
@@ -2943,7 +2100,6 @@ impl fmt::Display for TlsCertificateFlags {
 impl IntoGlib for TlsCertificateFlags {
     type GlibType = ffi::GTlsCertificateFlags;
 
-    #[inline]
     fn into_glib(self) -> ffi::GTlsCertificateFlags {
         self.bits()
     }
@@ -2951,27 +2107,14 @@ impl IntoGlib for TlsCertificateFlags {
 
 #[doc(hidden)]
 impl FromGlib<ffi::GTlsCertificateFlags> for TlsCertificateFlags {
-    #[inline]
     unsafe fn from_glib(value: ffi::GTlsCertificateFlags) -> Self {
         Self::from_bits_truncate(value)
     }
 }
 
 impl StaticType for TlsCertificateFlags {
-    #[inline]
-    #[doc(alias = "g_tls_certificate_flags_get_type")]
-    fn static_type() -> glib::Type {
+    fn static_type() -> Type {
         unsafe { from_glib(ffi::g_tls_certificate_flags_get_type()) }
-    }
-}
-
-impl glib::HasParamSpec for TlsCertificateFlags {
-    type ParamSpec = glib::ParamSpecFlags;
-    type SetValue = Self;
-    type BuilderFn = fn(&str) -> glib::ParamSpecFlagsBuilder<Self>;
-
-    fn param_spec_builder() -> Self::BuilderFn {
-        Self::ParamSpec::builder
     }
 }
 
@@ -2979,17 +2122,15 @@ impl glib::value::ValueType for TlsCertificateFlags {
     type Type = Self;
 }
 
-unsafe impl<'a> glib::value::FromValue<'a> for TlsCertificateFlags {
+unsafe impl<'a> FromValue<'a> for TlsCertificateFlags {
     type Checker = glib::value::GenericValueTypeChecker<Self>;
 
-    #[inline]
     unsafe fn from_value(value: &'a glib::Value) -> Self {
         from_glib(glib::gobject_ffi::g_value_get_flags(value.to_glib_none().0))
     }
 }
 
 impl ToValue for TlsCertificateFlags {
-    #[inline]
     fn to_value(&self) -> glib::Value {
         let mut value = glib::Value::for_value_type::<Self>();
         unsafe {
@@ -2998,25 +2139,16 @@ impl ToValue for TlsCertificateFlags {
         value
     }
 
-    #[inline]
     fn value_type(&self) -> glib::Type {
         Self::static_type()
     }
 }
 
-impl From<TlsCertificateFlags> for glib::Value {
-    #[inline]
-    fn from(v: TlsCertificateFlags) -> Self {
-        ToValue::to_value(&v)
-    }
-}
-
 bitflags! {
-    #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
     #[doc(alias = "GTlsDatabaseVerifyFlags")]
     pub struct TlsDatabaseVerifyFlags: u32 {
         #[doc(alias = "G_TLS_DATABASE_VERIFY_NONE")]
-        const NONE = ffi::G_TLS_DATABASE_VERIFY_NONE as _;
+        const NONE = ffi::G_TLS_DATABASE_VERIFY_NONE as u32;
     }
 }
 
@@ -3030,7 +2162,6 @@ impl fmt::Display for TlsDatabaseVerifyFlags {
 impl IntoGlib for TlsDatabaseVerifyFlags {
     type GlibType = ffi::GTlsDatabaseVerifyFlags;
 
-    #[inline]
     fn into_glib(self) -> ffi::GTlsDatabaseVerifyFlags {
         self.bits()
     }
@@ -3038,27 +2169,14 @@ impl IntoGlib for TlsDatabaseVerifyFlags {
 
 #[doc(hidden)]
 impl FromGlib<ffi::GTlsDatabaseVerifyFlags> for TlsDatabaseVerifyFlags {
-    #[inline]
     unsafe fn from_glib(value: ffi::GTlsDatabaseVerifyFlags) -> Self {
         Self::from_bits_truncate(value)
     }
 }
 
 impl StaticType for TlsDatabaseVerifyFlags {
-    #[inline]
-    #[doc(alias = "g_tls_database_verify_flags_get_type")]
-    fn static_type() -> glib::Type {
+    fn static_type() -> Type {
         unsafe { from_glib(ffi::g_tls_database_verify_flags_get_type()) }
-    }
-}
-
-impl glib::HasParamSpec for TlsDatabaseVerifyFlags {
-    type ParamSpec = glib::ParamSpecFlags;
-    type SetValue = Self;
-    type BuilderFn = fn(&str) -> glib::ParamSpecFlagsBuilder<Self>;
-
-    fn param_spec_builder() -> Self::BuilderFn {
-        Self::ParamSpec::builder
     }
 }
 
@@ -3066,17 +2184,15 @@ impl glib::value::ValueType for TlsDatabaseVerifyFlags {
     type Type = Self;
 }
 
-unsafe impl<'a> glib::value::FromValue<'a> for TlsDatabaseVerifyFlags {
+unsafe impl<'a> FromValue<'a> for TlsDatabaseVerifyFlags {
     type Checker = glib::value::GenericValueTypeChecker<Self>;
 
-    #[inline]
     unsafe fn from_value(value: &'a glib::Value) -> Self {
         from_glib(glib::gobject_ffi::g_value_get_flags(value.to_glib_none().0))
     }
 }
 
 impl ToValue for TlsDatabaseVerifyFlags {
-    #[inline]
     fn to_value(&self) -> glib::Value {
         let mut value = glib::Value::for_value_type::<Self>();
         unsafe {
@@ -3085,37 +2201,28 @@ impl ToValue for TlsDatabaseVerifyFlags {
         value
     }
 
-    #[inline]
     fn value_type(&self) -> glib::Type {
         Self::static_type()
     }
 }
 
-impl From<TlsDatabaseVerifyFlags> for glib::Value {
-    #[inline]
-    fn from(v: TlsDatabaseVerifyFlags) -> Self {
-        ToValue::to_value(&v)
-    }
-}
-
 bitflags! {
-    #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
     #[doc(alias = "GTlsPasswordFlags")]
     pub struct TlsPasswordFlags: u32 {
         #[doc(alias = "G_TLS_PASSWORD_NONE")]
-        const NONE = ffi::G_TLS_PASSWORD_NONE as _;
+        const NONE = ffi::G_TLS_PASSWORD_NONE as u32;
         #[doc(alias = "G_TLS_PASSWORD_RETRY")]
-        const RETRY = ffi::G_TLS_PASSWORD_RETRY as _;
+        const RETRY = ffi::G_TLS_PASSWORD_RETRY as u32;
         #[doc(alias = "G_TLS_PASSWORD_MANY_TRIES")]
-        const MANY_TRIES = ffi::G_TLS_PASSWORD_MANY_TRIES as _;
+        const MANY_TRIES = ffi::G_TLS_PASSWORD_MANY_TRIES as u32;
         #[doc(alias = "G_TLS_PASSWORD_FINAL_TRY")]
-        const FINAL_TRY = ffi::G_TLS_PASSWORD_FINAL_TRY as _;
+        const FINAL_TRY = ffi::G_TLS_PASSWORD_FINAL_TRY as u32;
         #[doc(alias = "G_TLS_PASSWORD_PKCS11_USER")]
-        const PKCS11_USER = ffi::G_TLS_PASSWORD_PKCS11_USER as _;
+        const PKCS11_USER = ffi::G_TLS_PASSWORD_PKCS11_USER as u32;
         #[doc(alias = "G_TLS_PASSWORD_PKCS11_SECURITY_OFFICER")]
-        const PKCS11_SECURITY_OFFICER = ffi::G_TLS_PASSWORD_PKCS11_SECURITY_OFFICER as _;
+        const PKCS11_SECURITY_OFFICER = ffi::G_TLS_PASSWORD_PKCS11_SECURITY_OFFICER as u32;
         #[doc(alias = "G_TLS_PASSWORD_PKCS11_CONTEXT_SPECIFIC")]
-        const PKCS11_CONTEXT_SPECIFIC = ffi::G_TLS_PASSWORD_PKCS11_CONTEXT_SPECIFIC as _;
+        const PKCS11_CONTEXT_SPECIFIC = ffi::G_TLS_PASSWORD_PKCS11_CONTEXT_SPECIFIC as u32;
     }
 }
 
@@ -3129,7 +2236,6 @@ impl fmt::Display for TlsPasswordFlags {
 impl IntoGlib for TlsPasswordFlags {
     type GlibType = ffi::GTlsPasswordFlags;
 
-    #[inline]
     fn into_glib(self) -> ffi::GTlsPasswordFlags {
         self.bits()
     }
@@ -3137,27 +2243,14 @@ impl IntoGlib for TlsPasswordFlags {
 
 #[doc(hidden)]
 impl FromGlib<ffi::GTlsPasswordFlags> for TlsPasswordFlags {
-    #[inline]
     unsafe fn from_glib(value: ffi::GTlsPasswordFlags) -> Self {
         Self::from_bits_truncate(value)
     }
 }
 
 impl StaticType for TlsPasswordFlags {
-    #[inline]
-    #[doc(alias = "g_tls_password_flags_get_type")]
-    fn static_type() -> glib::Type {
+    fn static_type() -> Type {
         unsafe { from_glib(ffi::g_tls_password_flags_get_type()) }
-    }
-}
-
-impl glib::HasParamSpec for TlsPasswordFlags {
-    type ParamSpec = glib::ParamSpecFlags;
-    type SetValue = Self;
-    type BuilderFn = fn(&str) -> glib::ParamSpecFlagsBuilder<Self>;
-
-    fn param_spec_builder() -> Self::BuilderFn {
-        Self::ParamSpec::builder
     }
 }
 
@@ -3165,17 +2258,15 @@ impl glib::value::ValueType for TlsPasswordFlags {
     type Type = Self;
 }
 
-unsafe impl<'a> glib::value::FromValue<'a> for TlsPasswordFlags {
+unsafe impl<'a> FromValue<'a> for TlsPasswordFlags {
     type Checker = glib::value::GenericValueTypeChecker<Self>;
 
-    #[inline]
     unsafe fn from_value(value: &'a glib::Value) -> Self {
         from_glib(glib::gobject_ffi::g_value_get_flags(value.to_glib_none().0))
     }
 }
 
 impl ToValue for TlsPasswordFlags {
-    #[inline]
     fn to_value(&self) -> glib::Value {
         let mut value = glib::Value::for_value_type::<Self>();
         unsafe {
@@ -3184,15 +2275,7 @@ impl ToValue for TlsPasswordFlags {
         value
     }
 
-    #[inline]
     fn value_type(&self) -> glib::Type {
         Self::static_type()
-    }
-}
-
-impl From<TlsPasswordFlags> for glib::Value {
-    #[inline]
-    fn from(v: TlsPasswordFlags) -> Self {
-        ToValue::to_value(&v)
     }
 }

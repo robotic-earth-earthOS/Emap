@@ -2,13 +2,20 @@
 // from gir-files (https://github.com/gtk-rs/gir-files)
 // DO NOT EDIT
 
-use crate::{Cancellable, DBusConnection, DBusMethodInvocation, DebugController, Initable};
-use glib::{
-    prelude::*,
-    signal::{connect_raw, SignalHandlerId},
-    translate::*,
-};
-use std::{boxed::Box as Box_, fmt, mem::transmute, ptr};
+use crate::Cancellable;
+use crate::DBusConnection;
+use crate::DBusMethodInvocation;
+use crate::DebugController;
+use crate::Initable;
+use glib::object::Cast;
+use glib::object::IsA;
+use glib::signal::connect_raw;
+use glib::signal::SignalHandlerId;
+use glib::translate::*;
+use std::boxed::Box as Box_;
+use std::fmt;
+use std::mem::transmute;
+use std::ptr;
 
 glib::wrapper! {
     #[doc(alias = "GDebugControllerDBus")]
@@ -43,22 +50,28 @@ impl DebugControllerDBus {
     }
 }
 
-mod sealed {
-    pub trait Sealed {}
-    impl<T: super::IsA<super::DebugControllerDBus>> Sealed for T {}
+pub trait DebugControllerDBusExt: 'static {
+    #[doc(alias = "g_debug_controller_dbus_stop")]
+    fn stop(&self);
+
+    #[cfg(any(feature = "v2_72", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v2_72")))]
+    #[doc(alias = "authorize")]
+    fn connect_authorize<F: Fn(&Self, &DBusMethodInvocation) -> bool + 'static>(
+        &self,
+        f: F,
+    ) -> SignalHandlerId;
 }
 
-pub trait DebugControllerDBusExt: IsA<DebugControllerDBus> + sealed::Sealed + 'static {
-    #[doc(alias = "g_debug_controller_dbus_stop")]
+impl<O: IsA<DebugControllerDBus>> DebugControllerDBusExt for O {
     fn stop(&self) {
         unsafe {
             ffi::g_debug_controller_dbus_stop(self.as_ref().to_glib_none().0);
         }
     }
 
-    #[cfg(feature = "v2_72")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "v2_72")))]
-    #[doc(alias = "authorize")]
+    #[cfg(any(feature = "v2_72", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v2_72")))]
     fn connect_authorize<F: Fn(&Self, &DBusMethodInvocation) -> bool + 'static>(
         &self,
         f: F,
@@ -91,8 +104,6 @@ pub trait DebugControllerDBusExt: IsA<DebugControllerDBus> + sealed::Sealed + 's
         }
     }
 }
-
-impl<O: IsA<DebugControllerDBus>> DebugControllerDBusExt for O {}
 
 impl fmt::Display for DebugControllerDBus {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {

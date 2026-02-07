@@ -1,17 +1,17 @@
 // Take a look at the license at the top of the repository in the LICENSE file.
 
-use std::{boxed::Box as Box_, future::Future, mem::transmute, panic, ptr};
-
-use glib::{
-    prelude::*,
-    signal::{connect_raw, SignalHandlerId},
-    translate::*,
-    value::ValueType,
-};
-
-use futures_channel::oneshot;
-
-use crate::{AsyncResult, Cancellable};
+use crate::AsyncResult;
+use crate::Cancellable;
+use glib::object::IsA;
+use glib::object::ObjectType as ObjectType_;
+use glib::signal::connect_raw;
+use glib::signal::SignalHandlerId;
+use glib::translate::*;
+use glib::value::ValueType;
+use glib::Cast;
+use std::boxed::Box as Box_;
+use std::mem::transmute;
+use std::ptr;
 
 glib::wrapper! {
     // rustdoc-stripper-ignore-next
@@ -61,7 +61,7 @@ glib::wrapper! {
 
 macro_rules! task_impl {
     ($name:ident $(, @bound: $bound:tt)? $(, @safety: $safety:tt)?) => {
-        impl <V: Into<glib::Value> + ValueType $(+ $bound)?> $name<V> {
+        impl <V: ValueType $(+ $bound)?> $name<V> {
             #[doc(alias = "g_task_new")]
             #[allow(unused_unsafe)]
             pub unsafe fn new<S, P, Q>(
@@ -107,7 +107,7 @@ macro_rules! task_impl {
 
             #[doc(alias = "g_task_get_cancellable")]
             #[doc(alias = "get_cancellable")]
-            pub fn cancellable(&self) -> Option<Cancellable> {
+            pub fn cancellable(&self) -> Cancellable {
                 unsafe { from_glib_none(ffi::g_task_get_cancellable(self.to_glib_none().0)) }
             }
 
@@ -124,8 +124,8 @@ macro_rules! task_impl {
                 }
             }
 
-            #[cfg(feature = "v2_60")]
-            #[cfg_attr(docsrs, doc(cfg(feature = "v2_60")))]
+            #[cfg(any(feature = "v2_60", feature = "dox"))]
+            #[cfg_attr(feature = "dox", doc(cfg(feature = "v2_60")))]
             #[doc(alias = "g_task_set_name")]
             pub fn set_name(&self, name: Option<&str>) {
                 unsafe {
@@ -181,8 +181,8 @@ macro_rules! task_impl {
                 unsafe { from_glib_none(ffi::g_task_get_context(self.to_glib_none().0)) }
             }
 
-            #[cfg(feature = "v2_60")]
-            #[cfg_attr(docsrs, doc(cfg(feature = "v2_60")))]
+            #[cfg(any(feature = "v2_60", feature = "dox"))]
+            #[cfg_attr(feature = "dox", doc(cfg(feature = "v2_60")))]
             #[doc(alias = "g_task_get_name")]
             #[doc(alias = "get_name")]
             pub fn name(&self) -> Option<glib::GString> {
@@ -260,15 +260,14 @@ macro_rules! task_impl {
                     },
                     #[cfg(not(feature = "v2_64"))]
                     Ok(v) => unsafe {
-                        let v: glib::Value = v.into();
                         ffi::g_task_return_pointer(
                             self.to_glib_none().0,
-                            <glib::Value as glib::translate::IntoGlibPtr::<*mut glib::gobject_ffi::GValue>>::into_glib_ptr(v) as glib::ffi::gpointer,
+                            v.to_value().to_glib_full() as *mut _,
                             Some(value_free),
                         )
                     },
                     Err(e) => unsafe {
-                        ffi::g_task_return_error(self.to_glib_none().0, e.into_glib_ptr());
+                        ffi::g_task_return_error(self.to_glib_none().0, e.to_glib_full() as *mut _);
                     },
                 }
             }
@@ -383,75 +382,11 @@ impl<V: ValueType + Send> Task<V> {
 unsafe impl<V: ValueType + Send> Send for Task<V> {}
 unsafe impl<V: ValueType + Send> Sync for Task<V> {}
 
-// rustdoc-stripper-ignore-next
-/// A handle to a task running on the I/O thread pool.
-///
-/// Like [`std::thread::JoinHandle`] for a blocking I/O task rather than a thread. The return value
-/// from the task can be retrieved by awaiting on this handle. Dropping the handle "detaches" the
-/// task, allowing it to complete but discarding the return value.
-#[derive(Debug)]
-pub struct JoinHandle<T> {
-    rx: oneshot::Receiver<std::thread::Result<T>>,
-}
-
-impl<T> JoinHandle<T> {
-    #[inline]
-    fn new() -> (Self, oneshot::Sender<std::thread::Result<T>>) {
-        let (tx, rx) = oneshot::channel();
-        (Self { rx }, tx)
-    }
-}
-
-impl<T> Future for JoinHandle<T> {
-    type Output = std::thread::Result<T>;
-    #[inline]
-    fn poll(
-        mut self: std::pin::Pin<&mut Self>,
-        cx: &mut std::task::Context<'_>,
-    ) -> std::task::Poll<Self::Output> {
-        std::pin::Pin::new(&mut self.rx)
-            .poll(cx)
-            .map(|r| r.unwrap())
-    }
-}
-
-impl<T> futures_core::FusedFuture for JoinHandle<T> {
-    #[inline]
-    fn is_terminated(&self) -> bool {
-        self.rx.is_terminated()
-    }
-}
-
-// rustdoc-stripper-ignore-next
-/// Runs a blocking I/O task on the I/O thread pool.
-///
-/// Calls `func` on the internal Gio thread pool for blocking I/O operations. The thread pool is
-/// shared with other Gio async I/O operations, and may rate-limit the tasks it receives. Callers
-/// may want to avoid blocking indefinitely by making sure blocking calls eventually time out.
-///
-/// This function should not be used to spawn async tasks. Instead, use
-/// [`glib::MainContext::spawn`] or [`glib::MainContext::spawn_local`] to run a future.
-pub fn spawn_blocking<T, F>(func: F) -> JoinHandle<T>
-where
-    T: Send + 'static,
-    F: FnOnce() -> T + Send + 'static,
-{
-    // use Cancellable::NONE as source obj to fulfill `Send` requirement
-    let task = unsafe { Task::<bool>::new(Cancellable::NONE, Cancellable::NONE, |_, _| {}) };
-    let (join, tx) = JoinHandle::new();
-    task.run_in_thread(move |task, _: Option<&Cancellable>, _| {
-        let res = panic::catch_unwind(panic::AssertUnwindSafe(func));
-        let _ = tx.send(res);
-        unsafe { ffi::g_task_return_pointer(task.to_glib_none().0, ptr::null_mut(), None) }
-    });
-
-    join
-}
-
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::{prelude::*, test_util::run_async_local};
+    use crate::prelude::*;
+    use crate::test_util::run_async_local;
 
     #[test]
     fn test_int_async_result() {
@@ -501,7 +436,7 @@ mod test {
 
         impl MySimpleObject {
             pub fn new() -> Self {
-                glib::Object::new()
+                glib::Object::new(&[]).expect("Failed to create MySimpleObject")
             }
 
             #[doc(alias = "get_size")]

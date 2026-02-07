@@ -3,8 +3,8 @@
 // DO NOT EDIT
 
 use crate::translate::*;
-#[cfg(feature = "v2_72")]
-#[cfg_attr(docsrs, doc(cfg(feature = "v2_72")))]
+#[cfg(any(feature = "v2_72", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v2_72")))]
 use crate::MainContextFlags;
 
 crate::wrapper! {
@@ -24,8 +24,8 @@ impl MainContext {
         unsafe { from_glib_full(ffi::g_main_context_new()) }
     }
 
-    #[cfg(feature = "v2_72")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "v2_72")))]
+    #[cfg(any(feature = "v2_72", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v2_72")))]
     #[doc(alias = "g_main_context_new_with_flags")]
     #[doc(alias = "new_with_flags")]
     pub fn with_flags(flags: MainContextFlags) -> MainContext {
@@ -50,18 +50,18 @@ impl MainContext {
     }
 
     //#[doc(alias = "g_main_context_find_source_by_funcs_user_data")]
-    //pub fn find_source_by_funcs_user_data(&self, funcs: /*Ignored*/&mut SourceFuncs, user_data: /*Unimplemented*/Option<Basic: Pointer>) -> Source {
+    //pub fn find_source_by_funcs_user_data(&self, funcs: /*Ignored*/&mut SourceFuncs, user_data: /*Unimplemented*/Option<Fundamental: Pointer>) -> Source {
     //    unsafe { TODO: call ffi:g_main_context_find_source_by_funcs_user_data() }
     //}
 
     //#[doc(alias = "g_main_context_find_source_by_user_data")]
-    //pub fn find_source_by_user_data(&self, user_data: /*Unimplemented*/Option<Basic: Pointer>) -> Source {
+    //pub fn find_source_by_user_data(&self, user_data: /*Unimplemented*/Option<Fundamental: Pointer>) -> Source {
     //    unsafe { TODO: call ffi:g_main_context_find_source_by_user_data() }
     //}
 
     //#[doc(alias = "g_main_context_get_poll_func")]
     //#[doc(alias = "get_poll_func")]
-    //pub fn poll_func(&self) -> /*Unimplemented*/Fn(/*Ignored*/PollFD, u32) -> i32 {
+    //pub fn poll_func(&self) -> /*Unimplemented*/Fn(/*Ignored*/PollFD, u32, i32) -> i32 {
     //    unsafe { TODO: call ffi:g_main_context_get_poll_func() }
     //}
 
@@ -96,12 +96,11 @@ impl MainContext {
     //}
 
     //#[doc(alias = "g_main_context_set_poll_func")]
-    //pub fn set_poll_func(&self, func: /*Unimplemented*/Fn(/*Ignored*/PollFD, u32) -> i32) {
+    //pub fn set_poll_func(&self, func: /*Unimplemented*/Fn(/*Ignored*/PollFD, u32, i32) -> i32) {
     //    unsafe { TODO: call ffi:g_main_context_set_poll_func() }
     //}
 
     //#[cfg_attr(feature = "v2_58", deprecated = "Since 2.58")]
-    //#[allow(deprecated)]
     //#[doc(alias = "g_main_context_wait")]
     //pub fn wait(&self, cond: /*Ignored*/&mut Cond, mutex: /*Ignored*/&mut Mutex) -> bool {
     //    unsafe { TODO: call ffi:g_main_context_wait() }
@@ -115,7 +114,6 @@ impl MainContext {
     }
 
     #[doc(alias = "g_main_context_default")]
-    #[allow(clippy::should_implement_trait)]
     pub fn default() -> MainContext {
         unsafe { from_glib_none(ffi::g_main_context_default()) }
     }

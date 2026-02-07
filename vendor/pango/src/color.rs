@@ -1,10 +1,8 @@
 // Take a look at the license at the top of the repository in the LICENSE file.
 
-use std::fmt;
-
-use glib::translate::*;
-
 use crate::Color;
+use glib::translate::*;
+use std::fmt;
 
 impl Color {
     #[doc(alias = "pango_color_parse")]
@@ -21,8 +19,8 @@ impl Color {
         }
     }
 
-    #[cfg(feature = "v1_46")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "v1_46")))]
+    #[cfg(any(feature = "v1_46", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v1_46")))]
     #[doc(alias = "pango_color_parse_with_alpha")]
     pub fn parse_with_alpha(spec: &str) -> Result<(Self, u16), glib::BoolError> {
         unsafe {

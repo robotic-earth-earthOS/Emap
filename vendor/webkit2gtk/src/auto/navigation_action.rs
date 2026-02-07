@@ -2,7 +2,8 @@
 // from gir-files (https://github.com/tauri-apps/gir-files)
 // DO NOT EDIT
 
-use crate::{NavigationType, URIRequest};
+use crate::NavigationType;
+use crate::URIRequest;
 use glib::translate::*;
 
 glib::wrapper! {
@@ -17,18 +18,6 @@ glib::wrapper! {
 }
 
 impl NavigationAction {
-  #[cfg(feature = "v2_40")]
-  #[cfg_attr(docsrs, doc(cfg(feature = "v2_40")))]
-  #[doc(alias = "webkit_navigation_action_get_frame_name")]
-  #[doc(alias = "get_frame_name")]
-  pub fn frame_name(&mut self) -> Option<glib::GString> {
-    unsafe {
-      from_glib_none(ffi::webkit_navigation_action_get_frame_name(
-        self.to_glib_none_mut().0,
-      ))
-    }
-  }
-
   #[doc(alias = "webkit_navigation_action_get_modifiers")]
   #[doc(alias = "get_modifiers")]
   pub fn modifiers(&self) -> u32 {
@@ -61,8 +50,8 @@ impl NavigationAction {
     }
   }
 
-  #[cfg(feature = "v2_20")]
-  #[cfg_attr(docsrs, doc(cfg(feature = "v2_20")))]
+  #[cfg(any(feature = "v2_20", feature = "dox"))]
+  #[cfg_attr(feature = "dox", doc(cfg(feature = "v2_20")))]
   #[doc(alias = "webkit_navigation_action_is_redirect")]
   pub fn is_redirect(&mut self) -> bool {
     unsafe {

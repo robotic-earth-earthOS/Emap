@@ -43,7 +43,6 @@
 //! This visitor stores every string in the document.
 //!
 //! ```
-//! # #[cfg(feature = "parse")] {
 //! # use toml_edit::*;
 //! use toml_edit::visit::*;
 //!
@@ -63,27 +62,25 @@
 //! the-force = { value = "surrounds-you" }
 //! "#;
 //!
-//! let mut document: DocumentMut = input.parse().unwrap();
+//! let mut document: Document = input.parse().unwrap();
 //! let mut visitor = StringCollector::default();
 //! visitor.visit_document(&document);
 //!
 //! assert_eq!(visitor.strings, vec!["sky-castle", "surrounds-you"]);
-//! # }
 //! ```
 //!
 //! For a more complex example where the visitor has internal state, see `examples/visit.rs`
-//! [on GitHub](https://github.com/toml-rs/toml/blob/main/crates/toml_edit/examples/visit.rs).
+//! [on GitHub](https://github.com/ordian/toml_edit/blob/master/examples/visit.rs).
 
 use crate::{
-    Array, ArrayOfTables, Datetime, DocumentMut, Formatted, InlineTable, Item, Table, TableLike,
-    Value,
+    Array, ArrayOfTables, Datetime, Document, Formatted, InlineTable, Item, Table, TableLike, Value,
 };
 
 /// Document tree traversal to mutate an exclusive borrow of a document tree in-place.
 ///
 /// See the [module documentation](self) for details.
 pub trait Visit<'doc> {
-    fn visit_document(&mut self, node: &'doc DocumentMut) {
+    fn visit_document(&mut self, node: &'doc Document) {
         visit_document(self, node);
     }
 
@@ -96,7 +93,7 @@ pub trait Visit<'doc> {
     }
 
     fn visit_inline_table(&mut self, node: &'doc InlineTable) {
-        visit_inline_table(self, node);
+        visit_inline_table(self, node)
     }
 
     fn visit_table_like(&mut self, node: &'doc dyn TableLike) {
@@ -120,7 +117,7 @@ pub trait Visit<'doc> {
     }
 
     fn visit_boolean(&mut self, node: &'doc Formatted<bool>) {
-        visit_boolean(self, node);
+        visit_boolean(self, node)
     }
 
     fn visit_datetime(&mut self, node: &'doc Formatted<Datetime>) {
@@ -128,19 +125,19 @@ pub trait Visit<'doc> {
     }
 
     fn visit_float(&mut self, node: &'doc Formatted<f64>) {
-        visit_float(self, node);
+        visit_float(self, node)
     }
 
     fn visit_integer(&mut self, node: &'doc Formatted<i64>) {
-        visit_integer(self, node);
+        visit_integer(self, node)
     }
 
     fn visit_string(&mut self, node: &'doc Formatted<String>) {
-        visit_string(self, node);
+        visit_string(self, node)
     }
 }
 
-pub fn visit_document<'doc, V>(v: &mut V, node: &'doc DocumentMut)
+pub fn visit_document<'doc, V>(v: &mut V, node: &'doc Document)
 where
     V: Visit<'doc> + ?Sized,
 {
@@ -163,14 +160,14 @@ pub fn visit_table<'doc, V>(v: &mut V, node: &'doc Table)
 where
     V: Visit<'doc> + ?Sized,
 {
-    v.visit_table_like(node);
+    v.visit_table_like(node)
 }
 
 pub fn visit_inline_table<'doc, V>(v: &mut V, node: &'doc InlineTable)
 where
     V: Visit<'doc> + ?Sized,
 {
-    v.visit_table_like(node);
+    v.visit_table_like(node)
 }
 
 pub fn visit_table_like<'doc, V>(v: &mut V, node: &'doc dyn TableLike)
@@ -178,7 +175,7 @@ where
     V: Visit<'doc> + ?Sized,
 {
     for (key, item) in node.iter() {
-        v.visit_table_like_kv(key, item);
+        v.visit_table_like_kv(key, item)
     }
 }
 
@@ -186,7 +183,7 @@ pub fn visit_table_like_kv<'doc, V>(v: &mut V, _key: &'doc str, node: &'doc Item
 where
     V: Visit<'doc> + ?Sized,
 {
-    v.visit_item(node);
+    v.visit_item(node)
 }
 
 pub fn visit_array<'doc, V>(v: &mut V, node: &'doc Array)

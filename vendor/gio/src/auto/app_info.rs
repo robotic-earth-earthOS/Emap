@@ -2,9 +2,26 @@
 // from gir-files (https://github.com/gtk-rs/gir-files)
 // DO NOT EDIT
 
-use crate::{AppInfoCreateFlags, AppLaunchContext, AsyncResult, Cancellable, File, Icon};
-use glib::{prelude::*, translate::*};
-use std::{boxed::Box as Box_, fmt, pin::Pin, ptr};
+use crate::AppInfoCreateFlags;
+use crate::AppLaunchContext;
+#[cfg(any(feature = "v2_50", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v2_50")))]
+use crate::AsyncResult;
+#[cfg(any(feature = "v2_50", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v2_50")))]
+use crate::Cancellable;
+use crate::File;
+use crate::Icon;
+use glib::object::IsA;
+use glib::translate::*;
+#[cfg(any(feature = "v2_50", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v2_50")))]
+use std::boxed::Box as Box_;
+use std::fmt;
+#[cfg(any(feature = "v2_50", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v2_50")))]
+use std::pin::Pin;
+use std::ptr;
 
 glib::wrapper! {
     #[doc(alias = "GAppInfo")]
@@ -67,81 +84,6 @@ impl AppInfo {
         }
     }
 
-    #[cfg(feature = "v2_74")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "v2_74")))]
-    #[doc(alias = "g_app_info_get_default_for_type_async")]
-    #[doc(alias = "get_default_for_type_async")]
-    pub fn default_for_type_async<P: FnOnce(Result<AppInfo, glib::Error>) + 'static>(
-        content_type: &str,
-        must_support_uris: bool,
-        cancellable: Option<&impl IsA<Cancellable>>,
-        callback: P,
-    ) {
-        let main_context = glib::MainContext::ref_thread_default();
-        let is_main_context_owner = main_context.is_owner();
-        let has_acquired_main_context = (!is_main_context_owner)
-            .then(|| main_context.acquire().ok())
-            .flatten();
-        assert!(
-            is_main_context_owner || has_acquired_main_context.is_some(),
-            "Async operations only allowed if the thread is owning the MainContext"
-        );
-
-        let user_data: Box_<glib::thread_guard::ThreadGuard<P>> =
-            Box_::new(glib::thread_guard::ThreadGuard::new(callback));
-        unsafe extern "C" fn default_for_type_async_trampoline<
-            P: FnOnce(Result<AppInfo, glib::Error>) + 'static,
-        >(
-            _source_object: *mut glib::gobject_ffi::GObject,
-            res: *mut crate::ffi::GAsyncResult,
-            user_data: glib::ffi::gpointer,
-        ) {
-            let mut error = ptr::null_mut();
-            let ret = ffi::g_app_info_get_default_for_type_finish(res, &mut error);
-            let result = if error.is_null() {
-                Ok(from_glib_full(ret))
-            } else {
-                Err(from_glib_full(error))
-            };
-            let callback: Box_<glib::thread_guard::ThreadGuard<P>> =
-                Box_::from_raw(user_data as *mut _);
-            let callback: P = callback.into_inner();
-            callback(result);
-        }
-        let callback = default_for_type_async_trampoline::<P>;
-        unsafe {
-            ffi::g_app_info_get_default_for_type_async(
-                content_type.to_glib_none().0,
-                must_support_uris.into_glib(),
-                cancellable.map(|p| p.as_ref()).to_glib_none().0,
-                Some(callback),
-                Box_::into_raw(user_data) as *mut _,
-            );
-        }
-    }
-
-    #[cfg(feature = "v2_74")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "v2_74")))]
-    pub fn default_for_type_future(
-        content_type: &str,
-        must_support_uris: bool,
-    ) -> Pin<Box_<dyn std::future::Future<Output = Result<AppInfo, glib::Error>> + 'static>> {
-        let content_type = String::from(content_type);
-        Box_::pin(crate::GioFuture::new(
-            &(),
-            move |_obj, cancellable, send| {
-                Self::default_for_type_async(
-                    &content_type,
-                    must_support_uris,
-                    Some(cancellable),
-                    move |res| {
-                        send.resolve(res);
-                    },
-                );
-            },
-        ))
-    }
-
     #[doc(alias = "g_app_info_get_default_for_uri_scheme")]
     #[doc(alias = "get_default_for_uri_scheme")]
     pub fn default_for_uri_scheme(uri_scheme: &str) -> Option<AppInfo> {
@@ -150,73 +92,6 @@ impl AppInfo {
                 uri_scheme.to_glib_none().0,
             ))
         }
-    }
-
-    #[cfg(feature = "v2_74")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "v2_74")))]
-    #[doc(alias = "g_app_info_get_default_for_uri_scheme_async")]
-    #[doc(alias = "get_default_for_uri_scheme_async")]
-    pub fn default_for_uri_scheme_async<P: FnOnce(Result<AppInfo, glib::Error>) + 'static>(
-        uri_scheme: &str,
-        cancellable: Option<&impl IsA<Cancellable>>,
-        callback: P,
-    ) {
-        let main_context = glib::MainContext::ref_thread_default();
-        let is_main_context_owner = main_context.is_owner();
-        let has_acquired_main_context = (!is_main_context_owner)
-            .then(|| main_context.acquire().ok())
-            .flatten();
-        assert!(
-            is_main_context_owner || has_acquired_main_context.is_some(),
-            "Async operations only allowed if the thread is owning the MainContext"
-        );
-
-        let user_data: Box_<glib::thread_guard::ThreadGuard<P>> =
-            Box_::new(glib::thread_guard::ThreadGuard::new(callback));
-        unsafe extern "C" fn default_for_uri_scheme_async_trampoline<
-            P: FnOnce(Result<AppInfo, glib::Error>) + 'static,
-        >(
-            _source_object: *mut glib::gobject_ffi::GObject,
-            res: *mut crate::ffi::GAsyncResult,
-            user_data: glib::ffi::gpointer,
-        ) {
-            let mut error = ptr::null_mut();
-            let ret = ffi::g_app_info_get_default_for_uri_scheme_finish(res, &mut error);
-            let result = if error.is_null() {
-                Ok(from_glib_full(ret))
-            } else {
-                Err(from_glib_full(error))
-            };
-            let callback: Box_<glib::thread_guard::ThreadGuard<P>> =
-                Box_::from_raw(user_data as *mut _);
-            let callback: P = callback.into_inner();
-            callback(result);
-        }
-        let callback = default_for_uri_scheme_async_trampoline::<P>;
-        unsafe {
-            ffi::g_app_info_get_default_for_uri_scheme_async(
-                uri_scheme.to_glib_none().0,
-                cancellable.map(|p| p.as_ref()).to_glib_none().0,
-                Some(callback),
-                Box_::into_raw(user_data) as *mut _,
-            );
-        }
-    }
-
-    #[cfg(feature = "v2_74")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "v2_74")))]
-    pub fn default_for_uri_scheme_future(
-        uri_scheme: &str,
-    ) -> Pin<Box_<dyn std::future::Future<Output = Result<AppInfo, glib::Error>> + 'static>> {
-        let uri_scheme = String::from(uri_scheme);
-        Box_::pin(crate::GioFuture::new(
-            &(),
-            move |_obj, cancellable, send| {
-                Self::default_for_uri_scheme_async(&uri_scheme, Some(cancellable), move |res| {
-                    send.resolve(res);
-                });
-            },
-        ))
     }
 
     #[doc(alias = "g_app_info_get_fallback_for_type")]
@@ -251,7 +126,7 @@ impl AppInfo {
                 context.map(|p| p.as_ref()).to_glib_none().0,
                 &mut error,
             );
-            debug_assert_eq!(is_ok == glib::ffi::GFALSE, !error.is_null());
+            assert_eq!(is_ok == glib::ffi::GFALSE, !error.is_null());
             if error.is_null() {
                 Ok(())
             } else {
@@ -260,6 +135,8 @@ impl AppInfo {
         }
     }
 
+    #[cfg(any(feature = "v2_50", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v2_50")))]
     #[doc(alias = "g_app_info_launch_default_for_uri_async")]
     pub fn launch_default_for_uri_async<P: FnOnce(Result<(), glib::Error>) + 'static>(
         uri: &str,
@@ -310,6 +187,8 @@ impl AppInfo {
         }
     }
 
+    #[cfg(any(feature = "v2_50", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v2_50")))]
     pub fn launch_default_for_uri_future(
         uri: &str,
         context: Option<&(impl IsA<AppLaunchContext> + Clone + 'static)>,
@@ -339,13 +218,98 @@ impl AppInfo {
     }
 }
 
-mod sealed {
-    pub trait Sealed {}
-    impl<T: super::IsA<super::AppInfo>> Sealed for T {}
+pub trait AppInfoExt: 'static {
+    #[doc(alias = "g_app_info_add_supports_type")]
+    fn add_supports_type(&self, content_type: &str) -> Result<(), glib::Error>;
+
+    #[doc(alias = "g_app_info_can_delete")]
+    fn can_delete(&self) -> bool;
+
+    #[doc(alias = "g_app_info_can_remove_supports_type")]
+    fn can_remove_supports_type(&self) -> bool;
+
+    #[doc(alias = "g_app_info_delete")]
+    fn delete(&self) -> bool;
+
+    #[doc(alias = "g_app_info_dup")]
+    #[must_use]
+    fn dup(&self) -> AppInfo;
+
+    #[doc(alias = "g_app_info_equal")]
+    fn equal(&self, appinfo2: &impl IsA<AppInfo>) -> bool;
+
+    #[doc(alias = "g_app_info_get_commandline")]
+    #[doc(alias = "get_commandline")]
+    fn commandline(&self) -> Option<std::path::PathBuf>;
+
+    #[doc(alias = "g_app_info_get_description")]
+    #[doc(alias = "get_description")]
+    fn description(&self) -> Option<glib::GString>;
+
+    #[doc(alias = "g_app_info_get_display_name")]
+    #[doc(alias = "get_display_name")]
+    fn display_name(&self) -> glib::GString;
+
+    #[doc(alias = "g_app_info_get_executable")]
+    #[doc(alias = "get_executable")]
+    fn executable(&self) -> std::path::PathBuf;
+
+    #[doc(alias = "g_app_info_get_icon")]
+    #[doc(alias = "get_icon")]
+    fn icon(&self) -> Option<Icon>;
+
+    #[doc(alias = "g_app_info_get_id")]
+    #[doc(alias = "get_id")]
+    fn id(&self) -> Option<glib::GString>;
+
+    #[doc(alias = "g_app_info_get_name")]
+    #[doc(alias = "get_name")]
+    fn name(&self) -> glib::GString;
+
+    #[doc(alias = "g_app_info_get_supported_types")]
+    #[doc(alias = "get_supported_types")]
+    fn supported_types(&self) -> Vec<glib::GString>;
+
+    #[doc(alias = "g_app_info_launch")]
+    fn launch(
+        &self,
+        files: &[File],
+        context: Option<&impl IsA<AppLaunchContext>>,
+    ) -> Result<(), glib::Error>;
+
+    #[doc(alias = "g_app_info_launch_uris")]
+    fn launch_uris(
+        &self,
+        uris: &[&str],
+        context: Option<&impl IsA<AppLaunchContext>>,
+    ) -> Result<(), glib::Error>;
+
+    #[doc(alias = "g_app_info_remove_supports_type")]
+    fn remove_supports_type(&self, content_type: &str) -> Result<(), glib::Error>;
+
+    #[doc(alias = "g_app_info_set_as_default_for_extension")]
+    fn set_as_default_for_extension(
+        &self,
+        extension: impl AsRef<std::path::Path>,
+    ) -> Result<(), glib::Error>;
+
+    #[doc(alias = "g_app_info_set_as_default_for_type")]
+    fn set_as_default_for_type(&self, content_type: &str) -> Result<(), glib::Error>;
+
+    #[doc(alias = "g_app_info_set_as_last_used_for_type")]
+    fn set_as_last_used_for_type(&self, content_type: &str) -> Result<(), glib::Error>;
+
+    #[doc(alias = "g_app_info_should_show")]
+    fn should_show(&self) -> bool;
+
+    #[doc(alias = "g_app_info_supports_files")]
+    fn supports_files(&self) -> bool;
+
+    #[doc(alias = "g_app_info_supports_uris")]
+    fn supports_uris(&self) -> bool;
 }
 
-pub trait AppInfoExt: IsA<AppInfo> + sealed::Sealed + 'static {
-    #[doc(alias = "g_app_info_add_supports_type")]
+impl<O: IsA<AppInfo>> AppInfoExt for O {
     fn add_supports_type(&self, content_type: &str) -> Result<(), glib::Error> {
         unsafe {
             let mut error = ptr::null_mut();
@@ -354,7 +318,7 @@ pub trait AppInfoExt: IsA<AppInfo> + sealed::Sealed + 'static {
                 content_type.to_glib_none().0,
                 &mut error,
             );
-            debug_assert_eq!(is_ok == glib::ffi::GFALSE, !error.is_null());
+            assert_eq!(is_ok == glib::ffi::GFALSE, !error.is_null());
             if error.is_null() {
                 Ok(())
             } else {
@@ -363,12 +327,10 @@ pub trait AppInfoExt: IsA<AppInfo> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_app_info_can_delete")]
     fn can_delete(&self) -> bool {
         unsafe { from_glib(ffi::g_app_info_can_delete(self.as_ref().to_glib_none().0)) }
     }
 
-    #[doc(alias = "g_app_info_can_remove_supports_type")]
     fn can_remove_supports_type(&self) -> bool {
         unsafe {
             from_glib(ffi::g_app_info_can_remove_supports_type(
@@ -377,18 +339,14 @@ pub trait AppInfoExt: IsA<AppInfo> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_app_info_delete")]
     fn delete(&self) -> bool {
         unsafe { from_glib(ffi::g_app_info_delete(self.as_ref().to_glib_none().0)) }
     }
 
-    #[doc(alias = "g_app_info_dup")]
-    #[must_use]
     fn dup(&self) -> AppInfo {
         unsafe { from_glib_full(ffi::g_app_info_dup(self.as_ref().to_glib_none().0)) }
     }
 
-    #[doc(alias = "g_app_info_equal")]
     fn equal(&self, appinfo2: &impl IsA<AppInfo>) -> bool {
         unsafe {
             from_glib(ffi::g_app_info_equal(
@@ -398,8 +356,6 @@ pub trait AppInfoExt: IsA<AppInfo> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_app_info_get_commandline")]
-    #[doc(alias = "get_commandline")]
     fn commandline(&self) -> Option<std::path::PathBuf> {
         unsafe {
             from_glib_none(ffi::g_app_info_get_commandline(
@@ -408,8 +364,6 @@ pub trait AppInfoExt: IsA<AppInfo> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_app_info_get_description")]
-    #[doc(alias = "get_description")]
     fn description(&self) -> Option<glib::GString> {
         unsafe {
             from_glib_none(ffi::g_app_info_get_description(
@@ -418,8 +372,6 @@ pub trait AppInfoExt: IsA<AppInfo> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_app_info_get_display_name")]
-    #[doc(alias = "get_display_name")]
     fn display_name(&self) -> glib::GString {
         unsafe {
             from_glib_none(ffi::g_app_info_get_display_name(
@@ -428,8 +380,6 @@ pub trait AppInfoExt: IsA<AppInfo> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_app_info_get_executable")]
-    #[doc(alias = "get_executable")]
     fn executable(&self) -> std::path::PathBuf {
         unsafe {
             from_glib_none(ffi::g_app_info_get_executable(
@@ -438,26 +388,18 @@ pub trait AppInfoExt: IsA<AppInfo> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_app_info_get_icon")]
-    #[doc(alias = "get_icon")]
     fn icon(&self) -> Option<Icon> {
         unsafe { from_glib_none(ffi::g_app_info_get_icon(self.as_ref().to_glib_none().0)) }
     }
 
-    #[doc(alias = "g_app_info_get_id")]
-    #[doc(alias = "get_id")]
     fn id(&self) -> Option<glib::GString> {
         unsafe { from_glib_none(ffi::g_app_info_get_id(self.as_ref().to_glib_none().0)) }
     }
 
-    #[doc(alias = "g_app_info_get_name")]
-    #[doc(alias = "get_name")]
     fn name(&self) -> glib::GString {
         unsafe { from_glib_none(ffi::g_app_info_get_name(self.as_ref().to_glib_none().0)) }
     }
 
-    #[doc(alias = "g_app_info_get_supported_types")]
-    #[doc(alias = "get_supported_types")]
     fn supported_types(&self) -> Vec<glib::GString> {
         unsafe {
             FromGlibPtrContainer::from_glib_none(ffi::g_app_info_get_supported_types(
@@ -466,7 +408,6 @@ pub trait AppInfoExt: IsA<AppInfo> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_app_info_launch")]
     fn launch(
         &self,
         files: &[File],
@@ -480,7 +421,7 @@ pub trait AppInfoExt: IsA<AppInfo> + sealed::Sealed + 'static {
                 context.map(|p| p.as_ref()).to_glib_none().0,
                 &mut error,
             );
-            debug_assert_eq!(is_ok == glib::ffi::GFALSE, !error.is_null());
+            assert_eq!(is_ok == glib::ffi::GFALSE, !error.is_null());
             if error.is_null() {
                 Ok(())
             } else {
@@ -489,7 +430,6 @@ pub trait AppInfoExt: IsA<AppInfo> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_app_info_launch_uris")]
     fn launch_uris(
         &self,
         uris: &[&str],
@@ -503,7 +443,7 @@ pub trait AppInfoExt: IsA<AppInfo> + sealed::Sealed + 'static {
                 context.map(|p| p.as_ref()).to_glib_none().0,
                 &mut error,
             );
-            debug_assert_eq!(is_ok == glib::ffi::GFALSE, !error.is_null());
+            assert_eq!(is_ok == glib::ffi::GFALSE, !error.is_null());
             if error.is_null() {
                 Ok(())
             } else {
@@ -512,7 +452,6 @@ pub trait AppInfoExt: IsA<AppInfo> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_app_info_remove_supports_type")]
     fn remove_supports_type(&self, content_type: &str) -> Result<(), glib::Error> {
         unsafe {
             let mut error = ptr::null_mut();
@@ -521,7 +460,7 @@ pub trait AppInfoExt: IsA<AppInfo> + sealed::Sealed + 'static {
                 content_type.to_glib_none().0,
                 &mut error,
             );
-            debug_assert_eq!(is_ok == glib::ffi::GFALSE, !error.is_null());
+            assert_eq!(is_ok == glib::ffi::GFALSE, !error.is_null());
             if error.is_null() {
                 Ok(())
             } else {
@@ -530,7 +469,6 @@ pub trait AppInfoExt: IsA<AppInfo> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_app_info_set_as_default_for_extension")]
     fn set_as_default_for_extension(
         &self,
         extension: impl AsRef<std::path::Path>,
@@ -542,7 +480,7 @@ pub trait AppInfoExt: IsA<AppInfo> + sealed::Sealed + 'static {
                 extension.as_ref().to_glib_none().0,
                 &mut error,
             );
-            debug_assert_eq!(is_ok == glib::ffi::GFALSE, !error.is_null());
+            assert_eq!(is_ok == glib::ffi::GFALSE, !error.is_null());
             if error.is_null() {
                 Ok(())
             } else {
@@ -551,7 +489,6 @@ pub trait AppInfoExt: IsA<AppInfo> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_app_info_set_as_default_for_type")]
     fn set_as_default_for_type(&self, content_type: &str) -> Result<(), glib::Error> {
         unsafe {
             let mut error = ptr::null_mut();
@@ -560,7 +497,7 @@ pub trait AppInfoExt: IsA<AppInfo> + sealed::Sealed + 'static {
                 content_type.to_glib_none().0,
                 &mut error,
             );
-            debug_assert_eq!(is_ok == glib::ffi::GFALSE, !error.is_null());
+            assert_eq!(is_ok == glib::ffi::GFALSE, !error.is_null());
             if error.is_null() {
                 Ok(())
             } else {
@@ -569,7 +506,6 @@ pub trait AppInfoExt: IsA<AppInfo> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_app_info_set_as_last_used_for_type")]
     fn set_as_last_used_for_type(&self, content_type: &str) -> Result<(), glib::Error> {
         unsafe {
             let mut error = ptr::null_mut();
@@ -578,7 +514,7 @@ pub trait AppInfoExt: IsA<AppInfo> + sealed::Sealed + 'static {
                 content_type.to_glib_none().0,
                 &mut error,
             );
-            debug_assert_eq!(is_ok == glib::ffi::GFALSE, !error.is_null());
+            assert_eq!(is_ok == glib::ffi::GFALSE, !error.is_null());
             if error.is_null() {
                 Ok(())
             } else {
@@ -587,12 +523,10 @@ pub trait AppInfoExt: IsA<AppInfo> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_app_info_should_show")]
     fn should_show(&self) -> bool {
         unsafe { from_glib(ffi::g_app_info_should_show(self.as_ref().to_glib_none().0)) }
     }
 
-    #[doc(alias = "g_app_info_supports_files")]
     fn supports_files(&self) -> bool {
         unsafe {
             from_glib(ffi::g_app_info_supports_files(
@@ -601,7 +535,6 @@ pub trait AppInfoExt: IsA<AppInfo> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_app_info_supports_uris")]
     fn supports_uris(&self) -> bool {
         unsafe {
             from_glib(ffi::g_app_info_supports_uris(
@@ -610,8 +543,6 @@ pub trait AppInfoExt: IsA<AppInfo> + sealed::Sealed + 'static {
         }
     }
 }
-
-impl<O: IsA<AppInfo>> AppInfoExt for O {}
 
 impl fmt::Display for AppInfo {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {

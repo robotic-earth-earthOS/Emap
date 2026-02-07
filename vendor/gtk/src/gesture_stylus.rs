@@ -1,21 +1,22 @@
 // Take a look at the license at the top of the repository in the LICENSE file.
 
-#[cfg(feature = "v3_24")]
+#[cfg(any(feature = "v3_24", feature = "dox"))]
 use crate::GestureStylus;
 use gdk::AxisUse;
 use glib::object::IsA;
 use glib::translate::*;
 
-mod sealed {
-    pub trait Sealed {}
-    impl<T: glib::IsA<crate::GestureStylus>> Sealed for T {}
-}
-
-pub trait GestureStylusExtManual: IsA<GestureStylus> + sealed::Sealed + 'static {
-    #[cfg(feature = "v3_24")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "v3_24")))]
+pub trait GestureStylusExtManual: 'static {
+    #[cfg(any(feature = "v3_24", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_24")))]
     #[doc(alias = "gtk_gesture_stylus_get_axes")]
     #[doc(alias = "get_axes")]
+    fn axes(&self, axes: Vec<AxisUse>) -> Option<Vec<f64>>;
+}
+
+impl<O: IsA<GestureStylus>> GestureStylusExtManual for O {
+    #[cfg(any(feature = "v3_24", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_24")))]
     fn axes(&self, axes: Vec<AxisUse>) -> Option<Vec<f64>> {
         let mut values: Vec<f64> = Vec::new();
         unsafe {
@@ -33,5 +34,3 @@ pub trait GestureStylusExtManual: IsA<GestureStylus> + sealed::Sealed + 'static 
         }
     }
 }
-
-impl<O: IsA<GestureStylus>> GestureStylusExtManual for O {}

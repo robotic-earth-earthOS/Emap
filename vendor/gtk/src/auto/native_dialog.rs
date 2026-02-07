@@ -2,13 +2,17 @@
 // from gir-files (https://github.com/gtk-rs/gir-files)
 // DO NOT EDIT
 
-use crate::{ResponseType, Window};
-use glib::{
-    prelude::*,
-    signal::{connect_raw, SignalHandlerId},
-    translate::*,
-};
-use std::{boxed::Box as Box_, fmt, mem::transmute};
+use crate::ResponseType;
+use crate::Window;
+use glib::object::Cast;
+use glib::object::IsA;
+use glib::signal::connect_raw;
+use glib::signal::SignalHandlerId;
+use glib::translate::*;
+use glib::ToValue;
+use std::boxed::Box as Box_;
+use std::fmt;
+use std::mem::transmute;
 
 glib::wrapper! {
     #[doc(alias = "GtkNativeDialog")]
@@ -23,21 +27,81 @@ impl NativeDialog {
     pub const NONE: Option<&'static NativeDialog> = None;
 }
 
-mod sealed {
-    pub trait Sealed {}
-    impl<T: super::IsA<super::NativeDialog>> Sealed for T {}
+pub trait NativeDialogExt: 'static {
+    #[doc(alias = "gtk_native_dialog_destroy")]
+    fn destroy(&self);
+
+    #[doc(alias = "gtk_native_dialog_get_modal")]
+    #[doc(alias = "get_modal")]
+    fn is_modal(&self) -> bool;
+
+    #[doc(alias = "gtk_native_dialog_get_title")]
+    #[doc(alias = "get_title")]
+    fn title(&self) -> Option<glib::GString>;
+
+    #[doc(alias = "gtk_native_dialog_get_transient_for")]
+    #[doc(alias = "get_transient_for")]
+    fn transient_for(&self) -> Option<Window>;
+
+    #[doc(alias = "gtk_native_dialog_get_visible")]
+    #[doc(alias = "get_visible")]
+    fn is_visible(&self) -> bool;
+
+    #[doc(alias = "gtk_native_dialog_hide")]
+    fn hide(&self);
+
+    #[doc(alias = "gtk_native_dialog_run")]
+    fn run(&self) -> ResponseType;
+
+    #[doc(alias = "gtk_native_dialog_set_modal")]
+    fn set_modal(&self, modal: bool);
+
+    #[doc(alias = "gtk_native_dialog_set_title")]
+    fn set_title(&self, title: &str);
+
+    #[doc(alias = "gtk_native_dialog_set_transient_for")]
+    fn set_transient_for(&self, parent: Option<&impl IsA<Window>>);
+
+    #[doc(alias = "gtk_native_dialog_show")]
+    fn show(&self);
+
+    #[cfg(any(feature = "v3_20", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
+    fn set_visible(&self, visible: bool);
+
+    #[cfg(any(feature = "v3_20", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
+    #[doc(alias = "response")]
+    fn connect_response<F: Fn(&Self, ResponseType) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[cfg(any(feature = "v3_20", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
+    #[doc(alias = "modal")]
+    fn connect_modal_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[cfg(any(feature = "v3_20", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
+    #[doc(alias = "title")]
+    fn connect_title_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[cfg(any(feature = "v3_20", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
+    #[doc(alias = "transient-for")]
+    fn connect_transient_for_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[cfg(any(feature = "v3_20", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
+    #[doc(alias = "visible")]
+    fn connect_visible_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
 }
 
-pub trait NativeDialogExt: IsA<NativeDialog> + sealed::Sealed + 'static {
-    #[doc(alias = "gtk_native_dialog_destroy")]
+impl<O: IsA<NativeDialog>> NativeDialogExt for O {
     fn destroy(&self) {
         unsafe {
             ffi::gtk_native_dialog_destroy(self.as_ref().to_glib_none().0);
         }
     }
 
-    #[doc(alias = "gtk_native_dialog_get_modal")]
-    #[doc(alias = "get_modal")]
     fn is_modal(&self) -> bool {
         unsafe {
             from_glib(ffi::gtk_native_dialog_get_modal(
@@ -46,8 +110,6 @@ pub trait NativeDialogExt: IsA<NativeDialog> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_native_dialog_get_title")]
-    #[doc(alias = "get_title")]
     fn title(&self) -> Option<glib::GString> {
         unsafe {
             from_glib_none(ffi::gtk_native_dialog_get_title(
@@ -56,8 +118,6 @@ pub trait NativeDialogExt: IsA<NativeDialog> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_native_dialog_get_transient_for")]
-    #[doc(alias = "get_transient_for")]
     fn transient_for(&self) -> Option<Window> {
         unsafe {
             from_glib_none(ffi::gtk_native_dialog_get_transient_for(
@@ -66,8 +126,6 @@ pub trait NativeDialogExt: IsA<NativeDialog> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_native_dialog_get_visible")]
-    #[doc(alias = "get_visible")]
     fn is_visible(&self) -> bool {
         unsafe {
             from_glib(ffi::gtk_native_dialog_get_visible(
@@ -76,26 +134,22 @@ pub trait NativeDialogExt: IsA<NativeDialog> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_native_dialog_hide")]
     fn hide(&self) {
         unsafe {
             ffi::gtk_native_dialog_hide(self.as_ref().to_glib_none().0);
         }
     }
 
-    #[doc(alias = "gtk_native_dialog_run")]
     fn run(&self) -> ResponseType {
         unsafe { from_glib(ffi::gtk_native_dialog_run(self.as_ref().to_glib_none().0)) }
     }
 
-    #[doc(alias = "gtk_native_dialog_set_modal")]
     fn set_modal(&self, modal: bool) {
         unsafe {
             ffi::gtk_native_dialog_set_modal(self.as_ref().to_glib_none().0, modal.into_glib());
         }
     }
 
-    #[doc(alias = "gtk_native_dialog_set_title")]
     fn set_title(&self, title: &str) {
         unsafe {
             ffi::gtk_native_dialog_set_title(
@@ -105,7 +159,6 @@ pub trait NativeDialogExt: IsA<NativeDialog> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_native_dialog_set_transient_for")]
     fn set_transient_for(&self, parent: Option<&impl IsA<Window>>) {
         unsafe {
             ffi::gtk_native_dialog_set_transient_for(
@@ -115,18 +168,20 @@ pub trait NativeDialogExt: IsA<NativeDialog> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_native_dialog_show")]
     fn show(&self) {
         unsafe {
             ffi::gtk_native_dialog_show(self.as_ref().to_glib_none().0);
         }
     }
 
+    #[cfg(any(feature = "v3_20", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
     fn set_visible(&self, visible: bool) {
-        ObjectExt::set_property(self.as_ref(), "visible", visible)
+        glib::ObjectExt::set_property(self.as_ref(), "visible", &visible)
     }
 
-    #[doc(alias = "response")]
+    #[cfg(any(feature = "v3_20", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
     fn connect_response<F: Fn(&Self, ResponseType) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn response_trampoline<
             P: IsA<NativeDialog>,
@@ -155,7 +210,8 @@ pub trait NativeDialogExt: IsA<NativeDialog> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "modal")]
+    #[cfg(any(feature = "v3_20", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
     fn connect_modal_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_modal_trampoline<P: IsA<NativeDialog>, F: Fn(&P) + 'static>(
             this: *mut ffi::GtkNativeDialog,
@@ -178,7 +234,8 @@ pub trait NativeDialogExt: IsA<NativeDialog> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "title")]
+    #[cfg(any(feature = "v3_20", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
     fn connect_title_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_title_trampoline<P: IsA<NativeDialog>, F: Fn(&P) + 'static>(
             this: *mut ffi::GtkNativeDialog,
@@ -201,7 +258,8 @@ pub trait NativeDialogExt: IsA<NativeDialog> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "transient-for")]
+    #[cfg(any(feature = "v3_20", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
     fn connect_transient_for_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_transient_for_trampoline<
             P: IsA<NativeDialog>,
@@ -227,7 +285,8 @@ pub trait NativeDialogExt: IsA<NativeDialog> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "visible")]
+    #[cfg(any(feature = "v3_20", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
     fn connect_visible_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_visible_trampoline<
             P: IsA<NativeDialog>,
@@ -253,8 +312,6 @@ pub trait NativeDialogExt: IsA<NativeDialog> + sealed::Sealed + 'static {
         }
     }
 }
-
-impl<O: IsA<NativeDialog>> NativeDialogExt for O {}
 
 impl fmt::Display for NativeDialog {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {

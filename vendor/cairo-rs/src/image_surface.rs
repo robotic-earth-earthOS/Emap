@@ -1,17 +1,19 @@
 // Take a look at the license at the top of the repository in the LICENSE file.
 
-use std::{
-    convert::TryFrom,
-    fmt,
-    ops::{Deref, DerefMut},
-    rc::Rc,
-    slice,
-};
+use std::convert::TryFrom;
+use std::ops::{Deref, DerefMut};
+use std::rc::Rc;
+use std::slice;
 
+use crate::enums::{Format, SurfaceType};
+use crate::error::Error;
 #[cfg(feature = "use_glib")]
 use glib::translate::*;
 
-use crate::{utils::status_to_result, BorrowError, Error, Format, Surface, SurfaceType};
+use crate::surface::Surface;
+use crate::utils::status_to_result;
+use crate::BorrowError;
+use std::fmt;
 
 declare_surface!(ImageSurface, SurfaceType::Image);
 
@@ -179,14 +181,12 @@ unsafe impl Send for ImageSurfaceDataOwned {}
 unsafe impl Sync for ImageSurfaceDataOwned {}
 
 impl ImageSurfaceDataOwned {
-    #[inline]
     pub fn into_inner(self) -> ImageSurface {
         self.surface
     }
 }
 
 impl AsRef<[u8]> for ImageSurfaceDataOwned {
-    #[inline]
     fn as_ref(&self) -> &[u8] {
         let len = (self.surface.stride() as usize) * (self.surface.height() as usize);
         unsafe {
@@ -200,7 +200,6 @@ impl AsRef<[u8]> for ImageSurfaceDataOwned {
 }
 
 impl AsMut<[u8]> for ImageSurfaceDataOwned {
-    #[inline]
     fn as_mut(&mut self) -> &mut [u8] {
         let len = (self.surface.stride() as usize) * (self.surface.height() as usize);
         unsafe {
@@ -216,14 +215,12 @@ impl AsMut<[u8]> for ImageSurfaceDataOwned {
 impl Deref for ImageSurfaceDataOwned {
     type Target = [u8];
 
-    #[inline]
     fn deref(&self) -> &Self::Target {
         self.as_ref()
     }
 }
 
 impl DerefMut for ImageSurfaceDataOwned {
-    #[inline]
     fn deref_mut(&mut self) -> &mut Self::Target {
         self.as_mut()
     }
@@ -258,7 +255,6 @@ impl<'a> ImageSurfaceData<'a> {
 }
 
 impl<'a> Drop for ImageSurfaceData<'a> {
-    #[inline]
     fn drop(&mut self) {
         if self.dirty {
             self.surface.mark_dirty()
@@ -269,14 +265,12 @@ impl<'a> Drop for ImageSurfaceData<'a> {
 impl<'a> Deref for ImageSurfaceData<'a> {
     type Target = [u8];
 
-    #[inline]
     fn deref(&self) -> &[u8] {
         self.slice
     }
 }
 
 impl<'a> DerefMut for ImageSurfaceData<'a> {
-    #[inline]
     fn deref_mut(&mut self) -> &mut [u8] {
         self.dirty = true;
         self.slice
@@ -344,12 +338,11 @@ mod tests {
     #[cfg(feature = "use_glib")]
     #[test]
     fn surface_gvalues() {
-        use glib::prelude::*;
-
+        use glib::ToValue;
         let surface = ImageSurface::create(Format::ARgb32, 10, 10).unwrap();
         let value = surface.to_value();
         assert_eq!(value.get::<ImageSurface>().unwrap().width(), 10);
-        let _ = surface.to_value();
+        let _ = (&surface).to_value();
         let surface = Some(surface);
         let value = surface.to_value();
         assert_eq!(

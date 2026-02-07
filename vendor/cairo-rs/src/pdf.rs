@@ -1,20 +1,22 @@
 // Take a look at the license at the top of the repository in the LICENSE file.
 
-use std::{
-    convert::TryFrom,
-    ffi::{CStr, CString},
-    fmt, io, mem,
-    ops::Deref,
-    path::Path,
-    ptr,
-};
+use std::convert::TryFrom;
+use std::ffi::{CStr, CString};
+use std::fmt;
+use std::io;
+use std::mem;
+use std::ops::Deref;
+use std::path::Path;
+use std::ptr;
+
+#[cfg(any(all(feature = "pdf", feature = "v1_16"), feature = "dox"))]
+use crate::enums::{PdfMetadata, PdfOutline};
+use crate::enums::{PdfVersion, SurfaceType};
+use crate::error::Error;
+use crate::surface::Surface;
 
 #[cfg(feature = "use_glib")]
 use glib::translate::*;
-
-use crate::{Error, PdfVersion, Surface, SurfaceType};
-#[cfg(any(all(feature = "pdf", feature = "v1_16"), docsrs))]
-use crate::{PdfMetadata, PdfOutline};
 
 impl PdfVersion {
     pub fn as_str(self) -> Option<&'static str> {
@@ -73,8 +75,7 @@ impl PdfSurface {
         self.status()
     }
 
-    #[cfg(all(feature = "pdf", feature = "v1_16"))]
-    #[cfg_attr(docsrs, doc(cfg(all(feature = "pdf", feature = "v1_16"))))]
+    #[cfg(any(all(feature = "pdf", feature = "v1_16"), feature = "dox"))]
     #[doc(alias = "cairo_pdf_surface_set_metadata")]
     pub fn set_metadata(&self, metadata: PdfMetadata, value: &str) -> Result<(), Error> {
         let value = CString::new(value).unwrap();
@@ -88,24 +89,7 @@ impl PdfSurface {
         self.status()
     }
 
-    #[cfg(all(feature = "pdf", feature = "v1_18"))]
-    #[cfg_attr(docsrs, doc(cfg(all(feature = "pdf", feature = "v1_18"))))]
-    #[doc(alias = "cairo_pdf_surface_set_custom_metadata")]
-    pub fn set_custom_metadata(&self, name: &str, value: &str) -> Result<(), Error> {
-        let name = CString::new(name).unwrap();
-        let value = CString::new(value).unwrap();
-        unsafe {
-            ffi::cairo_pdf_surface_set_custom_metadata(
-                self.0.to_raw_none(),
-                name.as_ptr(),
-                value.as_ptr(),
-            );
-        }
-        self.status()
-    }
-
-    #[cfg(all(feature = "pdf", feature = "v1_16"))]
-    #[cfg_attr(docsrs, doc(cfg(all(feature = "pdf", feature = "v1_16"))))]
+    #[cfg(any(all(feature = "pdf", feature = "v1_16"), feature = "dox"))]
     #[doc(alias = "cairo_pdf_surface_set_page_label")]
     pub fn set_page_label(&self, label: &str) -> Result<(), Error> {
         let label = CString::new(label).unwrap();
@@ -115,8 +99,7 @@ impl PdfSurface {
         self.status()
     }
 
-    #[cfg(all(feature = "pdf", feature = "v1_16"))]
-    #[cfg_attr(docsrs, doc(cfg(all(feature = "pdf", feature = "v1_16"))))]
+    #[cfg(any(all(feature = "pdf", feature = "v1_16"), feature = "dox"))]
     #[doc(alias = "cairo_pdf_surface_set_thumbnail_size")]
     pub fn set_thumbnail_size(&self, width: i32, height: i32) -> Result<(), Error> {
         unsafe {
@@ -129,8 +112,7 @@ impl PdfSurface {
         self.status()
     }
 
-    #[cfg(all(feature = "pdf", feature = "v1_16"))]
-    #[cfg_attr(docsrs, doc(cfg(all(feature = "pdf", feature = "v1_16"))))]
+    #[cfg(any(all(feature = "pdf", feature = "v1_16"), feature = "dox"))]
     #[doc(alias = "cairo_pdf_surface_add_outline")]
     pub fn add_outline(
         &self,
@@ -159,10 +141,9 @@ impl PdfSurface {
 
 #[cfg(test)]
 mod test {
-    use tempfile::tempfile;
-
     use super::*;
     use crate::context::*;
+    use tempfile::tempfile;
 
     fn draw(surface: &Surface) {
         let cr = Context::new(surface).expect("Can't create a Cairo context");
@@ -184,7 +165,7 @@ mod test {
         let buffer: Vec<u8> = vec![];
 
         let surface = PdfSurface::for_stream(100., 100., buffer).unwrap();
-        surface.restrict(PdfVersion::_1_5).unwrap();
+        surface.restrict(PdfVersion::_1_5);
         draw(&surface);
         *surface.finish_output_stream().unwrap().downcast().unwrap()
     }

@@ -11,12 +11,14 @@ impl ArrayDeserializer {
     }
 }
 
-impl<'de> serde_core::Deserializer<'de> for ArrayDeserializer {
+// Note: this is wrapped by `ValueDeserializer` and any trait methods
+// implemented here need to be wrapped there
+impl<'de> serde::Deserializer<'de> for ArrayDeserializer {
     type Error = Error;
 
     fn deserialize_any<V>(self, visitor: V) -> Result<V::Value, Self::Error>
     where
-        V: serde_core::de::Visitor<'de>,
+        V: serde::de::Visitor<'de>,
     {
         visitor.visit_seq(ArraySeqAccess::new(self.input))
     }
@@ -24,37 +26,45 @@ impl<'de> serde_core::Deserializer<'de> for ArrayDeserializer {
     fn deserialize_struct<V>(
         self,
         name: &'static str,
-        _fields: &'static [&'static str],
+        fields: &'static [&'static str],
         visitor: V,
     ) -> Result<V::Value, Error>
     where
-        V: serde_core::de::Visitor<'de>,
+        V: serde::de::Visitor<'de>,
     {
-        if serde_spanned::de::is_spanned(name) {
+        if serde_spanned::__unstable::is_spanned(name, fields) {
             if let Some(span) = self.span.clone() {
-                return visitor.visit_map(
-                    serde_spanned::de::SpannedDeserializer::<Self, Error>::new(self, span),
-                );
-            } else {
-                return Err(Error::custom("value is missing a span", None));
+                return visitor.visit_map(super::SpannedDeserializer::new(self, span));
             }
         }
 
         self.deserialize_any(visitor)
     }
 
-    serde_core::forward_to_deserialize_any! {
+    serde::forward_to_deserialize_any! {
         bool u8 u16 u32 u64 i8 i16 i32 i64 f32 f64 char str string seq
         bytes byte_buf map option unit newtype_struct
         ignored_any unit_struct tuple_struct tuple enum identifier
     }
 }
 
-impl serde_core::de::IntoDeserializer<'_, Error> for ArrayDeserializer {
+impl<'de> serde::de::IntoDeserializer<'de, crate::de::Error> for ArrayDeserializer {
     type Deserializer = Self;
 
     fn into_deserializer(self) -> Self::Deserializer {
         self
+    }
+}
+
+impl crate::Array {
+    pub(crate) fn into_deserializer(self) -> ArrayDeserializer {
+        ArrayDeserializer::new(self.values, self.span)
+    }
+}
+
+impl crate::ArrayOfTables {
+    pub(crate) fn into_deserializer(self) -> ArrayDeserializer {
+        ArrayDeserializer::new(self.values, self.span)
     }
 }
 
@@ -70,12 +80,12 @@ impl ArraySeqAccess {
     }
 }
 
-impl<'de> serde_core::de::SeqAccess<'de> for ArraySeqAccess {
+impl<'de> serde::de::SeqAccess<'de> for ArraySeqAccess {
     type Error = Error;
 
     fn next_element_seed<T>(&mut self, seed: T) -> Result<Option<T::Value>, Self::Error>
     where
-        T: serde_core::de::DeserializeSeed<'de>,
+        T: serde::de::DeserializeSeed<'de>,
     {
         match self.iter.next() {
             Some(v) => seed

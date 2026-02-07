@@ -2,16 +2,25 @@
 // from gir-files (https://github.com/gtk-rs/gir-files)
 // DO NOT EDIT
 
-use crate::{
-    ActionGroup, ActionMap, ApplicationCommandLine, ApplicationFlags, Cancellable, DBusConnection,
-    File, Notification,
-};
-use glib::{
-    prelude::*,
-    signal::{connect_raw, SignalHandlerId},
-    translate::*,
-};
-use std::{boxed::Box as Box_, fmt, mem::transmute, ptr};
+use crate::ActionGroup;
+use crate::ActionMap;
+use crate::ApplicationCommandLine;
+use crate::ApplicationFlags;
+use crate::Cancellable;
+use crate::DBusConnection;
+use crate::File;
+use crate::Notification;
+use glib::object::Cast;
+use glib::object::IsA;
+use glib::signal::connect_raw;
+use glib::signal::SignalHandlerId;
+use glib::translate::*;
+use glib::StaticType;
+use glib::ToValue;
+use std::boxed::Box as Box_;
+use std::fmt;
+use std::mem::transmute;
+use std::ptr;
 
 glib::wrapper! {
     #[doc(alias = "GApplication")]
@@ -40,12 +49,11 @@ impl Application {
     ///
     /// This method returns an instance of [`ApplicationBuilder`](crate::builders::ApplicationBuilder) which can be used to create [`Application`] objects.
     pub fn builder() -> ApplicationBuilder {
-        ApplicationBuilder::new()
+        ApplicationBuilder::default()
     }
 
     #[doc(alias = "g_application_get_default")]
     #[doc(alias = "get_default")]
-    #[allow(clippy::should_implement_trait)]
     pub fn default() -> Option<Application> {
         unsafe { from_glib_none(ffi::g_application_get_default()) }
     }
@@ -62,86 +70,263 @@ impl Application {
 
 impl Default for Application {
     fn default() -> Self {
-        glib::object::Object::new::<Self>()
+        glib::object::Object::new::<Self>(&[])
+            .expect("Can't construct Application object with default parameters")
     }
 }
 
+#[derive(Clone, Default)]
 // rustdoc-stripper-ignore-next
 /// A [builder-pattern] type to construct [`Application`] objects.
 ///
 /// [builder-pattern]: https://doc.rust-lang.org/1.0.0/style/ownership/builders.html
 #[must_use = "The builder must be built to be used"]
 pub struct ApplicationBuilder {
-    builder: glib::object::ObjectBuilder<'static, Application>,
+    action_group: Option<ActionGroup>,
+    application_id: Option<String>,
+    flags: Option<ApplicationFlags>,
+    inactivity_timeout: Option<u32>,
+    resource_base_path: Option<String>,
 }
 
 impl ApplicationBuilder {
-    fn new() -> Self {
-        Self {
-            builder: glib::object::Object::builder(),
-        }
-    }
-
-    pub fn action_group(self, action_group: &impl IsA<ActionGroup>) -> Self {
-        Self {
-            builder: self
-                .builder
-                .property("action-group", action_group.clone().upcast()),
-        }
-    }
-
-    pub fn application_id(self, application_id: impl Into<glib::GString>) -> Self {
-        Self {
-            builder: self
-                .builder
-                .property("application-id", application_id.into()),
-        }
-    }
-
-    pub fn flags(self, flags: ApplicationFlags) -> Self {
-        Self {
-            builder: self.builder.property("flags", flags),
-        }
-    }
-
-    pub fn inactivity_timeout(self, inactivity_timeout: u32) -> Self {
-        Self {
-            builder: self
-                .builder
-                .property("inactivity-timeout", inactivity_timeout),
-        }
-    }
-
-    pub fn resource_base_path(self, resource_base_path: impl Into<glib::GString>) -> Self {
-        Self {
-            builder: self
-                .builder
-                .property("resource-base-path", resource_base_path.into()),
-        }
+    // rustdoc-stripper-ignore-next
+    /// Create a new [`ApplicationBuilder`].
+    pub fn new() -> Self {
+        Self::default()
     }
 
     // rustdoc-stripper-ignore-next
     /// Build the [`Application`].
     #[must_use = "Building the object from the builder is usually expensive and is not expected to have side effects"]
     pub fn build(self) -> Application {
-        self.builder.build()
+        let mut properties: Vec<(&str, &dyn ToValue)> = vec![];
+        if let Some(ref action_group) = self.action_group {
+            properties.push(("action-group", action_group));
+        }
+        if let Some(ref application_id) = self.application_id {
+            properties.push(("application-id", application_id));
+        }
+        if let Some(ref flags) = self.flags {
+            properties.push(("flags", flags));
+        }
+        if let Some(ref inactivity_timeout) = self.inactivity_timeout {
+            properties.push(("inactivity-timeout", inactivity_timeout));
+        }
+        if let Some(ref resource_base_path) = self.resource_base_path {
+            properties.push(("resource-base-path", resource_base_path));
+        }
+        glib::Object::new::<Application>(&properties)
+            .expect("Failed to create an instance of Application")
+    }
+
+    pub fn action_group(mut self, action_group: &impl IsA<ActionGroup>) -> Self {
+        self.action_group = Some(action_group.clone().upcast());
+        self
+    }
+
+    pub fn application_id(mut self, application_id: &str) -> Self {
+        self.application_id = Some(application_id.to_string());
+        self
+    }
+
+    pub fn flags(mut self, flags: ApplicationFlags) -> Self {
+        self.flags = Some(flags);
+        self
+    }
+
+    pub fn inactivity_timeout(mut self, inactivity_timeout: u32) -> Self {
+        self.inactivity_timeout = Some(inactivity_timeout);
+        self
+    }
+
+    pub fn resource_base_path(mut self, resource_base_path: &str) -> Self {
+        self.resource_base_path = Some(resource_base_path.to_string());
+        self
     }
 }
 
-mod sealed {
-    pub trait Sealed {}
-    impl<T: super::IsA<super::Application>> Sealed for T {}
+pub trait ApplicationExt: 'static {
+    #[doc(alias = "g_application_activate")]
+    fn activate(&self);
+
+    #[doc(alias = "g_application_add_main_option")]
+    fn add_main_option(
+        &self,
+        long_name: &str,
+        short_name: glib::Char,
+        flags: glib::OptionFlags,
+        arg: glib::OptionArg,
+        description: &str,
+        arg_description: Option<&str>,
+    );
+
+    //#[doc(alias = "g_application_add_main_option_entries")]
+    //fn add_main_option_entries(&self, entries: /*Ignored*/&[glib::OptionEntry]);
+
+    //#[doc(alias = "g_application_add_option_group")]
+    //fn add_option_group(&self, group: /*Ignored*/&glib::OptionGroup);
+
+    #[doc(alias = "g_application_bind_busy_property")]
+    fn bind_busy_property(&self, object: &impl IsA<glib::Object>, property: &str);
+
+    #[doc(alias = "g_application_get_application_id")]
+    #[doc(alias = "get_application_id")]
+    fn application_id(&self) -> Option<glib::GString>;
+
+    #[doc(alias = "g_application_get_dbus_connection")]
+    #[doc(alias = "get_dbus_connection")]
+    fn dbus_connection(&self) -> Option<DBusConnection>;
+
+    #[doc(alias = "g_application_get_dbus_object_path")]
+    #[doc(alias = "get_dbus_object_path")]
+    fn dbus_object_path(&self) -> Option<glib::GString>;
+
+    #[doc(alias = "g_application_get_flags")]
+    #[doc(alias = "get_flags")]
+    fn flags(&self) -> ApplicationFlags;
+
+    #[doc(alias = "g_application_get_inactivity_timeout")]
+    #[doc(alias = "get_inactivity_timeout")]
+    fn inactivity_timeout(&self) -> u32;
+
+    #[doc(alias = "g_application_get_is_busy")]
+    #[doc(alias = "get_is_busy")]
+    fn is_busy(&self) -> bool;
+
+    #[doc(alias = "g_application_get_is_registered")]
+    #[doc(alias = "get_is_registered")]
+    fn is_registered(&self) -> bool;
+
+    #[doc(alias = "g_application_get_is_remote")]
+    #[doc(alias = "get_is_remote")]
+    fn is_remote(&self) -> bool;
+
+    #[doc(alias = "g_application_get_resource_base_path")]
+    #[doc(alias = "get_resource_base_path")]
+    fn resource_base_path(&self) -> Option<glib::GString>;
+
+    #[doc(alias = "g_application_hold")]
+    fn hold(&self);
+
+    #[doc(alias = "g_application_mark_busy")]
+    fn mark_busy(&self);
+
+    #[doc(alias = "g_application_open")]
+    fn open(&self, files: &[File], hint: &str);
+
+    #[doc(alias = "g_application_quit")]
+    fn quit(&self);
+
+    #[doc(alias = "g_application_register")]
+    fn register(&self, cancellable: Option<&impl IsA<Cancellable>>) -> Result<(), glib::Error>;
+
+    #[doc(alias = "g_application_release")]
+    fn release(&self);
+
+    #[doc(alias = "g_application_send_notification")]
+    fn send_notification(&self, id: Option<&str>, notification: &Notification);
+
+    #[doc(alias = "g_application_set_application_id")]
+    fn set_application_id(&self, application_id: Option<&str>);
+
+    #[doc(alias = "g_application_set_default")]
+    fn set_default(&self);
+
+    #[doc(alias = "g_application_set_flags")]
+    fn set_flags(&self, flags: ApplicationFlags);
+
+    #[doc(alias = "g_application_set_inactivity_timeout")]
+    fn set_inactivity_timeout(&self, inactivity_timeout: u32);
+
+    #[cfg(any(feature = "v2_56", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v2_56")))]
+    #[doc(alias = "g_application_set_option_context_description")]
+    fn set_option_context_description(&self, description: Option<&str>);
+
+    #[cfg(any(feature = "v2_56", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v2_56")))]
+    #[doc(alias = "g_application_set_option_context_parameter_string")]
+    fn set_option_context_parameter_string(&self, parameter_string: Option<&str>);
+
+    #[cfg(any(feature = "v2_56", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v2_56")))]
+    #[doc(alias = "g_application_set_option_context_summary")]
+    fn set_option_context_summary(&self, summary: Option<&str>);
+
+    #[doc(alias = "g_application_set_resource_base_path")]
+    fn set_resource_base_path(&self, resource_path: Option<&str>);
+
+    #[doc(alias = "g_application_unbind_busy_property")]
+    fn unbind_busy_property(&self, object: &impl IsA<glib::Object>, property: &str);
+
+    #[doc(alias = "g_application_unmark_busy")]
+    fn unmark_busy(&self);
+
+    #[doc(alias = "g_application_withdraw_notification")]
+    fn withdraw_notification(&self, id: &str);
+
+    #[doc(alias = "action-group")]
+    fn set_action_group<P: IsA<ActionGroup>>(&self, action_group: Option<&P>);
+
+    #[doc(alias = "activate")]
+    fn connect_activate<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "command-line")]
+    fn connect_command_line<F: Fn(&Self, &ApplicationCommandLine) -> i32 + 'static>(
+        &self,
+        f: F,
+    ) -> SignalHandlerId;
+
+    #[doc(alias = "handle-local-options")]
+    fn connect_handle_local_options<F: Fn(&Self, &glib::VariantDict) -> i32 + 'static>(
+        &self,
+        f: F,
+    ) -> SignalHandlerId;
+
+    #[cfg(any(feature = "v2_60", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v2_60")))]
+    #[doc(alias = "name-lost")]
+    fn connect_name_lost<F: Fn(&Self) -> bool + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "shutdown")]
+    fn connect_shutdown<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "startup")]
+    fn connect_startup<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "action-group")]
+    fn connect_action_group_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "application-id")]
+    fn connect_application_id_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "flags")]
+    fn connect_flags_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "inactivity-timeout")]
+    fn connect_inactivity_timeout_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "is-busy")]
+    fn connect_is_busy_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "is-registered")]
+    fn connect_is_registered_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "is-remote")]
+    fn connect_is_remote_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "resource-base-path")]
+    fn connect_resource_base_path_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
 }
 
-pub trait ApplicationExt: IsA<Application> + sealed::Sealed + 'static {
-    #[doc(alias = "g_application_activate")]
+impl<O: IsA<Application>> ApplicationExt for O {
     fn activate(&self) {
         unsafe {
             ffi::g_application_activate(self.as_ref().to_glib_none().0);
         }
     }
 
-    #[doc(alias = "g_application_add_main_option")]
     fn add_main_option(
         &self,
         long_name: &str,
@@ -164,17 +349,14 @@ pub trait ApplicationExt: IsA<Application> + sealed::Sealed + 'static {
         }
     }
 
-    //#[doc(alias = "g_application_add_main_option_entries")]
     //fn add_main_option_entries(&self, entries: /*Ignored*/&[glib::OptionEntry]) {
     //    unsafe { TODO: call ffi:g_application_add_main_option_entries() }
     //}
 
-    //#[doc(alias = "g_application_add_option_group")]
-    //fn add_option_group(&self, group: /*Ignored*/glib::OptionGroup) {
+    //fn add_option_group(&self, group: /*Ignored*/&glib::OptionGroup) {
     //    unsafe { TODO: call ffi:g_application_add_option_group() }
     //}
 
-    #[doc(alias = "g_application_bind_busy_property")]
     fn bind_busy_property(&self, object: &impl IsA<glib::Object>, property: &str) {
         unsafe {
             ffi::g_application_bind_busy_property(
@@ -185,8 +367,6 @@ pub trait ApplicationExt: IsA<Application> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_application_get_application_id")]
-    #[doc(alias = "get_application_id")]
     fn application_id(&self) -> Option<glib::GString> {
         unsafe {
             from_glib_none(ffi::g_application_get_application_id(
@@ -195,8 +375,6 @@ pub trait ApplicationExt: IsA<Application> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_application_get_dbus_connection")]
-    #[doc(alias = "get_dbus_connection")]
     fn dbus_connection(&self) -> Option<DBusConnection> {
         unsafe {
             from_glib_none(ffi::g_application_get_dbus_connection(
@@ -205,8 +383,6 @@ pub trait ApplicationExt: IsA<Application> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_application_get_dbus_object_path")]
-    #[doc(alias = "get_dbus_object_path")]
     fn dbus_object_path(&self) -> Option<glib::GString> {
         unsafe {
             from_glib_none(ffi::g_application_get_dbus_object_path(
@@ -215,20 +391,14 @@ pub trait ApplicationExt: IsA<Application> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_application_get_flags")]
-    #[doc(alias = "get_flags")]
     fn flags(&self) -> ApplicationFlags {
         unsafe { from_glib(ffi::g_application_get_flags(self.as_ref().to_glib_none().0)) }
     }
 
-    #[doc(alias = "g_application_get_inactivity_timeout")]
-    #[doc(alias = "get_inactivity_timeout")]
     fn inactivity_timeout(&self) -> u32 {
         unsafe { ffi::g_application_get_inactivity_timeout(self.as_ref().to_glib_none().0) }
     }
 
-    #[doc(alias = "g_application_get_is_busy")]
-    #[doc(alias = "get_is_busy")]
     fn is_busy(&self) -> bool {
         unsafe {
             from_glib(ffi::g_application_get_is_busy(
@@ -237,8 +407,6 @@ pub trait ApplicationExt: IsA<Application> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_application_get_is_registered")]
-    #[doc(alias = "get_is_registered")]
     fn is_registered(&self) -> bool {
         unsafe {
             from_glib(ffi::g_application_get_is_registered(
@@ -247,8 +415,6 @@ pub trait ApplicationExt: IsA<Application> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_application_get_is_remote")]
-    #[doc(alias = "get_is_remote")]
     fn is_remote(&self) -> bool {
         unsafe {
             from_glib(ffi::g_application_get_is_remote(
@@ -257,8 +423,6 @@ pub trait ApplicationExt: IsA<Application> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_application_get_resource_base_path")]
-    #[doc(alias = "get_resource_base_path")]
     fn resource_base_path(&self) -> Option<glib::GString> {
         unsafe {
             from_glib_none(ffi::g_application_get_resource_base_path(
@@ -267,9 +431,20 @@ pub trait ApplicationExt: IsA<Application> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_application_open")]
+    fn hold(&self) {
+        unsafe {
+            ffi::g_application_hold(self.as_ref().to_glib_none().0);
+        }
+    }
+
+    fn mark_busy(&self) {
+        unsafe {
+            ffi::g_application_mark_busy(self.as_ref().to_glib_none().0);
+        }
+    }
+
     fn open(&self, files: &[File], hint: &str) {
-        let n_files = files.len() as _;
+        let n_files = files.len() as i32;
         unsafe {
             ffi::g_application_open(
                 self.as_ref().to_glib_none().0,
@@ -280,14 +455,12 @@ pub trait ApplicationExt: IsA<Application> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_application_quit")]
     fn quit(&self) {
         unsafe {
             ffi::g_application_quit(self.as_ref().to_glib_none().0);
         }
     }
 
-    #[doc(alias = "g_application_register")]
     fn register(&self, cancellable: Option<&impl IsA<Cancellable>>) -> Result<(), glib::Error> {
         unsafe {
             let mut error = ptr::null_mut();
@@ -296,7 +469,7 @@ pub trait ApplicationExt: IsA<Application> + sealed::Sealed + 'static {
                 cancellable.map(|p| p.as_ref()).to_glib_none().0,
                 &mut error,
             );
-            debug_assert_eq!(is_ok == glib::ffi::GFALSE, !error.is_null());
+            assert_eq!(is_ok == glib::ffi::GFALSE, !error.is_null());
             if error.is_null() {
                 Ok(())
             } else {
@@ -305,7 +478,12 @@ pub trait ApplicationExt: IsA<Application> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_application_send_notification")]
+    fn release(&self) {
+        unsafe {
+            ffi::g_application_release(self.as_ref().to_glib_none().0);
+        }
+    }
+
     fn send_notification(&self, id: Option<&str>, notification: &Notification) {
         unsafe {
             ffi::g_application_send_notification(
@@ -316,7 +494,6 @@ pub trait ApplicationExt: IsA<Application> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_application_set_application_id")]
     fn set_application_id(&self, application_id: Option<&str>) {
         unsafe {
             ffi::g_application_set_application_id(
@@ -326,21 +503,18 @@ pub trait ApplicationExt: IsA<Application> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_application_set_default")]
     fn set_default(&self) {
         unsafe {
             ffi::g_application_set_default(self.as_ref().to_glib_none().0);
         }
     }
 
-    #[doc(alias = "g_application_set_flags")]
     fn set_flags(&self, flags: ApplicationFlags) {
         unsafe {
             ffi::g_application_set_flags(self.as_ref().to_glib_none().0, flags.into_glib());
         }
     }
 
-    #[doc(alias = "g_application_set_inactivity_timeout")]
     fn set_inactivity_timeout(&self, inactivity_timeout: u32) {
         unsafe {
             ffi::g_application_set_inactivity_timeout(
@@ -350,7 +524,8 @@ pub trait ApplicationExt: IsA<Application> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_application_set_option_context_description")]
+    #[cfg(any(feature = "v2_56", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v2_56")))]
     fn set_option_context_description(&self, description: Option<&str>) {
         unsafe {
             ffi::g_application_set_option_context_description(
@@ -360,7 +535,8 @@ pub trait ApplicationExt: IsA<Application> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_application_set_option_context_parameter_string")]
+    #[cfg(any(feature = "v2_56", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v2_56")))]
     fn set_option_context_parameter_string(&self, parameter_string: Option<&str>) {
         unsafe {
             ffi::g_application_set_option_context_parameter_string(
@@ -370,7 +546,8 @@ pub trait ApplicationExt: IsA<Application> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_application_set_option_context_summary")]
+    #[cfg(any(feature = "v2_56", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v2_56")))]
     fn set_option_context_summary(&self, summary: Option<&str>) {
         unsafe {
             ffi::g_application_set_option_context_summary(
@@ -380,7 +557,6 @@ pub trait ApplicationExt: IsA<Application> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_application_set_resource_base_path")]
     fn set_resource_base_path(&self, resource_path: Option<&str>) {
         unsafe {
             ffi::g_application_set_resource_base_path(
@@ -390,7 +566,6 @@ pub trait ApplicationExt: IsA<Application> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_application_unbind_busy_property")]
     fn unbind_busy_property(&self, object: &impl IsA<glib::Object>, property: &str) {
         unsafe {
             ffi::g_application_unbind_busy_property(
@@ -401,7 +576,12 @@ pub trait ApplicationExt: IsA<Application> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_application_withdraw_notification")]
+    fn unmark_busy(&self) {
+        unsafe {
+            ffi::g_application_unmark_busy(self.as_ref().to_glib_none().0);
+        }
+    }
+
     fn withdraw_notification(&self, id: &str) {
         unsafe {
             ffi::g_application_withdraw_notification(
@@ -411,12 +591,10 @@ pub trait ApplicationExt: IsA<Application> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "action-group")]
     fn set_action_group<P: IsA<ActionGroup>>(&self, action_group: Option<&P>) {
-        ObjectExt::set_property(self.as_ref(), "action-group", action_group)
+        glib::ObjectExt::set_property(self.as_ref(), "action-group", &action_group)
     }
 
-    #[doc(alias = "activate")]
     fn connect_activate<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn activate_trampoline<P: IsA<Application>, F: Fn(&P) + 'static>(
             this: *mut ffi::GApplication,
@@ -438,7 +616,6 @@ pub trait ApplicationExt: IsA<Application> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "command-line")]
     fn connect_command_line<F: Fn(&Self, &ApplicationCommandLine) -> i32 + 'static>(
         &self,
         f: F,
@@ -470,7 +647,6 @@ pub trait ApplicationExt: IsA<Application> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "handle-local-options")]
     fn connect_handle_local_options<F: Fn(&Self, &glib::VariantDict) -> i32 + 'static>(
         &self,
         f: F,
@@ -502,9 +678,8 @@ pub trait ApplicationExt: IsA<Application> + sealed::Sealed + 'static {
         }
     }
 
-    #[cfg(feature = "v2_60")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "v2_60")))]
-    #[doc(alias = "name-lost")]
+    #[cfg(any(feature = "v2_60", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v2_60")))]
     fn connect_name_lost<F: Fn(&Self) -> bool + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn name_lost_trampoline<
             P: IsA<Application>,
@@ -529,7 +704,6 @@ pub trait ApplicationExt: IsA<Application> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "shutdown")]
     fn connect_shutdown<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn shutdown_trampoline<P: IsA<Application>, F: Fn(&P) + 'static>(
             this: *mut ffi::GApplication,
@@ -551,7 +725,6 @@ pub trait ApplicationExt: IsA<Application> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "startup")]
     fn connect_startup<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn startup_trampoline<P: IsA<Application>, F: Fn(&P) + 'static>(
             this: *mut ffi::GApplication,
@@ -573,7 +746,6 @@ pub trait ApplicationExt: IsA<Application> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "action-group")]
     fn connect_action_group_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_action_group_trampoline<
             P: IsA<Application>,
@@ -599,7 +771,6 @@ pub trait ApplicationExt: IsA<Application> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "application-id")]
     fn connect_application_id_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_application_id_trampoline<
             P: IsA<Application>,
@@ -625,7 +796,6 @@ pub trait ApplicationExt: IsA<Application> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "flags")]
     fn connect_flags_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_flags_trampoline<P: IsA<Application>, F: Fn(&P) + 'static>(
             this: *mut ffi::GApplication,
@@ -648,7 +818,6 @@ pub trait ApplicationExt: IsA<Application> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "inactivity-timeout")]
     fn connect_inactivity_timeout_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_inactivity_timeout_trampoline<
             P: IsA<Application>,
@@ -674,7 +843,6 @@ pub trait ApplicationExt: IsA<Application> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "is-busy")]
     fn connect_is_busy_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_is_busy_trampoline<P: IsA<Application>, F: Fn(&P) + 'static>(
             this: *mut ffi::GApplication,
@@ -697,7 +865,6 @@ pub trait ApplicationExt: IsA<Application> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "is-registered")]
     fn connect_is_registered_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_is_registered_trampoline<
             P: IsA<Application>,
@@ -723,7 +890,6 @@ pub trait ApplicationExt: IsA<Application> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "is-remote")]
     fn connect_is_remote_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_is_remote_trampoline<
             P: IsA<Application>,
@@ -749,7 +915,6 @@ pub trait ApplicationExt: IsA<Application> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "resource-base-path")]
     fn connect_resource_base_path_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_resource_base_path_trampoline<
             P: IsA<Application>,
@@ -775,8 +940,6 @@ pub trait ApplicationExt: IsA<Application> + sealed::Sealed + 'static {
         }
     }
 }
-
-impl<O: IsA<Application>> ApplicationExt for O {}
 
 impl fmt::Display for Application {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {

@@ -2,13 +2,11 @@
 girs_directories = ["../gir-files"]
 library = "GdkPixbuf"
 version = "2.0"
-min_cfg_version = "2.36.8"
+min_cfg_version = "2.32"
 target_path = "."
 work_mode = "normal"
-use_gi_docgen = true
 single_version_file = true
 deprecate_by_min_version = true
-trust_return_value_nullability = true
 
 generate = [
     "GdkPixbuf.Colorspace",
@@ -53,20 +51,20 @@ status = "generate"
     ignore = true
     [[object.function]]
     name = "new_from_file"
-        [object.function.return]
-        nullable = false
+    #manual is_windows_utf8
+    manual = true
     [[object.function]]
     name = "new"
         [object.function.return]
         nullable = true
     [[object.function]]
     name = "new_from_file_at_size"
-        [object.function.return]
-        nullable = false
+    #manual is_windows_utf8
+    manual = true
     [[object.function]]
     name = "new_from_file_at_scale"
-        [object.function.return]
-        nullable = false
+    #manual is_windows_utf8
+    manual = true
     [[object.function]]
     name = "new_from_stream_async"
     # wrong async return
@@ -119,14 +117,6 @@ status = "generate"
         [object.function.return]
         # see https://gitlab.gnome.org/GNOME/gdk-pixbuf/-/merge_requests/105#note_1277108
         nullable = false
-    [[object.function]]
-    name = "new_from_xpm_data"
-        [object.function.return]
-        nullable_return_is_error = "Invalid XPM data"
-    [[object.function]]
-    name = "add_alpha"
-        [object.function.return]
-        nullable_return_is_error = "Failed to add alpha channel"
 
 [[object]]
 name = "GdkPixbuf.PixbufAnimation"
@@ -157,10 +147,6 @@ manual_traits = ["PixbufAnimationExtManual"]
         [object.function.return]
         # see https://gitlab.gnome.org/GNOME/gdk-pixbuf/-/merge_requests/105#note_1277108
         nullable = false
-    [[object.function]]
-    name = "get_static_image"
-        [object.function.return]
-        nullable = true
 
 [[object]]
 name = "GdkPixbuf.PixbufFormat"

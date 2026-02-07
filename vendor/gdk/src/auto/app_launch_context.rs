@@ -2,8 +2,12 @@
 // from gir-files (https://github.com/gtk-rs/gir-files)
 // DO NOT EDIT
 
-use crate::{Display, Screen};
-use glib::{prelude::*, translate::*};
+use crate::Display;
+use crate::Screen;
+use glib::object::IsA;
+use glib::object::ObjectType as ObjectType_;
+use glib::translate::*;
+use glib::StaticType;
 use std::fmt;
 
 glib::wrapper! {
@@ -58,7 +62,7 @@ impl AppLaunchContext {
     }
 
     pub fn display(&self) -> Option<Display> {
-        ObjectExt::property(self, "display")
+        glib::ObjectExt::property(self, "display")
     }
 }
 

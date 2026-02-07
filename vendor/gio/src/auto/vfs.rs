@@ -3,8 +3,12 @@
 // DO NOT EDIT
 
 use crate::File;
-use glib::{prelude::*, translate::*};
-use std::{boxed::Box as Box_, fmt};
+use glib::object::IsA;
+use glib::translate::*;
+#[cfg(any(feature = "v2_50", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v2_50")))]
+use std::boxed::Box as Box_;
+use std::fmt;
 
 glib::wrapper! {
     #[doc(alias = "GVfs")]
@@ -20,7 +24,6 @@ impl Vfs {
 
     #[doc(alias = "g_vfs_get_default")]
     #[doc(alias = "get_default")]
-    #[allow(clippy::should_implement_trait)]
     pub fn default() -> Vfs {
         unsafe { from_glib_none(ffi::g_vfs_get_default()) }
     }
@@ -35,14 +38,42 @@ impl Vfs {
 unsafe impl Send for Vfs {}
 unsafe impl Sync for Vfs {}
 
-mod sealed {
-    pub trait Sealed {}
-    impl<T: super::IsA<super::Vfs>> Sealed for T {}
-}
-
-pub trait VfsExt: IsA<Vfs> + sealed::Sealed + 'static {
+pub trait VfsExt: 'static {
     #[doc(alias = "g_vfs_get_file_for_path")]
     #[doc(alias = "get_file_for_path")]
+    fn file_for_path(&self, path: &str) -> File;
+
+    #[doc(alias = "g_vfs_get_file_for_uri")]
+    #[doc(alias = "get_file_for_uri")]
+    fn file_for_uri(&self, uri: &str) -> File;
+
+    #[doc(alias = "g_vfs_get_supported_uri_schemes")]
+    #[doc(alias = "get_supported_uri_schemes")]
+    fn supported_uri_schemes(&self) -> Vec<glib::GString>;
+
+    #[doc(alias = "g_vfs_is_active")]
+    fn is_active(&self) -> bool;
+
+    #[doc(alias = "g_vfs_parse_name")]
+    fn parse_name(&self, parse_name: &str) -> File;
+
+    #[cfg(any(feature = "v2_50", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v2_50")))]
+    #[doc(alias = "g_vfs_register_uri_scheme")]
+    fn register_uri_scheme(
+        &self,
+        scheme: &str,
+        uri_func: Option<Box_<dyn Fn(&Vfs, &str) -> File + 'static>>,
+        parse_name_func: Option<Box_<dyn Fn(&Vfs, &str) -> File + 'static>>,
+    ) -> bool;
+
+    #[cfg(any(feature = "v2_50", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v2_50")))]
+    #[doc(alias = "g_vfs_unregister_uri_scheme")]
+    fn unregister_uri_scheme(&self, scheme: &str) -> bool;
+}
+
+impl<O: IsA<Vfs>> VfsExt for O {
     fn file_for_path(&self, path: &str) -> File {
         unsafe {
             from_glib_full(ffi::g_vfs_get_file_for_path(
@@ -52,8 +83,6 @@ pub trait VfsExt: IsA<Vfs> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_vfs_get_file_for_uri")]
-    #[doc(alias = "get_file_for_uri")]
     fn file_for_uri(&self, uri: &str) -> File {
         unsafe {
             from_glib_full(ffi::g_vfs_get_file_for_uri(
@@ -63,8 +92,6 @@ pub trait VfsExt: IsA<Vfs> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_vfs_get_supported_uri_schemes")]
-    #[doc(alias = "get_supported_uri_schemes")]
     fn supported_uri_schemes(&self) -> Vec<glib::GString> {
         unsafe {
             FromGlibPtrContainer::from_glib_none(ffi::g_vfs_get_supported_uri_schemes(
@@ -73,12 +100,10 @@ pub trait VfsExt: IsA<Vfs> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_vfs_is_active")]
     fn is_active(&self) -> bool {
         unsafe { from_glib(ffi::g_vfs_is_active(self.as_ref().to_glib_none().0)) }
     }
 
-    #[doc(alias = "g_vfs_parse_name")]
     fn parse_name(&self, parse_name: &str) -> File {
         unsafe {
             from_glib_full(ffi::g_vfs_parse_name(
@@ -88,7 +113,8 @@ pub trait VfsExt: IsA<Vfs> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_vfs_register_uri_scheme")]
+    #[cfg(any(feature = "v2_50", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v2_50")))]
     fn register_uri_scheme(
         &self,
         scheme: &str,
@@ -106,12 +132,12 @@ pub trait VfsExt: IsA<Vfs> + sealed::Sealed + 'static {
             let identifier: Borrowed<glib::GString> = from_glib_borrow(identifier);
             let callback: &Option<Box_<dyn Fn(&Vfs, &str) -> File + 'static>> =
                 &*(user_data as *mut _);
-            if let Some(ref callback) = *callback {
+            let res = if let Some(ref callback) = *callback {
                 callback(&vfs, identifier.as_str())
             } else {
                 panic!("cannot get closure...")
-            }
-            .to_glib_full()
+            };
+            res.to_glib_full()
         }
         let uri_func = if uri_func_data.is_some() {
             Some(uri_func_func as _)
@@ -129,12 +155,12 @@ pub trait VfsExt: IsA<Vfs> + sealed::Sealed + 'static {
             let identifier: Borrowed<glib::GString> = from_glib_borrow(identifier);
             let callback: &Option<Box_<dyn Fn(&Vfs, &str) -> File + 'static>> =
                 &*(user_data as *mut _);
-            if let Some(ref callback) = *callback {
+            let res = if let Some(ref callback) = *callback {
                 callback(&vfs, identifier.as_str())
             } else {
                 panic!("cannot get closure...")
-            }
-            .to_glib_full()
+            };
+            res.to_glib_full()
         }
         let parse_name_func = if parse_name_func_data.is_some() {
             Some(parse_name_func_func as _)
@@ -169,7 +195,8 @@ pub trait VfsExt: IsA<Vfs> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_vfs_unregister_uri_scheme")]
+    #[cfg(any(feature = "v2_50", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v2_50")))]
     fn unregister_uri_scheme(&self, scheme: &str) -> bool {
         unsafe {
             from_glib(ffi::g_vfs_unregister_uri_scheme(
@@ -179,8 +206,6 @@ pub trait VfsExt: IsA<Vfs> + sealed::Sealed + 'static {
         }
     }
 }
-
-impl<O: IsA<Vfs>> VfsExt for O {}
 
 impl fmt::Display for Vfs {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {

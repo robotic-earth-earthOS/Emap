@@ -2,7 +2,14 @@
 // from gir-files (https://github.com/tauri-apps/gir-files)
 // DO NOT EDIT
 
-use glib::{prelude::*, translate::*};
+use glib::object::Cast;
+use glib::object::IsA;
+#[cfg(any(feature = "v2_28", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v2_28")))]
+use glib::translate::*;
+use glib::StaticType;
+use glib::ToValue;
+use std::fmt;
 
 glib::wrapper! {
     #[doc(alias = "WebKitUserMessage")]
@@ -16,6 +23,8 @@ glib::wrapper! {
 impl UserMessage {
   pub const NONE: Option<&'static UserMessage> = None;
 
+  #[cfg(any(feature = "v2_28", feature = "dox"))]
+  #[cfg_attr(feature = "dox", doc(cfg(feature = "v2_28")))]
   #[doc(alias = "webkit_user_message_new")]
   pub fn new(name: &str, parameters: Option<&glib::Variant>) -> UserMessage {
     assert_initialized_main_thread!();
@@ -27,6 +36,8 @@ impl UserMessage {
     }
   }
 
+  #[cfg(any(feature = "v2_28", feature = "dox"))]
+  #[cfg_attr(feature = "dox", doc(cfg(feature = "v2_28")))]
   #[doc(alias = "webkit_user_message_new_with_fd_list")]
   #[doc(alias = "new_with_fd_list")]
   pub fn with_fd_list(
@@ -49,74 +60,115 @@ impl UserMessage {
   ///
   /// This method returns an instance of [`UserMessageBuilder`](crate::builders::UserMessageBuilder) which can be used to create [`UserMessage`] objects.
   pub fn builder() -> UserMessageBuilder {
-    UserMessageBuilder::new()
+    UserMessageBuilder::default()
   }
 }
 
-#[cfg(feature = "v2_28")]
-#[cfg_attr(docsrs, doc(cfg(feature = "v2_28")))]
+#[cfg(any(feature = "v2_28", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v2_28")))]
 impl Default for UserMessage {
   fn default() -> Self {
-    glib::object::Object::new::<Self>()
+    glib::object::Object::new::<Self>(&[])
+      .expect("Can't construct UserMessage object with default parameters")
   }
 }
 
+#[derive(Clone, Default)]
 // rustdoc-stripper-ignore-next
 /// A [builder-pattern] type to construct [`UserMessage`] objects.
 ///
 /// [builder-pattern]: https://doc.rust-lang.org/1.0.0/style/ownership/builders.html
 #[must_use = "The builder must be built to be used"]
 pub struct UserMessageBuilder {
-  builder: glib::object::ObjectBuilder<'static, UserMessage>,
+  #[cfg(any(feature = "v2_28", feature = "dox"))]
+  #[cfg_attr(feature = "dox", doc(cfg(feature = "v2_28")))]
+  fd_list: Option<gio::UnixFDList>,
+  #[cfg(any(feature = "v2_28", feature = "dox"))]
+  #[cfg_attr(feature = "dox", doc(cfg(feature = "v2_28")))]
+  name: Option<String>,
+  #[cfg(any(feature = "v2_28", feature = "dox"))]
+  #[cfg_attr(feature = "dox", doc(cfg(feature = "v2_28")))]
+  parameters: Option<glib::Variant>,
 }
 
 impl UserMessageBuilder {
-  fn new() -> Self {
-    Self {
-      builder: glib::object::Object::builder(),
-    }
-  }
-
-  #[cfg(feature = "v2_28")]
-  #[cfg_attr(docsrs, doc(cfg(feature = "v2_28")))]
-  pub fn fd_list(self, fd_list: &impl IsA<gio::UnixFDList>) -> Self {
-    Self {
-      builder: self.builder.property("fd-list", fd_list.clone().upcast()),
-    }
-  }
-
-  #[cfg(feature = "v2_28")]
-  #[cfg_attr(docsrs, doc(cfg(feature = "v2_28")))]
-  pub fn name(self, name: impl Into<glib::GString>) -> Self {
-    Self {
-      builder: self.builder.property("name", name.into()),
-    }
-  }
-
-  #[cfg(feature = "v2_28")]
-  #[cfg_attr(docsrs, doc(cfg(feature = "v2_28")))]
-  pub fn parameters(self, parameters: &glib::Variant) -> Self {
-    Self {
-      builder: self.builder.property("parameters", parameters.clone()),
-    }
+  // rustdoc-stripper-ignore-next
+  /// Create a new [`UserMessageBuilder`].
+  pub fn new() -> Self {
+    Self::default()
   }
 
   // rustdoc-stripper-ignore-next
   /// Build the [`UserMessage`].
   #[must_use = "Building the object from the builder is usually expensive and is not expected to have side effects"]
   pub fn build(self) -> UserMessage {
-    self.builder.build()
+    let mut properties: Vec<(&str, &dyn ToValue)> = vec![];
+    #[cfg(any(feature = "v2_28", feature = "dox"))]
+    if let Some(ref fd_list) = self.fd_list {
+      properties.push(("fd-list", fd_list));
+    }
+    #[cfg(any(feature = "v2_28", feature = "dox"))]
+    if let Some(ref name) = self.name {
+      properties.push(("name", name));
+    }
+    #[cfg(any(feature = "v2_28", feature = "dox"))]
+    if let Some(ref parameters) = self.parameters {
+      properties.push(("parameters", parameters));
+    }
+    glib::Object::new::<UserMessage>(&properties)
+      .expect("Failed to create an instance of UserMessage")
+  }
+
+  #[cfg(any(feature = "v2_28", feature = "dox"))]
+  #[cfg_attr(feature = "dox", doc(cfg(feature = "v2_28")))]
+  pub fn fd_list(mut self, fd_list: &impl IsA<gio::UnixFDList>) -> Self {
+    self.fd_list = Some(fd_list.clone().upcast());
+    self
+  }
+
+  #[cfg(any(feature = "v2_28", feature = "dox"))]
+  #[cfg_attr(feature = "dox", doc(cfg(feature = "v2_28")))]
+  pub fn name(mut self, name: &str) -> Self {
+    self.name = Some(name.to_string());
+    self
+  }
+
+  #[cfg(any(feature = "v2_28", feature = "dox"))]
+  #[cfg_attr(feature = "dox", doc(cfg(feature = "v2_28")))]
+  pub fn parameters(mut self, parameters: &glib::Variant) -> Self {
+    self.parameters = Some(parameters.clone());
+    self
   }
 }
 
-mod sealed {
-  pub trait Sealed {}
-  impl<T: super::IsA<super::UserMessage>> Sealed for T {}
-}
-
-pub trait UserMessageExt: IsA<UserMessage> + sealed::Sealed + 'static {
+pub trait UserMessageExt: 'static {
+  #[cfg(any(feature = "v2_28", feature = "dox"))]
+  #[cfg_attr(feature = "dox", doc(cfg(feature = "v2_28")))]
   #[doc(alias = "webkit_user_message_get_fd_list")]
   #[doc(alias = "get_fd_list")]
+  fn fd_list(&self) -> Option<gio::UnixFDList>;
+
+  #[cfg(any(feature = "v2_28", feature = "dox"))]
+  #[cfg_attr(feature = "dox", doc(cfg(feature = "v2_28")))]
+  #[doc(alias = "webkit_user_message_get_name")]
+  #[doc(alias = "get_name")]
+  fn name(&self) -> Option<glib::GString>;
+
+  #[cfg(any(feature = "v2_28", feature = "dox"))]
+  #[cfg_attr(feature = "dox", doc(cfg(feature = "v2_28")))]
+  #[doc(alias = "webkit_user_message_get_parameters")]
+  #[doc(alias = "get_parameters")]
+  fn parameters(&self) -> Option<glib::Variant>;
+
+  #[cfg(any(feature = "v2_28", feature = "dox"))]
+  #[cfg_attr(feature = "dox", doc(cfg(feature = "v2_28")))]
+  #[doc(alias = "webkit_user_message_send_reply")]
+  fn send_reply(&self, reply: &impl IsA<UserMessage>);
+}
+
+impl<O: IsA<UserMessage>> UserMessageExt for O {
+  #[cfg(any(feature = "v2_28", feature = "dox"))]
+  #[cfg_attr(feature = "dox", doc(cfg(feature = "v2_28")))]
   fn fd_list(&self) -> Option<gio::UnixFDList> {
     unsafe {
       from_glib_none(ffi::webkit_user_message_get_fd_list(
@@ -125,8 +177,8 @@ pub trait UserMessageExt: IsA<UserMessage> + sealed::Sealed + 'static {
     }
   }
 
-  #[doc(alias = "webkit_user_message_get_name")]
-  #[doc(alias = "get_name")]
+  #[cfg(any(feature = "v2_28", feature = "dox"))]
+  #[cfg_attr(feature = "dox", doc(cfg(feature = "v2_28")))]
   fn name(&self) -> Option<glib::GString> {
     unsafe {
       from_glib_none(ffi::webkit_user_message_get_name(
@@ -135,8 +187,8 @@ pub trait UserMessageExt: IsA<UserMessage> + sealed::Sealed + 'static {
     }
   }
 
-  #[doc(alias = "webkit_user_message_get_parameters")]
-  #[doc(alias = "get_parameters")]
+  #[cfg(any(feature = "v2_28", feature = "dox"))]
+  #[cfg_attr(feature = "dox", doc(cfg(feature = "v2_28")))]
   fn parameters(&self) -> Option<glib::Variant> {
     unsafe {
       from_glib_none(ffi::webkit_user_message_get_parameters(
@@ -145,7 +197,8 @@ pub trait UserMessageExt: IsA<UserMessage> + sealed::Sealed + 'static {
     }
   }
 
-  #[doc(alias = "webkit_user_message_send_reply")]
+  #[cfg(any(feature = "v2_28", feature = "dox"))]
+  #[cfg_attr(feature = "dox", doc(cfg(feature = "v2_28")))]
   fn send_reply(&self, reply: &impl IsA<UserMessage>) {
     unsafe {
       ffi::webkit_user_message_send_reply(
@@ -156,4 +209,8 @@ pub trait UserMessageExt: IsA<UserMessage> + sealed::Sealed + 'static {
   }
 }
 
-impl<O: IsA<UserMessage>> UserMessageExt for O {}
+impl fmt::Display for UserMessage {
+  fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    f.write_str("UserMessage")
+  }
+}

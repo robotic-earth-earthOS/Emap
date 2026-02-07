@@ -1,8 +1,10 @@
 // Take a look at the license at the top of the repository in the LICENSE file.
 
-use glib::{prelude::*, translate::*};
+use glib::translate::FromGlibPtrFull;
+use glib::Cast;
 
-use crate::{SocketService, ThreadedSocketService};
+use crate::SocketService;
+use crate::ThreadedSocketService;
 
 impl ThreadedSocketService {
     #[doc(alias = "g_threaded_socket_service_new")]

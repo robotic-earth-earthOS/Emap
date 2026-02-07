@@ -2,13 +2,24 @@
 // from gir-files (https://github.com/gtk-rs/gir-files)
 // DO NOT EDIT
 
-use crate::{AsyncResult, Cancellable, FilterInputStream, InputStream, Seekable};
-use glib::{
-    prelude::*,
-    signal::{connect_raw, SignalHandlerId},
-    translate::*,
-};
-use std::{boxed::Box as Box_, fmt, mem, mem::transmute, pin::Pin, ptr};
+use crate::AsyncResult;
+use crate::Cancellable;
+use crate::FilterInputStream;
+use crate::InputStream;
+use crate::Seekable;
+use glib::object::Cast;
+use glib::object::IsA;
+use glib::signal::connect_raw;
+use glib::signal::SignalHandlerId;
+use glib::translate::*;
+use glib::StaticType;
+use glib::ToValue;
+use std::boxed::Box as Box_;
+use std::fmt;
+use std::mem;
+use std::mem::transmute;
+use std::pin::Pin;
+use std::ptr;
 
 glib::wrapper! {
     #[doc(alias = "GBufferedInputStream")]
@@ -48,69 +59,115 @@ impl BufferedInputStream {
     ///
     /// This method returns an instance of [`BufferedInputStreamBuilder`](crate::builders::BufferedInputStreamBuilder) which can be used to create [`BufferedInputStream`] objects.
     pub fn builder() -> BufferedInputStreamBuilder {
-        BufferedInputStreamBuilder::new()
+        BufferedInputStreamBuilder::default()
     }
 }
 
 impl Default for BufferedInputStream {
     fn default() -> Self {
-        glib::object::Object::new::<Self>()
+        glib::object::Object::new::<Self>(&[])
+            .expect("Can't construct BufferedInputStream object with default parameters")
     }
 }
 
+#[derive(Clone, Default)]
 // rustdoc-stripper-ignore-next
 /// A [builder-pattern] type to construct [`BufferedInputStream`] objects.
 ///
 /// [builder-pattern]: https://doc.rust-lang.org/1.0.0/style/ownership/builders.html
 #[must_use = "The builder must be built to be used"]
 pub struct BufferedInputStreamBuilder {
-    builder: glib::object::ObjectBuilder<'static, BufferedInputStream>,
+    buffer_size: Option<u32>,
+    base_stream: Option<InputStream>,
+    close_base_stream: Option<bool>,
 }
 
 impl BufferedInputStreamBuilder {
-    fn new() -> Self {
-        Self {
-            builder: glib::object::Object::builder(),
-        }
-    }
-
-    pub fn buffer_size(self, buffer_size: u32) -> Self {
-        Self {
-            builder: self.builder.property("buffer-size", buffer_size),
-        }
-    }
-
-    pub fn base_stream(self, base_stream: &impl IsA<InputStream>) -> Self {
-        Self {
-            builder: self
-                .builder
-                .property("base-stream", base_stream.clone().upcast()),
-        }
-    }
-
-    pub fn close_base_stream(self, close_base_stream: bool) -> Self {
-        Self {
-            builder: self
-                .builder
-                .property("close-base-stream", close_base_stream),
-        }
+    // rustdoc-stripper-ignore-next
+    /// Create a new [`BufferedInputStreamBuilder`].
+    pub fn new() -> Self {
+        Self::default()
     }
 
     // rustdoc-stripper-ignore-next
     /// Build the [`BufferedInputStream`].
     #[must_use = "Building the object from the builder is usually expensive and is not expected to have side effects"]
     pub fn build(self) -> BufferedInputStream {
-        self.builder.build()
+        let mut properties: Vec<(&str, &dyn ToValue)> = vec![];
+        if let Some(ref buffer_size) = self.buffer_size {
+            properties.push(("buffer-size", buffer_size));
+        }
+        if let Some(ref base_stream) = self.base_stream {
+            properties.push(("base-stream", base_stream));
+        }
+        if let Some(ref close_base_stream) = self.close_base_stream {
+            properties.push(("close-base-stream", close_base_stream));
+        }
+        glib::Object::new::<BufferedInputStream>(&properties)
+            .expect("Failed to create an instance of BufferedInputStream")
+    }
+
+    pub fn buffer_size(mut self, buffer_size: u32) -> Self {
+        self.buffer_size = Some(buffer_size);
+        self
+    }
+
+    pub fn base_stream(mut self, base_stream: &impl IsA<InputStream>) -> Self {
+        self.base_stream = Some(base_stream.clone().upcast());
+        self
+    }
+
+    pub fn close_base_stream(mut self, close_base_stream: bool) -> Self {
+        self.close_base_stream = Some(close_base_stream);
+        self
     }
 }
 
-mod sealed {
-    pub trait Sealed {}
-    impl<T: super::IsA<super::BufferedInputStream>> Sealed for T {}
+pub trait BufferedInputStreamExt: 'static {
+    #[doc(alias = "g_buffered_input_stream_fill")]
+    fn fill(
+        &self,
+        count: isize,
+        cancellable: Option<&impl IsA<Cancellable>>,
+    ) -> Result<isize, glib::Error>;
+
+    #[doc(alias = "g_buffered_input_stream_fill_async")]
+    fn fill_async<P: FnOnce(Result<isize, glib::Error>) + 'static>(
+        &self,
+        count: isize,
+        io_priority: glib::Priority,
+        cancellable: Option<&impl IsA<Cancellable>>,
+        callback: P,
+    );
+
+    fn fill_future(
+        &self,
+        count: isize,
+        io_priority: glib::Priority,
+    ) -> Pin<Box_<dyn std::future::Future<Output = Result<isize, glib::Error>> + 'static>>;
+
+    #[doc(alias = "g_buffered_input_stream_get_available")]
+    #[doc(alias = "get_available")]
+    fn available(&self) -> usize;
+
+    #[doc(alias = "g_buffered_input_stream_get_buffer_size")]
+    #[doc(alias = "get_buffer_size")]
+    fn buffer_size(&self) -> usize;
+
+    #[doc(alias = "g_buffered_input_stream_peek_buffer")]
+    fn peek_buffer(&self) -> Vec<u8>;
+
+    #[doc(alias = "g_buffered_input_stream_read_byte")]
+    fn read_byte(&self, cancellable: Option<&impl IsA<Cancellable>>) -> Result<i32, glib::Error>;
+
+    #[doc(alias = "g_buffered_input_stream_set_buffer_size")]
+    fn set_buffer_size(&self, size: usize);
+
+    #[doc(alias = "buffer-size")]
+    fn connect_buffer_size_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
 }
 
-pub trait BufferedInputStreamExt: IsA<BufferedInputStream> + sealed::Sealed + 'static {
-    #[doc(alias = "g_buffered_input_stream_fill")]
+impl<O: IsA<BufferedInputStream>> BufferedInputStreamExt for O {
     fn fill(
         &self,
         count: isize,
@@ -132,7 +189,6 @@ pub trait BufferedInputStreamExt: IsA<BufferedInputStream> + sealed::Sealed + 's
         }
     }
 
-    #[doc(alias = "g_buffered_input_stream_fill_async")]
     fn fill_async<P: FnOnce(Result<isize, glib::Error>) + 'static>(
         &self,
         count: isize,
@@ -200,19 +256,14 @@ pub trait BufferedInputStreamExt: IsA<BufferedInputStream> + sealed::Sealed + 's
         ))
     }
 
-    #[doc(alias = "g_buffered_input_stream_get_available")]
-    #[doc(alias = "get_available")]
     fn available(&self) -> usize {
         unsafe { ffi::g_buffered_input_stream_get_available(self.as_ref().to_glib_none().0) }
     }
 
-    #[doc(alias = "g_buffered_input_stream_get_buffer_size")]
-    #[doc(alias = "get_buffer_size")]
     fn buffer_size(&self) -> usize {
         unsafe { ffi::g_buffered_input_stream_get_buffer_size(self.as_ref().to_glib_none().0) }
     }
 
-    #[doc(alias = "g_buffered_input_stream_peek_buffer")]
     fn peek_buffer(&self) -> Vec<u8> {
         unsafe {
             let mut count = mem::MaybeUninit::uninit();
@@ -221,13 +272,12 @@ pub trait BufferedInputStreamExt: IsA<BufferedInputStream> + sealed::Sealed + 's
                     self.as_ref().to_glib_none().0,
                     count.as_mut_ptr(),
                 ),
-                count.assume_init() as _,
+                count.assume_init() as usize,
             );
             ret
         }
     }
 
-    #[doc(alias = "g_buffered_input_stream_read_byte")]
     fn read_byte(&self, cancellable: Option<&impl IsA<Cancellable>>) -> Result<i32, glib::Error> {
         unsafe {
             let mut error = ptr::null_mut();
@@ -244,14 +294,12 @@ pub trait BufferedInputStreamExt: IsA<BufferedInputStream> + sealed::Sealed + 's
         }
     }
 
-    #[doc(alias = "g_buffered_input_stream_set_buffer_size")]
     fn set_buffer_size(&self, size: usize) {
         unsafe {
             ffi::g_buffered_input_stream_set_buffer_size(self.as_ref().to_glib_none().0, size);
         }
     }
 
-    #[doc(alias = "buffer-size")]
     fn connect_buffer_size_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_buffer_size_trampoline<
             P: IsA<BufferedInputStream>,
@@ -277,8 +325,6 @@ pub trait BufferedInputStreamExt: IsA<BufferedInputStream> + sealed::Sealed + 's
         }
     }
 }
-
-impl<O: IsA<BufferedInputStream>> BufferedInputStreamExt for O {}
 
 impl fmt::Display for BufferedInputStream {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {

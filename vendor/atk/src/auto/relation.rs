@@ -2,13 +2,17 @@
 // from gir-files (https://github.com/gtk-rs/gir-files)
 // DO NOT EDIT
 
-use crate::{Object, RelationType};
-use glib::{
-    prelude::*,
-    signal::{connect_raw, SignalHandlerId},
-    translate::*,
-};
-use std::{boxed::Box as Box_, fmt, mem::transmute};
+use crate::Object;
+use crate::RelationType;
+use glib::object::Cast;
+use glib::object::IsA;
+use glib::signal::connect_raw;
+use glib::signal::SignalHandlerId;
+use glib::translate::*;
+use glib::ToValue;
+use std::boxed::Box as Box_;
+use std::fmt;
+use std::mem::transmute;
 
 glib::wrapper! {
     #[doc(alias = "AtkRelation")]
@@ -25,7 +29,7 @@ impl Relation {
     #[doc(alias = "atk_relation_new")]
     pub fn new(targets: &[Object], relationship: RelationType) -> Relation {
         assert_initialized_main_thread!();
-        let n_targets = targets.len() as _;
+        let n_targets = targets.len() as i32;
         unsafe {
             from_glib_full(ffi::atk_relation_new(
                 targets.to_glib_none().0,
@@ -36,13 +40,34 @@ impl Relation {
     }
 }
 
-mod sealed {
-    pub trait Sealed {}
-    impl<T: super::IsA<super::Relation>> Sealed for T {}
+pub trait RelationExt: 'static {
+    #[doc(alias = "atk_relation_add_target")]
+    fn add_target(&self, target: &impl IsA<Object>);
+
+    #[doc(alias = "atk_relation_get_relation_type")]
+    #[doc(alias = "get_relation_type")]
+    fn relation_type(&self) -> RelationType;
+
+    #[doc(alias = "atk_relation_get_target")]
+    #[doc(alias = "get_target")]
+    fn target(&self) -> Vec<Object>;
+
+    #[doc(alias = "atk_relation_remove_target")]
+    fn remove_target(&self, target: &impl IsA<Object>) -> bool;
+
+    #[doc(alias = "relation-type")]
+    fn set_relation_type(&self, relation_type: RelationType);
+
+    fn set_target(&self, target: Option<&glib::ValueArray>);
+
+    #[doc(alias = "relation-type")]
+    fn connect_relation_type_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "target")]
+    fn connect_target_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
 }
 
-pub trait RelationExt: IsA<Relation> + sealed::Sealed + 'static {
-    #[doc(alias = "atk_relation_add_target")]
+impl<O: IsA<Relation>> RelationExt for O {
     fn add_target(&self, target: &impl IsA<Object>) {
         unsafe {
             ffi::atk_relation_add_target(
@@ -52,8 +77,6 @@ pub trait RelationExt: IsA<Relation> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "atk_relation_get_relation_type")]
-    #[doc(alias = "get_relation_type")]
     fn relation_type(&self) -> RelationType {
         unsafe {
             from_glib(ffi::atk_relation_get_relation_type(
@@ -62,8 +85,6 @@ pub trait RelationExt: IsA<Relation> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "atk_relation_get_target")]
-    #[doc(alias = "get_target")]
     fn target(&self) -> Vec<Object> {
         unsafe {
             FromGlibPtrContainer::from_glib_none(ffi::atk_relation_get_target(
@@ -72,7 +93,6 @@ pub trait RelationExt: IsA<Relation> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "atk_relation_remove_target")]
     fn remove_target(&self, target: &impl IsA<Object>) -> bool {
         unsafe {
             from_glib(ffi::atk_relation_remove_target(
@@ -82,16 +102,14 @@ pub trait RelationExt: IsA<Relation> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "relation-type")]
     fn set_relation_type(&self, relation_type: RelationType) {
-        ObjectExt::set_property(self.as_ref(), "relation-type", relation_type)
+        glib::ObjectExt::set_property(self.as_ref(), "relation-type", &relation_type)
     }
 
     fn set_target(&self, target: Option<&glib::ValueArray>) {
-        ObjectExt::set_property(self.as_ref(), "target", target)
+        glib::ObjectExt::set_property(self.as_ref(), "target", &target)
     }
 
-    #[doc(alias = "relation-type")]
     fn connect_relation_type_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_relation_type_trampoline<
             P: IsA<Relation>,
@@ -117,7 +135,6 @@ pub trait RelationExt: IsA<Relation> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "target")]
     fn connect_target_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_target_trampoline<P: IsA<Relation>, F: Fn(&P) + 'static>(
             this: *mut ffi::AtkRelation,
@@ -140,8 +157,6 @@ pub trait RelationExt: IsA<Relation> + sealed::Sealed + 'static {
         }
     }
 }
-
-impl<O: IsA<Relation>> RelationExt for O {}
 
 impl fmt::Display for Relation {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {

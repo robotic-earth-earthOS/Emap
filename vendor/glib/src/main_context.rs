@@ -1,10 +1,12 @@
 // Take a look at the license at the top of the repository in the LICENSE file.
 
-use std::mem;
-
+use crate::source::Priority;
+use crate::translate::*;
+use crate::MainContext;
+use crate::Source;
+use crate::SourceId;
 use ffi::{self, gboolean, gpointer};
-
-use crate::{source::Priority, translate::*, MainContext, Source, SourceId};
+use std::mem;
 
 impl MainContext {
     #[doc(alias = "g_main_context_prepare")]
@@ -43,7 +45,7 @@ impl MainContext {
     where
         F: FnOnce() + Send + 'static,
     {
-        self.invoke_with_priority(crate::Priority::DEFAULT_IDLE, func);
+        self.invoke_with_priority(crate::PRIORITY_DEFAULT_IDLE, func);
     }
 
     // rustdoc-stripper-ignore-next
@@ -80,7 +82,7 @@ impl MainContext {
     where
         F: FnOnce() + 'static,
     {
-        self.invoke_local_with_priority(crate::Priority::DEFAULT_IDLE, func);
+        self.invoke_local_with_priority(crate::PRIORITY_DEFAULT_IDLE, func);
     }
 
     // rustdoc-stripper-ignore-next
@@ -125,7 +127,7 @@ impl MainContext {
             ffi::G_SOURCE_REMOVE
         }
         unsafe extern "C" fn destroy_closure<F: FnOnce() + 'static>(ptr: gpointer) {
-            let _ = Box::<Option<F>>::from_raw(ptr as *mut _);
+            Box::<Option<F>>::from_raw(ptr as *mut _);
         }
         let func = Box::into_raw(Box::new(Some(func)));
         ffi::g_main_context_invoke_full(
@@ -178,7 +180,6 @@ pub struct MainContextAcquireGuard<'a>(&'a MainContext);
 
 impl<'a> Drop for MainContextAcquireGuard<'a> {
     #[doc(alias = "g_main_context_release")]
-    #[inline]
     fn drop(&mut self) {
         unsafe {
             ffi::g_main_context_release(self.0.to_glib_none().0);
@@ -198,7 +199,6 @@ impl<'a> ThreadDefaultContext<'a> {
 }
 
 impl<'a> Drop for ThreadDefaultContext<'a> {
-    #[inline]
     fn drop(&mut self) {
         unsafe {
             ffi::g_main_context_pop_thread_default(self.0.to_glib_none().0);
@@ -208,9 +208,10 @@ impl<'a> Drop for ThreadDefaultContext<'a> {
 
 #[cfg(test)]
 mod tests {
-    use std::{panic, ptr, thread};
-
     use super::*;
+    use std::panic;
+    use std::ptr;
+    use std::thread;
 
     #[test]
     fn test_invoke() {

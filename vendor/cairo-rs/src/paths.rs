@@ -1,21 +1,21 @@
 // Take a look at the license at the top of the repository in the LICENSE file.
 
-use std::{fmt, iter::FusedIterator, ptr};
-
-use crate::{ffi::cairo_path_t, PathDataType};
+use crate::enums::PathDataType;
+use crate::ffi::cairo_path_t;
+use std::fmt;
+use std::iter::FusedIterator;
+use std::ptr;
 
 #[derive(Debug)]
 pub struct Path(ptr::NonNull<cairo_path_t>);
 
 impl Path {
-    #[inline]
     pub fn as_ptr(&self) -> *mut cairo_path_t {
         self.0.as_ptr()
     }
 
-    #[inline]
     pub unsafe fn from_raw_full(pointer: *mut cairo_path_t) -> Path {
-        debug_assert!(!pointer.is_null());
+        assert!(!pointer.is_null());
         Path(ptr::NonNull::new_unchecked(pointer))
     }
 
@@ -42,7 +42,6 @@ impl Path {
 }
 
 impl Drop for Path {
-    #[inline]
     fn drop(&mut self) {
         unsafe {
             ffi::cairo_path_destroy(self.as_ptr());
@@ -103,7 +102,7 @@ impl<'a> Iterator for PathSegments<'a> {
                     to_tuple(&self.data[self.i + 3].point),
                 ),
                 PathDataType::ClosePath => PathSegment::ClosePath,
-                PathDataType::__Unknown(x) => panic!("Unknown value: {x}"),
+                PathDataType::__Unknown(x) => panic!("Unknown value: {}", x),
             };
 
             self.i += self.data[self.i].header.length as usize;
@@ -128,7 +127,9 @@ fn to_tuple(pair: &[f64; 2]) -> (f64, f64) {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{context::*, enums::Format, image_surface::*};
+    use crate::context::*;
+    use crate::enums::Format;
+    use crate::image_surface::*;
 
     fn make_cr() -> Context {
         let surface = ImageSurface::create(Format::Rgb24, 1, 1).unwrap();

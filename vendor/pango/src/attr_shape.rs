@@ -1,8 +1,7 @@
 // Take a look at the license at the top of the repository in the LICENSE file.
 
-use glib::translate::*;
-
 use crate::{AttrType, Rectangle};
+use glib::translate::*;
 
 define_attribute_struct!(AttrShape, ffi::PangoAttrShape, &[AttrType::Shape]);
 

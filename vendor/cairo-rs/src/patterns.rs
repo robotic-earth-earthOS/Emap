@@ -1,14 +1,16 @@
 // Take a look at the license at the top of the repository in the LICENSE file.
 
-use std::{convert::TryFrom, fmt, ops::Deref, ptr};
-
+use crate::enums::MeshCorner;
+use crate::enums::{Extend, Filter, PatternType};
+use crate::error::Error;
+use crate::ffi::{cairo_pattern_t, cairo_surface_t};
+use crate::utils::status_to_result;
+use crate::{Matrix, Path, Surface};
 use libc::{c_double, c_int, c_uint};
-
-use crate::{
-    ffi::{cairo_pattern_t, cairo_surface_t},
-    utils::status_to_result,
-    Error, Extend, Filter, Matrix, MeshCorner, Path, PatternType, Surface,
-};
+use std::convert::TryFrom;
+use std::fmt;
+use std::ops::Deref;
+use std::ptr;
 
 // See https://cairographics.org/manual/bindings-patterns.html for more info
 #[derive(Debug)]
@@ -28,18 +30,15 @@ impl Pattern {
         ffi::cairo_pattern_set_user_data,
     }
 
-    #[inline]
     pub fn to_raw_none(&self) -> *mut cairo_pattern_t {
         self.pointer
     }
 
-    #[inline]
     pub unsafe fn from_raw_none(pointer: *mut cairo_pattern_t) -> Pattern {
         ffi::cairo_pattern_reference(pointer);
         Self::from_raw_full(pointer)
     }
 
-    #[inline]
     pub unsafe fn from_raw_full(pointer: *mut cairo_pattern_t) -> Pattern {
         Self { pointer }
     }
@@ -101,7 +100,6 @@ impl Pattern {
 }
 
 impl Clone for Pattern {
-    #[inline]
     fn clone(&self) -> Self {
         Self {
             pointer: unsafe { ffi::cairo_pattern_reference(self.pointer) },
@@ -110,16 +108,8 @@ impl Clone for Pattern {
 }
 
 impl Drop for Pattern {
-    #[inline]
     fn drop(&mut self) {
         unsafe { ffi::cairo_pattern_destroy(self.pointer) }
-    }
-}
-
-impl AsRef<Pattern> for Pattern {
-    #[inline]
-    fn as_ref(&self) -> &Pattern {
-        self
     }
 }
 
@@ -153,15 +143,7 @@ macro_rules! pattern_type(
         impl Deref for $pattern_type {
             type Target = Pattern;
 
-            #[inline]
             fn deref(&self) -> &Pattern {
-                &self.0
-            }
-        }
-
-        impl AsRef<Pattern> for $pattern_type {
-            #[inline]
-            fn as_ref(&self) -> &Pattern {
                 &self.0
             }
         }
@@ -283,22 +265,7 @@ macro_rules! gradient_type {
         impl Deref for $gradient_type {
             type Target = Gradient;
 
-            #[inline]
             fn deref(&self) -> &Gradient {
-                &self.0
-            }
-        }
-
-        impl AsRef<Gradient> for $gradient_type {
-            #[inline]
-            fn as_ref(&self) -> &Gradient {
-                &self.0
-            }
-        }
-
-        impl AsRef<Pattern> for $gradient_type {
-            #[inline]
-            fn as_ref(&self) -> &Pattern {
                 &self.0
             }
         }
@@ -390,10 +357,10 @@ pattern_type!(SurfacePattern = Surface);
 
 impl SurfacePattern {
     #[doc(alias = "cairo_pattern_create_for_surface")]
-    pub fn create(surface: impl AsRef<Surface>) -> Self {
+    pub fn create(surface: &Surface) -> Self {
         unsafe {
             Self(Pattern::from_raw_full(
-                ffi::cairo_pattern_create_for_surface(surface.as_ref().to_raw_none()),
+                ffi::cairo_pattern_create_for_surface(surface.to_raw_none()),
             ))
         }
     }

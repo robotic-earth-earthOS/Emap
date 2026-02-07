@@ -2,9 +2,17 @@
 // from gir-files (https://github.com/gtk-rs/gir-files)
 // DO NOT EDIT
 
-use crate::{AsyncResult, Cancellable, FileInfo, InputStream, Seekable};
-use glib::{prelude::*, translate::*};
-use std::{boxed::Box as Box_, fmt, pin::Pin, ptr};
+use crate::AsyncResult;
+use crate::Cancellable;
+use crate::FileInfo;
+use crate::InputStream;
+use crate::Seekable;
+use glib::object::IsA;
+use glib::translate::*;
+use std::boxed::Box as Box_;
+use std::fmt;
+use std::pin::Pin;
+use std::ptr;
 
 glib::wrapper! {
     #[doc(alias = "GFileInputStream")]
@@ -19,13 +27,31 @@ impl FileInputStream {
     pub const NONE: Option<&'static FileInputStream> = None;
 }
 
-mod sealed {
-    pub trait Sealed {}
-    impl<T: super::IsA<super::FileInputStream>> Sealed for T {}
+pub trait FileInputStreamExt: 'static {
+    #[doc(alias = "g_file_input_stream_query_info")]
+    fn query_info(
+        &self,
+        attributes: &str,
+        cancellable: Option<&impl IsA<Cancellable>>,
+    ) -> Result<FileInfo, glib::Error>;
+
+    #[doc(alias = "g_file_input_stream_query_info_async")]
+    fn query_info_async<P: FnOnce(Result<FileInfo, glib::Error>) + 'static>(
+        &self,
+        attributes: &str,
+        io_priority: glib::Priority,
+        cancellable: Option<&impl IsA<Cancellable>>,
+        callback: P,
+    );
+
+    fn query_info_future(
+        &self,
+        attributes: &str,
+        io_priority: glib::Priority,
+    ) -> Pin<Box_<dyn std::future::Future<Output = Result<FileInfo, glib::Error>> + 'static>>;
 }
 
-pub trait FileInputStreamExt: IsA<FileInputStream> + sealed::Sealed + 'static {
-    #[doc(alias = "g_file_input_stream_query_info")]
+impl<O: IsA<FileInputStream>> FileInputStreamExt for O {
     fn query_info(
         &self,
         attributes: &str,
@@ -47,7 +73,6 @@ pub trait FileInputStreamExt: IsA<FileInputStream> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_file_input_stream_query_info_async")]
     fn query_info_async<P: FnOnce(Result<FileInfo, glib::Error>) + 'static>(
         &self,
         attributes: &str,
@@ -119,8 +144,6 @@ pub trait FileInputStreamExt: IsA<FileInputStream> + sealed::Sealed + 'static {
         ))
     }
 }
-
-impl<O: IsA<FileInputStream>> FileInputStreamExt for O {}
 
 impl fmt::Display for FileInputStream {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {

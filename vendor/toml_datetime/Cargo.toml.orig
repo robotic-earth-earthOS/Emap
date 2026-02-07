@@ -1,18 +1,16 @@
 [package]
 name = "toml_datetime"
-version = "0.7.5+spec-1.1.0"
-description = "A TOML-compatible datetime type"
+version = "0.6.3"
+keywords = ["encoding", "toml"]
 categories = ["encoding", "parser-implementations", "parsing", "config"]
-keywords = ["encoding", "toml", "no_std"]
+description = "A TOML-compatible datetime type"
+authors = ["Alex Crichton <alex@alexcrichton.com>"]
 repository.workspace = true
+homepage.workspace = true
 license.workspace = true
 edition.workspace = true
 rust-version.workspace = true
 include.workspace = true
-
-[package.metadata.docs.rs]
-all-features = true
-rustdoc-args = ["--generate-link-to-definition"]
 
 [package.metadata.release]
 pre-release-replacements = [
@@ -23,17 +21,9 @@ pre-release-replacements = [
   {file="CHANGELOG.md", search="<!-- next-url -->", replace="<!-- next-url -->\n[Unreleased]: https://github.com/toml-rs/toml/compare/{{tag_name}}...HEAD", exactly=1},
 ]
 
-[features]
-default = ["std"]
-alloc = ["serde_core?/alloc"]
-std = ["alloc", "serde_core?/std"]
-serde = ["dep:serde_core"]
+[package.metadata.docs.rs]
+rustdoc-args = ["--cfg", "docsrs"]
+all-features = true
 
 [dependencies]
-serde_core = { version = "1.0.225", default-features = false, optional = true }
-
-[lints]
-workspace = true
-
-[dev-dependencies]
-snapbox = "0.6.21"
+serde = { version = "1.0.145", optional = true }

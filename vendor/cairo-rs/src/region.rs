@@ -1,34 +1,28 @@
 // Take a look at the license at the top of the repository in the LICENSE file.
 
-#[cfg(feature = "use_glib")]
-use std::marker::PhantomData;
-use std::{fmt, ptr};
-
+use crate::enums::RegionOverlap;
+use crate::error::Error;
+use crate::utils::status_to_result;
+use crate::RectangleInt;
 #[cfg(feature = "use_glib")]
 use glib::translate::*;
+use std::fmt;
+use std::ptr;
 
-use crate::{ffi::cairo_region_t, utils::status_to_result, Error, RectangleInt, RegionOverlap};
+use crate::ffi::cairo_region_t;
 
 #[derive(Debug)]
 #[repr(transparent)]
 pub struct Region(ptr::NonNull<cairo_region_t>);
 
 #[cfg(feature = "use_glib")]
-impl IntoGlibPtr<*mut ffi::cairo_region_t> for Region {
-    #[inline]
-    unsafe fn into_glib_ptr(self) -> *mut ffi::cairo_region_t {
-        (&*std::mem::ManuallyDrop::new(self)).to_glib_none().0
-    }
-}
-
-#[cfg(feature = "use_glib")]
 #[doc(hidden)]
 impl<'a> ToGlibPtr<'a, *mut ffi::cairo_region_t> for &'a Region {
-    type Storage = PhantomData<&'a Region>;
+    type Storage = &'a Region;
 
     #[inline]
-    fn to_glib_none(&self) -> Stash<'a, *mut ffi::cairo_region_t, Self> {
-        Stash(self.0.as_ptr(), PhantomData)
+    fn to_glib_none(&self) -> Stash<'a, *mut ffi::cairo_region_t, &'a Region> {
+        Stash(self.0.as_ptr(), *self)
     }
 
     #[inline]
@@ -40,13 +34,13 @@ impl<'a> ToGlibPtr<'a, *mut ffi::cairo_region_t> for &'a Region {
 #[cfg(feature = "use_glib")]
 #[doc(hidden)]
 impl<'a> ToGlibPtrMut<'a, *mut ffi::cairo_region_t> for Region {
-    type Storage = PhantomData<&'a mut Self>;
+    type Storage = &'a mut Self;
 
     // FIXME: This is unsafe: regions are reference counted, so we could get multiple mutable
     // references here
     #[inline]
     fn to_glib_none_mut(&'a mut self) -> StashMut<'a, *mut ffi::cairo_region_t, Self> {
-        StashMut(self.0.as_ptr(), PhantomData)
+        StashMut(self.0.as_ptr(), self)
     }
 }
 
@@ -85,14 +79,12 @@ gvalue_impl!(
 );
 
 impl Clone for Region {
-    #[inline]
     fn clone(&self) -> Region {
         unsafe { Self::from_raw_none(self.to_raw_none()) }
     }
 }
 
 impl Drop for Region {
-    #[inline]
     fn drop(&mut self) {
         unsafe {
             ffi::cairo_region_destroy(self.0.as_ptr());
@@ -102,7 +94,6 @@ impl Drop for Region {
 
 impl PartialEq for Region {
     #[doc(alias = "cairo_region_equal")]
-    #[inline]
     fn eq(&self, other: &Region) -> bool {
         unsafe { ffi::cairo_region_equal(self.0.as_ptr(), other.0.as_ptr()).as_bool() }
     }
@@ -113,24 +104,23 @@ impl Eq for Region {}
 impl Region {
     #[inline]
     pub unsafe fn from_raw_none(ptr: *mut ffi::cairo_region_t) -> Region {
-        debug_assert!(!ptr.is_null());
+        assert!(!ptr.is_null());
         ffi::cairo_region_reference(ptr);
         Region(ptr::NonNull::new_unchecked(ptr))
     }
 
     #[inline]
     pub unsafe fn from_raw_borrow(ptr: *mut ffi::cairo_region_t) -> crate::Borrowed<Region> {
-        debug_assert!(!ptr.is_null());
+        assert!(!ptr.is_null());
         crate::Borrowed::new(Region(ptr::NonNull::new_unchecked(ptr)))
     }
 
     #[inline]
     pub unsafe fn from_raw_full(ptr: *mut ffi::cairo_region_t) -> Region {
-        debug_assert!(!ptr.is_null());
+        assert!(!ptr.is_null());
         Region(ptr::NonNull::new_unchecked(ptr))
     }
 
-    #[inline]
     pub fn to_raw_none(&self) -> *mut ffi::cairo_region_t {
         self.0.as_ptr()
     }
@@ -163,7 +153,7 @@ impl Region {
 
     #[doc(alias = "get_extents")]
     #[doc(alias = "cairo_region_get_extents")]
-    pub fn extents(&self, rectangle: &RectangleInt) {
+    pub fn extents(&self, rectangle: &mut RectangleInt) {
         unsafe { ffi::cairo_region_get_extents(self.0.as_ptr(), rectangle.to_raw_none()) }
     }
 

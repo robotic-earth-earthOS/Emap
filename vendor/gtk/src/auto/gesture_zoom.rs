@@ -2,13 +2,21 @@
 // from gir-files (https://github.com/gtk-rs/gir-files)
 // DO NOT EDIT
 
-use crate::{EventController, Gesture, PropagationPhase, Widget};
-use glib::{
-    prelude::*,
-    signal::{connect_raw, SignalHandlerId},
-    translate::*,
-};
-use std::{boxed::Box as Box_, fmt, mem::transmute};
+use crate::EventController;
+use crate::Gesture;
+use crate::PropagationPhase;
+use crate::Widget;
+use glib::object::Cast;
+use glib::object::IsA;
+use glib::object::ObjectType as ObjectType_;
+use glib::signal::connect_raw;
+use glib::signal::SignalHandlerId;
+use glib::translate::*;
+use glib::StaticType;
+use glib::ToValue;
+use std::boxed::Box as Box_;
+use std::fmt;
+use std::mem::transmute;
 
 glib::wrapper! {
     #[doc(alias = "GtkGestureZoom")]
@@ -34,7 +42,7 @@ impl GestureZoom {
     ///
     /// This method returns an instance of [`GestureZoomBuilder`](crate::builders::GestureZoomBuilder) which can be used to create [`GestureZoom`] objects.
     pub fn builder() -> GestureZoomBuilder {
-        GestureZoomBuilder::new()
+        GestureZoomBuilder::default()
     }
 
     #[doc(alias = "gtk_gesture_zoom_get_scale_delta")]
@@ -69,57 +77,70 @@ impl GestureZoom {
 
 impl Default for GestureZoom {
     fn default() -> Self {
-        glib::object::Object::new::<Self>()
+        glib::object::Object::new::<Self>(&[])
+            .expect("Can't construct GestureZoom object with default parameters")
     }
 }
 
+#[derive(Clone, Default)]
 // rustdoc-stripper-ignore-next
 /// A [builder-pattern] type to construct [`GestureZoom`] objects.
 ///
 /// [builder-pattern]: https://doc.rust-lang.org/1.0.0/style/ownership/builders.html
 #[must_use = "The builder must be built to be used"]
 pub struct GestureZoomBuilder {
-    builder: glib::object::ObjectBuilder<'static, GestureZoom>,
+    n_points: Option<u32>,
+    window: Option<gdk::Window>,
+    propagation_phase: Option<PropagationPhase>,
+    widget: Option<Widget>,
 }
 
 impl GestureZoomBuilder {
-    fn new() -> Self {
-        Self {
-            builder: glib::object::Object::builder(),
-        }
-    }
-
-    pub fn n_points(self, n_points: u32) -> Self {
-        Self {
-            builder: self.builder.property("n-points", n_points),
-        }
-    }
-
-    pub fn window(self, window: &gdk::Window) -> Self {
-        Self {
-            builder: self.builder.property("window", window.clone()),
-        }
-    }
-
-    pub fn propagation_phase(self, propagation_phase: PropagationPhase) -> Self {
-        Self {
-            builder: self
-                .builder
-                .property("propagation-phase", propagation_phase),
-        }
-    }
-
-    pub fn widget(self, widget: &impl IsA<Widget>) -> Self {
-        Self {
-            builder: self.builder.property("widget", widget.clone().upcast()),
-        }
+    // rustdoc-stripper-ignore-next
+    /// Create a new [`GestureZoomBuilder`].
+    pub fn new() -> Self {
+        Self::default()
     }
 
     // rustdoc-stripper-ignore-next
     /// Build the [`GestureZoom`].
     #[must_use = "Building the object from the builder is usually expensive and is not expected to have side effects"]
     pub fn build(self) -> GestureZoom {
-        self.builder.build()
+        let mut properties: Vec<(&str, &dyn ToValue)> = vec![];
+        if let Some(ref n_points) = self.n_points {
+            properties.push(("n-points", n_points));
+        }
+        if let Some(ref window) = self.window {
+            properties.push(("window", window));
+        }
+        if let Some(ref propagation_phase) = self.propagation_phase {
+            properties.push(("propagation-phase", propagation_phase));
+        }
+        if let Some(ref widget) = self.widget {
+            properties.push(("widget", widget));
+        }
+        glib::Object::new::<GestureZoom>(&properties)
+            .expect("Failed to create an instance of GestureZoom")
+    }
+
+    pub fn n_points(mut self, n_points: u32) -> Self {
+        self.n_points = Some(n_points);
+        self
+    }
+
+    pub fn window(mut self, window: &gdk::Window) -> Self {
+        self.window = Some(window.clone());
+        self
+    }
+
+    pub fn propagation_phase(mut self, propagation_phase: PropagationPhase) -> Self {
+        self.propagation_phase = Some(propagation_phase);
+        self
+    }
+
+    pub fn widget(mut self, widget: &impl IsA<Widget>) -> Self {
+        self.widget = Some(widget.clone().upcast());
+        self
     }
 }
 

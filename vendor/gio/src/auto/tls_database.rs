@@ -2,12 +2,20 @@
 // from gir-files (https://github.com/gtk-rs/gir-files)
 // DO NOT EDIT
 
-use crate::{
-    AsyncResult, Cancellable, SocketConnectable, TlsCertificate, TlsCertificateFlags,
-    TlsDatabaseLookupFlags, TlsDatabaseVerifyFlags, TlsInteraction,
-};
-use glib::{prelude::*, translate::*};
-use std::{boxed::Box as Box_, fmt, pin::Pin, ptr};
+use crate::AsyncResult;
+use crate::Cancellable;
+use crate::SocketConnectable;
+use crate::TlsCertificate;
+use crate::TlsCertificateFlags;
+use crate::TlsDatabaseLookupFlags;
+use crate::TlsDatabaseVerifyFlags;
+use crate::TlsInteraction;
+use glib::object::IsA;
+use glib::translate::*;
+use std::boxed::Box as Box_;
+use std::fmt;
+use std::pin::Pin;
+use std::ptr;
 
 glib::wrapper! {
     #[doc(alias = "GTlsDatabase")]
@@ -22,13 +30,133 @@ impl TlsDatabase {
     pub const NONE: Option<&'static TlsDatabase> = None;
 }
 
-mod sealed {
-    pub trait Sealed {}
-    impl<T: super::IsA<super::TlsDatabase>> Sealed for T {}
+pub trait TlsDatabaseExt: 'static {
+    #[doc(alias = "g_tls_database_create_certificate_handle")]
+    fn create_certificate_handle(
+        &self,
+        certificate: &impl IsA<TlsCertificate>,
+    ) -> Option<glib::GString>;
+
+    #[doc(alias = "g_tls_database_lookup_certificate_for_handle")]
+    fn lookup_certificate_for_handle(
+        &self,
+        handle: &str,
+        interaction: Option<&impl IsA<TlsInteraction>>,
+        flags: TlsDatabaseLookupFlags,
+        cancellable: Option<&impl IsA<Cancellable>>,
+    ) -> Result<Option<TlsCertificate>, glib::Error>;
+
+    #[doc(alias = "g_tls_database_lookup_certificate_for_handle_async")]
+    fn lookup_certificate_for_handle_async<
+        P: FnOnce(Result<TlsCertificate, glib::Error>) + 'static,
+    >(
+        &self,
+        handle: &str,
+        interaction: Option<&impl IsA<TlsInteraction>>,
+        flags: TlsDatabaseLookupFlags,
+        cancellable: Option<&impl IsA<Cancellable>>,
+        callback: P,
+    );
+
+    fn lookup_certificate_for_handle_future(
+        &self,
+        handle: &str,
+        interaction: Option<&(impl IsA<TlsInteraction> + Clone + 'static)>,
+        flags: TlsDatabaseLookupFlags,
+    ) -> Pin<Box_<dyn std::future::Future<Output = Result<TlsCertificate, glib::Error>> + 'static>>;
+
+    #[doc(alias = "g_tls_database_lookup_certificate_issuer")]
+    fn lookup_certificate_issuer(
+        &self,
+        certificate: &impl IsA<TlsCertificate>,
+        interaction: Option<&impl IsA<TlsInteraction>>,
+        flags: TlsDatabaseLookupFlags,
+        cancellable: Option<&impl IsA<Cancellable>>,
+    ) -> Result<TlsCertificate, glib::Error>;
+
+    #[doc(alias = "g_tls_database_lookup_certificate_issuer_async")]
+    fn lookup_certificate_issuer_async<P: FnOnce(Result<TlsCertificate, glib::Error>) + 'static>(
+        &self,
+        certificate: &impl IsA<TlsCertificate>,
+        interaction: Option<&impl IsA<TlsInteraction>>,
+        flags: TlsDatabaseLookupFlags,
+        cancellable: Option<&impl IsA<Cancellable>>,
+        callback: P,
+    );
+
+    fn lookup_certificate_issuer_future(
+        &self,
+        certificate: &(impl IsA<TlsCertificate> + Clone + 'static),
+        interaction: Option<&(impl IsA<TlsInteraction> + Clone + 'static)>,
+        flags: TlsDatabaseLookupFlags,
+    ) -> Pin<Box_<dyn std::future::Future<Output = Result<TlsCertificate, glib::Error>> + 'static>>;
+
+    #[doc(alias = "g_tls_database_lookup_certificates_issued_by")]
+    fn lookup_certificates_issued_by(
+        &self,
+        issuer_raw_dn: &glib::ByteArray,
+        interaction: Option<&impl IsA<TlsInteraction>>,
+        flags: TlsDatabaseLookupFlags,
+        cancellable: Option<&impl IsA<Cancellable>>,
+    ) -> Result<Vec<TlsCertificate>, glib::Error>;
+
+    #[doc(alias = "g_tls_database_lookup_certificates_issued_by_async")]
+    fn lookup_certificates_issued_by_async<
+        P: FnOnce(Result<Vec<TlsCertificate>, glib::Error>) + 'static,
+    >(
+        &self,
+        issuer_raw_dn: &glib::ByteArray,
+        interaction: Option<&impl IsA<TlsInteraction>>,
+        flags: TlsDatabaseLookupFlags,
+        cancellable: Option<&impl IsA<Cancellable>>,
+        callback: P,
+    );
+
+    fn lookup_certificates_issued_by_future(
+        &self,
+        issuer_raw_dn: &glib::ByteArray,
+        interaction: Option<&(impl IsA<TlsInteraction> + Clone + 'static)>,
+        flags: TlsDatabaseLookupFlags,
+    ) -> Pin<
+        Box_<dyn std::future::Future<Output = Result<Vec<TlsCertificate>, glib::Error>> + 'static>,
+    >;
+
+    #[doc(alias = "g_tls_database_verify_chain")]
+    fn verify_chain(
+        &self,
+        chain: &impl IsA<TlsCertificate>,
+        purpose: &str,
+        identity: Option<&impl IsA<SocketConnectable>>,
+        interaction: Option<&impl IsA<TlsInteraction>>,
+        flags: TlsDatabaseVerifyFlags,
+        cancellable: Option<&impl IsA<Cancellable>>,
+    ) -> Result<TlsCertificateFlags, glib::Error>;
+
+    #[doc(alias = "g_tls_database_verify_chain_async")]
+    fn verify_chain_async<P: FnOnce(Result<TlsCertificateFlags, glib::Error>) + 'static>(
+        &self,
+        chain: &impl IsA<TlsCertificate>,
+        purpose: &str,
+        identity: Option<&impl IsA<SocketConnectable>>,
+        interaction: Option<&impl IsA<TlsInteraction>>,
+        flags: TlsDatabaseVerifyFlags,
+        cancellable: Option<&impl IsA<Cancellable>>,
+        callback: P,
+    );
+
+    fn verify_chain_future(
+        &self,
+        chain: &(impl IsA<TlsCertificate> + Clone + 'static),
+        purpose: &str,
+        identity: Option<&(impl IsA<SocketConnectable> + Clone + 'static)>,
+        interaction: Option<&(impl IsA<TlsInteraction> + Clone + 'static)>,
+        flags: TlsDatabaseVerifyFlags,
+    ) -> Pin<
+        Box_<dyn std::future::Future<Output = Result<TlsCertificateFlags, glib::Error>> + 'static>,
+    >;
 }
 
-pub trait TlsDatabaseExt: IsA<TlsDatabase> + sealed::Sealed + 'static {
-    #[doc(alias = "g_tls_database_create_certificate_handle")]
+impl<O: IsA<TlsDatabase>> TlsDatabaseExt for O {
     fn create_certificate_handle(
         &self,
         certificate: &impl IsA<TlsCertificate>,
@@ -41,7 +169,6 @@ pub trait TlsDatabaseExt: IsA<TlsDatabase> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_tls_database_lookup_certificate_for_handle")]
     fn lookup_certificate_for_handle(
         &self,
         handle: &str,
@@ -67,7 +194,6 @@ pub trait TlsDatabaseExt: IsA<TlsDatabase> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_tls_database_lookup_certificate_for_handle_async")]
     fn lookup_certificate_for_handle_async<
         P: FnOnce(Result<TlsCertificate, glib::Error>) + 'static,
     >(
@@ -152,7 +278,6 @@ pub trait TlsDatabaseExt: IsA<TlsDatabase> + sealed::Sealed + 'static {
         ))
     }
 
-    #[doc(alias = "g_tls_database_lookup_certificate_issuer")]
     fn lookup_certificate_issuer(
         &self,
         certificate: &impl IsA<TlsCertificate>,
@@ -178,7 +303,6 @@ pub trait TlsDatabaseExt: IsA<TlsDatabase> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_tls_database_lookup_certificate_issuer_async")]
     fn lookup_certificate_issuer_async<P: FnOnce(Result<TlsCertificate, glib::Error>) + 'static>(
         &self,
         certificate: &impl IsA<TlsCertificate>,
@@ -261,7 +385,6 @@ pub trait TlsDatabaseExt: IsA<TlsDatabase> + sealed::Sealed + 'static {
         ))
     }
 
-    #[doc(alias = "g_tls_database_lookup_certificates_issued_by")]
     fn lookup_certificates_issued_by(
         &self,
         issuer_raw_dn: &glib::ByteArray,
@@ -287,7 +410,6 @@ pub trait TlsDatabaseExt: IsA<TlsDatabase> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_tls_database_lookup_certificates_issued_by_async")]
     fn lookup_certificates_issued_by_async<
         P: FnOnce(Result<Vec<TlsCertificate>, glib::Error>) + 'static,
     >(
@@ -373,7 +495,6 @@ pub trait TlsDatabaseExt: IsA<TlsDatabase> + sealed::Sealed + 'static {
         ))
     }
 
-    #[doc(alias = "g_tls_database_verify_chain")]
     fn verify_chain(
         &self,
         chain: &impl IsA<TlsCertificate>,
@@ -403,7 +524,6 @@ pub trait TlsDatabaseExt: IsA<TlsDatabase> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_tls_database_verify_chain_async")]
     fn verify_chain_async<P: FnOnce(Result<TlsCertificateFlags, glib::Error>) + 'static>(
         &self,
         chain: &impl IsA<TlsCertificate>,
@@ -494,8 +614,6 @@ pub trait TlsDatabaseExt: IsA<TlsDatabase> + sealed::Sealed + 'static {
         ))
     }
 }
-
-impl<O: IsA<TlsDatabase>> TlsDatabaseExt for O {}
 
 impl fmt::Display for TlsDatabase {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {

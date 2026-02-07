@@ -1,43 +1,5 @@
 # Changelog
 
-## \[2.0.1]
-
-- [`74ab5a4`](https://github.com/tauri-apps/javascriptcore-rs/commit/74ab5a403ddfac3ba977cadc499376e1935e6613) Properly replaced dox with docrs.
-
-## \[2.0.0]
-
-- [`b31ff8c`](https://github.com/tauri-apps/javascriptcore-rs/commit/b31ff8cc1438ef1f708b9694caa026d72620cba3) Update gtk to 0.18.
-
-  Bump MSRV to 1.70.0.
-
-## \[1.1.1]
-
-- [`e95f84a`](https://github.com/tauri-apps/javascriptcore-rs/commit/e95f84a72bc7e6fc367929fd04f5aa795a5d00df) Lock webkit2gtk version to 1.0.
-
-## \[1.1.0]
-
-- [`5f8f15f`](https://github.com/tauri-apps/javascriptcore-rs/commit/5f8f15f2303d25083c885c2309e90ad98a8b780e) Update to webkit2gtk v2.40.
-
-## \[1.0.0]
-
-- Bump version to 1.0.
-  - [31b3ddf](https://github.com/tauri-apps/javascriptcore-rs/commit/31b3ddf725a394499d2a3a03a776d34e73464a66) Bump version to v1.0 on 2023-04-04
-
-## \[0.19.2]
-
-- Enable dox feature when building docs.
-  - [a59c76d](https://github.com/tauri-apps/javascriptcore-rs/commit/a59c76dfe31b05e20ca809dc3ce4113a2e54a7d7) Enable dox feature when building docs on 2023-01-31
-
-## \[0.19.1]
-
-- Update javascriptcore to crates.io dependency.
-  - [38b4d26](https://github.com/tauri-apps/javascriptcore-rs/commit/38b4d2647db6fad4791ec21897d23722c79a1015) Update jsc to crate.io's dependency. on 2023-01-26
-
-## \[0.19.0]
-
-- Bump gtk version: 0.15 -> 0.16, webkit2gtk version: 4.0 -> 4.1
-  - [c475ff3](https://github.com/tauri-apps/javascriptcore-rs/commit/c475ff39b8412e38cda91c5705a6ad518dd4e5e0) chore: add changelog on 2023-01-25
-
 ## \[0.18.2]
 
 - Fix transfer rule of `URISchemeResponse::set_http_headers` to full.

@@ -2,13 +2,26 @@
 // from gir-files (https://github.com/gtk-rs/gir-files)
 // DO NOT EDIT
 
-use crate::{Align, Buildable, Container, Justification, Menu, Misc, MovementStep, Widget};
-use glib::{
-    prelude::*,
-    signal::{connect_raw, SignalHandlerId},
-    translate::*,
-};
-use std::{boxed::Box as Box_, fmt, mem, mem::transmute};
+use crate::Align;
+use crate::Buildable;
+use crate::Container;
+use crate::Justification;
+use crate::Menu;
+use crate::Misc;
+use crate::MovementStep;
+use crate::Widget;
+use glib::object::Cast;
+use glib::object::IsA;
+use glib::object::ObjectExt;
+use glib::signal::connect_raw;
+use glib::signal::SignalHandlerId;
+use glib::translate::*;
+use glib::StaticType;
+use glib::ToValue;
+use std::boxed::Box as Box_;
+use std::fmt;
+use std::mem;
+use std::mem::transmute;
 
 glib::wrapper! {
     #[doc(alias = "GtkLabel")]
@@ -43,366 +56,790 @@ impl Label {
     ///
     /// This method returns an instance of [`LabelBuilder`](crate::builders::LabelBuilder) which can be used to create [`Label`] objects.
     pub fn builder() -> LabelBuilder {
-        LabelBuilder::new()
+        LabelBuilder::default()
     }
 }
 
 impl Default for Label {
     fn default() -> Self {
-        glib::object::Object::new::<Self>()
+        glib::object::Object::new::<Self>(&[])
+            .expect("Can't construct Label object with default parameters")
     }
 }
 
+#[derive(Clone, Default)]
 // rustdoc-stripper-ignore-next
 /// A [builder-pattern] type to construct [`Label`] objects.
 ///
 /// [builder-pattern]: https://doc.rust-lang.org/1.0.0/style/ownership/builders.html
 #[must_use = "The builder must be built to be used"]
 pub struct LabelBuilder {
-    builder: glib::object::ObjectBuilder<'static, Label>,
+    angle: Option<f64>,
+    attributes: Option<pango::AttrList>,
+    ellipsize: Option<pango::EllipsizeMode>,
+    justify: Option<Justification>,
+    label: Option<String>,
+    lines: Option<i32>,
+    max_width_chars: Option<i32>,
+    mnemonic_widget: Option<Widget>,
+    pattern: Option<String>,
+    selectable: Option<bool>,
+    single_line_mode: Option<bool>,
+    track_visited_links: Option<bool>,
+    use_markup: Option<bool>,
+    use_underline: Option<bool>,
+    width_chars: Option<i32>,
+    wrap: Option<bool>,
+    wrap_mode: Option<pango::WrapMode>,
+    xalign: Option<f32>,
+    yalign: Option<f32>,
+    app_paintable: Option<bool>,
+    can_default: Option<bool>,
+    can_focus: Option<bool>,
+    events: Option<gdk::EventMask>,
+    expand: Option<bool>,
+    #[cfg(any(feature = "v3_20", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
+    focus_on_click: Option<bool>,
+    halign: Option<Align>,
+    has_default: Option<bool>,
+    has_focus: Option<bool>,
+    has_tooltip: Option<bool>,
+    height_request: Option<i32>,
+    hexpand: Option<bool>,
+    hexpand_set: Option<bool>,
+    is_focus: Option<bool>,
+    margin: Option<i32>,
+    margin_bottom: Option<i32>,
+    margin_end: Option<i32>,
+    margin_start: Option<i32>,
+    margin_top: Option<i32>,
+    name: Option<String>,
+    no_show_all: Option<bool>,
+    opacity: Option<f64>,
+    parent: Option<Container>,
+    receives_default: Option<bool>,
+    sensitive: Option<bool>,
+    tooltip_markup: Option<String>,
+    tooltip_text: Option<String>,
+    valign: Option<Align>,
+    vexpand: Option<bool>,
+    vexpand_set: Option<bool>,
+    visible: Option<bool>,
+    width_request: Option<i32>,
 }
 
 impl LabelBuilder {
-    fn new() -> Self {
-        Self {
-            builder: glib::object::Object::builder(),
-        }
-    }
-
-    pub fn angle(self, angle: f64) -> Self {
-        Self {
-            builder: self.builder.property("angle", angle),
-        }
-    }
-
-    pub fn attributes(self, attributes: &pango::AttrList) -> Self {
-        Self {
-            builder: self.builder.property("attributes", attributes.clone()),
-        }
-    }
-
-    pub fn ellipsize(self, ellipsize: pango::EllipsizeMode) -> Self {
-        Self {
-            builder: self.builder.property("ellipsize", ellipsize),
-        }
-    }
-
-    pub fn justify(self, justify: Justification) -> Self {
-        Self {
-            builder: self.builder.property("justify", justify),
-        }
-    }
-
-    pub fn label(self, label: impl Into<glib::GString>) -> Self {
-        Self {
-            builder: self.builder.property("label", label.into()),
-        }
-    }
-
-    pub fn lines(self, lines: i32) -> Self {
-        Self {
-            builder: self.builder.property("lines", lines),
-        }
-    }
-
-    pub fn max_width_chars(self, max_width_chars: i32) -> Self {
-        Self {
-            builder: self.builder.property("max-width-chars", max_width_chars),
-        }
-    }
-
-    pub fn mnemonic_widget(self, mnemonic_widget: &impl IsA<Widget>) -> Self {
-        Self {
-            builder: self
-                .builder
-                .property("mnemonic-widget", mnemonic_widget.clone().upcast()),
-        }
-    }
-
-    pub fn pattern(self, pattern: impl Into<glib::GString>) -> Self {
-        Self {
-            builder: self.builder.property("pattern", pattern.into()),
-        }
-    }
-
-    pub fn selectable(self, selectable: bool) -> Self {
-        Self {
-            builder: self.builder.property("selectable", selectable),
-        }
-    }
-
-    pub fn single_line_mode(self, single_line_mode: bool) -> Self {
-        Self {
-            builder: self.builder.property("single-line-mode", single_line_mode),
-        }
-    }
-
-    pub fn track_visited_links(self, track_visited_links: bool) -> Self {
-        Self {
-            builder: self
-                .builder
-                .property("track-visited-links", track_visited_links),
-        }
-    }
-
-    pub fn use_markup(self, use_markup: bool) -> Self {
-        Self {
-            builder: self.builder.property("use-markup", use_markup),
-        }
-    }
-
-    pub fn use_underline(self, use_underline: bool) -> Self {
-        Self {
-            builder: self.builder.property("use-underline", use_underline),
-        }
-    }
-
-    pub fn width_chars(self, width_chars: i32) -> Self {
-        Self {
-            builder: self.builder.property("width-chars", width_chars),
-        }
-    }
-
-    pub fn wrap(self, wrap: bool) -> Self {
-        Self {
-            builder: self.builder.property("wrap", wrap),
-        }
-    }
-
-    pub fn wrap_mode(self, wrap_mode: pango::WrapMode) -> Self {
-        Self {
-            builder: self.builder.property("wrap-mode", wrap_mode),
-        }
-    }
-
-    pub fn xalign(self, xalign: f32) -> Self {
-        Self {
-            builder: self.builder.property("xalign", xalign),
-        }
-    }
-
-    pub fn yalign(self, yalign: f32) -> Self {
-        Self {
-            builder: self.builder.property("yalign", yalign),
-        }
-    }
-
-    pub fn app_paintable(self, app_paintable: bool) -> Self {
-        Self {
-            builder: self.builder.property("app-paintable", app_paintable),
-        }
-    }
-
-    pub fn can_default(self, can_default: bool) -> Self {
-        Self {
-            builder: self.builder.property("can-default", can_default),
-        }
-    }
-
-    pub fn can_focus(self, can_focus: bool) -> Self {
-        Self {
-            builder: self.builder.property("can-focus", can_focus),
-        }
-    }
-
-    pub fn events(self, events: gdk::EventMask) -> Self {
-        Self {
-            builder: self.builder.property("events", events),
-        }
-    }
-
-    pub fn expand(self, expand: bool) -> Self {
-        Self {
-            builder: self.builder.property("expand", expand),
-        }
-    }
-
-    pub fn focus_on_click(self, focus_on_click: bool) -> Self {
-        Self {
-            builder: self.builder.property("focus-on-click", focus_on_click),
-        }
-    }
-
-    pub fn halign(self, halign: Align) -> Self {
-        Self {
-            builder: self.builder.property("halign", halign),
-        }
-    }
-
-    pub fn has_default(self, has_default: bool) -> Self {
-        Self {
-            builder: self.builder.property("has-default", has_default),
-        }
-    }
-
-    pub fn has_focus(self, has_focus: bool) -> Self {
-        Self {
-            builder: self.builder.property("has-focus", has_focus),
-        }
-    }
-
-    pub fn has_tooltip(self, has_tooltip: bool) -> Self {
-        Self {
-            builder: self.builder.property("has-tooltip", has_tooltip),
-        }
-    }
-
-    pub fn height_request(self, height_request: i32) -> Self {
-        Self {
-            builder: self.builder.property("height-request", height_request),
-        }
-    }
-
-    pub fn hexpand(self, hexpand: bool) -> Self {
-        Self {
-            builder: self.builder.property("hexpand", hexpand),
-        }
-    }
-
-    pub fn hexpand_set(self, hexpand_set: bool) -> Self {
-        Self {
-            builder: self.builder.property("hexpand-set", hexpand_set),
-        }
-    }
-
-    pub fn is_focus(self, is_focus: bool) -> Self {
-        Self {
-            builder: self.builder.property("is-focus", is_focus),
-        }
-    }
-
-    pub fn margin(self, margin: i32) -> Self {
-        Self {
-            builder: self.builder.property("margin", margin),
-        }
-    }
-
-    pub fn margin_bottom(self, margin_bottom: i32) -> Self {
-        Self {
-            builder: self.builder.property("margin-bottom", margin_bottom),
-        }
-    }
-
-    pub fn margin_end(self, margin_end: i32) -> Self {
-        Self {
-            builder: self.builder.property("margin-end", margin_end),
-        }
-    }
-
-    pub fn margin_start(self, margin_start: i32) -> Self {
-        Self {
-            builder: self.builder.property("margin-start", margin_start),
-        }
-    }
-
-    pub fn margin_top(self, margin_top: i32) -> Self {
-        Self {
-            builder: self.builder.property("margin-top", margin_top),
-        }
-    }
-
-    pub fn name(self, name: impl Into<glib::GString>) -> Self {
-        Self {
-            builder: self.builder.property("name", name.into()),
-        }
-    }
-
-    pub fn no_show_all(self, no_show_all: bool) -> Self {
-        Self {
-            builder: self.builder.property("no-show-all", no_show_all),
-        }
-    }
-
-    pub fn opacity(self, opacity: f64) -> Self {
-        Self {
-            builder: self.builder.property("opacity", opacity),
-        }
-    }
-
-    pub fn parent(self, parent: &impl IsA<Container>) -> Self {
-        Self {
-            builder: self.builder.property("parent", parent.clone().upcast()),
-        }
-    }
-
-    pub fn receives_default(self, receives_default: bool) -> Self {
-        Self {
-            builder: self.builder.property("receives-default", receives_default),
-        }
-    }
-
-    pub fn sensitive(self, sensitive: bool) -> Self {
-        Self {
-            builder: self.builder.property("sensitive", sensitive),
-        }
-    }
-
-    pub fn tooltip_markup(self, tooltip_markup: impl Into<glib::GString>) -> Self {
-        Self {
-            builder: self
-                .builder
-                .property("tooltip-markup", tooltip_markup.into()),
-        }
-    }
-
-    pub fn tooltip_text(self, tooltip_text: impl Into<glib::GString>) -> Self {
-        Self {
-            builder: self.builder.property("tooltip-text", tooltip_text.into()),
-        }
-    }
-
-    pub fn valign(self, valign: Align) -> Self {
-        Self {
-            builder: self.builder.property("valign", valign),
-        }
-    }
-
-    pub fn vexpand(self, vexpand: bool) -> Self {
-        Self {
-            builder: self.builder.property("vexpand", vexpand),
-        }
-    }
-
-    pub fn vexpand_set(self, vexpand_set: bool) -> Self {
-        Self {
-            builder: self.builder.property("vexpand-set", vexpand_set),
-        }
-    }
-
-    pub fn visible(self, visible: bool) -> Self {
-        Self {
-            builder: self.builder.property("visible", visible),
-        }
-    }
-
-    pub fn width_request(self, width_request: i32) -> Self {
-        Self {
-            builder: self.builder.property("width-request", width_request),
-        }
+    // rustdoc-stripper-ignore-next
+    /// Create a new [`LabelBuilder`].
+    pub fn new() -> Self {
+        Self::default()
     }
 
     // rustdoc-stripper-ignore-next
     /// Build the [`Label`].
     #[must_use = "Building the object from the builder is usually expensive and is not expected to have side effects"]
     pub fn build(self) -> Label {
-        self.builder.build()
+        let mut properties: Vec<(&str, &dyn ToValue)> = vec![];
+        if let Some(ref angle) = self.angle {
+            properties.push(("angle", angle));
+        }
+        if let Some(ref attributes) = self.attributes {
+            properties.push(("attributes", attributes));
+        }
+        if let Some(ref ellipsize) = self.ellipsize {
+            properties.push(("ellipsize", ellipsize));
+        }
+        if let Some(ref justify) = self.justify {
+            properties.push(("justify", justify));
+        }
+        if let Some(ref label) = self.label {
+            properties.push(("label", label));
+        }
+        if let Some(ref lines) = self.lines {
+            properties.push(("lines", lines));
+        }
+        if let Some(ref max_width_chars) = self.max_width_chars {
+            properties.push(("max-width-chars", max_width_chars));
+        }
+        if let Some(ref mnemonic_widget) = self.mnemonic_widget {
+            properties.push(("mnemonic-widget", mnemonic_widget));
+        }
+        if let Some(ref pattern) = self.pattern {
+            properties.push(("pattern", pattern));
+        }
+        if let Some(ref selectable) = self.selectable {
+            properties.push(("selectable", selectable));
+        }
+        if let Some(ref single_line_mode) = self.single_line_mode {
+            properties.push(("single-line-mode", single_line_mode));
+        }
+        if let Some(ref track_visited_links) = self.track_visited_links {
+            properties.push(("track-visited-links", track_visited_links));
+        }
+        if let Some(ref use_markup) = self.use_markup {
+            properties.push(("use-markup", use_markup));
+        }
+        if let Some(ref use_underline) = self.use_underline {
+            properties.push(("use-underline", use_underline));
+        }
+        if let Some(ref width_chars) = self.width_chars {
+            properties.push(("width-chars", width_chars));
+        }
+        if let Some(ref wrap) = self.wrap {
+            properties.push(("wrap", wrap));
+        }
+        if let Some(ref wrap_mode) = self.wrap_mode {
+            properties.push(("wrap-mode", wrap_mode));
+        }
+        if let Some(ref xalign) = self.xalign {
+            properties.push(("xalign", xalign));
+        }
+        if let Some(ref yalign) = self.yalign {
+            properties.push(("yalign", yalign));
+        }
+        if let Some(ref app_paintable) = self.app_paintable {
+            properties.push(("app-paintable", app_paintable));
+        }
+        if let Some(ref can_default) = self.can_default {
+            properties.push(("can-default", can_default));
+        }
+        if let Some(ref can_focus) = self.can_focus {
+            properties.push(("can-focus", can_focus));
+        }
+        if let Some(ref events) = self.events {
+            properties.push(("events", events));
+        }
+        if let Some(ref expand) = self.expand {
+            properties.push(("expand", expand));
+        }
+        #[cfg(any(feature = "v3_20", feature = "dox"))]
+        if let Some(ref focus_on_click) = self.focus_on_click {
+            properties.push(("focus-on-click", focus_on_click));
+        }
+        if let Some(ref halign) = self.halign {
+            properties.push(("halign", halign));
+        }
+        if let Some(ref has_default) = self.has_default {
+            properties.push(("has-default", has_default));
+        }
+        if let Some(ref has_focus) = self.has_focus {
+            properties.push(("has-focus", has_focus));
+        }
+        if let Some(ref has_tooltip) = self.has_tooltip {
+            properties.push(("has-tooltip", has_tooltip));
+        }
+        if let Some(ref height_request) = self.height_request {
+            properties.push(("height-request", height_request));
+        }
+        if let Some(ref hexpand) = self.hexpand {
+            properties.push(("hexpand", hexpand));
+        }
+        if let Some(ref hexpand_set) = self.hexpand_set {
+            properties.push(("hexpand-set", hexpand_set));
+        }
+        if let Some(ref is_focus) = self.is_focus {
+            properties.push(("is-focus", is_focus));
+        }
+        if let Some(ref margin) = self.margin {
+            properties.push(("margin", margin));
+        }
+        if let Some(ref margin_bottom) = self.margin_bottom {
+            properties.push(("margin-bottom", margin_bottom));
+        }
+        if let Some(ref margin_end) = self.margin_end {
+            properties.push(("margin-end", margin_end));
+        }
+        if let Some(ref margin_start) = self.margin_start {
+            properties.push(("margin-start", margin_start));
+        }
+        if let Some(ref margin_top) = self.margin_top {
+            properties.push(("margin-top", margin_top));
+        }
+        if let Some(ref name) = self.name {
+            properties.push(("name", name));
+        }
+        if let Some(ref no_show_all) = self.no_show_all {
+            properties.push(("no-show-all", no_show_all));
+        }
+        if let Some(ref opacity) = self.opacity {
+            properties.push(("opacity", opacity));
+        }
+        if let Some(ref parent) = self.parent {
+            properties.push(("parent", parent));
+        }
+        if let Some(ref receives_default) = self.receives_default {
+            properties.push(("receives-default", receives_default));
+        }
+        if let Some(ref sensitive) = self.sensitive {
+            properties.push(("sensitive", sensitive));
+        }
+        if let Some(ref tooltip_markup) = self.tooltip_markup {
+            properties.push(("tooltip-markup", tooltip_markup));
+        }
+        if let Some(ref tooltip_text) = self.tooltip_text {
+            properties.push(("tooltip-text", tooltip_text));
+        }
+        if let Some(ref valign) = self.valign {
+            properties.push(("valign", valign));
+        }
+        if let Some(ref vexpand) = self.vexpand {
+            properties.push(("vexpand", vexpand));
+        }
+        if let Some(ref vexpand_set) = self.vexpand_set {
+            properties.push(("vexpand-set", vexpand_set));
+        }
+        if let Some(ref visible) = self.visible {
+            properties.push(("visible", visible));
+        }
+        if let Some(ref width_request) = self.width_request {
+            properties.push(("width-request", width_request));
+        }
+        glib::Object::new::<Label>(&properties).expect("Failed to create an instance of Label")
+    }
+
+    pub fn angle(mut self, angle: f64) -> Self {
+        self.angle = Some(angle);
+        self
+    }
+
+    pub fn attributes(mut self, attributes: &pango::AttrList) -> Self {
+        self.attributes = Some(attributes.clone());
+        self
+    }
+
+    pub fn ellipsize(mut self, ellipsize: pango::EllipsizeMode) -> Self {
+        self.ellipsize = Some(ellipsize);
+        self
+    }
+
+    pub fn justify(mut self, justify: Justification) -> Self {
+        self.justify = Some(justify);
+        self
+    }
+
+    pub fn label(mut self, label: &str) -> Self {
+        self.label = Some(label.to_string());
+        self
+    }
+
+    pub fn lines(mut self, lines: i32) -> Self {
+        self.lines = Some(lines);
+        self
+    }
+
+    pub fn max_width_chars(mut self, max_width_chars: i32) -> Self {
+        self.max_width_chars = Some(max_width_chars);
+        self
+    }
+
+    pub fn mnemonic_widget(mut self, mnemonic_widget: &impl IsA<Widget>) -> Self {
+        self.mnemonic_widget = Some(mnemonic_widget.clone().upcast());
+        self
+    }
+
+    pub fn pattern(mut self, pattern: &str) -> Self {
+        self.pattern = Some(pattern.to_string());
+        self
+    }
+
+    pub fn selectable(mut self, selectable: bool) -> Self {
+        self.selectable = Some(selectable);
+        self
+    }
+
+    pub fn single_line_mode(mut self, single_line_mode: bool) -> Self {
+        self.single_line_mode = Some(single_line_mode);
+        self
+    }
+
+    pub fn track_visited_links(mut self, track_visited_links: bool) -> Self {
+        self.track_visited_links = Some(track_visited_links);
+        self
+    }
+
+    pub fn use_markup(mut self, use_markup: bool) -> Self {
+        self.use_markup = Some(use_markup);
+        self
+    }
+
+    pub fn use_underline(mut self, use_underline: bool) -> Self {
+        self.use_underline = Some(use_underline);
+        self
+    }
+
+    pub fn width_chars(mut self, width_chars: i32) -> Self {
+        self.width_chars = Some(width_chars);
+        self
+    }
+
+    pub fn wrap(mut self, wrap: bool) -> Self {
+        self.wrap = Some(wrap);
+        self
+    }
+
+    pub fn wrap_mode(mut self, wrap_mode: pango::WrapMode) -> Self {
+        self.wrap_mode = Some(wrap_mode);
+        self
+    }
+
+    pub fn xalign(mut self, xalign: f32) -> Self {
+        self.xalign = Some(xalign);
+        self
+    }
+
+    pub fn yalign(mut self, yalign: f32) -> Self {
+        self.yalign = Some(yalign);
+        self
+    }
+
+    pub fn app_paintable(mut self, app_paintable: bool) -> Self {
+        self.app_paintable = Some(app_paintable);
+        self
+    }
+
+    pub fn can_default(mut self, can_default: bool) -> Self {
+        self.can_default = Some(can_default);
+        self
+    }
+
+    pub fn can_focus(mut self, can_focus: bool) -> Self {
+        self.can_focus = Some(can_focus);
+        self
+    }
+
+    pub fn events(mut self, events: gdk::EventMask) -> Self {
+        self.events = Some(events);
+        self
+    }
+
+    pub fn expand(mut self, expand: bool) -> Self {
+        self.expand = Some(expand);
+        self
+    }
+
+    #[cfg(any(feature = "v3_20", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
+    pub fn focus_on_click(mut self, focus_on_click: bool) -> Self {
+        self.focus_on_click = Some(focus_on_click);
+        self
+    }
+
+    pub fn halign(mut self, halign: Align) -> Self {
+        self.halign = Some(halign);
+        self
+    }
+
+    pub fn has_default(mut self, has_default: bool) -> Self {
+        self.has_default = Some(has_default);
+        self
+    }
+
+    pub fn has_focus(mut self, has_focus: bool) -> Self {
+        self.has_focus = Some(has_focus);
+        self
+    }
+
+    pub fn has_tooltip(mut self, has_tooltip: bool) -> Self {
+        self.has_tooltip = Some(has_tooltip);
+        self
+    }
+
+    pub fn height_request(mut self, height_request: i32) -> Self {
+        self.height_request = Some(height_request);
+        self
+    }
+
+    pub fn hexpand(mut self, hexpand: bool) -> Self {
+        self.hexpand = Some(hexpand);
+        self
+    }
+
+    pub fn hexpand_set(mut self, hexpand_set: bool) -> Self {
+        self.hexpand_set = Some(hexpand_set);
+        self
+    }
+
+    pub fn is_focus(mut self, is_focus: bool) -> Self {
+        self.is_focus = Some(is_focus);
+        self
+    }
+
+    pub fn margin(mut self, margin: i32) -> Self {
+        self.margin = Some(margin);
+        self
+    }
+
+    pub fn margin_bottom(mut self, margin_bottom: i32) -> Self {
+        self.margin_bottom = Some(margin_bottom);
+        self
+    }
+
+    pub fn margin_end(mut self, margin_end: i32) -> Self {
+        self.margin_end = Some(margin_end);
+        self
+    }
+
+    pub fn margin_start(mut self, margin_start: i32) -> Self {
+        self.margin_start = Some(margin_start);
+        self
+    }
+
+    pub fn margin_top(mut self, margin_top: i32) -> Self {
+        self.margin_top = Some(margin_top);
+        self
+    }
+
+    pub fn name(mut self, name: &str) -> Self {
+        self.name = Some(name.to_string());
+        self
+    }
+
+    pub fn no_show_all(mut self, no_show_all: bool) -> Self {
+        self.no_show_all = Some(no_show_all);
+        self
+    }
+
+    pub fn opacity(mut self, opacity: f64) -> Self {
+        self.opacity = Some(opacity);
+        self
+    }
+
+    pub fn parent(mut self, parent: &impl IsA<Container>) -> Self {
+        self.parent = Some(parent.clone().upcast());
+        self
+    }
+
+    pub fn receives_default(mut self, receives_default: bool) -> Self {
+        self.receives_default = Some(receives_default);
+        self
+    }
+
+    pub fn sensitive(mut self, sensitive: bool) -> Self {
+        self.sensitive = Some(sensitive);
+        self
+    }
+
+    pub fn tooltip_markup(mut self, tooltip_markup: &str) -> Self {
+        self.tooltip_markup = Some(tooltip_markup.to_string());
+        self
+    }
+
+    pub fn tooltip_text(mut self, tooltip_text: &str) -> Self {
+        self.tooltip_text = Some(tooltip_text.to_string());
+        self
+    }
+
+    pub fn valign(mut self, valign: Align) -> Self {
+        self.valign = Some(valign);
+        self
+    }
+
+    pub fn vexpand(mut self, vexpand: bool) -> Self {
+        self.vexpand = Some(vexpand);
+        self
+    }
+
+    pub fn vexpand_set(mut self, vexpand_set: bool) -> Self {
+        self.vexpand_set = Some(vexpand_set);
+        self
+    }
+
+    pub fn visible(mut self, visible: bool) -> Self {
+        self.visible = Some(visible);
+        self
+    }
+
+    pub fn width_request(mut self, width_request: i32) -> Self {
+        self.width_request = Some(width_request);
+        self
     }
 }
 
-mod sealed {
-    pub trait Sealed {}
-    impl<T: super::IsA<super::Label>> Sealed for T {}
-}
-
-pub trait LabelExt: IsA<Label> + sealed::Sealed + 'static {
+pub trait LabelExt: 'static {
     #[doc(alias = "gtk_label_get_angle")]
     #[doc(alias = "get_angle")]
+    fn angle(&self) -> f64;
+
+    #[doc(alias = "gtk_label_get_attributes")]
+    #[doc(alias = "get_attributes")]
+    fn attributes(&self) -> Option<pango::AttrList>;
+
+    #[doc(alias = "gtk_label_get_current_uri")]
+    #[doc(alias = "get_current_uri")]
+    fn current_uri(&self) -> Option<glib::GString>;
+
+    #[doc(alias = "gtk_label_get_ellipsize")]
+    #[doc(alias = "get_ellipsize")]
+    fn ellipsize(&self) -> pango::EllipsizeMode;
+
+    #[doc(alias = "gtk_label_get_justify")]
+    #[doc(alias = "get_justify")]
+    fn justify(&self) -> Justification;
+
+    #[doc(alias = "gtk_label_get_label")]
+    #[doc(alias = "get_label")]
+    fn label(&self) -> glib::GString;
+
+    #[doc(alias = "gtk_label_get_layout")]
+    #[doc(alias = "get_layout")]
+    fn layout(&self) -> Option<pango::Layout>;
+
+    #[doc(alias = "gtk_label_get_layout_offsets")]
+    #[doc(alias = "get_layout_offsets")]
+    fn layout_offsets(&self) -> (i32, i32);
+
+    #[doc(alias = "gtk_label_get_line_wrap")]
+    #[doc(alias = "get_line_wrap")]
+    fn is_line_wrap(&self) -> bool;
+
+    #[doc(alias = "gtk_label_get_line_wrap_mode")]
+    #[doc(alias = "get_line_wrap_mode")]
+    fn line_wrap_mode(&self) -> pango::WrapMode;
+
+    #[doc(alias = "gtk_label_get_lines")]
+    #[doc(alias = "get_lines")]
+    fn lines(&self) -> i32;
+
+    #[doc(alias = "gtk_label_get_max_width_chars")]
+    #[doc(alias = "get_max_width_chars")]
+    fn max_width_chars(&self) -> i32;
+
+    #[doc(alias = "gtk_label_get_mnemonic_keyval")]
+    #[doc(alias = "get_mnemonic_keyval")]
+    fn mnemonic_keyval(&self) -> u32;
+
+    #[doc(alias = "gtk_label_get_mnemonic_widget")]
+    #[doc(alias = "get_mnemonic_widget")]
+    fn mnemonic_widget(&self) -> Option<Widget>;
+
+    #[doc(alias = "gtk_label_get_selectable")]
+    #[doc(alias = "get_selectable")]
+    fn is_selectable(&self) -> bool;
+
+    #[doc(alias = "gtk_label_get_selection_bounds")]
+    #[doc(alias = "get_selection_bounds")]
+    fn selection_bounds(&self) -> Option<(i32, i32)>;
+
+    #[doc(alias = "gtk_label_get_single_line_mode")]
+    #[doc(alias = "get_single_line_mode")]
+    fn is_single_line_mode(&self) -> bool;
+
+    #[doc(alias = "gtk_label_get_text")]
+    #[doc(alias = "get_text")]
+    fn text(&self) -> glib::GString;
+
+    #[doc(alias = "gtk_label_get_track_visited_links")]
+    #[doc(alias = "get_track_visited_links")]
+    fn tracks_visited_links(&self) -> bool;
+
+    #[doc(alias = "gtk_label_get_use_markup")]
+    #[doc(alias = "get_use_markup")]
+    fn uses_markup(&self) -> bool;
+
+    #[doc(alias = "gtk_label_get_use_underline")]
+    #[doc(alias = "get_use_underline")]
+    fn uses_underline(&self) -> bool;
+
+    #[doc(alias = "gtk_label_get_width_chars")]
+    #[doc(alias = "get_width_chars")]
+    fn width_chars(&self) -> i32;
+
+    #[doc(alias = "gtk_label_get_xalign")]
+    #[doc(alias = "get_xalign")]
+    fn xalign(&self) -> f32;
+
+    #[doc(alias = "gtk_label_get_yalign")]
+    #[doc(alias = "get_yalign")]
+    fn yalign(&self) -> f32;
+
+    #[doc(alias = "gtk_label_select_region")]
+    fn select_region(&self, start_offset: i32, end_offset: i32);
+
+    #[doc(alias = "gtk_label_set_angle")]
+    fn set_angle(&self, angle: f64);
+
+    #[doc(alias = "gtk_label_set_attributes")]
+    fn set_attributes(&self, attrs: Option<&pango::AttrList>);
+
+    #[doc(alias = "gtk_label_set_ellipsize")]
+    fn set_ellipsize(&self, mode: pango::EllipsizeMode);
+
+    #[doc(alias = "gtk_label_set_justify")]
+    fn set_justify(&self, jtype: Justification);
+
+    #[doc(alias = "gtk_label_set_label")]
+    fn set_label(&self, str: &str);
+
+    #[doc(alias = "gtk_label_set_line_wrap")]
+    fn set_line_wrap(&self, wrap: bool);
+
+    #[doc(alias = "gtk_label_set_line_wrap_mode")]
+    fn set_line_wrap_mode(&self, wrap_mode: pango::WrapMode);
+
+    #[doc(alias = "gtk_label_set_lines")]
+    fn set_lines(&self, lines: i32);
+
+    #[doc(alias = "gtk_label_set_markup")]
+    fn set_markup(&self, str: &str);
+
+    #[doc(alias = "gtk_label_set_markup_with_mnemonic")]
+    fn set_markup_with_mnemonic(&self, str: &str);
+
+    #[doc(alias = "gtk_label_set_max_width_chars")]
+    fn set_max_width_chars(&self, n_chars: i32);
+
+    #[doc(alias = "gtk_label_set_mnemonic_widget")]
+    fn set_mnemonic_widget(&self, widget: Option<&impl IsA<Widget>>);
+
+    #[doc(alias = "gtk_label_set_pattern")]
+    fn set_pattern(&self, pattern: &str);
+
+    #[doc(alias = "gtk_label_set_selectable")]
+    fn set_selectable(&self, setting: bool);
+
+    #[doc(alias = "gtk_label_set_single_line_mode")]
+    fn set_single_line_mode(&self, single_line_mode: bool);
+
+    #[doc(alias = "gtk_label_set_text")]
+    fn set_text(&self, str: &str);
+
+    #[doc(alias = "gtk_label_set_text_with_mnemonic")]
+    fn set_text_with_mnemonic(&self, str: &str);
+
+    #[doc(alias = "gtk_label_set_track_visited_links")]
+    fn set_track_visited_links(&self, track_links: bool);
+
+    #[doc(alias = "gtk_label_set_use_markup")]
+    fn set_use_markup(&self, setting: bool);
+
+    #[doc(alias = "gtk_label_set_use_underline")]
+    fn set_use_underline(&self, setting: bool);
+
+    #[doc(alias = "gtk_label_set_width_chars")]
+    fn set_width_chars(&self, n_chars: i32);
+
+    #[doc(alias = "gtk_label_set_xalign")]
+    fn set_xalign(&self, xalign: f32);
+
+    #[doc(alias = "gtk_label_set_yalign")]
+    fn set_yalign(&self, yalign: f32);
+
+    #[doc(alias = "cursor-position")]
+    fn cursor_position(&self) -> i32;
+
+    #[doc(alias = "selection-bound")]
+    fn selection_bound(&self) -> i32;
+
+    fn wraps(&self) -> bool;
+
+    fn set_wrap(&self, wrap: bool);
+
+    #[doc(alias = "wrap-mode")]
+    fn wrap_mode(&self) -> pango::WrapMode;
+
+    #[doc(alias = "wrap-mode")]
+    fn set_wrap_mode(&self, wrap_mode: pango::WrapMode);
+
+    #[doc(alias = "activate-current-link")]
+    fn connect_activate_current_link<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    fn emit_activate_current_link(&self);
+
+    #[doc(alias = "activate-link")]
+    fn connect_activate_link<F: Fn(&Self, &str) -> glib::signal::Inhibit + 'static>(
+        &self,
+        f: F,
+    ) -> SignalHandlerId;
+
+    #[doc(alias = "copy-clipboard")]
+    fn connect_copy_clipboard<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    fn emit_copy_clipboard(&self);
+
+    #[doc(alias = "move-cursor")]
+    fn connect_move_cursor<F: Fn(&Self, MovementStep, i32, bool) + 'static>(
+        &self,
+        f: F,
+    ) -> SignalHandlerId;
+
+    fn emit_move_cursor(&self, step: MovementStep, count: i32, extend_selection: bool);
+
+    #[doc(alias = "populate-popup")]
+    fn connect_populate_popup<F: Fn(&Self, &Menu) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "angle")]
+    fn connect_angle_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "attributes")]
+    fn connect_attributes_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "cursor-position")]
+    fn connect_cursor_position_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "ellipsize")]
+    fn connect_ellipsize_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "justify")]
+    fn connect_justify_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "label")]
+    fn connect_label_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "lines")]
+    fn connect_lines_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "max-width-chars")]
+    fn connect_max_width_chars_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "mnemonic-keyval")]
+    fn connect_mnemonic_keyval_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "mnemonic-widget")]
+    fn connect_mnemonic_widget_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "pattern")]
+    fn connect_pattern_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "selectable")]
+    fn connect_selectable_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "selection-bound")]
+    fn connect_selection_bound_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "single-line-mode")]
+    fn connect_single_line_mode_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "track-visited-links")]
+    fn connect_track_visited_links_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "use-markup")]
+    fn connect_use_markup_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "use-underline")]
+    fn connect_use_underline_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "width-chars")]
+    fn connect_width_chars_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "wrap")]
+    fn connect_wrap_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "wrap-mode")]
+    fn connect_wrap_mode_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "xalign")]
+    fn connect_xalign_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "yalign")]
+    fn connect_yalign_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+}
+
+impl<O: IsA<Label>> LabelExt for O {
     fn angle(&self) -> f64 {
         unsafe { ffi::gtk_label_get_angle(self.as_ref().to_glib_none().0) }
     }
 
-    #[doc(alias = "gtk_label_get_attributes")]
-    #[doc(alias = "get_attributes")]
     fn attributes(&self) -> Option<pango::AttrList> {
         unsafe {
             from_glib_none(ffi::gtk_label_get_attributes(
@@ -411,8 +848,6 @@ pub trait LabelExt: IsA<Label> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_label_get_current_uri")]
-    #[doc(alias = "get_current_uri")]
     fn current_uri(&self) -> Option<glib::GString> {
         unsafe {
             from_glib_none(ffi::gtk_label_get_current_uri(
@@ -421,32 +856,22 @@ pub trait LabelExt: IsA<Label> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_label_get_ellipsize")]
-    #[doc(alias = "get_ellipsize")]
     fn ellipsize(&self) -> pango::EllipsizeMode {
         unsafe { from_glib(ffi::gtk_label_get_ellipsize(self.as_ref().to_glib_none().0)) }
     }
 
-    #[doc(alias = "gtk_label_get_justify")]
-    #[doc(alias = "get_justify")]
     fn justify(&self) -> Justification {
         unsafe { from_glib(ffi::gtk_label_get_justify(self.as_ref().to_glib_none().0)) }
     }
 
-    #[doc(alias = "gtk_label_get_label")]
-    #[doc(alias = "get_label")]
     fn label(&self) -> glib::GString {
         unsafe { from_glib_none(ffi::gtk_label_get_label(self.as_ref().to_glib_none().0)) }
     }
 
-    #[doc(alias = "gtk_label_get_layout")]
-    #[doc(alias = "get_layout")]
     fn layout(&self) -> Option<pango::Layout> {
         unsafe { from_glib_none(ffi::gtk_label_get_layout(self.as_ref().to_glib_none().0)) }
     }
 
-    #[doc(alias = "gtk_label_get_layout_offsets")]
-    #[doc(alias = "get_layout_offsets")]
     fn layout_offsets(&self) -> (i32, i32) {
         unsafe {
             let mut x = mem::MaybeUninit::uninit();
@@ -456,18 +881,16 @@ pub trait LabelExt: IsA<Label> + sealed::Sealed + 'static {
                 x.as_mut_ptr(),
                 y.as_mut_ptr(),
             );
-            (x.assume_init(), y.assume_init())
+            let x = x.assume_init();
+            let y = y.assume_init();
+            (x, y)
         }
     }
 
-    #[doc(alias = "gtk_label_get_line_wrap")]
-    #[doc(alias = "get_line_wrap")]
     fn is_line_wrap(&self) -> bool {
         unsafe { from_glib(ffi::gtk_label_get_line_wrap(self.as_ref().to_glib_none().0)) }
     }
 
-    #[doc(alias = "gtk_label_get_line_wrap_mode")]
-    #[doc(alias = "get_line_wrap_mode")]
     fn line_wrap_mode(&self) -> pango::WrapMode {
         unsafe {
             from_glib(ffi::gtk_label_get_line_wrap_mode(
@@ -476,26 +899,18 @@ pub trait LabelExt: IsA<Label> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_label_get_lines")]
-    #[doc(alias = "get_lines")]
     fn lines(&self) -> i32 {
         unsafe { ffi::gtk_label_get_lines(self.as_ref().to_glib_none().0) }
     }
 
-    #[doc(alias = "gtk_label_get_max_width_chars")]
-    #[doc(alias = "get_max_width_chars")]
     fn max_width_chars(&self) -> i32 {
         unsafe { ffi::gtk_label_get_max_width_chars(self.as_ref().to_glib_none().0) }
     }
 
-    #[doc(alias = "gtk_label_get_mnemonic_keyval")]
-    #[doc(alias = "get_mnemonic_keyval")]
     fn mnemonic_keyval(&self) -> u32 {
         unsafe { ffi::gtk_label_get_mnemonic_keyval(self.as_ref().to_glib_none().0) }
     }
 
-    #[doc(alias = "gtk_label_get_mnemonic_widget")]
-    #[doc(alias = "get_mnemonic_widget")]
     fn mnemonic_widget(&self) -> Option<Widget> {
         unsafe {
             from_glib_none(ffi::gtk_label_get_mnemonic_widget(
@@ -504,8 +919,6 @@ pub trait LabelExt: IsA<Label> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_label_get_selectable")]
-    #[doc(alias = "get_selectable")]
     fn is_selectable(&self) -> bool {
         unsafe {
             from_glib(ffi::gtk_label_get_selectable(
@@ -514,8 +927,6 @@ pub trait LabelExt: IsA<Label> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_label_get_selection_bounds")]
-    #[doc(alias = "get_selection_bounds")]
     fn selection_bounds(&self) -> Option<(i32, i32)> {
         unsafe {
             let mut start = mem::MaybeUninit::uninit();
@@ -525,16 +936,16 @@ pub trait LabelExt: IsA<Label> + sealed::Sealed + 'static {
                 start.as_mut_ptr(),
                 end.as_mut_ptr(),
             ));
+            let start = start.assume_init();
+            let end = end.assume_init();
             if ret {
-                Some((start.assume_init(), end.assume_init()))
+                Some((start, end))
             } else {
                 None
             }
         }
     }
 
-    #[doc(alias = "gtk_label_get_single_line_mode")]
-    #[doc(alias = "get_single_line_mode")]
     fn is_single_line_mode(&self) -> bool {
         unsafe {
             from_glib(ffi::gtk_label_get_single_line_mode(
@@ -543,14 +954,10 @@ pub trait LabelExt: IsA<Label> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_label_get_text")]
-    #[doc(alias = "get_text")]
     fn text(&self) -> glib::GString {
         unsafe { from_glib_none(ffi::gtk_label_get_text(self.as_ref().to_glib_none().0)) }
     }
 
-    #[doc(alias = "gtk_label_get_track_visited_links")]
-    #[doc(alias = "get_track_visited_links")]
     fn tracks_visited_links(&self) -> bool {
         unsafe {
             from_glib(ffi::gtk_label_get_track_visited_links(
@@ -559,8 +966,6 @@ pub trait LabelExt: IsA<Label> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_label_get_use_markup")]
-    #[doc(alias = "get_use_markup")]
     fn uses_markup(&self) -> bool {
         unsafe {
             from_glib(ffi::gtk_label_get_use_markup(
@@ -569,8 +974,6 @@ pub trait LabelExt: IsA<Label> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_label_get_use_underline")]
-    #[doc(alias = "get_use_underline")]
     fn uses_underline(&self) -> bool {
         unsafe {
             from_glib(ffi::gtk_label_get_use_underline(
@@ -579,74 +982,60 @@ pub trait LabelExt: IsA<Label> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_label_get_width_chars")]
-    #[doc(alias = "get_width_chars")]
     fn width_chars(&self) -> i32 {
         unsafe { ffi::gtk_label_get_width_chars(self.as_ref().to_glib_none().0) }
     }
 
-    #[doc(alias = "gtk_label_get_xalign")]
-    #[doc(alias = "get_xalign")]
     fn xalign(&self) -> f32 {
         unsafe { ffi::gtk_label_get_xalign(self.as_ref().to_glib_none().0) }
     }
 
-    #[doc(alias = "gtk_label_get_yalign")]
-    #[doc(alias = "get_yalign")]
     fn yalign(&self) -> f32 {
         unsafe { ffi::gtk_label_get_yalign(self.as_ref().to_glib_none().0) }
     }
 
-    #[doc(alias = "gtk_label_select_region")]
     fn select_region(&self, start_offset: i32, end_offset: i32) {
         unsafe {
             ffi::gtk_label_select_region(self.as_ref().to_glib_none().0, start_offset, end_offset);
         }
     }
 
-    #[doc(alias = "gtk_label_set_angle")]
     fn set_angle(&self, angle: f64) {
         unsafe {
             ffi::gtk_label_set_angle(self.as_ref().to_glib_none().0, angle);
         }
     }
 
-    #[doc(alias = "gtk_label_set_attributes")]
     fn set_attributes(&self, attrs: Option<&pango::AttrList>) {
         unsafe {
             ffi::gtk_label_set_attributes(self.as_ref().to_glib_none().0, attrs.to_glib_none().0);
         }
     }
 
-    #[doc(alias = "gtk_label_set_ellipsize")]
     fn set_ellipsize(&self, mode: pango::EllipsizeMode) {
         unsafe {
             ffi::gtk_label_set_ellipsize(self.as_ref().to_glib_none().0, mode.into_glib());
         }
     }
 
-    #[doc(alias = "gtk_label_set_justify")]
     fn set_justify(&self, jtype: Justification) {
         unsafe {
             ffi::gtk_label_set_justify(self.as_ref().to_glib_none().0, jtype.into_glib());
         }
     }
 
-    #[doc(alias = "gtk_label_set_label")]
     fn set_label(&self, str: &str) {
         unsafe {
             ffi::gtk_label_set_label(self.as_ref().to_glib_none().0, str.to_glib_none().0);
         }
     }
 
-    #[doc(alias = "gtk_label_set_line_wrap")]
     fn set_line_wrap(&self, wrap: bool) {
         unsafe {
             ffi::gtk_label_set_line_wrap(self.as_ref().to_glib_none().0, wrap.into_glib());
         }
     }
 
-    #[doc(alias = "gtk_label_set_line_wrap_mode")]
     fn set_line_wrap_mode(&self, wrap_mode: pango::WrapMode) {
         unsafe {
             ffi::gtk_label_set_line_wrap_mode(
@@ -656,21 +1045,18 @@ pub trait LabelExt: IsA<Label> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_label_set_lines")]
     fn set_lines(&self, lines: i32) {
         unsafe {
             ffi::gtk_label_set_lines(self.as_ref().to_glib_none().0, lines);
         }
     }
 
-    #[doc(alias = "gtk_label_set_markup")]
     fn set_markup(&self, str: &str) {
         unsafe {
             ffi::gtk_label_set_markup(self.as_ref().to_glib_none().0, str.to_glib_none().0);
         }
     }
 
-    #[doc(alias = "gtk_label_set_markup_with_mnemonic")]
     fn set_markup_with_mnemonic(&self, str: &str) {
         unsafe {
             ffi::gtk_label_set_markup_with_mnemonic(
@@ -680,14 +1066,12 @@ pub trait LabelExt: IsA<Label> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_label_set_max_width_chars")]
     fn set_max_width_chars(&self, n_chars: i32) {
         unsafe {
             ffi::gtk_label_set_max_width_chars(self.as_ref().to_glib_none().0, n_chars);
         }
     }
 
-    #[doc(alias = "gtk_label_set_mnemonic_widget")]
     fn set_mnemonic_widget(&self, widget: Option<&impl IsA<Widget>>) {
         unsafe {
             ffi::gtk_label_set_mnemonic_widget(
@@ -697,21 +1081,18 @@ pub trait LabelExt: IsA<Label> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_label_set_pattern")]
     fn set_pattern(&self, pattern: &str) {
         unsafe {
             ffi::gtk_label_set_pattern(self.as_ref().to_glib_none().0, pattern.to_glib_none().0);
         }
     }
 
-    #[doc(alias = "gtk_label_set_selectable")]
     fn set_selectable(&self, setting: bool) {
         unsafe {
             ffi::gtk_label_set_selectable(self.as_ref().to_glib_none().0, setting.into_glib());
         }
     }
 
-    #[doc(alias = "gtk_label_set_single_line_mode")]
     fn set_single_line_mode(&self, single_line_mode: bool) {
         unsafe {
             ffi::gtk_label_set_single_line_mode(
@@ -721,14 +1102,12 @@ pub trait LabelExt: IsA<Label> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_label_set_text")]
     fn set_text(&self, str: &str) {
         unsafe {
             ffi::gtk_label_set_text(self.as_ref().to_glib_none().0, str.to_glib_none().0);
         }
     }
 
-    #[doc(alias = "gtk_label_set_text_with_mnemonic")]
     fn set_text_with_mnemonic(&self, str: &str) {
         unsafe {
             ffi::gtk_label_set_text_with_mnemonic(
@@ -738,7 +1117,6 @@ pub trait LabelExt: IsA<Label> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_label_set_track_visited_links")]
     fn set_track_visited_links(&self, track_links: bool) {
         unsafe {
             ffi::gtk_label_set_track_visited_links(
@@ -748,70 +1126,60 @@ pub trait LabelExt: IsA<Label> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_label_set_use_markup")]
     fn set_use_markup(&self, setting: bool) {
         unsafe {
             ffi::gtk_label_set_use_markup(self.as_ref().to_glib_none().0, setting.into_glib());
         }
     }
 
-    #[doc(alias = "gtk_label_set_use_underline")]
     fn set_use_underline(&self, setting: bool) {
         unsafe {
             ffi::gtk_label_set_use_underline(self.as_ref().to_glib_none().0, setting.into_glib());
         }
     }
 
-    #[doc(alias = "gtk_label_set_width_chars")]
     fn set_width_chars(&self, n_chars: i32) {
         unsafe {
             ffi::gtk_label_set_width_chars(self.as_ref().to_glib_none().0, n_chars);
         }
     }
 
-    #[doc(alias = "gtk_label_set_xalign")]
     fn set_xalign(&self, xalign: f32) {
         unsafe {
             ffi::gtk_label_set_xalign(self.as_ref().to_glib_none().0, xalign);
         }
     }
 
-    #[doc(alias = "gtk_label_set_yalign")]
     fn set_yalign(&self, yalign: f32) {
         unsafe {
             ffi::gtk_label_set_yalign(self.as_ref().to_glib_none().0, yalign);
         }
     }
 
-    #[doc(alias = "cursor-position")]
     fn cursor_position(&self) -> i32 {
-        ObjectExt::property(self.as_ref(), "cursor-position")
+        glib::ObjectExt::property(self.as_ref(), "cursor-position")
     }
 
-    #[doc(alias = "selection-bound")]
     fn selection_bound(&self) -> i32 {
-        ObjectExt::property(self.as_ref(), "selection-bound")
+        glib::ObjectExt::property(self.as_ref(), "selection-bound")
     }
 
     fn wraps(&self) -> bool {
-        ObjectExt::property(self.as_ref(), "wrap")
+        glib::ObjectExt::property(self.as_ref(), "wrap")
     }
 
     fn set_wrap(&self, wrap: bool) {
-        ObjectExt::set_property(self.as_ref(), "wrap", wrap)
+        glib::ObjectExt::set_property(self.as_ref(), "wrap", &wrap)
     }
 
-    #[doc(alias = "wrap-mode")]
     fn wrap_mode(&self) -> pango::WrapMode {
-        ObjectExt::property(self.as_ref(), "wrap-mode")
+        glib::ObjectExt::property(self.as_ref(), "wrap-mode")
     }
 
-    #[doc(alias = "wrap-mode")]
     fn set_wrap_mode(&self, wrap_mode: pango::WrapMode) {
-        ObjectExt::set_property(self.as_ref(), "wrap-mode", wrap_mode)
+        glib::ObjectExt::set_property(self.as_ref(), "wrap-mode", &wrap_mode)
     }
 
-    #[doc(alias = "activate-current-link")]
     fn connect_activate_current_link<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn activate_current_link_trampoline<
             P: IsA<Label>,
@@ -840,14 +1208,13 @@ pub trait LabelExt: IsA<Label> + sealed::Sealed + 'static {
         self.emit_by_name::<()>("activate-current-link", &[]);
     }
 
-    #[doc(alias = "activate-link")]
-    fn connect_activate_link<F: Fn(&Self, &str) -> glib::Propagation + 'static>(
+    fn connect_activate_link<F: Fn(&Self, &str) -> glib::signal::Inhibit + 'static>(
         &self,
         f: F,
     ) -> SignalHandlerId {
         unsafe extern "C" fn activate_link_trampoline<
             P: IsA<Label>,
-            F: Fn(&P, &str) -> glib::Propagation + 'static,
+            F: Fn(&P, &str) -> glib::signal::Inhibit + 'static,
         >(
             this: *mut ffi::GtkLabel,
             uri: *mut libc::c_char,
@@ -873,7 +1240,6 @@ pub trait LabelExt: IsA<Label> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "copy-clipboard")]
     fn connect_copy_clipboard<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn copy_clipboard_trampoline<P: IsA<Label>, F: Fn(&P) + 'static>(
             this: *mut ffi::GtkLabel,
@@ -899,7 +1265,6 @@ pub trait LabelExt: IsA<Label> + sealed::Sealed + 'static {
         self.emit_by_name::<()>("copy-clipboard", &[]);
     }
 
-    #[doc(alias = "move-cursor")]
     fn connect_move_cursor<F: Fn(&Self, MovementStep, i32, bool) + 'static>(
         &self,
         f: F,
@@ -939,7 +1304,6 @@ pub trait LabelExt: IsA<Label> + sealed::Sealed + 'static {
         self.emit_by_name::<()>("move-cursor", &[&step, &count, &extend_selection]);
     }
 
-    #[doc(alias = "populate-popup")]
     fn connect_populate_popup<F: Fn(&Self, &Menu) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn populate_popup_trampoline<
             P: IsA<Label>,
@@ -968,7 +1332,6 @@ pub trait LabelExt: IsA<Label> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "angle")]
     fn connect_angle_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_angle_trampoline<P: IsA<Label>, F: Fn(&P) + 'static>(
             this: *mut ffi::GtkLabel,
@@ -991,7 +1354,6 @@ pub trait LabelExt: IsA<Label> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "attributes")]
     fn connect_attributes_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_attributes_trampoline<P: IsA<Label>, F: Fn(&P) + 'static>(
             this: *mut ffi::GtkLabel,
@@ -1014,7 +1376,6 @@ pub trait LabelExt: IsA<Label> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "cursor-position")]
     fn connect_cursor_position_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_cursor_position_trampoline<
             P: IsA<Label>,
@@ -1040,7 +1401,6 @@ pub trait LabelExt: IsA<Label> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "ellipsize")]
     fn connect_ellipsize_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_ellipsize_trampoline<P: IsA<Label>, F: Fn(&P) + 'static>(
             this: *mut ffi::GtkLabel,
@@ -1063,7 +1423,6 @@ pub trait LabelExt: IsA<Label> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "justify")]
     fn connect_justify_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_justify_trampoline<P: IsA<Label>, F: Fn(&P) + 'static>(
             this: *mut ffi::GtkLabel,
@@ -1086,7 +1445,6 @@ pub trait LabelExt: IsA<Label> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "label")]
     fn connect_label_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_label_trampoline<P: IsA<Label>, F: Fn(&P) + 'static>(
             this: *mut ffi::GtkLabel,
@@ -1109,7 +1467,6 @@ pub trait LabelExt: IsA<Label> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "lines")]
     fn connect_lines_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_lines_trampoline<P: IsA<Label>, F: Fn(&P) + 'static>(
             this: *mut ffi::GtkLabel,
@@ -1132,7 +1489,6 @@ pub trait LabelExt: IsA<Label> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "max-width-chars")]
     fn connect_max_width_chars_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_max_width_chars_trampoline<
             P: IsA<Label>,
@@ -1158,7 +1514,6 @@ pub trait LabelExt: IsA<Label> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "mnemonic-keyval")]
     fn connect_mnemonic_keyval_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_mnemonic_keyval_trampoline<
             P: IsA<Label>,
@@ -1184,7 +1539,6 @@ pub trait LabelExt: IsA<Label> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "mnemonic-widget")]
     fn connect_mnemonic_widget_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_mnemonic_widget_trampoline<
             P: IsA<Label>,
@@ -1210,7 +1564,6 @@ pub trait LabelExt: IsA<Label> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "pattern")]
     fn connect_pattern_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_pattern_trampoline<P: IsA<Label>, F: Fn(&P) + 'static>(
             this: *mut ffi::GtkLabel,
@@ -1233,7 +1586,6 @@ pub trait LabelExt: IsA<Label> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "selectable")]
     fn connect_selectable_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_selectable_trampoline<P: IsA<Label>, F: Fn(&P) + 'static>(
             this: *mut ffi::GtkLabel,
@@ -1256,7 +1608,6 @@ pub trait LabelExt: IsA<Label> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "selection-bound")]
     fn connect_selection_bound_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_selection_bound_trampoline<
             P: IsA<Label>,
@@ -1282,7 +1633,6 @@ pub trait LabelExt: IsA<Label> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "single-line-mode")]
     fn connect_single_line_mode_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_single_line_mode_trampoline<
             P: IsA<Label>,
@@ -1308,7 +1658,6 @@ pub trait LabelExt: IsA<Label> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "track-visited-links")]
     fn connect_track_visited_links_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_track_visited_links_trampoline<
             P: IsA<Label>,
@@ -1334,7 +1683,6 @@ pub trait LabelExt: IsA<Label> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "use-markup")]
     fn connect_use_markup_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_use_markup_trampoline<P: IsA<Label>, F: Fn(&P) + 'static>(
             this: *mut ffi::GtkLabel,
@@ -1357,7 +1705,6 @@ pub trait LabelExt: IsA<Label> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "use-underline")]
     fn connect_use_underline_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_use_underline_trampoline<P: IsA<Label>, F: Fn(&P) + 'static>(
             this: *mut ffi::GtkLabel,
@@ -1380,7 +1727,6 @@ pub trait LabelExt: IsA<Label> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "width-chars")]
     fn connect_width_chars_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_width_chars_trampoline<P: IsA<Label>, F: Fn(&P) + 'static>(
             this: *mut ffi::GtkLabel,
@@ -1403,7 +1749,6 @@ pub trait LabelExt: IsA<Label> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "wrap")]
     fn connect_wrap_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_wrap_trampoline<P: IsA<Label>, F: Fn(&P) + 'static>(
             this: *mut ffi::GtkLabel,
@@ -1426,7 +1771,6 @@ pub trait LabelExt: IsA<Label> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "wrap-mode")]
     fn connect_wrap_mode_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_wrap_mode_trampoline<P: IsA<Label>, F: Fn(&P) + 'static>(
             this: *mut ffi::GtkLabel,
@@ -1448,9 +1792,51 @@ pub trait LabelExt: IsA<Label> + sealed::Sealed + 'static {
             )
         }
     }
-}
 
-impl<O: IsA<Label>> LabelExt for O {}
+    fn connect_xalign_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
+        unsafe extern "C" fn notify_xalign_trampoline<P: IsA<Label>, F: Fn(&P) + 'static>(
+            this: *mut ffi::GtkLabel,
+            _param_spec: glib::ffi::gpointer,
+            f: glib::ffi::gpointer,
+        ) {
+            let f: &F = &*(f as *const F);
+            f(Label::from_glib_borrow(this).unsafe_cast_ref())
+        }
+        unsafe {
+            let f: Box_<F> = Box_::new(f);
+            connect_raw(
+                self.as_ptr() as *mut _,
+                b"notify::xalign\0".as_ptr() as *const _,
+                Some(transmute::<_, unsafe extern "C" fn()>(
+                    notify_xalign_trampoline::<Self, F> as *const (),
+                )),
+                Box_::into_raw(f),
+            )
+        }
+    }
+
+    fn connect_yalign_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
+        unsafe extern "C" fn notify_yalign_trampoline<P: IsA<Label>, F: Fn(&P) + 'static>(
+            this: *mut ffi::GtkLabel,
+            _param_spec: glib::ffi::gpointer,
+            f: glib::ffi::gpointer,
+        ) {
+            let f: &F = &*(f as *const F);
+            f(Label::from_glib_borrow(this).unsafe_cast_ref())
+        }
+        unsafe {
+            let f: Box_<F> = Box_::new(f);
+            connect_raw(
+                self.as_ptr() as *mut _,
+                b"notify::yalign\0".as_ptr() as *const _,
+                Some(transmute::<_, unsafe extern "C" fn()>(
+                    notify_yalign_trampoline::<Self, F> as *const (),
+                )),
+                Box_::into_raw(f),
+            )
+        }
+    }
+}
 
 impl fmt::Display for Label {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {

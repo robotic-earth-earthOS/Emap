@@ -2,19 +2,17 @@
 // from ../gir-files
 // DO NOT EDIT
 
-#![cfg(unix)]
-
 use std::env;
 use std::error::Error;
 use std::ffi::OsString;
 use std::mem::{align_of, size_of};
 use std::path::Path;
-use std::process::{Command, Stdio};
+use std::process::Command;
 use std::str;
 use tempfile::Builder;
 use webkit2gtk_sys::*;
 
-static PACKAGES: &[&str] = &["webkit2gtk-4.1"];
+static PACKAGES: &[&str] = &["webkit2gtk-4.0"];
 
 #[derive(Clone, Debug)]
 struct Compiler {
@@ -42,7 +40,7 @@ impl Compiler {
     cmd.arg(out);
     let status = cmd.spawn()?.wait()?;
     if !status.success() {
-      return Err(format!("compilation command {cmd:?} failed, {status}").into());
+      return Err(format!("compilation command {:?} failed, {}", &cmd, status).into());
     }
     Ok(())
   }
@@ -58,7 +56,7 @@ fn get_var(name: &str, default: &str) -> Result<Vec<String>, Box<dyn Error>> {
   match env::var(name) {
     Ok(value) => Ok(shell_words::split(&value)?),
     Err(env::VarError::NotPresent) => Ok(shell_words::split(default)?),
-    Err(err) => Err(format!("{name} {err}").into()),
+    Err(err) => Err(format!("{} {}", name, err).into()),
   }
 }
 
@@ -70,11 +68,9 @@ fn pkg_config_cflags(packages: &[&str]) -> Result<Vec<String>, Box<dyn Error>> {
   let mut cmd = Command::new(pkg_config);
   cmd.arg("--cflags");
   cmd.args(packages);
-  cmd.stderr(Stdio::inherit());
   let out = cmd.output()?;
   if !out.status.success() {
-    let (status, stdout) = (out.status, String::from_utf8_lossy(&out.stdout));
-    return Err(format!("command {cmd:?} failed, {status:?}\nstdout: {stdout}").into());
+    return Err(format!("command {:?} returned {}", &cmd, out.status).into());
   }
   let stdout = str::from_utf8(&out.stdout)?;
   Ok(shell_words::split(stdout.trim())?)
@@ -118,8 +114,13 @@ fn cross_validate_constants_with_c() {
   let mut c_constants: Vec<(String, String)> = Vec::new();
 
   for l in get_c_output("constant").unwrap().lines() {
-    let (name, value) = l.split_once(';').expect("Missing ';' separator");
-    c_constants.push((name.to_owned(), value.to_owned()));
+    let mut words = l.trim().split(';');
+    let name = words.next().expect("Failed to parse name").to_owned();
+    let value = words
+      .next()
+      .and_then(|s| s.parse().ok())
+      .expect("Failed to parse value");
+    c_constants.push((name, value));
   }
 
   let mut results = Results::default();
@@ -128,13 +129,16 @@ fn cross_validate_constants_with_c() {
   {
     if rust_name != c_name {
       results.record_failed();
-      eprintln!("Name mismatch:\nRust: {rust_name:?}\nC:    {c_name:?}");
+      eprintln!("Name mismatch:\nRust: {:?}\nC:    {:?}", rust_name, c_name,);
       continue;
     }
 
     if rust_value != c_value {
       results.record_failed();
-      eprintln!("Constant value mismatch for {rust_name}\nRust: {rust_value:?}\nC:    {c_value:?}",);
+      eprintln!(
+        "Constant value mismatch for {}\nRust: {:?}\nC:    {:?}",
+        rust_name, rust_value, &c_value
+      );
       continue;
     }
 
@@ -149,11 +153,17 @@ fn cross_validate_layout_with_c() {
   let mut c_layouts = Vec::new();
 
   for l in get_c_output("layout").unwrap().lines() {
-    let (name, value) = l.split_once(';').expect("Missing first ';' separator");
-    let (size, alignment) = value.split_once(';').expect("Missing second ';' separator");
-    let size = size.parse().expect("Failed to parse size");
-    let alignment = alignment.parse().expect("Failed to parse alignment");
-    c_layouts.push((name.to_owned(), Layout { size, alignment }));
+    let mut words = l.trim().split(';');
+    let name = words.next().expect("Failed to parse name").to_owned();
+    let size = words
+      .next()
+      .and_then(|s| s.parse().ok())
+      .expect("Failed to parse size");
+    let alignment = words
+      .next()
+      .and_then(|s| s.parse().ok())
+      .expect("Failed to parse alignment");
+    c_layouts.push((name, Layout { size, alignment }));
   }
 
   let mut results = Results::default();
@@ -161,13 +171,16 @@ fn cross_validate_layout_with_c() {
   for ((rust_name, rust_layout), (c_name, c_layout)) in RUST_LAYOUTS.iter().zip(c_layouts.iter()) {
     if rust_name != c_name {
       results.record_failed();
-      eprintln!("Name mismatch:\nRust: {rust_name:?}\nC:    {c_name:?}");
+      eprintln!("Name mismatch:\nRust: {:?}\nC:    {:?}", rust_name, c_name,);
       continue;
     }
 
     if rust_layout != c_layout {
       results.record_failed();
-      eprintln!("Layout mismatch for {rust_name}\nRust: {rust_layout:?}\nC:    {c_layout:?}",);
+      eprintln!(
+        "Layout mismatch for {}\nRust: {:?}\nC:    {:?}",
+        rust_name, rust_layout, &c_layout
+      );
       continue;
     }
 
@@ -185,15 +198,13 @@ fn get_c_output(name: &str) -> Result<String, Box<dyn Error>> {
   let cc = Compiler::new().expect("configured compiler");
   cc.compile(&c_file, &exe)?;
 
-  let mut cmd = Command::new(exe);
-  cmd.stderr(Stdio::inherit());
-  let out = cmd.output()?;
-  if !out.status.success() {
-    let (status, stdout) = (out.status, String::from_utf8_lossy(&out.stdout));
-    return Err(format!("command {cmd:?} failed, {status:?}\nstdout: {stdout}").into());
+  let mut abi_cmd = Command::new(exe);
+  let output = abi_cmd.output()?;
+  if !output.status.success() {
+    return Err(format!("command {:?} failed, {:?}", &abi_cmd, &output).into());
   }
 
-  Ok(String::from_utf8(out.stdout)?)
+  Ok(String::from_utf8(output.stdout)?)
 }
 
 const RUST_LAYOUTS: &[(&str, Layout)] = &[
@@ -716,13 +727,6 @@ const RUST_LAYOUTS: &[(&str, Layout)] = &[
     },
   ),
   (
-    "WebKitPermissionState",
-    Layout {
-      size: size_of::<WebKitPermissionState>(),
-      alignment: align_of::<WebKitPermissionState>(),
-    },
-  ),
-  (
     "WebKitPlugin",
     Layout {
       size: size_of::<WebKitPlugin>(),
@@ -1080,13 +1084,6 @@ const RUST_LAYOUTS: &[(&str, Layout)] = &[
     },
   ),
   (
-    "WebKitWebExtensionMode",
-    Layout {
-      size: size_of::<WebKitWebExtensionMode>(),
-      alignment: align_of::<WebKitWebExtensionMode>(),
-    },
-  ),
-  (
     "WebKitWebInspector",
     Layout {
       size: size_of::<WebKitWebInspector>(),
@@ -1415,8 +1412,6 @@ const RUST_CONSTANTS: &[(&str, &str)] = &[
   ("(gint) WEBKIT_INPUT_PURPOSE_URL", "4"),
   ("(gint) WEBKIT_INSECURE_CONTENT_DISPLAYED", "1"),
   ("(gint) WEBKIT_INSECURE_CONTENT_RUN", "0"),
-  ("(gint) WEBKIT_JAVASCRIPT_ERROR_INVALID_PARAMETER", "600"),
-  ("(gint) WEBKIT_JAVASCRIPT_ERROR_INVALID_RESULT", "601"),
   ("(gint) WEBKIT_JAVASCRIPT_ERROR_SCRIPT_FAILED", "699"),
   ("(gint) WEBKIT_LOAD_COMMITTED", "2"),
   ("(gint) WEBKIT_LOAD_FINISHED", "3"),
@@ -1426,8 +1421,8 @@ const RUST_CONSTANTS: &[(&str, &str)] = &[
   ("(gint) WEBKIT_MEDIA_CAPTURE_STATE_ACTIVE", "1"),
   ("(gint) WEBKIT_MEDIA_CAPTURE_STATE_MUTED", "2"),
   ("(gint) WEBKIT_MEDIA_CAPTURE_STATE_NONE", "0"),
-  ("WEBKIT_MICRO_VERSION", "2"),
-  ("WEBKIT_MINOR_VERSION", "40"),
+  ("WEBKIT_MICRO_VERSION", "1"),
+  ("WEBKIT_MINOR_VERSION", "36"),
   ("(gint) WEBKIT_NAVIGATION_TYPE_BACK_FORWARD", "2"),
   ("(gint) WEBKIT_NAVIGATION_TYPE_FORM_RESUBMITTED", "4"),
   ("(gint) WEBKIT_NAVIGATION_TYPE_FORM_SUBMITTED", "1"),
@@ -1442,9 +1437,6 @@ const RUST_CONSTANTS: &[(&str, &str)] = &[
   ("(gint) WEBKIT_NETWORK_PROXY_MODE_CUSTOM", "2"),
   ("(gint) WEBKIT_NETWORK_PROXY_MODE_DEFAULT", "0"),
   ("(gint) WEBKIT_NETWORK_PROXY_MODE_NO_PROXY", "1"),
-  ("(gint) WEBKIT_PERMISSION_STATE_DENIED", "1"),
-  ("(gint) WEBKIT_PERMISSION_STATE_GRANTED", "0"),
-  ("(gint) WEBKIT_PERMISSION_STATE_PROMPT", "2"),
   ("(gint) WEBKIT_PLUGIN_ERROR_CANNOT_FIND_PLUGIN", "200"),
   ("(gint) WEBKIT_PLUGIN_ERROR_CANNOT_LOAD_PLUGIN", "201"),
   ("(gint) WEBKIT_PLUGIN_ERROR_CONNECTION_CANCELLED", "203"),
@@ -1524,9 +1516,6 @@ const RUST_CONSTANTS: &[(&str, &str)] = &[
   ),
   ("(guint) WEBKIT_WEBSITE_DATA_SESSION_STORAGE", "8"),
   ("(guint) WEBKIT_WEBSITE_DATA_WEBSQL_DATABASES", "32"),
-  ("(gint) WEBKIT_WEB_EXTENSION_MODE_MANIFESTV2", "1"),
-  ("(gint) WEBKIT_WEB_EXTENSION_MODE_MANIFESTV3", "2"),
-  ("(gint) WEBKIT_WEB_EXTENSION_MODE_NONE", "0"),
   ("(gint) WEBKIT_WEB_PROCESS_CRASHED", "0"),
   ("(gint) WEBKIT_WEB_PROCESS_EXCEEDED_MEMORY_LIMIT", "1"),
   ("(gint) WEBKIT_WEB_PROCESS_TERMINATED_BY_API", "2"),

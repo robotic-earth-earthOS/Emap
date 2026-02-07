@@ -3,12 +3,14 @@
 // DO NOT EDIT
 
 use crate::Orientation;
-use glib::{
-    prelude::*,
-    signal::{connect_raw, SignalHandlerId},
-    translate::*,
-};
-use std::{boxed::Box as Box_, fmt, mem::transmute};
+use glib::object::Cast;
+use glib::object::IsA;
+use glib::signal::connect_raw;
+use glib::signal::SignalHandlerId;
+use glib::translate::*;
+use std::boxed::Box as Box_;
+use std::fmt;
+use std::mem::transmute;
 
 glib::wrapper! {
     #[doc(alias = "GtkOrientable")]
@@ -23,14 +25,19 @@ impl Orientable {
     pub const NONE: Option<&'static Orientable> = None;
 }
 
-mod sealed {
-    pub trait Sealed {}
-    impl<T: super::IsA<super::Orientable>> Sealed for T {}
-}
-
-pub trait OrientableExt: IsA<Orientable> + sealed::Sealed + 'static {
+pub trait OrientableExt: 'static {
     #[doc(alias = "gtk_orientable_get_orientation")]
     #[doc(alias = "get_orientation")]
+    fn orientation(&self) -> Orientation;
+
+    #[doc(alias = "gtk_orientable_set_orientation")]
+    fn set_orientation(&self, orientation: Orientation);
+
+    #[doc(alias = "orientation")]
+    fn connect_orientation_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+}
+
+impl<O: IsA<Orientable>> OrientableExt for O {
     fn orientation(&self) -> Orientation {
         unsafe {
             from_glib(ffi::gtk_orientable_get_orientation(
@@ -39,7 +46,6 @@ pub trait OrientableExt: IsA<Orientable> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_orientable_set_orientation")]
     fn set_orientation(&self, orientation: Orientation) {
         unsafe {
             ffi::gtk_orientable_set_orientation(
@@ -49,7 +55,6 @@ pub trait OrientableExt: IsA<Orientable> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "orientation")]
     fn connect_orientation_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_orientation_trampoline<
             P: IsA<Orientable>,
@@ -75,8 +80,6 @@ pub trait OrientableExt: IsA<Orientable> + sealed::Sealed + 'static {
         }
     }
 }
-
-impl<O: IsA<Orientable>> OrientableExt for O {}
 
 impl fmt::Display for Orientable {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {

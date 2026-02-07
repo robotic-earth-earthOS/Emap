@@ -3,7 +3,8 @@
 // DO NOT EDIT
 
 use crate::ObjectFactory;
-use glib::{prelude::*, translate::*};
+use glib::object::Cast;
+use glib::translate::*;
 use std::fmt;
 
 glib::wrapper! {

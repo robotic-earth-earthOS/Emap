@@ -2,12 +2,25 @@
 // from gir-files (https://github.com/gtk-rs/gir-files)
 // DO NOT EDIT
 
-use crate::{
-    AccelGroup, Orientation, PageSetup, PositionType, PrintSettings, SelectionData, StyleContext,
-    TextBuffer, TextDirection, TreeModel, TreePath, Widget, Window,
-};
-use glib::{prelude::*, translate::*};
-use std::{boxed::Box as Box_, mem, ptr};
+use crate::AccelGroup;
+use crate::Orientation;
+use crate::PageSetup;
+use crate::PositionType;
+use crate::PrintSettings;
+use crate::SelectionData;
+use crate::SpinButton;
+use crate::StyleContext;
+use crate::TextBuffer;
+use crate::TextDirection;
+use crate::TreeModel;
+use crate::TreePath;
+use crate::Widget;
+use crate::Window;
+use glib::object::IsA;
+use glib::translate::*;
+use std::boxed::Box as Box_;
+use std::mem;
+use std::ptr;
 
 #[doc(alias = "gtk_accel_groups_activate")]
 pub fn accel_groups_activate(
@@ -116,10 +129,9 @@ pub fn accelerator_parse(accelerator: &str) -> (u32, gdk::ModifierType) {
             accelerator_key.as_mut_ptr(),
             accelerator_mods.as_mut_ptr(),
         );
-        (
-            accelerator_key.assume_init(),
-            from_glib(accelerator_mods.assume_init()),
-        )
+        let accelerator_key = accelerator_key.assume_init();
+        let accelerator_mods = accelerator_mods.assume_init();
+        (accelerator_key, from_glib(accelerator_mods))
     }
 }
 
@@ -281,8 +293,9 @@ pub fn current_event_state() -> Option<gdk::ModifierType> {
     unsafe {
         let mut state = mem::MaybeUninit::uninit();
         let ret = from_glib(ffi::gtk_get_current_event_state(state.as_mut_ptr()));
+        let state = state.assume_init();
         if ret {
-            Some(from_glib(state.assume_init()))
+            Some(from_glib(state))
         } else {
             None
         }
@@ -429,7 +442,7 @@ pub fn print_run_page_setup_dialog_async<P: FnOnce(&PageSetup) + Send + Sync + '
     ) {
         let page_setup = from_glib_borrow(page_setup);
         let callback: Box_<P> = Box_::from_raw(data as *mut _);
-        (*callback)(&page_setup)
+        (*callback)(&page_setup);
     }
     let done_cb = Some(done_cb_func::<P> as _);
     let super_callback0: Box_<P> = done_cb_data;
@@ -518,6 +531,8 @@ pub fn render_background(
     }
 }
 
+#[cfg(any(feature = "v3_20", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
 #[doc(alias = "gtk_render_background_get_clip")]
 pub fn render_background_get_clip(
     context: &impl IsA<StyleContext>,
@@ -654,7 +669,6 @@ pub fn render_frame(
 }
 
 #[cfg_attr(feature = "v3_24", deprecated = "Since 3.24")]
-#[allow(deprecated)]
 #[doc(alias = "gtk_render_frame_gap")]
 pub fn render_frame_gap(
     context: &impl IsA<StyleContext>,
@@ -865,7 +879,10 @@ pub fn rgb_to_hsv(r: f64, g: f64, b: f64) -> (f64, f64, f64) {
         let mut s = mem::MaybeUninit::uninit();
         let mut v = mem::MaybeUninit::uninit();
         ffi::gtk_rgb_to_hsv(r, g, b, h.as_mut_ptr(), s.as_mut_ptr(), v.as_mut_ptr());
-        (h.assume_init(), s.assume_init(), v.assume_init())
+        let h = h.assume_init();
+        let s = s.assume_init();
+        let v = v.assume_init();
+        (h, s, v)
     }
 }
 
@@ -967,10 +984,37 @@ pub fn set_debug_flags(flags: u32) {
 }
 
 //#[doc(alias = "gtk_show_about_dialog")]
-//pub fn show_about_dialog(parent: Option<&impl IsA<Window>>, first_property_name: &str, : /*Unknown conversion*//*Unimplemented*/Basic: VarArgs) {
+//pub fn show_about_dialog(parent: Option<&impl IsA<Window>>, first_property_name: &str, : /*Unknown conversion*//*Unimplemented*/Fundamental: VarArgs) {
 //    unsafe { TODO: call ffi:gtk_show_about_dialog() }
 //}
 
+#[cfg_attr(feature = "v3_22", deprecated = "Since 3.22")]
+#[doc(alias = "gtk_show_uri")]
+pub fn show_uri(
+    screen: Option<&gdk::Screen>,
+    uri: &str,
+    timestamp: u32,
+) -> Result<(), glib::Error> {
+    assert_initialized_main_thread!();
+    unsafe {
+        let mut error = ptr::null_mut();
+        let is_ok = ffi::gtk_show_uri(
+            screen.to_glib_none().0,
+            uri.to_glib_none().0,
+            timestamp,
+            &mut error,
+        );
+        assert_eq!(is_ok == glib::ffi::GFALSE, !error.is_null());
+        if error.is_null() {
+            Ok(())
+        } else {
+            Err(from_glib_full(error))
+        }
+    }
+}
+
+#[cfg(any(feature = "v3_22", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
 #[doc(alias = "gtk_show_uri_on_window")]
 pub fn show_uri_on_window(
     parent: Option<&impl IsA<Window>>,
@@ -986,7 +1030,7 @@ pub fn show_uri_on_window(
             timestamp,
             &mut error,
         );
-        debug_assert_eq!(is_ok == glib::ffi::GFALSE, !error.is_null());
+        assert_eq!(is_ok == glib::ffi::GFALSE, !error.is_null());
         if error.is_null() {
             Ok(())
         } else {
@@ -998,7 +1042,7 @@ pub fn show_uri_on_window(
 #[doc(alias = "gtk_targets_include_image")]
 pub fn targets_include_image(targets: &[gdk::Atom], writable: bool) -> bool {
     assert_initialized_main_thread!();
-    let n_targets = targets.len() as _;
+    let n_targets = targets.len() as i32;
     unsafe {
         from_glib(ffi::gtk_targets_include_image(
             targets.to_glib_none().0,
@@ -1011,7 +1055,7 @@ pub fn targets_include_image(targets: &[gdk::Atom], writable: bool) -> bool {
 #[doc(alias = "gtk_targets_include_rich_text")]
 pub fn targets_include_rich_text(targets: &[gdk::Atom], buffer: &impl IsA<TextBuffer>) -> bool {
     skip_assert_initialized!();
-    let n_targets = targets.len() as _;
+    let n_targets = targets.len() as i32;
     unsafe {
         from_glib(ffi::gtk_targets_include_rich_text(
             targets.to_glib_none().0,
@@ -1024,7 +1068,7 @@ pub fn targets_include_rich_text(targets: &[gdk::Atom], buffer: &impl IsA<TextBu
 #[doc(alias = "gtk_targets_include_text")]
 pub fn targets_include_text(targets: &[gdk::Atom]) -> bool {
     assert_initialized_main_thread!();
-    let n_targets = targets.len() as _;
+    let n_targets = targets.len() as i32;
     unsafe {
         from_glib(ffi::gtk_targets_include_text(
             targets.to_glib_none().0,
@@ -1036,7 +1080,7 @@ pub fn targets_include_text(targets: &[gdk::Atom]) -> bool {
 #[doc(alias = "gtk_targets_include_uri")]
 pub fn targets_include_uri(targets: &[gdk::Atom]) -> bool {
     assert_initialized_main_thread!();
-    let n_targets = targets.len() as _;
+    let n_targets = targets.len() as i32;
     unsafe {
         from_glib(ffi::gtk_targets_include_uri(
             targets.to_glib_none().0,
@@ -1044,6 +1088,30 @@ pub fn targets_include_uri(targets: &[gdk::Atom]) -> bool {
         ))
     }
 }
+
+#[cfg_attr(feature = "v3_20", deprecated = "Since 3.20")]
+#[doc(alias = "gtk_test_create_simple_window")]
+pub fn test_create_simple_window(window_title: &str, dialog_text: &str) -> Option<Widget> {
+    assert_initialized_main_thread!();
+    unsafe {
+        from_glib_none(ffi::gtk_test_create_simple_window(
+            window_title.to_glib_none().0,
+            dialog_text.to_glib_none().0,
+        ))
+    }
+}
+
+//#[cfg_attr(feature = "v3_20", deprecated = "Since 3.20")]
+//#[doc(alias = "gtk_test_create_widget")]
+//pub fn test_create_widget(widget_type: glib::types::Type, first_property_name: Option<&str>, : /*Unknown conversion*//*Unimplemented*/Fundamental: VarArgs) -> Option<Widget> {
+//    unsafe { TODO: call ffi:gtk_test_create_widget() }
+//}
+
+//#[cfg_attr(feature = "v3_20", deprecated = "Since 3.20")]
+//#[doc(alias = "gtk_test_display_button_window")]
+//pub fn test_display_button_window(window_title: &str, dialog_text: &str, : /*Unknown conversion*//*Unimplemented*/Fundamental: VarArgs) -> Option<Widget> {
+//    unsafe { TODO: call ffi:gtk_test_display_button_window() }
+//}
 
 #[doc(alias = "gtk_test_find_label")]
 pub fn test_find_label(widget: &impl IsA<Widget>, label_pattern: &str) -> Option<Widget> {
@@ -1096,6 +1164,68 @@ pub fn test_register_all_types() {
     assert_initialized_main_thread!();
     unsafe {
         ffi::gtk_test_register_all_types();
+    }
+}
+
+#[cfg_attr(feature = "v3_20", deprecated = "Since 3.20")]
+#[doc(alias = "gtk_test_slider_get_value")]
+pub fn test_slider_get_value(widget: &impl IsA<Widget>) -> f64 {
+    skip_assert_initialized!();
+    unsafe { ffi::gtk_test_slider_get_value(widget.as_ref().to_glib_none().0) }
+}
+
+#[cfg_attr(feature = "v3_20", deprecated = "Since 3.20")]
+#[doc(alias = "gtk_test_slider_set_perc")]
+pub fn test_slider_set_perc(widget: &impl IsA<Widget>, percentage: f64) {
+    skip_assert_initialized!();
+    unsafe {
+        ffi::gtk_test_slider_set_perc(widget.as_ref().to_glib_none().0, percentage);
+    }
+}
+
+#[cfg_attr(feature = "v3_20", deprecated = "Since 3.20")]
+#[doc(alias = "gtk_test_spin_button_click")]
+pub fn test_spin_button_click(spinner: &impl IsA<SpinButton>, button: u32, upwards: bool) -> bool {
+    skip_assert_initialized!();
+    unsafe {
+        from_glib(ffi::gtk_test_spin_button_click(
+            spinner.as_ref().to_glib_none().0,
+            button,
+            upwards.into_glib(),
+        ))
+    }
+}
+
+#[cfg_attr(feature = "v3_20", deprecated = "Since 3.20")]
+#[doc(alias = "gtk_test_text_get")]
+pub fn test_text_get(widget: &impl IsA<Widget>) -> Option<glib::GString> {
+    skip_assert_initialized!();
+    unsafe { from_glib_full(ffi::gtk_test_text_get(widget.as_ref().to_glib_none().0)) }
+}
+
+#[cfg_attr(feature = "v3_20", deprecated = "Since 3.20")]
+#[doc(alias = "gtk_test_text_set")]
+pub fn test_text_set(widget: &impl IsA<Widget>, string: &str) {
+    skip_assert_initialized!();
+    unsafe {
+        ffi::gtk_test_text_set(widget.as_ref().to_glib_none().0, string.to_glib_none().0);
+    }
+}
+
+#[cfg_attr(feature = "v3_20", deprecated = "Since 3.20")]
+#[doc(alias = "gtk_test_widget_click")]
+pub fn test_widget_click(
+    widget: &impl IsA<Widget>,
+    button: u32,
+    modifiers: gdk::ModifierType,
+) -> bool {
+    skip_assert_initialized!();
+    unsafe {
+        from_glib(ffi::gtk_test_widget_click(
+            widget.as_ref().to_glib_none().0,
+            button,
+            modifiers.into_glib(),
+        ))
     }
 }
 

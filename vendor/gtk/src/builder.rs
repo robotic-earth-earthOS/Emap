@@ -20,14 +20,46 @@ impl Builder {
     }
 }
 
-mod sealed {
-    pub trait Sealed {}
-    impl<T: glib::IsA<crate::Builder>> Sealed for T {}
-}
-
-pub trait BuilderExtManual: IsA<Builder> + sealed::Sealed + 'static {
+pub trait BuilderExtManual: 'static {
     #[doc(alias = "gtk_builder_get_object")]
     #[doc(alias = "get_object")]
+    fn object<T: IsA<Object>>(&self, name: &str) -> Option<T>;
+
+    #[doc(alias = "gtk_builder_add_from_file")]
+    fn add_from_file<T: AsRef<Path>>(&self, file_path: T) -> Result<(), glib::Error>;
+    #[doc(alias = "gtk_builder_add_from_resource")]
+    fn add_from_resource(&self, resource_path: &str) -> Result<(), glib::Error>;
+    #[doc(alias = "gtk_builder_add_from_string")]
+    fn add_from_string(&self, buffer: &str) -> Result<(), glib::Error>;
+
+    #[doc(alias = "gtk_builder_add_objects_from_resource")]
+    fn add_objects_from_resource(
+        &self,
+        resource_path: &str,
+        object_ids: &[&str],
+    ) -> Result<(), glib::Error>;
+    #[doc(alias = "gtk_builder_add_objects_from_string")]
+    fn add_objects_from_string(&self, buffer: &str, object_ids: &[&str])
+        -> Result<(), glib::Error>;
+
+    #[doc(alias = "gtk_builder_connect_signals_full")]
+    fn connect_signals<
+        P: FnMut(&Builder, &str) -> Box<dyn Fn(&[glib::Value]) -> Option<glib::Value> + 'static>,
+    >(
+        &self,
+        func: P,
+    );
+
+    #[doc(alias = "gtk_builder_extend_with_template")]
+    fn extend_with_template(
+        &self,
+        widget: &impl IsA<Widget>,
+        template_type: glib::types::Type,
+        buffer: &str,
+    ) -> Result<(), glib::Error>;
+}
+
+impl<O: IsA<Builder>> BuilderExtManual for O {
     fn object<T: IsA<Object>>(&self, name: &str) -> Option<T> {
         unsafe {
             Option::<Object>::from_glib_none(ffi::gtk_builder_get_object(
@@ -38,7 +70,6 @@ pub trait BuilderExtManual: IsA<Builder> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_builder_add_from_file")]
     fn add_from_file<T: AsRef<Path>>(&self, file_path: T) -> Result<(), glib::Error> {
         unsafe {
             let mut error = ::std::ptr::null_mut();
@@ -55,7 +86,7 @@ pub trait BuilderExtManual: IsA<Builder> + sealed::Sealed + 'static {
             }
         }
     }
-    #[doc(alias = "gtk_builder_add_from_resource")]
+
     fn add_from_resource(&self, resource_path: &str) -> Result<(), glib::Error> {
         unsafe {
             let mut error = ptr::null_mut();
@@ -72,9 +103,9 @@ pub trait BuilderExtManual: IsA<Builder> + sealed::Sealed + 'static {
             }
         }
     }
-    #[doc(alias = "gtk_builder_add_from_string")]
+
     fn add_from_string(&self, buffer: &str) -> Result<(), glib::Error> {
-        let length = buffer.len();
+        let length = buffer.len() as usize;
         unsafe {
             let mut error = ptr::null_mut();
             let exit_code = ffi::gtk_builder_add_from_string(
@@ -92,7 +123,6 @@ pub trait BuilderExtManual: IsA<Builder> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_builder_add_objects_from_resource")]
     fn add_objects_from_resource(
         &self,
         resource_path: &str,
@@ -114,13 +144,13 @@ pub trait BuilderExtManual: IsA<Builder> + sealed::Sealed + 'static {
             }
         }
     }
-    #[doc(alias = "gtk_builder_add_objects_from_string")]
+
     fn add_objects_from_string(
         &self,
         buffer: &str,
         object_ids: &[&str],
     ) -> Result<(), glib::Error> {
-        let length = buffer.len();
+        let length = buffer.len() as usize;
         unsafe {
             let mut error = ptr::null_mut();
             let exit_code = ffi::gtk_builder_add_objects_from_string(
@@ -139,7 +169,6 @@ pub trait BuilderExtManual: IsA<Builder> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_builder_connect_signals_full")]
     fn connect_signals<
         P: FnMut(&Builder, &str) -> Box<dyn Fn(&[glib::Value]) -> Option<glib::Value> + 'static>,
     >(
@@ -170,11 +199,13 @@ pub trait BuilderExtManual: IsA<Builder> + sealed::Sealed + 'static {
             let handler_name: Borrowed<GString> = from_glib_borrow(handler_name);
             let callback: *mut P = user_data as *const _ as usize as *mut P;
             let func = (*callback)(&builder, handler_name.as_str());
-            object.connect_unsafe(
-                signal_name.as_str(),
-                flags & glib::gobject_ffi::G_CONNECT_AFTER != 0,
-                move |args| func(args),
-            );
+            object
+                .try_connect_unsafe(
+                    signal_name.as_str(),
+                    flags & glib::gobject_ffi::G_CONNECT_AFTER != 0,
+                    move |args| func(args),
+                )
+                .expect("Failed to connect to builder signal");
         }
         let func = Some(func_func::<P> as _);
         let super_callback0: &P = &func_data;
@@ -187,14 +218,13 @@ pub trait BuilderExtManual: IsA<Builder> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_builder_extend_with_template")]
     fn extend_with_template(
         &self,
         widget: &impl IsA<Widget>,
         template_type: glib::types::Type,
         buffer: &str,
     ) -> Result<(), glib::Error> {
-        let length = buffer.len();
+        let length = buffer.len() as usize;
         unsafe {
             let mut error = ptr::null_mut();
             let exit_code = ffi::gtk_builder_extend_with_template(
@@ -214,5 +244,3 @@ pub trait BuilderExtManual: IsA<Builder> + sealed::Sealed + 'static {
         }
     }
 }
-
-impl<O: IsA<Builder>> BuilderExtManual for O {}

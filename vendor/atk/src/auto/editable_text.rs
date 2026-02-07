@@ -2,7 +2,8 @@
 // from gir-files (https://github.com/gtk-rs/gir-files)
 // DO NOT EDIT
 
-use glib::{prelude::*, translate::*};
+use glib::object::IsA;
+use glib::translate::*;
 use std::fmt;
 
 glib::wrapper! {
@@ -18,46 +19,55 @@ impl EditableText {
     pub const NONE: Option<&'static EditableText> = None;
 }
 
-mod sealed {
-    pub trait Sealed {}
-    impl<T: super::IsA<super::EditableText>> Sealed for T {}
+pub trait EditableTextExt: 'static {
+    #[doc(alias = "atk_editable_text_copy_text")]
+    fn copy_text(&self, start_pos: i32, end_pos: i32);
+
+    #[doc(alias = "atk_editable_text_cut_text")]
+    fn cut_text(&self, start_pos: i32, end_pos: i32);
+
+    #[doc(alias = "atk_editable_text_delete_text")]
+    fn delete_text(&self, start_pos: i32, end_pos: i32);
+
+    #[doc(alias = "atk_editable_text_paste_text")]
+    fn paste_text(&self, position: i32);
+
+    //#[doc(alias = "atk_editable_text_set_run_attributes")]
+    //fn set_run_attributes(&self, attrib_set: /*Ignored*/&mut AttributeSet, start_offset: i32, end_offset: i32) -> bool;
+
+    #[doc(alias = "atk_editable_text_set_text_contents")]
+    fn set_text_contents(&self, string: &str);
 }
 
-pub trait EditableTextExt: IsA<EditableText> + sealed::Sealed + 'static {
-    #[doc(alias = "atk_editable_text_copy_text")]
+impl<O: IsA<EditableText>> EditableTextExt for O {
     fn copy_text(&self, start_pos: i32, end_pos: i32) {
         unsafe {
             ffi::atk_editable_text_copy_text(self.as_ref().to_glib_none().0, start_pos, end_pos);
         }
     }
 
-    #[doc(alias = "atk_editable_text_cut_text")]
     fn cut_text(&self, start_pos: i32, end_pos: i32) {
         unsafe {
             ffi::atk_editable_text_cut_text(self.as_ref().to_glib_none().0, start_pos, end_pos);
         }
     }
 
-    #[doc(alias = "atk_editable_text_delete_text")]
     fn delete_text(&self, start_pos: i32, end_pos: i32) {
         unsafe {
             ffi::atk_editable_text_delete_text(self.as_ref().to_glib_none().0, start_pos, end_pos);
         }
     }
 
-    #[doc(alias = "atk_editable_text_paste_text")]
     fn paste_text(&self, position: i32) {
         unsafe {
             ffi::atk_editable_text_paste_text(self.as_ref().to_glib_none().0, position);
         }
     }
 
-    //#[doc(alias = "atk_editable_text_set_run_attributes")]
     //fn set_run_attributes(&self, attrib_set: /*Ignored*/&mut AttributeSet, start_offset: i32, end_offset: i32) -> bool {
     //    unsafe { TODO: call ffi:atk_editable_text_set_run_attributes() }
     //}
 
-    #[doc(alias = "atk_editable_text_set_text_contents")]
     fn set_text_contents(&self, string: &str) {
         unsafe {
             ffi::atk_editable_text_set_text_contents(
@@ -67,8 +77,6 @@ pub trait EditableTextExt: IsA<EditableText> + sealed::Sealed + 'static {
         }
     }
 }
-
-impl<O: IsA<EditableText>> EditableTextExt for O {}
 
 impl fmt::Display for EditableText {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {

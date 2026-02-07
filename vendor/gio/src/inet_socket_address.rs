@@ -1,8 +1,10 @@
 // Take a look at the license at the top of the repository in the LICENSE file.
 
-use std::net::SocketAddr;
+use crate::prelude::*;
+use crate::InetAddress;
+use crate::InetSocketAddress;
 
-use crate::{prelude::*, InetAddress, InetSocketAddress};
+use std::net::SocketAddr;
 
 impl From<SocketAddr> for InetSocketAddress {
     fn from(addr: SocketAddr) -> Self {

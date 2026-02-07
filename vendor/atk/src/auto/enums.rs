@@ -2,7 +2,11 @@
 // from gir-files (https://github.com/gtk-rs/gir-files)
 // DO NOT EDIT
 
-use glib::{prelude::*, translate::*};
+use glib::translate::*;
+use glib::value::FromValue;
+use glib::value::ToValue;
+use glib::StaticType;
+use glib::Type;
 use std::fmt;
 
 #[derive(Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Clone, Copy)]
@@ -38,7 +42,6 @@ impl fmt::Display for CoordType {
 impl IntoGlib for CoordType {
     type GlibType = ffi::AtkCoordType;
 
-    #[inline]
     fn into_glib(self) -> ffi::AtkCoordType {
         match self {
             Self::Screen => ffi::ATK_XY_SCREEN,
@@ -51,10 +54,8 @@ impl IntoGlib for CoordType {
 
 #[doc(hidden)]
 impl FromGlib<ffi::AtkCoordType> for CoordType {
-    #[inline]
     unsafe fn from_glib(value: ffi::AtkCoordType) -> Self {
         skip_assert_initialized!();
-
         match value {
             ffi::ATK_XY_SCREEN => Self::Screen,
             ffi::ATK_XY_WINDOW => Self::Window,
@@ -65,19 +66,8 @@ impl FromGlib<ffi::AtkCoordType> for CoordType {
 }
 
 impl StaticType for CoordType {
-    #[inline]
-    fn static_type() -> glib::Type {
+    fn static_type() -> Type {
         unsafe { from_glib(ffi::atk_coord_type_get_type()) }
-    }
-}
-
-impl glib::HasParamSpec for CoordType {
-    type ParamSpec = glib::ParamSpecEnum;
-    type SetValue = Self;
-    type BuilderFn = fn(&str, Self) -> glib::ParamSpecEnumBuilder<Self>;
-
-    fn param_spec_builder() -> Self::BuilderFn {
-        |name, default_value| Self::ParamSpec::builder_with_default(name, default_value)
     }
 }
 
@@ -85,10 +75,9 @@ impl glib::value::ValueType for CoordType {
     type Type = Self;
 }
 
-unsafe impl<'a> glib::value::FromValue<'a> for CoordType {
+unsafe impl<'a> FromValue<'a> for CoordType {
     type Checker = glib::value::GenericValueTypeChecker<Self>;
 
-    #[inline]
     unsafe fn from_value(value: &'a glib::Value) -> Self {
         skip_assert_initialized!();
         from_glib(glib::gobject_ffi::g_value_get_enum(value.to_glib_none().0))
@@ -96,7 +85,6 @@ unsafe impl<'a> glib::value::FromValue<'a> for CoordType {
 }
 
 impl ToValue for CoordType {
-    #[inline]
     fn to_value(&self) -> glib::Value {
         let mut value = glib::Value::for_value_type::<Self>();
         unsafe {
@@ -105,17 +93,8 @@ impl ToValue for CoordType {
         value
     }
 
-    #[inline]
     fn value_type(&self) -> glib::Type {
         Self::static_type()
-    }
-}
-
-impl From<CoordType> for glib::Value {
-    #[inline]
-    fn from(v: CoordType) -> Self {
-        skip_assert_initialized!();
-        ToValue::to_value(&v)
     }
 }
 
@@ -167,7 +146,6 @@ impl fmt::Display for Layer {
 impl IntoGlib for Layer {
     type GlibType = ffi::AtkLayer;
 
-    #[inline]
     fn into_glib(self) -> ffi::AtkLayer {
         match self {
             Self::Invalid => ffi::ATK_LAYER_INVALID,
@@ -185,10 +163,8 @@ impl IntoGlib for Layer {
 
 #[doc(hidden)]
 impl FromGlib<ffi::AtkLayer> for Layer {
-    #[inline]
     unsafe fn from_glib(value: ffi::AtkLayer) -> Self {
         skip_assert_initialized!();
-
         match value {
             ffi::ATK_LAYER_INVALID => Self::Invalid,
             ffi::ATK_LAYER_BACKGROUND => Self::Background,
@@ -204,19 +180,8 @@ impl FromGlib<ffi::AtkLayer> for Layer {
 }
 
 impl StaticType for Layer {
-    #[inline]
-    fn static_type() -> glib::Type {
+    fn static_type() -> Type {
         unsafe { from_glib(ffi::atk_layer_get_type()) }
-    }
-}
-
-impl glib::HasParamSpec for Layer {
-    type ParamSpec = glib::ParamSpecEnum;
-    type SetValue = Self;
-    type BuilderFn = fn(&str, Self) -> glib::ParamSpecEnumBuilder<Self>;
-
-    fn param_spec_builder() -> Self::BuilderFn {
-        |name, default_value| Self::ParamSpec::builder_with_default(name, default_value)
     }
 }
 
@@ -224,10 +189,9 @@ impl glib::value::ValueType for Layer {
     type Type = Self;
 }
 
-unsafe impl<'a> glib::value::FromValue<'a> for Layer {
+unsafe impl<'a> FromValue<'a> for Layer {
     type Checker = glib::value::GenericValueTypeChecker<Self>;
 
-    #[inline]
     unsafe fn from_value(value: &'a glib::Value) -> Self {
         skip_assert_initialized!();
         from_glib(glib::gobject_ffi::g_value_get_enum(value.to_glib_none().0))
@@ -235,7 +199,6 @@ unsafe impl<'a> glib::value::FromValue<'a> for Layer {
 }
 
 impl ToValue for Layer {
-    #[inline]
     fn to_value(&self) -> glib::Value {
         let mut value = glib::Value::for_value_type::<Self>();
         unsafe {
@@ -244,151 +207,8 @@ impl ToValue for Layer {
         value
     }
 
-    #[inline]
     fn value_type(&self) -> glib::Type {
         Self::static_type()
-    }
-}
-
-impl From<Layer> for glib::Value {
-    #[inline]
-    fn from(v: Layer) -> Self {
-        skip_assert_initialized!();
-        ToValue::to_value(&v)
-    }
-}
-
-#[cfg(feature = "v2_50")]
-#[cfg_attr(docsrs, doc(cfg(feature = "v2_50")))]
-#[derive(Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Clone, Copy)]
-#[non_exhaustive]
-#[doc(alias = "AtkLive")]
-pub enum Live {
-    #[doc(alias = "ATK_LIVE_NONE")]
-    None,
-    #[doc(alias = "ATK_LIVE_POLITE")]
-    Polite,
-    #[doc(alias = "ATK_LIVE_ASSERTIVE")]
-    Assertive,
-    #[doc(hidden)]
-    __Unknown(i32),
-}
-
-#[cfg(feature = "v2_50")]
-#[cfg_attr(docsrs, doc(cfg(feature = "v2_50")))]
-impl fmt::Display for Live {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(
-            f,
-            "Live::{}",
-            match *self {
-                Self::None => "None",
-                Self::Polite => "Polite",
-                Self::Assertive => "Assertive",
-                _ => "Unknown",
-            }
-        )
-    }
-}
-
-#[cfg(feature = "v2_50")]
-#[cfg_attr(docsrs, doc(cfg(feature = "v2_50")))]
-#[doc(hidden)]
-impl IntoGlib for Live {
-    type GlibType = ffi::AtkLive;
-
-    #[inline]
-    fn into_glib(self) -> ffi::AtkLive {
-        match self {
-            Self::None => ffi::ATK_LIVE_NONE,
-            Self::Polite => ffi::ATK_LIVE_POLITE,
-            Self::Assertive => ffi::ATK_LIVE_ASSERTIVE,
-            Self::__Unknown(value) => value,
-        }
-    }
-}
-
-#[cfg(feature = "v2_50")]
-#[cfg_attr(docsrs, doc(cfg(feature = "v2_50")))]
-#[doc(hidden)]
-impl FromGlib<ffi::AtkLive> for Live {
-    #[inline]
-    unsafe fn from_glib(value: ffi::AtkLive) -> Self {
-        skip_assert_initialized!();
-
-        match value {
-            ffi::ATK_LIVE_NONE => Self::None,
-            ffi::ATK_LIVE_POLITE => Self::Polite,
-            ffi::ATK_LIVE_ASSERTIVE => Self::Assertive,
-            value => Self::__Unknown(value),
-        }
-    }
-}
-
-#[cfg(feature = "v2_50")]
-#[cfg_attr(docsrs, doc(cfg(feature = "v2_50")))]
-impl StaticType for Live {
-    #[inline]
-    fn static_type() -> glib::Type {
-        unsafe { from_glib(ffi::atk_live_get_type()) }
-    }
-}
-
-#[cfg(feature = "v2_50")]
-#[cfg_attr(docsrs, doc(cfg(feature = "v2_50")))]
-impl glib::HasParamSpec for Live {
-    type ParamSpec = glib::ParamSpecEnum;
-    type SetValue = Self;
-    type BuilderFn = fn(&str, Self) -> glib::ParamSpecEnumBuilder<Self>;
-
-    fn param_spec_builder() -> Self::BuilderFn {
-        |name, default_value| Self::ParamSpec::builder_with_default(name, default_value)
-    }
-}
-
-#[cfg(feature = "v2_50")]
-#[cfg_attr(docsrs, doc(cfg(feature = "v2_50")))]
-impl glib::value::ValueType for Live {
-    type Type = Self;
-}
-
-#[cfg(feature = "v2_50")]
-#[cfg_attr(docsrs, doc(cfg(feature = "v2_50")))]
-unsafe impl<'a> glib::value::FromValue<'a> for Live {
-    type Checker = glib::value::GenericValueTypeChecker<Self>;
-
-    #[inline]
-    unsafe fn from_value(value: &'a glib::Value) -> Self {
-        skip_assert_initialized!();
-        from_glib(glib::gobject_ffi::g_value_get_enum(value.to_glib_none().0))
-    }
-}
-
-#[cfg(feature = "v2_50")]
-#[cfg_attr(docsrs, doc(cfg(feature = "v2_50")))]
-impl ToValue for Live {
-    #[inline]
-    fn to_value(&self) -> glib::Value {
-        let mut value = glib::Value::for_value_type::<Self>();
-        unsafe {
-            glib::gobject_ffi::g_value_set_enum(value.to_glib_none_mut().0, self.into_glib());
-        }
-        value
-    }
-
-    #[inline]
-    fn value_type(&self) -> glib::Type {
-        Self::static_type()
-    }
-}
-
-#[cfg(feature = "v2_50")]
-#[cfg_attr(docsrs, doc(cfg(feature = "v2_50")))]
-impl From<Live> for glib::Value {
-    #[inline]
-    fn from(v: Live) -> Self {
-        skip_assert_initialized!();
-        ToValue::to_value(&v)
     }
 }
 
@@ -530,7 +350,6 @@ impl IntoGlib for RelationType {
 impl FromGlib<ffi::AtkRelationType> for RelationType {
     unsafe fn from_glib(value: ffi::AtkRelationType) -> Self {
         skip_assert_initialized!();
-
         match value {
             ffi::ATK_RELATION_NULL => Self::Null,
             ffi::ATK_RELATION_CONTROLLED_BY => Self::ControlledBy,
@@ -560,19 +379,8 @@ impl FromGlib<ffi::AtkRelationType> for RelationType {
 }
 
 impl StaticType for RelationType {
-    #[inline]
-    fn static_type() -> glib::Type {
+    fn static_type() -> Type {
         unsafe { from_glib(ffi::atk_relation_type_get_type()) }
-    }
-}
-
-impl glib::HasParamSpec for RelationType {
-    type ParamSpec = glib::ParamSpecEnum;
-    type SetValue = Self;
-    type BuilderFn = fn(&str, Self) -> glib::ParamSpecEnumBuilder<Self>;
-
-    fn param_spec_builder() -> Self::BuilderFn {
-        |name, default_value| Self::ParamSpec::builder_with_default(name, default_value)
     }
 }
 
@@ -580,10 +388,9 @@ impl glib::value::ValueType for RelationType {
     type Type = Self;
 }
 
-unsafe impl<'a> glib::value::FromValue<'a> for RelationType {
+unsafe impl<'a> FromValue<'a> for RelationType {
     type Checker = glib::value::GenericValueTypeChecker<Self>;
 
-    #[inline]
     unsafe fn from_value(value: &'a glib::Value) -> Self {
         skip_assert_initialized!();
         from_glib(glib::gobject_ffi::g_value_get_enum(value.to_glib_none().0))
@@ -591,7 +398,6 @@ unsafe impl<'a> glib::value::FromValue<'a> for RelationType {
 }
 
 impl ToValue for RelationType {
-    #[inline]
     fn to_value(&self) -> glib::Value {
         let mut value = glib::Value::for_value_type::<Self>();
         unsafe {
@@ -600,17 +406,8 @@ impl ToValue for RelationType {
         value
     }
 
-    #[inline]
     fn value_type(&self) -> glib::Type {
         Self::static_type()
-    }
-}
-
-impl From<RelationType> for glib::Value {
-    #[inline]
-    fn from(v: RelationType) -> Self {
-        skip_assert_initialized!();
-        ToValue::to_value(&v)
     }
 }
 
@@ -872,8 +669,6 @@ pub enum Role {
     Mark,
     #[doc(alias = "ATK_ROLE_SUGGESTION")]
     Suggestion,
-    #[doc(alias = "ATK_ROLE_PUSH_BUTTON_MENU")]
-    PushButtonMenu,
     #[doc(alias = "ATK_ROLE_LAST_DEFINED")]
     LastDefined,
     #[doc(hidden)]
@@ -1035,7 +830,6 @@ impl fmt::Display for Role {
                 Self::ContentInsertion => "ContentInsertion",
                 Self::Mark => "Mark",
                 Self::Suggestion => "Suggestion",
-                Self::PushButtonMenu => "PushButtonMenu",
                 Self::LastDefined => "LastDefined",
                 _ => "Unknown",
             }
@@ -1176,7 +970,6 @@ impl IntoGlib for Role {
             Self::ContentInsertion => ffi::ATK_ROLE_CONTENT_INSERTION,
             Self::Mark => ffi::ATK_ROLE_MARK,
             Self::Suggestion => ffi::ATK_ROLE_SUGGESTION,
-            Self::PushButtonMenu => ffi::ATK_ROLE_PUSH_BUTTON_MENU,
             Self::LastDefined => ffi::ATK_ROLE_LAST_DEFINED,
             Self::__Unknown(value) => value,
         }
@@ -1187,7 +980,6 @@ impl IntoGlib for Role {
 impl FromGlib<ffi::AtkRole> for Role {
     unsafe fn from_glib(value: ffi::AtkRole) -> Self {
         skip_assert_initialized!();
-
         match value {
             ffi::ATK_ROLE_INVALID => Self::Invalid,
             ffi::ATK_ROLE_ACCEL_LABEL => Self::AcceleratorLabel,
@@ -1316,7 +1108,6 @@ impl FromGlib<ffi::AtkRole> for Role {
             ffi::ATK_ROLE_CONTENT_INSERTION => Self::ContentInsertion,
             ffi::ATK_ROLE_MARK => Self::Mark,
             ffi::ATK_ROLE_SUGGESTION => Self::Suggestion,
-            ffi::ATK_ROLE_PUSH_BUTTON_MENU => Self::PushButtonMenu,
             ffi::ATK_ROLE_LAST_DEFINED => Self::LastDefined,
             value => Self::__Unknown(value),
         }
@@ -1324,19 +1115,8 @@ impl FromGlib<ffi::AtkRole> for Role {
 }
 
 impl StaticType for Role {
-    #[inline]
-    fn static_type() -> glib::Type {
+    fn static_type() -> Type {
         unsafe { from_glib(ffi::atk_role_get_type()) }
-    }
-}
-
-impl glib::HasParamSpec for Role {
-    type ParamSpec = glib::ParamSpecEnum;
-    type SetValue = Self;
-    type BuilderFn = fn(&str, Self) -> glib::ParamSpecEnumBuilder<Self>;
-
-    fn param_spec_builder() -> Self::BuilderFn {
-        |name, default_value| Self::ParamSpec::builder_with_default(name, default_value)
     }
 }
 
@@ -1344,10 +1124,9 @@ impl glib::value::ValueType for Role {
     type Type = Self;
 }
 
-unsafe impl<'a> glib::value::FromValue<'a> for Role {
+unsafe impl<'a> FromValue<'a> for Role {
     type Checker = glib::value::GenericValueTypeChecker<Self>;
 
-    #[inline]
     unsafe fn from_value(value: &'a glib::Value) -> Self {
         skip_assert_initialized!();
         from_glib(glib::gobject_ffi::g_value_get_enum(value.to_glib_none().0))
@@ -1355,7 +1134,6 @@ unsafe impl<'a> glib::value::FromValue<'a> for Role {
 }
 
 impl ToValue for Role {
-    #[inline]
     fn to_value(&self) -> glib::Value {
         let mut value = glib::Value::for_value_type::<Self>();
         unsafe {
@@ -1364,22 +1142,13 @@ impl ToValue for Role {
         value
     }
 
-    #[inline]
     fn value_type(&self) -> glib::Type {
         Self::static_type()
     }
 }
 
-impl From<Role> for glib::Value {
-    #[inline]
-    fn from(v: Role) -> Self {
-        skip_assert_initialized!();
-        ToValue::to_value(&v)
-    }
-}
-
-#[cfg(feature = "v2_30")]
-#[cfg_attr(docsrs, doc(cfg(feature = "v2_30")))]
+#[cfg(any(feature = "v2_30", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v2_30")))]
 #[derive(Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Clone, Copy)]
 #[non_exhaustive]
 #[doc(alias = "AtkScrollType")]
@@ -1402,8 +1171,8 @@ pub enum ScrollType {
     __Unknown(i32),
 }
 
-#[cfg(feature = "v2_30")]
-#[cfg_attr(docsrs, doc(cfg(feature = "v2_30")))]
+#[cfg(any(feature = "v2_30", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v2_30")))]
 impl fmt::Display for ScrollType {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(
@@ -1423,13 +1192,12 @@ impl fmt::Display for ScrollType {
     }
 }
 
-#[cfg(feature = "v2_30")]
-#[cfg_attr(docsrs, doc(cfg(feature = "v2_30")))]
+#[cfg(any(feature = "v2_30", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v2_30")))]
 #[doc(hidden)]
 impl IntoGlib for ScrollType {
     type GlibType = ffi::AtkScrollType;
 
-    #[inline]
     fn into_glib(self) -> ffi::AtkScrollType {
         match self {
             Self::TopLeft => ffi::ATK_SCROLL_TOP_LEFT,
@@ -1444,14 +1212,12 @@ impl IntoGlib for ScrollType {
     }
 }
 
-#[cfg(feature = "v2_30")]
-#[cfg_attr(docsrs, doc(cfg(feature = "v2_30")))]
+#[cfg(any(feature = "v2_30", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v2_30")))]
 #[doc(hidden)]
 impl FromGlib<ffi::AtkScrollType> for ScrollType {
-    #[inline]
     unsafe fn from_glib(value: ffi::AtkScrollType) -> Self {
         skip_assert_initialized!();
-
         match value {
             ffi::ATK_SCROLL_TOP_LEFT => Self::TopLeft,
             ffi::ATK_SCROLL_BOTTOM_RIGHT => Self::BottomRight,
@@ -1465,49 +1231,34 @@ impl FromGlib<ffi::AtkScrollType> for ScrollType {
     }
 }
 
-#[cfg(feature = "v2_30")]
-#[cfg_attr(docsrs, doc(cfg(feature = "v2_30")))]
+#[cfg(any(feature = "v2_30", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v2_30")))]
 impl StaticType for ScrollType {
-    #[inline]
-    fn static_type() -> glib::Type {
+    fn static_type() -> Type {
         unsafe { from_glib(ffi::atk_scroll_type_get_type()) }
     }
 }
 
-#[cfg(feature = "v2_30")]
-#[cfg_attr(docsrs, doc(cfg(feature = "v2_30")))]
-impl glib::HasParamSpec for ScrollType {
-    type ParamSpec = glib::ParamSpecEnum;
-    type SetValue = Self;
-    type BuilderFn = fn(&str, Self) -> glib::ParamSpecEnumBuilder<Self>;
-
-    fn param_spec_builder() -> Self::BuilderFn {
-        |name, default_value| Self::ParamSpec::builder_with_default(name, default_value)
-    }
-}
-
-#[cfg(feature = "v2_30")]
-#[cfg_attr(docsrs, doc(cfg(feature = "v2_30")))]
+#[cfg(any(feature = "v2_30", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v2_30")))]
 impl glib::value::ValueType for ScrollType {
     type Type = Self;
 }
 
-#[cfg(feature = "v2_30")]
-#[cfg_attr(docsrs, doc(cfg(feature = "v2_30")))]
-unsafe impl<'a> glib::value::FromValue<'a> for ScrollType {
+#[cfg(any(feature = "v2_30", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v2_30")))]
+unsafe impl<'a> FromValue<'a> for ScrollType {
     type Checker = glib::value::GenericValueTypeChecker<Self>;
 
-    #[inline]
     unsafe fn from_value(value: &'a glib::Value) -> Self {
         skip_assert_initialized!();
         from_glib(glib::gobject_ffi::g_value_get_enum(value.to_glib_none().0))
     }
 }
 
-#[cfg(feature = "v2_30")]
-#[cfg_attr(docsrs, doc(cfg(feature = "v2_30")))]
+#[cfg(any(feature = "v2_30", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v2_30")))]
 impl ToValue for ScrollType {
-    #[inline]
     fn to_value(&self) -> glib::Value {
         let mut value = glib::Value::for_value_type::<Self>();
         unsafe {
@@ -1516,19 +1267,8 @@ impl ToValue for ScrollType {
         value
     }
 
-    #[inline]
     fn value_type(&self) -> glib::Type {
         Self::static_type()
-    }
-}
-
-#[cfg(feature = "v2_30")]
-#[cfg_attr(docsrs, doc(cfg(feature = "v2_30")))]
-impl From<ScrollType> for glib::Value {
-    #[inline]
-    fn from(v: ScrollType) -> Self {
-        skip_assert_initialized!();
-        ToValue::to_value(&v)
     }
 }
 
@@ -1622,8 +1362,8 @@ pub enum StateType {
     HasTooltip,
     #[doc(alias = "ATK_STATE_READ_ONLY")]
     ReadOnly,
-    #[cfg(feature = "v2_38")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "v2_38")))]
+    #[cfg(any(feature = "v2_38", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v2_38")))]
     #[doc(alias = "ATK_STATE_COLLAPSED")]
     Collapsed,
     #[doc(hidden)]
@@ -1694,7 +1434,7 @@ impl fmt::Display for StateType {
                 Self::HasPopup => "HasPopup",
                 Self::HasTooltip => "HasTooltip",
                 Self::ReadOnly => "ReadOnly",
-                #[cfg(feature = "v2_38")]
+                #[cfg(any(feature = "v2_38", feature = "dox"))]
                 Self::Collapsed => "Collapsed",
                 _ => "Unknown",
             }
@@ -1751,7 +1491,7 @@ impl IntoGlib for StateType {
             Self::HasPopup => ffi::ATK_STATE_HAS_POPUP,
             Self::HasTooltip => ffi::ATK_STATE_HAS_TOOLTIP,
             Self::ReadOnly => ffi::ATK_STATE_READ_ONLY,
-            #[cfg(feature = "v2_38")]
+            #[cfg(any(feature = "v2_38", feature = "dox"))]
             Self::Collapsed => ffi::ATK_STATE_COLLAPSED,
             Self::__Unknown(value) => value,
         }
@@ -1762,7 +1502,6 @@ impl IntoGlib for StateType {
 impl FromGlib<ffi::AtkStateType> for StateType {
     unsafe fn from_glib(value: ffi::AtkStateType) -> Self {
         skip_assert_initialized!();
-
         match value {
             ffi::ATK_STATE_INVALID => Self::Invalid,
             ffi::ATK_STATE_ACTIVE => Self::Active,
@@ -1807,7 +1546,7 @@ impl FromGlib<ffi::AtkStateType> for StateType {
             ffi::ATK_STATE_HAS_POPUP => Self::HasPopup,
             ffi::ATK_STATE_HAS_TOOLTIP => Self::HasTooltip,
             ffi::ATK_STATE_READ_ONLY => Self::ReadOnly,
-            #[cfg(feature = "v2_38")]
+            #[cfg(any(feature = "v2_38", feature = "dox"))]
             ffi::ATK_STATE_COLLAPSED => Self::Collapsed,
             value => Self::__Unknown(value),
         }
@@ -1815,19 +1554,8 @@ impl FromGlib<ffi::AtkStateType> for StateType {
 }
 
 impl StaticType for StateType {
-    #[inline]
-    fn static_type() -> glib::Type {
+    fn static_type() -> Type {
         unsafe { from_glib(ffi::atk_state_type_get_type()) }
-    }
-}
-
-impl glib::HasParamSpec for StateType {
-    type ParamSpec = glib::ParamSpecEnum;
-    type SetValue = Self;
-    type BuilderFn = fn(&str, Self) -> glib::ParamSpecEnumBuilder<Self>;
-
-    fn param_spec_builder() -> Self::BuilderFn {
-        |name, default_value| Self::ParamSpec::builder_with_default(name, default_value)
     }
 }
 
@@ -1835,10 +1563,9 @@ impl glib::value::ValueType for StateType {
     type Type = Self;
 }
 
-unsafe impl<'a> glib::value::FromValue<'a> for StateType {
+unsafe impl<'a> FromValue<'a> for StateType {
     type Checker = glib::value::GenericValueTypeChecker<Self>;
 
-    #[inline]
     unsafe fn from_value(value: &'a glib::Value) -> Self {
         skip_assert_initialized!();
         from_glib(glib::gobject_ffi::g_value_get_enum(value.to_glib_none().0))
@@ -1846,7 +1573,6 @@ unsafe impl<'a> glib::value::FromValue<'a> for StateType {
 }
 
 impl ToValue for StateType {
-    #[inline]
     fn to_value(&self) -> glib::Value {
         let mut value = glib::Value::for_value_type::<Self>();
         unsafe {
@@ -1855,17 +1581,8 @@ impl ToValue for StateType {
         value
     }
 
-    #[inline]
     fn value_type(&self) -> glib::Type {
         Self::static_type()
-    }
-}
-
-impl From<StateType> for glib::Value {
-    #[inline]
-    fn from(v: StateType) -> Self {
-        skip_assert_initialized!();
-        ToValue::to_value(&v)
     }
 }
 
@@ -2046,7 +1763,6 @@ impl IntoGlib for TextAttribute {
 impl FromGlib<ffi::AtkTextAttribute> for TextAttribute {
     unsafe fn from_glib(value: ffi::AtkTextAttribute) -> Self {
         skip_assert_initialized!();
-
         match value {
             ffi::ATK_TEXT_ATTR_INVALID => Self::Invalid,
             ffi::ATK_TEXT_ATTR_LEFT_MARGIN => Self::LeftMargin,
@@ -2084,19 +1800,8 @@ impl FromGlib<ffi::AtkTextAttribute> for TextAttribute {
 }
 
 impl StaticType for TextAttribute {
-    #[inline]
-    fn static_type() -> glib::Type {
+    fn static_type() -> Type {
         unsafe { from_glib(ffi::atk_text_attribute_get_type()) }
-    }
-}
-
-impl glib::HasParamSpec for TextAttribute {
-    type ParamSpec = glib::ParamSpecEnum;
-    type SetValue = Self;
-    type BuilderFn = fn(&str, Self) -> glib::ParamSpecEnumBuilder<Self>;
-
-    fn param_spec_builder() -> Self::BuilderFn {
-        |name, default_value| Self::ParamSpec::builder_with_default(name, default_value)
     }
 }
 
@@ -2104,10 +1809,9 @@ impl glib::value::ValueType for TextAttribute {
     type Type = Self;
 }
 
-unsafe impl<'a> glib::value::FromValue<'a> for TextAttribute {
+unsafe impl<'a> FromValue<'a> for TextAttribute {
     type Checker = glib::value::GenericValueTypeChecker<Self>;
 
-    #[inline]
     unsafe fn from_value(value: &'a glib::Value) -> Self {
         skip_assert_initialized!();
         from_glib(glib::gobject_ffi::g_value_get_enum(value.to_glib_none().0))
@@ -2115,7 +1819,6 @@ unsafe impl<'a> glib::value::FromValue<'a> for TextAttribute {
 }
 
 impl ToValue for TextAttribute {
-    #[inline]
     fn to_value(&self) -> glib::Value {
         let mut value = glib::Value::for_value_type::<Self>();
         unsafe {
@@ -2124,17 +1827,8 @@ impl ToValue for TextAttribute {
         value
     }
 
-    #[inline]
     fn value_type(&self) -> glib::Type {
         Self::static_type()
-    }
-}
-
-impl From<TextAttribute> for glib::Value {
-    #[inline]
-    fn from(v: TextAttribute) -> Self {
-        skip_assert_initialized!();
-        ToValue::to_value(&v)
     }
 }
 
@@ -2183,7 +1877,6 @@ impl fmt::Display for TextBoundary {
 impl IntoGlib for TextBoundary {
     type GlibType = ffi::AtkTextBoundary;
 
-    #[inline]
     fn into_glib(self) -> ffi::AtkTextBoundary {
         match self {
             Self::Char => ffi::ATK_TEXT_BOUNDARY_CHAR,
@@ -2200,10 +1893,8 @@ impl IntoGlib for TextBoundary {
 
 #[doc(hidden)]
 impl FromGlib<ffi::AtkTextBoundary> for TextBoundary {
-    #[inline]
     unsafe fn from_glib(value: ffi::AtkTextBoundary) -> Self {
         skip_assert_initialized!();
-
         match value {
             ffi::ATK_TEXT_BOUNDARY_CHAR => Self::Char,
             ffi::ATK_TEXT_BOUNDARY_WORD_START => Self::WordStart,
@@ -2218,19 +1909,8 @@ impl FromGlib<ffi::AtkTextBoundary> for TextBoundary {
 }
 
 impl StaticType for TextBoundary {
-    #[inline]
-    fn static_type() -> glib::Type {
+    fn static_type() -> Type {
         unsafe { from_glib(ffi::atk_text_boundary_get_type()) }
-    }
-}
-
-impl glib::HasParamSpec for TextBoundary {
-    type ParamSpec = glib::ParamSpecEnum;
-    type SetValue = Self;
-    type BuilderFn = fn(&str, Self) -> glib::ParamSpecEnumBuilder<Self>;
-
-    fn param_spec_builder() -> Self::BuilderFn {
-        |name, default_value| Self::ParamSpec::builder_with_default(name, default_value)
     }
 }
 
@@ -2238,10 +1918,9 @@ impl glib::value::ValueType for TextBoundary {
     type Type = Self;
 }
 
-unsafe impl<'a> glib::value::FromValue<'a> for TextBoundary {
+unsafe impl<'a> FromValue<'a> for TextBoundary {
     type Checker = glib::value::GenericValueTypeChecker<Self>;
 
-    #[inline]
     unsafe fn from_value(value: &'a glib::Value) -> Self {
         skip_assert_initialized!();
         from_glib(glib::gobject_ffi::g_value_get_enum(value.to_glib_none().0))
@@ -2249,7 +1928,6 @@ unsafe impl<'a> glib::value::FromValue<'a> for TextBoundary {
 }
 
 impl ToValue for TextBoundary {
-    #[inline]
     fn to_value(&self) -> glib::Value {
         let mut value = glib::Value::for_value_type::<Self>();
         unsafe {
@@ -2258,17 +1936,8 @@ impl ToValue for TextBoundary {
         value
     }
 
-    #[inline]
     fn value_type(&self) -> glib::Type {
         Self::static_type()
-    }
-}
-
-impl From<TextBoundary> for glib::Value {
-    #[inline]
-    fn from(v: TextBoundary) -> Self {
-        skip_assert_initialized!();
-        ToValue::to_value(&v)
     }
 }
 
@@ -2308,7 +1977,6 @@ impl fmt::Display for TextClipType {
 impl IntoGlib for TextClipType {
     type GlibType = ffi::AtkTextClipType;
 
-    #[inline]
     fn into_glib(self) -> ffi::AtkTextClipType {
         match self {
             Self::None => ffi::ATK_TEXT_CLIP_NONE,
@@ -2322,10 +1990,8 @@ impl IntoGlib for TextClipType {
 
 #[doc(hidden)]
 impl FromGlib<ffi::AtkTextClipType> for TextClipType {
-    #[inline]
     unsafe fn from_glib(value: ffi::AtkTextClipType) -> Self {
         skip_assert_initialized!();
-
         match value {
             ffi::ATK_TEXT_CLIP_NONE => Self::None,
             ffi::ATK_TEXT_CLIP_MIN => Self::Min,
@@ -2337,19 +2003,8 @@ impl FromGlib<ffi::AtkTextClipType> for TextClipType {
 }
 
 impl StaticType for TextClipType {
-    #[inline]
-    fn static_type() -> glib::Type {
+    fn static_type() -> Type {
         unsafe { from_glib(ffi::atk_text_clip_type_get_type()) }
-    }
-}
-
-impl glib::HasParamSpec for TextClipType {
-    type ParamSpec = glib::ParamSpecEnum;
-    type SetValue = Self;
-    type BuilderFn = fn(&str, Self) -> glib::ParamSpecEnumBuilder<Self>;
-
-    fn param_spec_builder() -> Self::BuilderFn {
-        |name, default_value| Self::ParamSpec::builder_with_default(name, default_value)
     }
 }
 
@@ -2357,10 +2012,9 @@ impl glib::value::ValueType for TextClipType {
     type Type = Self;
 }
 
-unsafe impl<'a> glib::value::FromValue<'a> for TextClipType {
+unsafe impl<'a> FromValue<'a> for TextClipType {
     type Checker = glib::value::GenericValueTypeChecker<Self>;
 
-    #[inline]
     unsafe fn from_value(value: &'a glib::Value) -> Self {
         skip_assert_initialized!();
         from_glib(glib::gobject_ffi::g_value_get_enum(value.to_glib_none().0))
@@ -2368,7 +2022,6 @@ unsafe impl<'a> glib::value::FromValue<'a> for TextClipType {
 }
 
 impl ToValue for TextClipType {
-    #[inline]
     fn to_value(&self) -> glib::Value {
         let mut value = glib::Value::for_value_type::<Self>();
         unsafe {
@@ -2377,17 +2030,8 @@ impl ToValue for TextClipType {
         value
     }
 
-    #[inline]
     fn value_type(&self) -> glib::Type {
         Self::static_type()
-    }
-}
-
-impl From<TextClipType> for glib::Value {
-    #[inline]
-    fn from(v: TextClipType) -> Self {
-        skip_assert_initialized!();
-        ToValue::to_value(&v)
     }
 }
 
@@ -2430,7 +2074,6 @@ impl fmt::Display for TextGranularity {
 impl IntoGlib for TextGranularity {
     type GlibType = ffi::AtkTextGranularity;
 
-    #[inline]
     fn into_glib(self) -> ffi::AtkTextGranularity {
         match self {
             Self::Char => ffi::ATK_TEXT_GRANULARITY_CHAR,
@@ -2445,10 +2088,8 @@ impl IntoGlib for TextGranularity {
 
 #[doc(hidden)]
 impl FromGlib<ffi::AtkTextGranularity> for TextGranularity {
-    #[inline]
     unsafe fn from_glib(value: ffi::AtkTextGranularity) -> Self {
         skip_assert_initialized!();
-
         match value {
             ffi::ATK_TEXT_GRANULARITY_CHAR => Self::Char,
             ffi::ATK_TEXT_GRANULARITY_WORD => Self::Word,
@@ -2461,19 +2102,8 @@ impl FromGlib<ffi::AtkTextGranularity> for TextGranularity {
 }
 
 impl StaticType for TextGranularity {
-    #[inline]
-    fn static_type() -> glib::Type {
+    fn static_type() -> Type {
         unsafe { from_glib(ffi::atk_text_granularity_get_type()) }
-    }
-}
-
-impl glib::HasParamSpec for TextGranularity {
-    type ParamSpec = glib::ParamSpecEnum;
-    type SetValue = Self;
-    type BuilderFn = fn(&str, Self) -> glib::ParamSpecEnumBuilder<Self>;
-
-    fn param_spec_builder() -> Self::BuilderFn {
-        |name, default_value| Self::ParamSpec::builder_with_default(name, default_value)
     }
 }
 
@@ -2481,10 +2111,9 @@ impl glib::value::ValueType for TextGranularity {
     type Type = Self;
 }
 
-unsafe impl<'a> glib::value::FromValue<'a> for TextGranularity {
+unsafe impl<'a> FromValue<'a> for TextGranularity {
     type Checker = glib::value::GenericValueTypeChecker<Self>;
 
-    #[inline]
     unsafe fn from_value(value: &'a glib::Value) -> Self {
         skip_assert_initialized!();
         from_glib(glib::gobject_ffi::g_value_get_enum(value.to_glib_none().0))
@@ -2492,7 +2121,6 @@ unsafe impl<'a> glib::value::FromValue<'a> for TextGranularity {
 }
 
 impl ToValue for TextGranularity {
-    #[inline]
     fn to_value(&self) -> glib::Value {
         let mut value = glib::Value::for_value_type::<Self>();
         unsafe {
@@ -2501,17 +2129,8 @@ impl ToValue for TextGranularity {
         value
     }
 
-    #[inline]
     fn value_type(&self) -> glib::Type {
         Self::static_type()
-    }
-}
-
-impl From<TextGranularity> for glib::Value {
-    #[inline]
-    fn from(v: TextGranularity) -> Self {
-        skip_assert_initialized!();
-        ToValue::to_value(&v)
     }
 }
 
@@ -2630,7 +2249,6 @@ impl IntoGlib for ValueType {
 impl FromGlib<ffi::AtkValueType> for ValueType {
     unsafe fn from_glib(value: ffi::AtkValueType) -> Self {
         skip_assert_initialized!();
-
         match value {
             ffi::ATK_VALUE_VERY_WEAK => Self::VeryWeak,
             ffi::ATK_VALUE_WEAK => Self::Weak,
@@ -2654,19 +2272,8 @@ impl FromGlib<ffi::AtkValueType> for ValueType {
 }
 
 impl StaticType for ValueType {
-    #[inline]
-    fn static_type() -> glib::Type {
+    fn static_type() -> Type {
         unsafe { from_glib(ffi::atk_value_type_get_type()) }
-    }
-}
-
-impl glib::HasParamSpec for ValueType {
-    type ParamSpec = glib::ParamSpecEnum;
-    type SetValue = Self;
-    type BuilderFn = fn(&str, Self) -> glib::ParamSpecEnumBuilder<Self>;
-
-    fn param_spec_builder() -> Self::BuilderFn {
-        |name, default_value| Self::ParamSpec::builder_with_default(name, default_value)
     }
 }
 
@@ -2674,10 +2281,9 @@ impl glib::value::ValueType for ValueType {
     type Type = Self;
 }
 
-unsafe impl<'a> glib::value::FromValue<'a> for ValueType {
+unsafe impl<'a> FromValue<'a> for ValueType {
     type Checker = glib::value::GenericValueTypeChecker<Self>;
 
-    #[inline]
     unsafe fn from_value(value: &'a glib::Value) -> Self {
         skip_assert_initialized!();
         from_glib(glib::gobject_ffi::g_value_get_enum(value.to_glib_none().0))
@@ -2685,7 +2291,6 @@ unsafe impl<'a> glib::value::FromValue<'a> for ValueType {
 }
 
 impl ToValue for ValueType {
-    #[inline]
     fn to_value(&self) -> glib::Value {
         let mut value = glib::Value::for_value_type::<Self>();
         unsafe {
@@ -2694,16 +2299,7 @@ impl ToValue for ValueType {
         value
     }
 
-    #[inline]
     fn value_type(&self) -> glib::Type {
         Self::static_type()
-    }
-}
-
-impl From<ValueType> for glib::Value {
-    #[inline]
-    fn from(v: ValueType) -> Self {
-        skip_assert_initialized!();
-        ToValue::to_value(&v)
     }
 }

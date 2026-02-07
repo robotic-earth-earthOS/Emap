@@ -3,8 +3,10 @@
 // DO NOT EDIT
 
 use crate::Object;
-use glib::{prelude::*, translate::*};
-use std::{fmt, mem};
+use glib::object::IsA;
+use glib::translate::*;
+use std::fmt;
+use std::mem;
 
 glib::wrapper! {
     #[doc(alias = "AtkTableCell")]
@@ -19,14 +21,37 @@ impl TableCell {
     pub const NONE: Option<&'static TableCell> = None;
 }
 
-mod sealed {
-    pub trait Sealed {}
-    impl<T: super::IsA<super::TableCell>> Sealed for T {}
-}
-
-pub trait TableCellExt: IsA<TableCell> + sealed::Sealed + 'static {
+pub trait TableCellExt: 'static {
     #[doc(alias = "atk_table_cell_get_column_header_cells")]
     #[doc(alias = "get_column_header_cells")]
+    fn column_header_cells(&self) -> Vec<Object>;
+
+    #[doc(alias = "atk_table_cell_get_column_span")]
+    #[doc(alias = "get_column_span")]
+    fn column_span(&self) -> i32;
+
+    #[doc(alias = "atk_table_cell_get_position")]
+    #[doc(alias = "get_position")]
+    fn position(&self) -> Option<(i32, i32)>;
+
+    #[doc(alias = "atk_table_cell_get_row_column_span")]
+    #[doc(alias = "get_row_column_span")]
+    fn row_column_span(&self) -> Option<(i32, i32, i32, i32)>;
+
+    #[doc(alias = "atk_table_cell_get_row_header_cells")]
+    #[doc(alias = "get_row_header_cells")]
+    fn row_header_cells(&self) -> Vec<Object>;
+
+    #[doc(alias = "atk_table_cell_get_row_span")]
+    #[doc(alias = "get_row_span")]
+    fn row_span(&self) -> i32;
+
+    #[doc(alias = "atk_table_cell_get_table")]
+    #[doc(alias = "get_table")]
+    fn table(&self) -> Option<Object>;
+}
+
+impl<O: IsA<TableCell>> TableCellExt for O {
     fn column_header_cells(&self) -> Vec<Object> {
         unsafe {
             FromGlibPtrContainer::from_glib_full(ffi::atk_table_cell_get_column_header_cells(
@@ -35,14 +60,10 @@ pub trait TableCellExt: IsA<TableCell> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "atk_table_cell_get_column_span")]
-    #[doc(alias = "get_column_span")]
     fn column_span(&self) -> i32 {
         unsafe { ffi::atk_table_cell_get_column_span(self.as_ref().to_glib_none().0) }
     }
 
-    #[doc(alias = "atk_table_cell_get_position")]
-    #[doc(alias = "get_position")]
     fn position(&self) -> Option<(i32, i32)> {
         unsafe {
             let mut row = mem::MaybeUninit::uninit();
@@ -52,16 +73,16 @@ pub trait TableCellExt: IsA<TableCell> + sealed::Sealed + 'static {
                 row.as_mut_ptr(),
                 column.as_mut_ptr(),
             ));
+            let row = row.assume_init();
+            let column = column.assume_init();
             if ret {
-                Some((row.assume_init(), column.assume_init()))
+                Some((row, column))
             } else {
                 None
             }
         }
     }
 
-    #[doc(alias = "atk_table_cell_get_row_column_span")]
-    #[doc(alias = "get_row_column_span")]
     fn row_column_span(&self) -> Option<(i32, i32, i32, i32)> {
         unsafe {
             let mut row = mem::MaybeUninit::uninit();
@@ -75,21 +96,18 @@ pub trait TableCellExt: IsA<TableCell> + sealed::Sealed + 'static {
                 row_span.as_mut_ptr(),
                 column_span.as_mut_ptr(),
             ));
+            let row = row.assume_init();
+            let column = column.assume_init();
+            let row_span = row_span.assume_init();
+            let column_span = column_span.assume_init();
             if ret {
-                Some((
-                    row.assume_init(),
-                    column.assume_init(),
-                    row_span.assume_init(),
-                    column_span.assume_init(),
-                ))
+                Some((row, column, row_span, column_span))
             } else {
                 None
             }
         }
     }
 
-    #[doc(alias = "atk_table_cell_get_row_header_cells")]
-    #[doc(alias = "get_row_header_cells")]
     fn row_header_cells(&self) -> Vec<Object> {
         unsafe {
             FromGlibPtrContainer::from_glib_full(ffi::atk_table_cell_get_row_header_cells(
@@ -98,14 +116,10 @@ pub trait TableCellExt: IsA<TableCell> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "atk_table_cell_get_row_span")]
-    #[doc(alias = "get_row_span")]
     fn row_span(&self) -> i32 {
         unsafe { ffi::atk_table_cell_get_row_span(self.as_ref().to_glib_none().0) }
     }
 
-    #[doc(alias = "atk_table_cell_get_table")]
-    #[doc(alias = "get_table")]
     fn table(&self) -> Option<Object> {
         unsafe {
             from_glib_full(ffi::atk_table_cell_get_table(
@@ -114,8 +128,6 @@ pub trait TableCellExt: IsA<TableCell> + sealed::Sealed + 'static {
         }
     }
 }
-
-impl<O: IsA<TableCell>> TableCellExt for O {}
 
 impl fmt::Display for TableCell {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {

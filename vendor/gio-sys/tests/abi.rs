@@ -2,8 +2,6 @@
 // from gir-files (https://github.com/gtk-rs/gir-files)
 // DO NOT EDIT
 
-#![cfg(unix)]
-
 use gio_sys::*;
 use std::env;
 use std::error::Error;
@@ -14,7 +12,7 @@ use std::process::Command;
 use std::str;
 use tempfile::Builder;
 
-static PACKAGES: &[&str] = &["gio-2.0", "gio-unix-2.0"];
+static PACKAGES: &[&str] = &["gio-2.0"];
 
 #[derive(Clone, Debug)]
 struct Compiler {
@@ -42,7 +40,7 @@ impl Compiler {
         cmd.arg(out);
         let status = cmd.spawn()?.wait()?;
         if !status.success() {
-            return Err(format!("compilation command {cmd:?} failed, {status}").into());
+            return Err(format!("compilation command {:?} failed, {}", &cmd, status).into());
         }
         Ok(())
     }
@@ -58,7 +56,7 @@ fn get_var(name: &str, default: &str) -> Result<Vec<String>, Box<dyn Error>> {
     match env::var(name) {
         Ok(value) => Ok(shell_words::split(&value)?),
         Err(env::VarError::NotPresent) => Ok(shell_words::split(default)?),
-        Err(err) => Err(format!("{name} {err}").into()),
+        Err(err) => Err(format!("{} {}", name, err).into()),
     }
 }
 
@@ -72,7 +70,7 @@ fn pkg_config_cflags(packages: &[&str]) -> Result<Vec<String>, Box<dyn Error>> {
     cmd.args(packages);
     let out = cmd.output()?;
     if !out.status.success() {
-        return Err(format!("command {cmd:?} returned {}", out.status).into());
+        return Err(format!("command {:?} returned {}", &cmd, out.status).into());
     }
     let stdout = str::from_utf8(&out.stdout)?;
     Ok(shell_words::split(stdout.trim())?)
@@ -112,12 +110,18 @@ impl Results {
 }
 
 #[test]
+#[cfg(target_os = "linux")]
 fn cross_validate_constants_with_c() {
     let mut c_constants: Vec<(String, String)> = Vec::new();
 
     for l in get_c_output("constant").unwrap().lines() {
-        let (name, value) = l.split_once(';').expect("Missing ';' separator");
-        c_constants.push((name.to_owned(), value.to_owned()));
+        let mut words = l.trim().split(';');
+        let name = words.next().expect("Failed to parse name").to_owned();
+        let value = words
+            .next()
+            .and_then(|s| s.parse().ok())
+            .expect("Failed to parse value");
+        c_constants.push((name, value));
     }
 
     let mut results = Results::default();
@@ -127,14 +131,15 @@ fn cross_validate_constants_with_c() {
     {
         if rust_name != c_name {
             results.record_failed();
-            eprintln!("Name mismatch:\nRust: {rust_name:?}\nC:    {c_name:?}");
+            eprintln!("Name mismatch:\nRust: {:?}\nC:    {:?}", rust_name, c_name,);
             continue;
         }
 
         if rust_value != c_value {
             results.record_failed();
             eprintln!(
-                "Constant value mismatch for {rust_name}\nRust: {rust_value:?}\nC:    {c_value:?}",
+                "Constant value mismatch for {}\nRust: {:?}\nC:    {:?}",
+                rust_name, rust_value, &c_value
             );
             continue;
         }
@@ -146,15 +151,22 @@ fn cross_validate_constants_with_c() {
 }
 
 #[test]
+#[cfg(target_os = "linux")]
 fn cross_validate_layout_with_c() {
     let mut c_layouts = Vec::new();
 
     for l in get_c_output("layout").unwrap().lines() {
-        let (name, value) = l.split_once(';').expect("Missing first ';' separator");
-        let (size, alignment) = value.split_once(';').expect("Missing second ';' separator");
-        let size = size.parse().expect("Failed to parse size");
-        let alignment = alignment.parse().expect("Failed to parse alignment");
-        c_layouts.push((name.to_owned(), Layout { size, alignment }));
+        let mut words = l.trim().split(';');
+        let name = words.next().expect("Failed to parse name").to_owned();
+        let size = words
+            .next()
+            .and_then(|s| s.parse().ok())
+            .expect("Failed to parse size");
+        let alignment = words
+            .next()
+            .and_then(|s| s.parse().ok())
+            .expect("Failed to parse alignment");
+        c_layouts.push((name, Layout { size, alignment }));
     }
 
     let mut results = Results::default();
@@ -163,13 +175,16 @@ fn cross_validate_layout_with_c() {
     {
         if rust_name != c_name {
             results.record_failed();
-            eprintln!("Name mismatch:\nRust: {rust_name:?}\nC:    {c_name:?}");
+            eprintln!("Name mismatch:\nRust: {:?}\nC:    {:?}", rust_name, c_name,);
             continue;
         }
 
         if rust_layout != c_layout {
             results.record_failed();
-            eprintln!("Layout mismatch for {rust_name}\nRust: {rust_layout:?}\nC:    {c_layout:?}",);
+            eprintln!(
+                "Layout mismatch for {}\nRust: {:?}\nC:    {:?}",
+                rust_name, rust_layout, &c_layout
+            );
             continue;
         }
 
@@ -190,7 +205,7 @@ fn get_c_output(name: &str) -> Result<String, Box<dyn Error>> {
     let mut abi_cmd = Command::new(exe);
     let output = abi_cmd.output()?;
     if !output.status.success() {
-        return Err(format!("command {abi_cmd:?} failed, {output:?}").into());
+        return Err(format!("command {:?} failed, {:?}", &abi_cmd, &output).into());
     }
 
     Ok(String::from_utf8(output.stdout)?)
@@ -2253,7 +2268,6 @@ const RUST_LAYOUTS: &[(&str, Layout)] = &[
 const RUST_CONSTANTS: &[(&str, &str)] = &[
     ("(guint) G_APPLICATION_ALLOW_REPLACEMENT", "128"),
     ("(guint) G_APPLICATION_CAN_OVERRIDE_APP_ID", "64"),
-    ("(guint) G_APPLICATION_DEFAULT_FLAGS", "0"),
     ("(guint) G_APPLICATION_FLAGS_NONE", "0"),
     ("(guint) G_APPLICATION_HANDLES_COMMAND_LINE", "8"),
     ("(guint) G_APPLICATION_HANDLES_OPEN", "4"),
@@ -2325,7 +2339,6 @@ const RUST_CONSTANTS: &[(&str, &str)] = &[
         "32",
     ),
     ("(guint) G_DBUS_CONNECTION_FLAGS_AUTHENTICATION_SERVER", "2"),
-    ("(guint) G_DBUS_CONNECTION_FLAGS_CROSS_NAMESPACE", "64"),
     (
         "(guint) G_DBUS_CONNECTION_FLAGS_DELAY_MESSAGE_PROCESSING",
         "16",
@@ -2610,67 +2623,15 @@ const RUST_CONSTANTS: &[(&str, &str)] = &[
     ("(gint) G_FILE_ATTRIBUTE_STATUS_SET", "1"),
     ("(gint) G_FILE_ATTRIBUTE_STATUS_UNSET", "0"),
     ("G_FILE_ATTRIBUTE_THUMBNAILING_FAILED", "thumbnail::failed"),
-    (
-        "G_FILE_ATTRIBUTE_THUMBNAILING_FAILED_LARGE",
-        "thumbnail::failed-large",
-    ),
-    (
-        "G_FILE_ATTRIBUTE_THUMBNAILING_FAILED_NORMAL",
-        "thumbnail::failed-normal",
-    ),
-    (
-        "G_FILE_ATTRIBUTE_THUMBNAILING_FAILED_XLARGE",
-        "thumbnail::failed-xlarge",
-    ),
-    (
-        "G_FILE_ATTRIBUTE_THUMBNAILING_FAILED_XXLARGE",
-        "thumbnail::failed-xxlarge",
-    ),
     ("G_FILE_ATTRIBUTE_THUMBNAIL_IS_VALID", "thumbnail::is-valid"),
-    (
-        "G_FILE_ATTRIBUTE_THUMBNAIL_IS_VALID_LARGE",
-        "thumbnail::is-valid-large",
-    ),
-    (
-        "G_FILE_ATTRIBUTE_THUMBNAIL_IS_VALID_NORMAL",
-        "thumbnail::is-valid-normal",
-    ),
-    (
-        "G_FILE_ATTRIBUTE_THUMBNAIL_IS_VALID_XLARGE",
-        "thumbnail::is-valid-xlarge",
-    ),
-    (
-        "G_FILE_ATTRIBUTE_THUMBNAIL_IS_VALID_XXLARGE",
-        "thumbnail::is-valid-xxlarge",
-    ),
     ("G_FILE_ATTRIBUTE_THUMBNAIL_PATH", "thumbnail::path"),
-    (
-        "G_FILE_ATTRIBUTE_THUMBNAIL_PATH_LARGE",
-        "thumbnail::path-large",
-    ),
-    (
-        "G_FILE_ATTRIBUTE_THUMBNAIL_PATH_NORMAL",
-        "thumbnail::path-normal",
-    ),
-    (
-        "G_FILE_ATTRIBUTE_THUMBNAIL_PATH_XLARGE",
-        "thumbnail::path-xlarge",
-    ),
-    (
-        "G_FILE_ATTRIBUTE_THUMBNAIL_PATH_XXLARGE",
-        "thumbnail::path-xxlarge",
-    ),
     ("G_FILE_ATTRIBUTE_TIME_ACCESS", "time::access"),
-    ("G_FILE_ATTRIBUTE_TIME_ACCESS_NSEC", "time::access-nsec"),
     ("G_FILE_ATTRIBUTE_TIME_ACCESS_USEC", "time::access-usec"),
     ("G_FILE_ATTRIBUTE_TIME_CHANGED", "time::changed"),
-    ("G_FILE_ATTRIBUTE_TIME_CHANGED_NSEC", "time::changed-nsec"),
     ("G_FILE_ATTRIBUTE_TIME_CHANGED_USEC", "time::changed-usec"),
     ("G_FILE_ATTRIBUTE_TIME_CREATED", "time::created"),
-    ("G_FILE_ATTRIBUTE_TIME_CREATED_NSEC", "time::created-nsec"),
     ("G_FILE_ATTRIBUTE_TIME_CREATED_USEC", "time::created-usec"),
     ("G_FILE_ATTRIBUTE_TIME_MODIFIED", "time::modified"),
-    ("G_FILE_ATTRIBUTE_TIME_MODIFIED_NSEC", "time::modified-nsec"),
     ("G_FILE_ATTRIBUTE_TIME_MODIFIED_USEC", "time::modified-usec"),
     (
         "G_FILE_ATTRIBUTE_TRASH_DELETION_DATE",
@@ -2770,7 +2731,6 @@ const RUST_CONSTANTS: &[(&str, &str)] = &[
     ("(gint) G_IO_ERROR_NOT_SUPPORTED", "15"),
     ("(gint) G_IO_ERROR_NOT_SYMBOLIC_LINK", "7"),
     ("(gint) G_IO_ERROR_NO_SPACE", "12"),
-    ("(gint) G_IO_ERROR_NO_SUCH_DEVICE", "47"),
     ("(gint) G_IO_ERROR_PARTIAL_INPUT", "34"),
     ("(gint) G_IO_ERROR_PENDING", "20"),
     ("(gint) G_IO_ERROR_PERMISSION_DENIED", "14"),
@@ -2804,7 +2764,6 @@ const RUST_CONSTANTS: &[(&str, &str)] = &[
     ("G_MENU_ATTRIBUTE_ICON", "icon"),
     ("G_MENU_ATTRIBUTE_LABEL", "label"),
     ("G_MENU_ATTRIBUTE_TARGET", "target"),
-    ("G_MENU_EXPORTER_MAX_SECTION_SIZE", "1000"),
     ("G_MENU_LINK_SECTION", "section"),
     ("G_MENU_LINK_SUBMENU", "submenu"),
     ("(guint) G_MOUNT_MOUNT_NONE", "0"),
@@ -2923,7 +2882,6 @@ const RUST_CONSTANTS: &[(&str, &str)] = &[
     ("(guint) G_TLS_CERTIFICATE_GENERIC_ERROR", "64"),
     ("(guint) G_TLS_CERTIFICATE_INSECURE", "32"),
     ("(guint) G_TLS_CERTIFICATE_NOT_ACTIVATED", "4"),
-    ("(guint) G_TLS_CERTIFICATE_NO_FLAGS", "0"),
     ("(gint) G_TLS_CERTIFICATE_REQUEST_NONE", "0"),
     ("(guint) G_TLS_CERTIFICATE_REVOKED", "16"),
     ("(guint) G_TLS_CERTIFICATE_UNKNOWN_CA", "1"),
@@ -2933,7 +2891,6 @@ const RUST_CONSTANTS: &[(&str, &str)] = &[
     ("(gint) G_TLS_CHANNEL_BINDING_ERROR_NOT_AVAILABLE", "2"),
     ("(gint) G_TLS_CHANNEL_BINDING_ERROR_NOT_IMPLEMENTED", "0"),
     ("(gint) G_TLS_CHANNEL_BINDING_ERROR_NOT_SUPPORTED", "3"),
-    ("(gint) G_TLS_CHANNEL_BINDING_TLS_EXPORTER", "2"),
     ("(gint) G_TLS_CHANNEL_BINDING_TLS_SERVER_END_POINT", "1"),
     ("(gint) G_TLS_CHANNEL_BINDING_TLS_UNIQUE", "0"),
     ("(gint) G_TLS_DATABASE_LOOKUP_KEYPAIR", "1"),

@@ -2,19 +2,25 @@
 // from gir-files (https://github.com/gtk-rs/gir-files)
 // DO NOT EDIT
 
-#[cfg(unix)]
-#[cfg_attr(docsrs, doc(cfg(unix)))]
+use crate::DBusCapabilityFlags;
+use crate::DBusMessageByteOrder;
+use crate::DBusMessageFlags;
+use crate::DBusMessageHeaderField;
+use crate::DBusMessageType;
+#[cfg(any(unix, feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(unix)))]
 use crate::UnixFDList;
-use crate::{
-    DBusCapabilityFlags, DBusMessageByteOrder, DBusMessageFlags, DBusMessageHeaderField,
-    DBusMessageType,
-};
-use glib::{
-    prelude::*,
-    signal::{connect_raw, SignalHandlerId},
-    translate::*,
-};
-use std::{boxed::Box as Box_, mem, mem::transmute, ptr};
+#[cfg(any(unix, feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(unix)))]
+use glib::object::IsA;
+use glib::object::ObjectType as ObjectType_;
+use glib::signal::connect_raw;
+use glib::signal::SignalHandlerId;
+use glib::translate::*;
+use std::boxed::Box as Box_;
+use std::mem;
+use std::mem::transmute;
+use std::ptr;
 
 glib::wrapper! {
     #[doc(alias = "GDBusMessage")]
@@ -37,7 +43,7 @@ impl DBusMessage {
         blob: &[u8],
         capabilities: DBusCapabilityFlags,
     ) -> Result<DBusMessage, glib::Error> {
-        let blob_len = blob.len() as _;
+        let blob_len = blob.len() as usize;
         unsafe {
             let mut error = ptr::null_mut();
             let ret = ffi::g_dbus_message_new_from_blob(
@@ -166,8 +172,8 @@ impl DBusMessage {
         unsafe { from_glib(ffi::g_dbus_message_get_message_type(self.to_glib_none().0)) }
     }
 
-    #[cfg(unix)]
-    #[cfg_attr(docsrs, doc(cfg(unix)))]
+    #[cfg(any(unix, feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(unix)))]
     #[doc(alias = "g_dbus_message_get_num_unix_fds")]
     #[doc(alias = "get_num_unix_fds")]
     pub fn num_unix_fds(&self) -> u32 {
@@ -204,8 +210,8 @@ impl DBusMessage {
         unsafe { from_glib_none(ffi::g_dbus_message_get_signature(self.to_glib_none().0)) }
     }
 
-    #[cfg(unix)]
-    #[cfg_attr(docsrs, doc(cfg(unix)))]
+    #[cfg(any(unix, feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(unix)))]
     #[doc(alias = "g_dbus_message_get_unix_fd_list")]
     #[doc(alias = "get_unix_fd_list")]
     pub fn unix_fd_list(&self) -> Option<UnixFDList> {
@@ -221,7 +227,7 @@ impl DBusMessage {
 
     //#[doc(alias = "g_dbus_message_new_method_error")]
     //#[must_use]
-    //pub fn new_method_error(&self, error_name: &str, error_message_format: &str, : /*Unknown conversion*//*Unimplemented*/Basic: VarArgs) -> DBusMessage {
+    //pub fn new_method_error(&self, error_name: &str, error_message_format: &str, : /*Unknown conversion*//*Unimplemented*/Fundamental: VarArgs) -> DBusMessage {
     //    unsafe { TODO: call ffi:g_dbus_message_new_method_error() }
     //}
 
@@ -321,8 +327,8 @@ impl DBusMessage {
         }
     }
 
-    #[cfg(unix)]
-    #[cfg_attr(docsrs, doc(cfg(unix)))]
+    #[cfg(any(unix, feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(unix)))]
     #[doc(alias = "g_dbus_message_set_num_unix_fds")]
     pub fn set_num_unix_fds(&self, value: u32) {
         unsafe {
@@ -365,8 +371,8 @@ impl DBusMessage {
         }
     }
 
-    #[cfg(unix)]
-    #[cfg_attr(docsrs, doc(cfg(unix)))]
+    #[cfg(any(unix, feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(unix)))]
     #[doc(alias = "g_dbus_message_set_unix_fd_list")]
     pub fn set_unix_fd_list(&self, fd_list: Option<&impl IsA<UnixFDList>>) {
         unsafe {
@@ -391,7 +397,7 @@ impl DBusMessage {
             if error.is_null() {
                 Ok(FromGlibContainer::from_glib_full_num(
                     ret,
-                    out_size.assume_init() as _,
+                    out_size.assume_init() as usize,
                 ))
             } else {
                 Err(from_glib_full(error))
@@ -404,7 +410,7 @@ impl DBusMessage {
         unsafe {
             let mut error = ptr::null_mut();
             let is_ok = ffi::g_dbus_message_to_gerror(self.to_glib_none().0, &mut error);
-            debug_assert_eq!(is_ok == glib::ffi::GFALSE, !error.is_null());
+            assert_eq!(is_ok == glib::ffi::GFALSE, !error.is_null());
             if error.is_null() {
                 Ok(())
             } else {
@@ -415,7 +421,7 @@ impl DBusMessage {
 
     #[doc(alias = "g_dbus_message_bytes_needed")]
     pub fn bytes_needed(blob: &[u8]) -> Result<isize, glib::Error> {
-        let blob_len = blob.len() as _;
+        let blob_len = blob.len() as usize;
         unsafe {
             let mut error = ptr::null_mut();
             let ret = ffi::g_dbus_message_bytes_needed(blob.to_glib_none().0, blob_len, &mut error);

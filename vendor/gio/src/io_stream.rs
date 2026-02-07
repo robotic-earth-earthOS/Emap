@@ -1,22 +1,18 @@
 // Take a look at the license at the top of the repository in the LICENSE file.
 
-use std::{io, pin::Pin};
-
+use crate::prelude::*;
+use crate::IOStream;
+use crate::InputStreamAsyncRead;
+use crate::OutputStreamAsyncWrite;
+use crate::PollableInputStream;
+use crate::PollableOutputStream;
 use futures_core::task::{Context, Poll};
 use futures_io::{AsyncRead, AsyncWrite};
-use glib::prelude::*;
+use glib::object::{Cast, IsA};
+use std::io;
+use std::pin::Pin;
 
-use crate::{
-    prelude::*, IOStream, InputStreamAsyncRead, OutputStreamAsyncWrite, PollableInputStream,
-    PollableOutputStream,
-};
-
-mod sealed {
-    pub trait Sealed {}
-    impl<T: super::IsA<super::IOStream>> Sealed for T {}
-}
-
-pub trait IOStreamExtManual: sealed::Sealed + Sized + IsA<IOStream> {
+pub trait IOStreamExtManual: Sized + IsA<IOStream> {
     fn into_async_read_write(self) -> Result<IOStreamAsyncReadWrite<Self>, Self> {
         let write = self
             .output_stream()

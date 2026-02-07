@@ -16,11 +16,10 @@ use winnow::combinator::{delimited, preceded};
 use winnow::error::{FromExternalError, ParserError};
 use winnow::prelude::*;
 use winnow::token::{take_till, take_while};
-use winnow::Result;
 
 /// Parse a string. Use a loop of `parse_fragment` and push all of the fragments
 /// into an output string.
-pub(crate) fn parse_string<'a, E>(input: &mut &'a str) -> Result<String, E>
+pub fn parse_string<'a, E>(input: &mut &'a str) -> PResult<String, E>
 where
     E: ParserError<&'a str> + FromExternalError<&'a str, std::num::ParseIntError>,
 {
@@ -65,7 +64,7 @@ enum StringFragment<'a> {
 
 /// Combine `parse_literal`, `parse_escaped_whitespace`, and `parse_escaped_char`
 /// into a `StringFragment`.
-fn parse_fragment<'a, E>(input: &mut &'a str) -> Result<StringFragment<'a>, E>
+fn parse_fragment<'a, E>(input: &mut &'a str) -> PResult<StringFragment<'a>, E>
 where
     E: ParserError<&'a str> + FromExternalError<&'a str, std::num::ParseIntError>,
 {
@@ -80,7 +79,7 @@ where
 }
 
 /// Parse a non-empty block of text that doesn't include \ or "
-fn parse_literal<'a, E: ParserError<&'a str>>(input: &mut &'a str) -> Result<&'a str, E> {
+fn parse_literal<'a, E: ParserError<&'a str>>(input: &mut &'a str) -> PResult<&'a str, E> {
     // `take_till` parses a string of 0 or more characters that aren't one of the
     // given characters.
     let not_quote_slash = take_till(1.., ['"', '\\']);
@@ -99,7 +98,7 @@ fn parse_literal<'a, E: ParserError<&'a str>>(input: &mut &'a str) -> Result<&'a
 // then combine them into larger parsers.
 
 /// Parse an escaped character: \n, \t, \r, \u{00AC}, etc.
-fn parse_escaped_char<'a, E>(input: &mut &'a str) -> Result<char, E>
+fn parse_escaped_char<'a, E>(input: &mut &'a str) -> PResult<char, E>
 where
     E: ParserError<&'a str> + FromExternalError<&'a str, std::num::ParseIntError>,
 {
@@ -129,7 +128,7 @@ where
 /// Parse a unicode sequence, of the form u{XXXX}, where XXXX is 1 to 6
 /// hexadecimal numerals. We will combine this later with `parse_escaped_char`
 /// to parse sequences like \u{00AC}.
-fn parse_unicode<'a, E>(input: &mut &'a str) -> Result<char, E>
+fn parse_unicode<'a, E>(input: &mut &'a str) -> PResult<char, E>
 where
     E: ParserError<&'a str> + FromExternalError<&'a str, std::num::ParseIntError>,
 {
@@ -163,6 +162,6 @@ where
 /// to discard any escaped whitespace.
 fn parse_escaped_whitespace<'a, E: ParserError<&'a str>>(
     input: &mut &'a str,
-) -> Result<&'a str, E> {
+) -> PResult<&'a str, E> {
     preceded('\\', multispace1).parse_next(input)
 }

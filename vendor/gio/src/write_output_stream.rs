@@ -1,18 +1,17 @@
 // Take a look at the license at the top of the repository in the LICENSE file.
 
-use std::{
-    any::Any,
-    io::{Seek, Write},
-};
+use crate::prelude::*;
+use crate::subclass::prelude::*;
+use crate::OutputStream;
 
-use crate::{
-    prelude::*, read_input_stream::std_error_to_gio_error, subclass::prelude::*, OutputStream,
-};
+use std::any::Any;
+use std::io::{Seek, Write};
+
+use crate::read_input_stream::std_error_to_gio_error;
 
 mod imp {
-    use std::cell::RefCell;
-
     use super::*;
+    use std::cell::RefCell;
 
     pub(super) enum Writer {
         Write(AnyWriter),
@@ -37,6 +36,7 @@ mod imp {
     impl OutputStreamImpl for WriteOutputStream {
         fn write(
             &self,
+            _stream: &Self::Type,
             buffer: &[u8],
             _cancellable: Option<&crate::Cancellable>,
         ) -> Result<usize, glib::Error> {
@@ -60,12 +60,20 @@ mod imp {
             }
         }
 
-        fn close(&self, _cancellable: Option<&crate::Cancellable>) -> Result<(), glib::Error> {
+        fn close(
+            &self,
+            _stream: &Self::Type,
+            _cancellable: Option<&crate::Cancellable>,
+        ) -> Result<(), glib::Error> {
             let _ = self.write.take();
             Ok(())
         }
 
-        fn flush(&self, _cancellable: Option<&crate::Cancellable>) -> Result<(), glib::Error> {
+        fn flush(
+            &self,
+            _stream: &Self::Type,
+            _cancellable: Option<&crate::Cancellable>,
+        ) -> Result<(), glib::Error> {
             let mut write = self.write.borrow_mut();
             let write = match *write {
                 None => {
@@ -88,7 +96,7 @@ mod imp {
     }
 
     impl SeekableImpl for WriteOutputStream {
-        fn tell(&self) -> i64 {
+        fn tell(&self, _seekable: &Self::Type) -> i64 {
             // XXX: stream_position is not stable yet
             // let mut write = self.write.borrow_mut();
             // match *write {
@@ -100,13 +108,14 @@ mod imp {
             -1
         }
 
-        fn can_seek(&self) -> bool {
+        fn can_seek(&self, _seekable: &Self::Type) -> bool {
             let write = self.write.borrow();
             matches!(*write, Some(Writer::WriteSeek(_)))
         }
 
         fn seek(
             &self,
+            _seekable: &Self::Type,
             offset: i64,
             type_: glib::SeekType,
             _cancellable: Option<&crate::Cancellable>,
@@ -146,12 +155,13 @@ mod imp {
             }
         }
 
-        fn can_truncate(&self) -> bool {
+        fn can_truncate(&self, _seekable: &Self::Type) -> bool {
             false
         }
 
         fn truncate(
             &self,
+            _seekable: &Self::Type,
             _offset: i64,
             _cancellable: Option<&crate::Cancellable>,
         ) -> Result<(), glib::Error> {
@@ -169,14 +179,14 @@ glib::wrapper! {
 
 impl WriteOutputStream {
     pub fn new<W: Write + Send + Any + 'static>(write: W) -> WriteOutputStream {
-        let obj: Self = glib::Object::new();
+        let obj: Self = glib::Object::new(&[]).expect("Failed to create write input stream");
 
         *obj.imp().write.borrow_mut() = Some(imp::Writer::Write(AnyWriter::new(write)));
         obj
     }
 
     pub fn new_seekable<W: Write + Seek + Send + Any + 'static>(write: W) -> WriteOutputStream {
-        let obj: Self = glib::Object::new();
+        let obj: Self = glib::Object::new(&[]).expect("Failed to create write input stream");
 
         *obj.imp().write.borrow_mut() =
             Some(imp::Writer::WriteSeek(AnyWriter::new_seekable(write)));
@@ -292,9 +302,8 @@ impl AnyWriter {
 
 #[cfg(test)]
 mod tests {
-    use std::io::Cursor;
-
     use super::*;
+    use std::io::Cursor;
 
     #[test]
     fn test_write() {

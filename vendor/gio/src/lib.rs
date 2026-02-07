@@ -1,27 +1,24 @@
 // Take a look at the license at the top of the repository in the LICENSE file.
 
-#![cfg_attr(docsrs, feature(doc_cfg))]
+#![cfg_attr(feature = "dox", feature(doc_cfg))]
+#![allow(unknown_lints)]
 #![allow(clippy::type_complexity)]
 #![allow(clippy::too_many_arguments)]
 #![allow(clippy::missing_safety_doc)]
+#![allow(clippy::upper_case_acronyms)]
+#![allow(clippy::non_send_fields_in_send_ty)]
 #![doc = include_str!("../README.md")]
 
 pub use ffi;
 pub use glib;
 
-mod action_entry;
-mod action_map;
 mod app_info;
 mod application;
-pub use action_entry::{ActionEntry, ActionEntryBuilder};
-pub use application::{ApplicationBusyGuard, ApplicationHoldGuard};
 mod async_initable;
+#[cfg(test)]
 mod cancellable;
-mod cancellable_future;
-pub use crate::cancellable_future::{CancellableFuture, Cancelled};
 mod converter;
 mod data_input_stream;
-mod datagram_based;
 mod dbus;
 pub use self::dbus::*;
 mod dbus_connection;
@@ -31,11 +28,10 @@ pub use self::dbus_connection::{
 };
 mod dbus_message;
 mod dbus_method_invocation;
-mod dbus_node_info;
-#[cfg(feature = "v2_72")]
-#[cfg_attr(docsrs, doc(cfg(feature = "v2_72")))]
+#[cfg(any(feature = "v2_72", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v2_72")))]
 mod debug_controller_dbus;
-#[cfg(any(all(not(windows), not(target_os = "macos")), docsrs))]
+#[cfg(any(all(not(windows), not(target_os = "macos")), feature = "dox"))]
 mod desktop_app_info;
 mod error;
 mod file;
@@ -44,12 +40,7 @@ pub use crate::file_attribute_info::FileAttributeInfo;
 mod file_attribute_info_list;
 mod file_attribute_matcher;
 pub use crate::file_attribute_matcher::FileAttributematcherIter;
-#[cfg(any(unix, docsrs))]
-mod file_descriptor_based;
-#[cfg(any(unix, docsrs))]
-pub use file_descriptor_based::FileDescriptorBased;
 mod file_enumerator;
-pub use crate::file_enumerator::FileEnumeratorStream;
 mod file_info;
 mod flags;
 mod inet_address;
@@ -73,47 +64,41 @@ pub use crate::pollable_input_stream::InputStreamAsyncRead;
 mod pollable_output_stream;
 pub use crate::pollable_output_stream::OutputStreamAsyncWrite;
 mod resource;
-pub use crate::resource::resources_register_include_impl;
+pub use crate::resource::{compile_resources, resources_register_include_impl};
 mod settings;
 pub use crate::settings::BindingBuilder;
 mod simple_proxy_resolver;
 mod socket;
-pub use socket::{InputMessage, InputVector, OutputMessage, OutputVector, SocketControlMessages};
-mod socket_control_message;
-mod socket_msg_flags;
-pub use socket_msg_flags::SocketMsgFlags;
 mod subprocess;
 mod subprocess_launcher;
 mod threaded_socket_service;
-#[cfg(any(unix, docsrs))]
+#[cfg(any(unix, feature = "dox"))]
 mod unix_fd_list;
-#[cfg(any(unix, docsrs))]
-mod unix_fd_message;
-#[cfg(any(unix, docsrs))]
+#[cfg(any(unix, feature = "dox"))]
 mod unix_input_stream;
-#[cfg(any(unix, docsrs))]
+#[cfg(any(unix, feature = "dox"))]
+#[cfg(any(feature = "v2_54", feature = "dox"))]
 mod unix_mount_entry;
-#[cfg(any(unix, docsrs))]
+#[cfg(any(unix, feature = "dox"))]
+#[cfg(any(feature = "v2_54", feature = "dox"))]
 mod unix_mount_point;
-#[cfg(any(unix, docsrs))]
+#[cfg(any(unix, feature = "dox"))]
 mod unix_output_stream;
-#[cfg(any(unix, docsrs))]
+#[cfg(any(unix, feature = "dox"))]
 mod unix_socket_address;
 
 #[cfg(test)]
 mod test_util;
 
-pub mod builders {
-    pub use super::async_initable::AsyncInitableBuilder;
-    pub use super::auto::builders::*;
-    pub use super::initable::InitableBuilder;
-}
+pub use crate::auto::functions::*;
+pub use crate::auto::*;
 
-pub use crate::auto::{functions::*, *};
+pub use auto::builders;
 pub mod prelude;
 
-#[allow(clippy::missing_safety_doc)]
+#[allow(clippy::wrong_self_convention)]
 #[allow(clippy::new_ret_no_self)]
+#[allow(clippy::let_and_return)]
 #[allow(unused_imports)]
 mod auto;
 

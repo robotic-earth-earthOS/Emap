@@ -4,20 +4,19 @@ use proc_macro2::{Ident, TokenStream};
 use proc_macro_error::abort_call_site;
 use quote::quote;
 
-use crate::utils::{crate_ident_new, parse_nested_meta_items, NestedMetaItem};
+use crate::utils::{crate_ident_new, find_attribute_meta, find_nested_meta, parse_name};
 
 fn gen_impl_to_value_optional(name: &Ident, crate_ident: &TokenStream) -> TokenStream {
     let refcounted_type_prefix = refcounted_type_prefix(name, crate_ident);
 
     quote! {
         impl #crate_ident::value::ToValueOptional for #name {
-            #[inline]
             fn to_value_optional(s: ::core::option::Option<&Self>) -> #crate_ident::Value {
                 let mut value = #crate_ident::Value::for_value_type::<Self>();
                 unsafe {
                     let ptr = match s {
-                        ::core::option::Option::Some(s) => #refcounted_type_prefix::into_raw(s.0.clone()),
-                        ::core::option::Option::None => ::std::ptr::null(),
+                        Some(s) => #refcounted_type_prefix::into_raw(s.0.clone()),
+                        None => ::std::ptr::null(),
                     };
 
                     #crate_ident::gobject_ffi::g_value_take_boxed(
@@ -41,10 +40,9 @@ fn gen_impl_from_value_optional(name: &Ident, crate_ident: &TokenStream) -> Toke
         unsafe impl<'a> #crate_ident::value::FromValue<'a> for #name {
             type Checker = #crate_ident::value::GenericValueTypeOrNoneChecker<Self>;
 
-            #[inline]
             unsafe fn from_value(value: &'a #crate_ident::Value) -> Self {
                 let ptr = #crate_ident::gobject_ffi::g_value_dup_boxed(#crate_ident::translate::ToGlibPtr::to_glib_none(value).0);
-                debug_assert!(!ptr.is_null());
+                assert!(!ptr.is_null());
                 #name(#refcounted_type_prefix::from_raw(ptr as *mut _))
             }
         }
@@ -58,10 +56,9 @@ fn gen_impl_from_value(name: &Ident, crate_ident: &TokenStream) -> TokenStream {
         unsafe impl<'a> #crate_ident::value::FromValue<'a> for #name {
             type Checker = #crate_ident::value::GenericValueTypeChecker<Self>;
 
-            #[inline]
             unsafe fn from_value(value: &'a #crate_ident::Value) -> Self {
                 let ptr = #crate_ident::gobject_ffi::g_value_dup_boxed(#crate_ident::translate::ToGlibPtr::to_glib_none(value).0);
-                debug_assert!(!ptr.is_null());
+                assert!(!ptr.is_null());
                 #name(#refcounted_type_prefix::from_raw(ptr as *mut _))
             }
         }
@@ -103,29 +100,18 @@ pub fn impl_shared_boxed(input: &syn::DeriveInput) -> proc_macro2::TokenStream {
         }
     };
 
-    let mut gtype_name = NestedMetaItem::<syn::LitStr>::new("name")
-        .required()
-        .value_required();
-    let mut nullable = NestedMetaItem::<syn::LitBool>::new("nullable").value_optional();
-
-    let found = parse_nested_meta_items(
-        &input.attrs,
-        "shared_boxed_type",
-        &mut [&mut gtype_name, &mut nullable],
-    );
-
-    match found {
-        Ok(None) => {
-            abort_call_site!(
-                "#[derive(glib::SharedBoxed)] requires #[shared_boxed_type(name = \"SharedBoxedTypeName\")]"
-            )
-        }
-        Err(e) => return e.to_compile_error(),
-        _ => (),
+    let gtype_name = match parse_name(input, "shared_boxed_type") {
+        Ok(name) => name,
+        Err(e) => abort_call_site!(
+            "{}: #[derive(glib::SharedBoxed)] requires #[shared_boxed_type(name = \"SharedBoxedTypeName\")]",
+            e
+        ),
     };
 
-    let gtype_name = gtype_name.value.unwrap();
-    let nullable = nullable.found || nullable.value.map(|b| b.value()).unwrap_or(false);
+    let meta = find_attribute_meta(&input.attrs, "shared_boxed_type")
+        .unwrap()
+        .unwrap();
+    let nullable = find_nested_meta(&meta, "nullable").is_some();
 
     let crate_ident = crate_ident_new();
     let refcounted_type_prefix = refcounted_type_prefix(name, &crate_ident);
@@ -144,23 +130,20 @@ pub fn impl_shared_boxed(input: &syn::DeriveInput) -> proc_macro2::TokenStream {
 
     quote! {
         impl #crate_ident::subclass::shared::SharedType for #name {
-            const NAME: &'static ::core::primitive::str = #gtype_name;
+            const NAME: &'static str = #gtype_name;
 
             type RefCountedType = #refcounted_type;
 
-            #[inline]
             fn from_refcounted(this: Self::RefCountedType) -> Self {
                 Self(this)
             }
 
-            #[inline]
             fn into_refcounted(self) -> Self::RefCountedType {
                 self.0
             }
         }
 
         impl #crate_ident::StaticType for #name {
-            #[inline]
             fn static_type() -> #crate_ident::Type {
                 static ONCE: ::std::sync::Once = ::std::sync::Once::new();
                 static mut TYPE_: #crate_ident::Type = #crate_ident::Type::INVALID;
@@ -181,11 +164,10 @@ pub fn impl_shared_boxed(input: &syn::DeriveInput) -> proc_macro2::TokenStream {
         }
 
         impl #crate_ident::value::ToValue for #name {
-            #[inline]
             fn to_value(&self) -> #crate_ident::Value {
                 unsafe {
                     let ptr = #refcounted_type_prefix::into_raw(self.0.clone());
-                    let mut value = #crate_ident::Value::from_type_unchecked(<#name as #crate_ident::StaticType>::static_type());
+                    let mut value = #crate_ident::Value::from_type(<#name as #crate_ident::StaticType>::static_type());
                     #crate_ident::gobject_ffi::g_value_take_boxed(
                         #crate_ident::translate::ToGlibPtrMut::to_glib_none_mut(&mut value).0,
                         ptr as *mut _
@@ -194,53 +176,14 @@ pub fn impl_shared_boxed(input: &syn::DeriveInput) -> proc_macro2::TokenStream {
                 }
             }
 
-            #[inline]
             fn value_type(&self) -> #crate_ident::Type {
                 <#name as #crate_ident::StaticType>::static_type()
-            }
-        }
-
-        impl ::std::convert::From<#name> for #crate_ident::Value {
-            #[inline]
-            fn from(v: #name) -> Self {
-                unsafe {
-                    let mut value = #crate_ident::Value::from_type_unchecked(<#name as #crate_ident::StaticType>::static_type());
-                    #crate_ident::gobject_ffi::g_value_take_boxed(
-                        #crate_ident::translate::ToGlibPtrMut::to_glib_none_mut(&mut value).0,
-                        #crate_ident::translate::IntoGlibPtr::<*mut #refcounted_type_prefix::InnerType>::into_glib_ptr(v) as *mut _,
-                    );
-                    value
-                }
             }
         }
 
         #impl_to_value_optional
 
         #impl_from_value
-
-        impl #crate_ident::translate::GlibPtrDefault for #name {
-            type GlibType = *mut #refcounted_type_prefix::InnerType;
-        }
-
-        impl #crate_ident::translate::FromGlibPtrBorrow<*const #refcounted_type_prefix::InnerType> for #name {
-            #[inline]
-            unsafe fn from_glib_borrow(ptr: *const #refcounted_type_prefix::InnerType) -> #crate_ident::translate::Borrowed<Self> {
-                debug_assert!(!ptr.is_null());
-
-                // from_raw is taking ownership of the raw pointer here, but wrapping its result
-                // in Borrowed::new ensures that it won't be deallocated when it will go out of
-                // scope, so the pointer will still be valid afterwards
-                #crate_ident::translate::Borrowed::new(#name(#refcounted_type_prefix::from_raw(ptr)))
-            }
-        }
-
-        impl #crate_ident::translate::FromGlibPtrBorrow<*mut #refcounted_type_prefix::InnerType> for #name {
-            #[inline]
-            unsafe fn from_glib_borrow(ptr: *mut #refcounted_type_prefix::InnerType) -> #crate_ident::translate::Borrowed<Self> {
-                #crate_ident::translate::FromGlibPtrBorrow::from_glib_borrow(ptr as *const _)
-            }
-        }
-
 
         impl #crate_ident::translate::FromGlibPtrNone<*const #refcounted_type_prefix::InnerType> for #name {
             #[inline]
@@ -264,21 +207,13 @@ pub fn impl_shared_boxed(input: &syn::DeriveInput) -> proc_macro2::TokenStream {
             }
         }
 
-        impl #crate_ident::translate::IntoGlibPtr<*mut #refcounted_type_prefix::InnerType> for #name {
-            #[inline]
-            unsafe fn into_glib_ptr(self) -> *mut #refcounted_type_prefix::InnerType {
-                let r = <Self as #crate_ident::subclass::shared::SharedType>::into_refcounted(self);
-                #refcounted_type_prefix::into_raw(r) as *mut _
-            }
-        }
-
         impl<'a> #crate_ident::translate::ToGlibPtr<'a, *const #refcounted_type_prefix::InnerType> for #name {
-            type Storage = std::marker::PhantomData<&'a Self>;
+            type Storage = &'a Self;
 
             #[inline]
             fn to_glib_none(&'a self) -> #crate_ident::translate::Stash<'a, *const #refcounted_type_prefix::InnerType, Self> {
                 unsafe {
-                    #crate_ident::translate::Stash(#refcounted_type_prefix::as_ptr(&self.0), std::marker::PhantomData)
+                    #crate_ident::translate::Stash(#refcounted_type_prefix::as_ptr(&self.0), self)
                 }
             }
 
@@ -292,12 +227,12 @@ pub fn impl_shared_boxed(input: &syn::DeriveInput) -> proc_macro2::TokenStream {
         }
 
         impl<'a> #crate_ident::translate::ToGlibPtr<'a, *mut #refcounted_type_prefix::InnerType> for #name {
-            type Storage = std::marker::PhantomData<&'a Self>;
+            type Storage = &'a Self;
 
             #[inline]
             fn to_glib_none(&'a self) -> #crate_ident::translate::Stash<'a, *mut #refcounted_type_prefix::InnerType, Self> {
                 unsafe {
-                    #crate_ident::translate::Stash(#refcounted_type_prefix::as_ptr(&self.0) as *mut _, std::marker::PhantomData)
+                    #crate_ident::translate::Stash(#refcounted_type_prefix::as_ptr(&self.0) as *mut _, self)
                 }
             }
 
@@ -307,16 +242,6 @@ pub fn impl_shared_boxed(input: &syn::DeriveInput) -> proc_macro2::TokenStream {
                 unsafe {
                     #refcounted_type_prefix::into_raw(r) as *mut _
                 }
-            }
-        }
-
-        impl #crate_ident::HasParamSpec for #name {
-            type ParamSpec = #crate_ident::ParamSpecBoxed;
-            type SetValue = Self;
-            type BuilderFn = fn(&::core::primitive::str) -> #crate_ident::ParamSpecBoxedBuilder<Self>;
-
-            fn param_spec_builder() -> Self::BuilderFn {
-                |name| Self::ParamSpec::builder(name)
             }
         }
     }

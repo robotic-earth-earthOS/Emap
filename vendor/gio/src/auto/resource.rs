@@ -2,9 +2,11 @@
 // from gir-files (https://github.com/gtk-rs/gir-files)
 // DO NOT EDIT
 
-use crate::{InputStream, ResourceLookupFlags};
+use crate::InputStream;
+use crate::ResourceLookupFlags;
 use glib::translate::*;
-use std::{mem, ptr};
+use std::mem;
+use std::ptr;
 
 glib::wrapper! {
     #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -59,9 +61,11 @@ impl Resource {
                 flags.as_mut_ptr(),
                 &mut error,
             );
-            debug_assert_eq!(is_ok == glib::ffi::GFALSE, !error.is_null());
+            let size = size.assume_init();
+            let flags = flags.assume_init();
+            assert_eq!(is_ok == glib::ffi::GFALSE, !error.is_null());
             if error.is_null() {
-                Ok((size.assume_init(), flags.assume_init()))
+                Ok((size, flags))
             } else {
                 Err(from_glib_full(error))
             }

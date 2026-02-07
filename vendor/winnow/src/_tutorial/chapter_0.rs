@@ -25,10 +25,11 @@
 //!
 //! Parser combinators are great because:
 //!
-//! - Individual parser functions are small, focused on one thing, ignoring the rest
-//! - You can write tests focused on individual parsers (unit tests and property-based tests)
-//!   in addition to testing the top-level parser as a whole.
-//! - Top-level parsing code looks close to the grammar you would have written
+//! - The parsers are small and easy to write
+//! - The parsers components are easy to reuse (if they're general enough, please add them to winnow!)
+//! - The parsers components are easy to test separately (unit tests and property-based tests)
+//! - The parser combination code looks close to the grammar you would have written
+//! - You can build partial parsers, specific to the data you need at the moment, and ignore the rest
 
 #![allow(unused_imports)]
 use crate::_topic;

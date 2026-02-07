@@ -2,13 +2,19 @@
 // from gir-files (https://github.com/gtk-rs/gir-files)
 // DO NOT EDIT
 
-use crate::{FilterOutputStream, OutputStream, Seekable};
-use glib::{
-    prelude::*,
-    signal::{connect_raw, SignalHandlerId},
-    translate::*,
-};
-use std::{boxed::Box as Box_, fmt, mem::transmute};
+use crate::FilterOutputStream;
+use crate::OutputStream;
+use crate::Seekable;
+use glib::object::Cast;
+use glib::object::IsA;
+use glib::signal::connect_raw;
+use glib::signal::SignalHandlerId;
+use glib::translate::*;
+use glib::StaticType;
+use glib::ToValue;
+use std::boxed::Box as Box_;
+use std::fmt;
+use std::mem::transmute;
 
 glib::wrapper! {
     #[doc(alias = "GBufferedOutputStream")]
@@ -48,76 +54,102 @@ impl BufferedOutputStream {
     ///
     /// This method returns an instance of [`BufferedOutputStreamBuilder`](crate::builders::BufferedOutputStreamBuilder) which can be used to create [`BufferedOutputStream`] objects.
     pub fn builder() -> BufferedOutputStreamBuilder {
-        BufferedOutputStreamBuilder::new()
+        BufferedOutputStreamBuilder::default()
     }
 }
 
 impl Default for BufferedOutputStream {
     fn default() -> Self {
-        glib::object::Object::new::<Self>()
+        glib::object::Object::new::<Self>(&[])
+            .expect("Can't construct BufferedOutputStream object with default parameters")
     }
 }
 
+#[derive(Clone, Default)]
 // rustdoc-stripper-ignore-next
 /// A [builder-pattern] type to construct [`BufferedOutputStream`] objects.
 ///
 /// [builder-pattern]: https://doc.rust-lang.org/1.0.0/style/ownership/builders.html
 #[must_use = "The builder must be built to be used"]
 pub struct BufferedOutputStreamBuilder {
-    builder: glib::object::ObjectBuilder<'static, BufferedOutputStream>,
+    auto_grow: Option<bool>,
+    buffer_size: Option<u32>,
+    base_stream: Option<OutputStream>,
+    close_base_stream: Option<bool>,
 }
 
 impl BufferedOutputStreamBuilder {
-    fn new() -> Self {
-        Self {
-            builder: glib::object::Object::builder(),
-        }
-    }
-
-    pub fn auto_grow(self, auto_grow: bool) -> Self {
-        Self {
-            builder: self.builder.property("auto-grow", auto_grow),
-        }
-    }
-
-    pub fn buffer_size(self, buffer_size: u32) -> Self {
-        Self {
-            builder: self.builder.property("buffer-size", buffer_size),
-        }
-    }
-
-    pub fn base_stream(self, base_stream: &impl IsA<OutputStream>) -> Self {
-        Self {
-            builder: self
-                .builder
-                .property("base-stream", base_stream.clone().upcast()),
-        }
-    }
-
-    pub fn close_base_stream(self, close_base_stream: bool) -> Self {
-        Self {
-            builder: self
-                .builder
-                .property("close-base-stream", close_base_stream),
-        }
+    // rustdoc-stripper-ignore-next
+    /// Create a new [`BufferedOutputStreamBuilder`].
+    pub fn new() -> Self {
+        Self::default()
     }
 
     // rustdoc-stripper-ignore-next
     /// Build the [`BufferedOutputStream`].
     #[must_use = "Building the object from the builder is usually expensive and is not expected to have side effects"]
     pub fn build(self) -> BufferedOutputStream {
-        self.builder.build()
+        let mut properties: Vec<(&str, &dyn ToValue)> = vec![];
+        if let Some(ref auto_grow) = self.auto_grow {
+            properties.push(("auto-grow", auto_grow));
+        }
+        if let Some(ref buffer_size) = self.buffer_size {
+            properties.push(("buffer-size", buffer_size));
+        }
+        if let Some(ref base_stream) = self.base_stream {
+            properties.push(("base-stream", base_stream));
+        }
+        if let Some(ref close_base_stream) = self.close_base_stream {
+            properties.push(("close-base-stream", close_base_stream));
+        }
+        glib::Object::new::<BufferedOutputStream>(&properties)
+            .expect("Failed to create an instance of BufferedOutputStream")
+    }
+
+    pub fn auto_grow(mut self, auto_grow: bool) -> Self {
+        self.auto_grow = Some(auto_grow);
+        self
+    }
+
+    pub fn buffer_size(mut self, buffer_size: u32) -> Self {
+        self.buffer_size = Some(buffer_size);
+        self
+    }
+
+    pub fn base_stream(mut self, base_stream: &impl IsA<OutputStream>) -> Self {
+        self.base_stream = Some(base_stream.clone().upcast());
+        self
+    }
+
+    pub fn close_base_stream(mut self, close_base_stream: bool) -> Self {
+        self.close_base_stream = Some(close_base_stream);
+        self
     }
 }
 
-mod sealed {
-    pub trait Sealed {}
-    impl<T: super::IsA<super::BufferedOutputStream>> Sealed for T {}
-}
-
-pub trait BufferedOutputStreamExt: IsA<BufferedOutputStream> + sealed::Sealed + 'static {
+pub trait BufferedOutputStreamExt: 'static {
     #[doc(alias = "g_buffered_output_stream_get_auto_grow")]
     #[doc(alias = "get_auto_grow")]
+    fn auto_grows(&self) -> bool;
+
+    #[doc(alias = "g_buffered_output_stream_get_buffer_size")]
+    #[doc(alias = "get_buffer_size")]
+    fn buffer_size(&self) -> usize;
+
+    #[doc(alias = "g_buffered_output_stream_set_auto_grow")]
+    fn set_auto_grow(&self, auto_grow: bool);
+
+    #[doc(alias = "g_buffered_output_stream_set_buffer_size")]
+    fn set_buffer_size(&self, size: usize);
+
+    #[doc(alias = "auto-grow")]
+    fn connect_auto_grow_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "buffer-size")]
+    fn connect_buffer_size_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+}
+
+impl<O: IsA<BufferedOutputStream>> BufferedOutputStreamExt for O {
     fn auto_grows(&self) -> bool {
         unsafe {
             from_glib(ffi::g_buffered_output_stream_get_auto_grow(
@@ -126,13 +158,10 @@ pub trait BufferedOutputStreamExt: IsA<BufferedOutputStream> + sealed::Sealed + 
         }
     }
 
-    #[doc(alias = "g_buffered_output_stream_get_buffer_size")]
-    #[doc(alias = "get_buffer_size")]
     fn buffer_size(&self) -> usize {
         unsafe { ffi::g_buffered_output_stream_get_buffer_size(self.as_ref().to_glib_none().0) }
     }
 
-    #[doc(alias = "g_buffered_output_stream_set_auto_grow")]
     fn set_auto_grow(&self, auto_grow: bool) {
         unsafe {
             ffi::g_buffered_output_stream_set_auto_grow(
@@ -142,14 +171,12 @@ pub trait BufferedOutputStreamExt: IsA<BufferedOutputStream> + sealed::Sealed + 
         }
     }
 
-    #[doc(alias = "g_buffered_output_stream_set_buffer_size")]
     fn set_buffer_size(&self, size: usize) {
         unsafe {
             ffi::g_buffered_output_stream_set_buffer_size(self.as_ref().to_glib_none().0, size);
         }
     }
 
-    #[doc(alias = "auto-grow")]
     fn connect_auto_grow_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_auto_grow_trampoline<
             P: IsA<BufferedOutputStream>,
@@ -175,7 +202,6 @@ pub trait BufferedOutputStreamExt: IsA<BufferedOutputStream> + sealed::Sealed + 
         }
     }
 
-    #[doc(alias = "buffer-size")]
     fn connect_buffer_size_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_buffer_size_trampoline<
             P: IsA<BufferedOutputStream>,
@@ -201,8 +227,6 @@ pub trait BufferedOutputStreamExt: IsA<BufferedOutputStream> + sealed::Sealed + 
         }
     }
 }
-
-impl<O: IsA<BufferedOutputStream>> BufferedOutputStreamExt for O {}
 
 impl fmt::Display for BufferedOutputStream {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {

@@ -2,8 +2,8 @@
 // from gir-files (https://github.com/gtk-rs/gir-files)
 // DO NOT EDIT
 
-#[cfg(feature = "v1_44")]
-#[cfg_attr(docsrs, doc(cfg(feature = "v1_44")))]
+#[cfg(any(feature = "v1_44", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v1_44")))]
 use crate::AttrIterator;
 use glib::translate::*;
 
@@ -24,8 +24,8 @@ impl Item {
         unsafe { from_glib_full(ffi::pango_item_new()) }
     }
 
-    #[cfg(feature = "v1_44")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "v1_44")))]
+    #[cfg(any(feature = "v1_44", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v1_44")))]
     #[doc(alias = "pango_item_apply_attrs")]
     pub fn apply_attrs(&mut self, iter: &mut AttrIterator) {
         unsafe {
@@ -35,7 +35,7 @@ impl Item {
 
     #[doc(alias = "pango_item_split")]
     #[must_use]
-    pub fn split(&mut self, split_index: i32, split_offset: i32) -> Item {
+    pub fn split(&mut self, split_index: i32, split_offset: i32) -> Option<Item> {
         unsafe {
             from_glib_full(ffi::pango_item_split(
                 self.to_glib_none_mut().0,

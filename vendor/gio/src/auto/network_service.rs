@@ -3,12 +3,14 @@
 // DO NOT EDIT
 
 use crate::SocketConnectable;
-use glib::{
-    prelude::*,
-    signal::{connect_raw, SignalHandlerId},
-    translate::*,
-};
-use std::{boxed::Box as Box_, fmt, mem::transmute};
+use glib::object::Cast;
+use glib::object::IsA;
+use glib::signal::connect_raw;
+use glib::signal::SignalHandlerId;
+use glib::translate::*;
+use std::boxed::Box as Box_;
+use std::fmt;
+use std::mem::transmute;
 
 glib::wrapper! {
     #[doc(alias = "GNetworkService")]
@@ -34,14 +36,31 @@ impl NetworkService {
     }
 }
 
-mod sealed {
-    pub trait Sealed {}
-    impl<T: super::IsA<super::NetworkService>> Sealed for T {}
-}
-
-pub trait NetworkServiceExt: IsA<NetworkService> + sealed::Sealed + 'static {
+pub trait NetworkServiceExt: 'static {
     #[doc(alias = "g_network_service_get_domain")]
     #[doc(alias = "get_domain")]
+    fn domain(&self) -> glib::GString;
+
+    #[doc(alias = "g_network_service_get_protocol")]
+    #[doc(alias = "get_protocol")]
+    fn protocol(&self) -> glib::GString;
+
+    #[doc(alias = "g_network_service_get_scheme")]
+    #[doc(alias = "get_scheme")]
+    fn scheme(&self) -> glib::GString;
+
+    #[doc(alias = "g_network_service_get_service")]
+    #[doc(alias = "get_service")]
+    fn service(&self) -> glib::GString;
+
+    #[doc(alias = "g_network_service_set_scheme")]
+    fn set_scheme(&self, scheme: &str);
+
+    #[doc(alias = "scheme")]
+    fn connect_scheme_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+}
+
+impl<O: IsA<NetworkService>> NetworkServiceExt for O {
     fn domain(&self) -> glib::GString {
         unsafe {
             from_glib_none(ffi::g_network_service_get_domain(
@@ -50,8 +69,6 @@ pub trait NetworkServiceExt: IsA<NetworkService> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_network_service_get_protocol")]
-    #[doc(alias = "get_protocol")]
     fn protocol(&self) -> glib::GString {
         unsafe {
             from_glib_none(ffi::g_network_service_get_protocol(
@@ -60,8 +77,6 @@ pub trait NetworkServiceExt: IsA<NetworkService> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_network_service_get_scheme")]
-    #[doc(alias = "get_scheme")]
     fn scheme(&self) -> glib::GString {
         unsafe {
             from_glib_none(ffi::g_network_service_get_scheme(
@@ -70,8 +85,6 @@ pub trait NetworkServiceExt: IsA<NetworkService> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_network_service_get_service")]
-    #[doc(alias = "get_service")]
     fn service(&self) -> glib::GString {
         unsafe {
             from_glib_none(ffi::g_network_service_get_service(
@@ -80,7 +93,6 @@ pub trait NetworkServiceExt: IsA<NetworkService> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_network_service_set_scheme")]
     fn set_scheme(&self, scheme: &str) {
         unsafe {
             ffi::g_network_service_set_scheme(
@@ -90,7 +102,6 @@ pub trait NetworkServiceExt: IsA<NetworkService> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "scheme")]
     fn connect_scheme_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_scheme_trampoline<
             P: IsA<NetworkService>,
@@ -116,8 +127,6 @@ pub trait NetworkServiceExt: IsA<NetworkService> + sealed::Sealed + 'static {
         }
     }
 }
-
-impl<O: IsA<NetworkService>> NetworkServiceExt for O {}
 
 impl fmt::Display for NetworkService {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {

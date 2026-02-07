@@ -2,12 +2,14 @@
 // from gir-files (https://github.com/gtk-rs/gir-files)
 // DO NOT EDIT
 
-use glib::{
-    prelude::*,
-    signal::{connect_raw, SignalHandlerId},
-    translate::*,
-};
-use std::{boxed::Box as Box_, fmt, mem::transmute};
+use glib::object::Cast;
+use glib::object::IsA;
+use glib::signal::connect_raw;
+use glib::signal::SignalHandlerId;
+use glib::translate::*;
+use std::boxed::Box as Box_;
+use std::fmt;
+use std::mem::transmute;
 
 glib::wrapper! {
     #[doc(alias = "GtkColorChooser")]
@@ -22,14 +24,32 @@ impl ColorChooser {
     pub const NONE: Option<&'static ColorChooser> = None;
 }
 
-mod sealed {
-    pub trait Sealed {}
-    impl<T: super::IsA<super::ColorChooser>> Sealed for T {}
-}
-
-pub trait ColorChooserExt: IsA<ColorChooser> + sealed::Sealed + 'static {
+pub trait ColorChooserExt: 'static {
     #[doc(alias = "gtk_color_chooser_get_rgba")]
     #[doc(alias = "get_rgba")]
+    fn rgba(&self) -> gdk::RGBA;
+
+    #[doc(alias = "gtk_color_chooser_get_use_alpha")]
+    #[doc(alias = "get_use_alpha")]
+    fn uses_alpha(&self) -> bool;
+
+    #[doc(alias = "gtk_color_chooser_set_rgba")]
+    fn set_rgba(&self, color: &gdk::RGBA);
+
+    #[doc(alias = "gtk_color_chooser_set_use_alpha")]
+    fn set_use_alpha(&self, use_alpha: bool);
+
+    #[doc(alias = "color-activated")]
+    fn connect_color_activated<F: Fn(&Self, &gdk::RGBA) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "rgba")]
+    fn connect_rgba_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "use-alpha")]
+    fn connect_use_alpha_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+}
+
+impl<O: IsA<ColorChooser>> ColorChooserExt for O {
     fn rgba(&self) -> gdk::RGBA {
         unsafe {
             let mut color = gdk::RGBA::uninitialized();
@@ -41,8 +61,6 @@ pub trait ColorChooserExt: IsA<ColorChooser> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_color_chooser_get_use_alpha")]
-    #[doc(alias = "get_use_alpha")]
     fn uses_alpha(&self) -> bool {
         unsafe {
             from_glib(ffi::gtk_color_chooser_get_use_alpha(
@@ -51,14 +69,12 @@ pub trait ColorChooserExt: IsA<ColorChooser> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_color_chooser_set_rgba")]
     fn set_rgba(&self, color: &gdk::RGBA) {
         unsafe {
             ffi::gtk_color_chooser_set_rgba(self.as_ref().to_glib_none().0, color.to_glib_none().0);
         }
     }
 
-    #[doc(alias = "gtk_color_chooser_set_use_alpha")]
     fn set_use_alpha(&self, use_alpha: bool) {
         unsafe {
             ffi::gtk_color_chooser_set_use_alpha(
@@ -68,7 +84,6 @@ pub trait ColorChooserExt: IsA<ColorChooser> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "color-activated")]
     fn connect_color_activated<F: Fn(&Self, &gdk::RGBA) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn color_activated_trampoline<
             P: IsA<ColorChooser>,
@@ -97,7 +112,6 @@ pub trait ColorChooserExt: IsA<ColorChooser> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "rgba")]
     fn connect_rgba_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_rgba_trampoline<P: IsA<ColorChooser>, F: Fn(&P) + 'static>(
             this: *mut ffi::GtkColorChooser,
@@ -120,7 +134,6 @@ pub trait ColorChooserExt: IsA<ColorChooser> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "use-alpha")]
     fn connect_use_alpha_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_use_alpha_trampoline<
             P: IsA<ColorChooser>,
@@ -146,8 +159,6 @@ pub trait ColorChooserExt: IsA<ColorChooser> + sealed::Sealed + 'static {
         }
     }
 }
-
-impl<O: IsA<ColorChooser>> ColorChooserExt for O {}
 
 impl fmt::Display for ColorChooser {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {

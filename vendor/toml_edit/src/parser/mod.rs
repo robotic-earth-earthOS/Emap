@@ -1,156 +1,265 @@
 #![allow(clippy::type_complexity)]
 
-use crate::RawString;
-#[cfg(not(feature = "unbounded"))]
-use toml_parser::parser::RecursionGuard;
-use toml_parser::parser::ValidateWhitespace;
-use winnow::stream::Stream as _;
-
 pub(crate) mod array;
-#[cfg(feature = "debug")]
-pub(crate) mod debug;
+pub(crate) mod datetime;
 pub(crate) mod document;
+pub(crate) mod errors;
 pub(crate) mod inline_table;
 pub(crate) mod key;
+pub(crate) mod numbers;
+pub(crate) mod state;
+pub(crate) mod strings;
+pub(crate) mod table;
+pub(crate) mod trivia;
 pub(crate) mod value;
 
-pub(crate) fn parse_document<'s>(
-    source: toml_parser::Source<'s>,
-    errors: &mut dyn prelude::ErrorSink,
-) -> crate::Document<&'s str> {
-    let tokens = source.lex().into_vec();
+pub use errors::TomlError;
 
-    let mut events = Vec::with_capacity(tokens.len());
-    let mut receiver = ValidateWhitespace::new(&mut events, source);
-    #[cfg(not(feature = "unbounded"))]
-    let mut receiver = RecursionGuard::new(&mut receiver, LIMIT);
-    #[cfg(not(feature = "unbounded"))]
-    let receiver = &mut receiver;
-    #[cfg(feature = "unbounded")]
-    let receiver = &mut receiver;
-    toml_parser::parser::parse_document(&tokens, receiver, errors);
+pub(crate) fn parse_document(raw: &str) -> Result<crate::Document, TomlError> {
+    use prelude::*;
 
-    let mut input = prelude::Input::new(&events);
-    let doc = document::document(&mut input, source, errors);
-    doc
+    let b = new_input(raw);
+    let mut doc = document::document
+        .parse(b)
+        .map_err(|e| TomlError::new(e, b))?;
+    doc.span = Some(0..(raw.len()));
+    doc.original = Some(raw.to_owned());
+    Ok(doc)
 }
 
-pub(crate) fn parse_key(
-    source: toml_parser::Source<'_>,
-    errors: &mut dyn prelude::ErrorSink,
-) -> crate::Key {
-    let tokens = source.lex().into_vec();
+pub(crate) fn parse_key(raw: &str) -> Result<crate::Key, TomlError> {
+    use prelude::*;
 
-    let mut events = Vec::with_capacity(tokens.len());
-    let mut receiver = ValidateWhitespace::new(&mut events, source);
-    #[cfg(not(feature = "unbounded"))]
-    let mut receiver = RecursionGuard::new(&mut receiver, LIMIT);
-    #[cfg(not(feature = "unbounded"))]
-    let receiver = &mut receiver;
-    #[cfg(feature = "unbounded")]
-    let receiver = &mut receiver;
-    toml_parser::parser::parse_simple_key(&tokens, receiver, errors);
-
-    if let Some(event) = events
-        .iter()
-        .find(|e| e.kind() == toml_parser::parser::EventKind::SimpleKey)
-    {
-        let (raw, key) = key::on_simple_key(event, source, errors);
-        crate::Key::new(key).with_repr_unchecked(crate::Repr::new_unchecked(raw))
-    } else {
-        let key = source.input();
-        let raw = RawString::with_span(0..source.input().len());
-        crate::Key::new(key).with_repr_unchecked(crate::Repr::new_unchecked(raw))
+    let b = new_input(raw);
+    let result = key::simple_key.parse(b);
+    match result {
+        Ok((raw, key)) => {
+            Ok(crate::Key::new(key).with_repr_unchecked(crate::Repr::new_unchecked(raw)))
+        }
+        Err(e) => Err(TomlError::new(e, b)),
     }
 }
 
-pub(crate) fn parse_key_path(
-    source: toml_parser::Source<'_>,
-    errors: &mut dyn prelude::ErrorSink,
-) -> Vec<crate::Key> {
-    let tokens = source.lex().into_vec();
+pub(crate) fn parse_key_path(raw: &str) -> Result<Vec<crate::Key>, TomlError> {
+    use prelude::*;
 
-    let mut events = Vec::with_capacity(tokens.len());
-    let mut receiver = ValidateWhitespace::new(&mut events, source);
-    #[cfg(not(feature = "unbounded"))]
-    let mut receiver = RecursionGuard::new(&mut receiver, LIMIT);
-    #[cfg(not(feature = "unbounded"))]
-    let receiver = &mut receiver;
-    #[cfg(feature = "unbounded")]
-    let receiver = &mut receiver;
-    toml_parser::parser::parse_key(&tokens, receiver, errors);
-
-    let mut input = prelude::Input::new(&events);
-    let mut prefix = None;
-    let mut path = None;
-    let mut key = None;
-    let mut suffix = None;
-    while let Some(event) = input.next_token() {
-        match event.kind() {
-            toml_parser::parser::EventKind::Whitespace => {
-                let raw = RawString::with_span(event.span().start()..event.span().end());
-                if prefix.is_none() {
-                    prefix = Some(raw);
-                } else if suffix.is_none() {
-                    suffix = Some(raw);
-                }
+    let b = new_input(raw);
+    let result = key::key.parse(b);
+    match result {
+        Ok(mut keys) => {
+            for key in &mut keys {
+                key.despan(raw);
             }
-            _ => {
-                let (local_path, local_key) = key::on_key(event, &mut input, source, errors);
-                path = Some(local_path);
-                key = local_key;
-            }
+            Ok(keys)
         }
-    }
-    if let Some(mut key) = key {
-        if let Some(prefix) = prefix {
-            key.leaf_decor.set_prefix(prefix);
-        }
-        if let Some(suffix) = suffix {
-            key.leaf_decor.set_suffix(suffix);
-        }
-        let mut path = path.unwrap_or_default();
-        path.push(key);
-        path
-    } else {
-        Default::default()
+        Err(e) => Err(TomlError::new(e, b)),
     }
 }
 
-pub(crate) fn parse_value(
-    source: toml_parser::Source<'_>,
-    errors: &mut dyn prelude::ErrorSink,
-) -> crate::Value {
-    let tokens = source.lex().into_vec();
+pub(crate) fn parse_value(raw: &str) -> Result<crate::Value, TomlError> {
+    use prelude::*;
 
-    let mut events = Vec::with_capacity(tokens.len());
-    let mut receiver = ValidateWhitespace::new(&mut events, source);
-    #[cfg(not(feature = "unbounded"))]
-    let mut receiver = RecursionGuard::new(&mut receiver, LIMIT);
-    #[cfg(not(feature = "unbounded"))]
-    let receiver = &mut receiver;
-    #[cfg(feature = "unbounded")]
-    let receiver = &mut receiver;
-    toml_parser::parser::parse_value(&tokens, receiver, errors);
-
-    let mut input = prelude::Input::new(&events);
-    let value = value::value(&mut input, source, errors);
-    value
+    let b = new_input(raw);
+    let parsed = value::value(RecursionCheck::default()).parse(b);
+    match parsed {
+        Ok(mut value) => {
+            // Only take the repr and not decor, as its probably not intended
+            value.decor_mut().clear();
+            value.despan(raw);
+            Ok(value)
+        }
+        Err(e) => Err(TomlError::new(e, b)),
+    }
 }
-
-#[cfg(not(feature = "unbounded"))]
-const LIMIT: u32 = 80;
 
 pub(crate) mod prelude {
-    pub(crate) use toml_parser::parser::EventKind;
-    pub(crate) use toml_parser::ErrorSink;
-    pub(crate) use toml_parser::ParseError;
-    pub(crate) use winnow::stream::Stream as _;
+    pub(crate) use winnow::combinator::dispatch;
+    pub(crate) use winnow::error::ContextError;
+    pub(crate) use winnow::error::FromExternalError;
+    pub(crate) use winnow::error::StrContext;
+    pub(crate) use winnow::error::StrContextValue;
+    pub(crate) use winnow::PResult;
+    pub(crate) use winnow::Parser;
 
-    pub(crate) type Input<'i> = winnow::stream::TokenSlice<'i, toml_parser::parser::Event>;
+    pub(crate) type Input<'b> = winnow::Located<&'b winnow::BStr>;
 
-    #[cfg(feature = "debug")]
-    pub(crate) use super::debug::trace;
-    #[cfg(feature = "debug")]
-    pub(crate) use super::debug::TraceScope;
+    pub(crate) fn new_input(s: &str) -> Input<'_> {
+        winnow::Located::new(winnow::BStr::new(s))
+    }
+
+    #[cfg(not(feature = "unbounded"))]
+    #[derive(Copy, Clone, Debug, Default)]
+    pub(crate) struct RecursionCheck {
+        current: usize,
+    }
+
+    #[cfg(not(feature = "unbounded"))]
+    impl RecursionCheck {
+        pub(crate) fn check_depth(depth: usize) -> Result<(), super::errors::CustomError> {
+            if depth < 128 {
+                Ok(())
+            } else {
+                Err(super::errors::CustomError::RecursionLimitExceeded)
+            }
+        }
+
+        pub(crate) fn recursing(
+            mut self,
+            input: &mut Input<'_>,
+        ) -> Result<Self, winnow::error::ErrMode<ContextError>> {
+            self.current += 1;
+            if self.current < 128 {
+                Ok(self)
+            } else {
+                Err(winnow::error::ErrMode::from_external_error(
+                    input,
+                    winnow::error::ErrorKind::Eof,
+                    super::errors::CustomError::RecursionLimitExceeded,
+                ))
+            }
+        }
+    }
+
+    #[cfg(feature = "unbounded")]
+    #[derive(Copy, Clone, Debug, Default)]
+    pub(crate) struct RecursionCheck {}
+
+    #[cfg(feature = "unbounded")]
+    impl RecursionCheck {
+        pub(crate) fn check_depth(_depth: usize) -> Result<(), super::errors::CustomError> {
+            Ok(())
+        }
+
+        pub(crate) fn recursing(
+            self,
+            _input: &mut Input<'_>,
+        ) -> Result<Self, winnow::error::ErrMode<ContextError>> {
+            Ok(self)
+        }
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn documents() {
+        let documents = [
+            "",
+            r#"
+# This is a TOML document.
+
+title = "TOML Example"
+
+    [owner]
+    name = "Tom Preston-Werner"
+    dob = 1979-05-27T07:32:00-08:00 # First class dates
+
+    [database]
+    server = "192.168.1.1"
+    ports = [ 8001, 8001, 8002 ]
+    connection_max = 5000
+    enabled = true
+
+    [servers]
+
+    # Indentation (tabs and/or spaces) is allowed but not required
+[servers.alpha]
+    ip = "10.0.0.1"
+    dc = "eqdc10"
+
+    [servers.beta]
+    ip = "10.0.0.2"
+    dc = "eqdc10"
+
+    [clients]
+    data = [ ["gamma", "delta"], [1, 2] ]
+
+    # Line breaks are OK when inside arrays
+hosts = [
+    "alpha",
+    "omega"
+]
+
+   'some.weird .stuff'   =  """
+                         like
+                         that
+                      #   """ # this broke my syntax highlighting
+   " also. like " = '''
+that
+'''
+   double = 2e39 # this number looks familiar
+# trailing comment"#,
+            r#""#,
+            r#"  "#,
+            r#" hello = 'darkness' # my old friend
+"#,
+            r#"[parent . child]
+key = "value"
+"#,
+            r#"hello.world = "a"
+"#,
+            r#"foo = 1979-05-27 # Comment
+"#,
+        ];
+        for input in documents {
+            dbg!(input);
+            let mut parsed = parse_document(input);
+            if let Ok(parsed) = &mut parsed {
+                parsed.despan();
+            }
+            let doc = match parsed {
+                Ok(doc) => doc,
+                Err(err) => {
+                    panic!(
+                        "Parse error: {:?}\nFailed to parse:\n```\n{}\n```",
+                        err, input
+                    )
+                }
+            };
+
+            snapbox::assert_eq(input, doc.to_string());
+        }
+    }
+
+    #[test]
+    fn documents_parse_only() {
+        let parse_only = ["\u{FEFF}
+[package]
+name = \"foo\"
+version = \"0.0.1\"
+authors = []
+"];
+        for input in parse_only {
+            dbg!(input);
+            let mut parsed = parse_document(input);
+            if let Ok(parsed) = &mut parsed {
+                parsed.despan();
+            }
+            match parsed {
+                Ok(_) => (),
+                Err(err) => {
+                    panic!(
+                        "Parse error: {:?}\nFailed to parse:\n```\n{}\n```",
+                        err, input
+                    )
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn invalid_documents() {
+        let invalid_inputs = [r#" hello = 'darkness' # my old friend
+$"#];
+        for input in invalid_inputs {
+            dbg!(input);
+            let mut parsed = parse_document(input);
+            if let Ok(parsed) = &mut parsed {
+                parsed.despan();
+            }
+            assert!(parsed.is_err(), "Input: {:?}", input);
+        }
+    }
 }

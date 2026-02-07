@@ -3,8 +3,10 @@
 // DO NOT EDIT
 
 use crate::TextBuffer;
-use glib::{prelude::*, translate::*};
-use std::{mem, ptr};
+use glib::object::IsA;
+use glib::translate::*;
+use std::mem;
+use std::ptr;
 
 glib::wrapper! {
     #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -74,7 +76,7 @@ impl SelectionData {
             if ret {
                 Some(FromGlibContainer::from_glib_container_num(
                     targets,
-                    n_atoms.assume_init() as _,
+                    n_atoms.assume_init() as usize,
                 ))
             } else {
                 None
@@ -100,7 +102,7 @@ impl SelectionData {
 
     #[doc(alias = "gtk_selection_data_set")]
     pub fn set(&self, type_: &gdk::Atom, format: i32, data: &[u8]) {
-        let length = data.len() as _;
+        let length = data.len() as i32;
         unsafe {
             ffi::gtk_selection_data_set(
                 mut_override(self.to_glib_none().0),
@@ -124,7 +126,7 @@ impl SelectionData {
 
     #[doc(alias = "gtk_selection_data_set_text")]
     pub fn set_text(&self, str: &str) -> bool {
-        let len = str.len() as _;
+        let len = str.len() as i32;
         unsafe {
             from_glib(ffi::gtk_selection_data_set_text(
                 mut_override(self.to_glib_none().0),

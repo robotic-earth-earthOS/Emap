@@ -5,10 +5,9 @@ use indexmap::map::IndexMap;
 use crate::key::Key;
 use crate::repr::Decor;
 use crate::value::DEFAULT_VALUE_DECOR;
-use crate::{InlineTable, Item, KeyMut, Value};
+use crate::{InlineTable, InternalString, Item, KeyMut, Value};
 
-/// A TOML table, a top-level collection of key/[`Value`] pairs under a header and logical
-/// sub-tables
+/// Type representing a TOML non-inline table
 #[derive(Clone, Debug, Default)]
 pub struct Table {
     // Comments/spaces before and after the header
@@ -20,7 +19,7 @@ pub struct Table {
     // Used for putting tables back in their original order when serialising.
     //
     // `None` for user created tables (can be overridden with `set_position`)
-    doc_position: Option<isize>,
+    doc_position: Option<usize>,
     pub(crate) span: Option<std::ops::Range<usize>>,
     pub(crate) items: KeyValuePairs,
 }
@@ -34,7 +33,7 @@ impl Table {
         Default::default()
     }
 
-    pub(crate) fn with_pos(doc_position: Option<isize>) -> Self {
+    pub(crate) fn with_pos(doc_position: Option<usize>) -> Self {
         Self {
             doc_position,
             ..Default::default()
@@ -50,8 +49,8 @@ impl Table {
 
     /// Convert to an inline table
     pub fn into_inline_table(mut self) -> InlineTable {
-        for (_, value) in self.items.iter_mut() {
-            value.make_value();
+        for (_, kv) in self.items.iter_mut() {
+            kv.value.make_value();
         }
         let mut t = InlineTable::with_pairs(self.items);
         t.fmt();
@@ -71,45 +70,17 @@ impl Table {
         values
     }
 
-    fn append_values<'s>(
+    fn append_values<'s, 'c>(
         &'s self,
         parent: &[&'s Key],
-        values: &mut Vec<(Vec<&'s Key>, &'s Value)>,
+        values: &'c mut Vec<(Vec<&'s Key>, &'s Value)>,
     ) {
-        for (key, value) in self.items.iter() {
+        for value in self.items.values() {
             let mut path = parent.to_vec();
-            path.push(key);
-            match value {
+            path.push(&value.key);
+            match &value.value {
                 Item::Table(table) if table.is_dotted() => {
                     table.append_values(&path, values);
-                }
-                Item::Value(value) => {
-                    if let Some(table) = value.as_inline_table() {
-                        if table.is_dotted() {
-                            table.append_values(&path, values);
-                        } else {
-                            values.push((path, value));
-                        }
-                    } else {
-                        values.push((path, value));
-                    }
-                }
-                _ => {}
-            }
-        }
-    }
-
-    pub(crate) fn append_all_values<'s>(
-        &'s self,
-        parent: &[&'s Key],
-        values: &mut Vec<(Vec<&'s Key>, &'s Value)>,
-    ) {
-        for (key, value) in self.items.iter() {
-            let mut path = parent.to_vec();
-            path.push(key);
-            match value {
-                Item::Table(table) => {
-                    table.append_all_values(&path, values);
                 }
                 Item::Value(value) => {
                     if let Some(table) = value.as_inline_table() {
@@ -132,21 +103,14 @@ impl Table {
         decorate_table(self);
     }
 
-    /// Sorts [Key]/[Value]-pairs of the table
+    /// Sorts Key/Value Pairs of the table.
     ///
-    /// <div class="warning">
-    ///
-    /// This sorts the syntactic table (everything under the `[header]`) and not the logical map of
-    /// key-value pairs.
-    /// This does not affect the order of [sub-tables][Table] or [sub-arrays][crate::ArrayOfTables].
-    /// This is not recursive.
-    ///
-    /// </div>
+    /// Doesn't affect subtables or subarrays.
     pub fn sort_values(&mut self) {
         // Assuming standard tables have their doc_position set and this won't negatively impact them
         self.items.sort_keys();
-        for value in self.items.values_mut() {
-            match value {
+        for kv in self.items.values_mut() {
+            match &mut kv.value {
                 Item::Table(table) if table.is_dotted() => {
                     table.sort_values();
                 }
@@ -155,19 +119,10 @@ impl Table {
         }
     }
 
-    /// Sort [Key]/[Value]-pairs of the table using the using the comparison function `compare`
+    /// Sort Key/Value Pairs of the table using the using the comparison function `compare`.
     ///
     /// The comparison function receives two key and value pairs to compare (you can sort by keys or
     /// values or their combination as needed).
-    ///
-    /// <div class="warning">
-    ///
-    /// This sorts the syntactic table (everything under the `[header]`) and not the logical map of
-    /// key-value pairs.
-    /// This does not affect the order of [sub-tables][Table] or [sub-arrays][crate::ArrayOfTables].
-    /// This is not recursive.
-    ///
-    /// </div>
     pub fn sort_values_by<F>(&mut self, mut compare: F)
     where
         F: FnMut(&Key, &Item, &Key, &Item) -> std::cmp::Ordering,
@@ -179,15 +134,18 @@ impl Table {
     where
         F: FnMut(&Key, &Item, &Key, &Item) -> std::cmp::Ordering,
     {
-        let modified_cmp =
-            |key1: &Key, val1: &Item, key2: &Key, val2: &Item| -> std::cmp::Ordering {
-                compare(key1, val1, key2, val2)
-            };
+        let modified_cmp = |_: &InternalString,
+                            val1: &TableKeyValue,
+                            _: &InternalString,
+                            val2: &TableKeyValue|
+         -> std::cmp::Ordering {
+            compare(&val1.key, &val1.value, &val2.key, &val2.value)
+        };
 
         self.items.sort_by(modified_cmp);
 
-        for value in self.items.values_mut() {
-            match value {
+        for kv in self.items.values_mut() {
+            match &mut kv.value {
                 Item::Table(table) if table.is_dotted() => {
                     table.sort_values_by_internal(compare);
                 }
@@ -207,15 +165,11 @@ impl Table {
     /// In the document above, tables `target` and `target."x86_64/windows.json"` are implicit.
     ///
     /// ```
-    /// # #[cfg(feature = "parse")] {
-    /// # #[cfg(feature = "display")] {
-    /// use toml_edit::DocumentMut;
-    /// let mut doc = "[a]\n[a.b]\n".parse::<DocumentMut>().expect("invalid toml");
+    /// use toml_edit::Document;
+    /// let mut doc = "[a]\n[a.b]\n".parse::<Document>().expect("invalid toml");
     ///
     /// doc["a"].as_table_mut().unwrap().set_implicit(true);
     /// assert_eq!(doc.to_string(), "[a.b]\n");
-    /// # }
-    /// # }
     /// ```
     pub fn set_implicit(&mut self, implicit: bool) {
         self.implicit = implicit;
@@ -236,17 +190,17 @@ impl Table {
         self.dotted
     }
 
-    /// Sets the position of the `Table` within the [`DocumentMut`][crate::DocumentMut].
-    pub fn set_position(&mut self, doc_position: isize) {
+    /// Sets the position of the `Table` within the `Document`.
+    pub fn set_position(&mut self, doc_position: usize) {
         self.doc_position = Some(doc_position);
     }
 
-    /// The position of the `Table` within the [`DocumentMut`][crate::DocumentMut].
+    /// The position of the `Table` within the `Document`.
     ///
     /// Returns `None` if the `Table` was created manually (i.e. not via parsing)
     /// in which case its position is set automatically.  This can be overridden with
     /// [`Table::set_position`].
-    pub fn position(&self) -> Option<isize> {
+    pub fn position(&self) -> Option<usize> {
         self.doc_position
     }
 
@@ -260,33 +214,27 @@ impl Table {
         &self.decor
     }
 
-    /// Returns an accessor to a key's formatting
-    pub fn key(&self, key: &str) -> Option<&'_ Key> {
-        self.items.get_full(key).map(|(_, key, _)| key)
+    /// Returns the decor associated with a given key of the table.
+    pub fn key_decor_mut(&mut self, key: &str) -> Option<&mut Decor> {
+        self.items.get_mut(key).map(|kv| &mut kv.key.decor)
     }
 
-    /// Returns an accessor to a key's formatting
-    pub fn key_mut(&mut self, key: &str) -> Option<KeyMut<'_>> {
-        use indexmap::map::MutableKeys;
-        self.items
-            .get_full_mut2(key)
-            .map(|(_, key, _)| key.as_mut())
+    /// Returns the decor associated with a given key of the table.
+    pub fn key_decor(&self, key: &str) -> Option<&Decor> {
+        self.items.get(key).map(|kv| &kv.key.decor)
     }
 
-    /// The location within the original document
-    ///
-    /// This generally requires a [`Document`][crate::Document].
-    pub fn span(&self) -> Option<std::ops::Range<usize>> {
+    /// Returns the location within the original document
+    pub(crate) fn span(&self) -> Option<std::ops::Range<usize>> {
         self.span.clone()
     }
 
     pub(crate) fn despan(&mut self, input: &str) {
-        use indexmap::map::MutableKeys;
         self.span = None;
         self.decor.despan(input);
-        for (key, value) in self.items.iter_mut2() {
-            key.despan(input);
-            value.despan(input);
+        for kv in self.items.values_mut() {
+            kv.key.despan(input);
+            kv.value.despan(input);
         }
     }
 }
@@ -297,25 +245,24 @@ impl Table {
         Box::new(
             self.items
                 .iter()
-                .filter(|(_, value)| !value.is_none())
-                .map(|(key, value)| (key.get(), value)),
+                .filter(|(_, kv)| !kv.value.is_none())
+                .map(|(key, kv)| (&key[..], &kv.value)),
         )
     }
 
     /// Returns an mutable iterator over all key/value pairs, including empty.
     pub fn iter_mut(&mut self) -> IterMut<'_> {
-        use indexmap::map::MutableKeys;
         Box::new(
             self.items
-                .iter_mut2()
-                .filter(|(_, value)| !value.is_none())
-                .map(|(key, value)| (key.as_mut(), value)),
+                .iter_mut()
+                .filter(|(_, kv)| !kv.value.is_none())
+                .map(|(_, kv)| (kv.key.as_mut(), &mut kv.value)),
         )
     }
 
     /// Returns the number of non-empty items in the table.
     pub fn len(&self) -> usize {
-        self.iter().count()
+        self.items.iter().filter(|i| !(i.1).value.is_none()).count()
     }
 
     /// Returns true if the table is empty.
@@ -325,46 +272,57 @@ impl Table {
 
     /// Clears the table, removing all key-value pairs. Keeps the allocated memory for reuse.
     pub fn clear(&mut self) {
-        self.items.clear();
+        self.items.clear()
     }
 
     /// Gets the given key's corresponding entry in the Table for in-place manipulation.
     pub fn entry<'a>(&'a mut self, key: &str) -> Entry<'a> {
-        // Accept a `&str` rather than an owned type to keep `String`, well, internal
+        // Accept a `&str` rather than an owned type to keep `InternalString`, well, internal
         match self.items.entry(key.into()) {
             indexmap::map::Entry::Occupied(entry) => Entry::Occupied(OccupiedEntry { entry }),
-            indexmap::map::Entry::Vacant(entry) => Entry::Vacant(VacantEntry { entry }),
+            indexmap::map::Entry::Vacant(entry) => Entry::Vacant(VacantEntry { entry, key: None }),
         }
     }
 
     /// Gets the given key's corresponding entry in the Table for in-place manipulation.
     pub fn entry_format<'a>(&'a mut self, key: &Key) -> Entry<'a> {
         // Accept a `&Key` to be consistent with `entry`
-        match self.items.entry(key.clone()) {
+        match self.items.entry(key.get().into()) {
             indexmap::map::Entry::Occupied(entry) => Entry::Occupied(OccupiedEntry { entry }),
-            indexmap::map::Entry::Vacant(entry) => Entry::Vacant(VacantEntry { entry }),
+            indexmap::map::Entry::Vacant(entry) => Entry::Vacant(VacantEntry {
+                entry,
+                key: Some(key.to_owned()),
+            }),
         }
     }
 
     /// Returns an optional reference to an item given the key.
     pub fn get<'a>(&'a self, key: &str) -> Option<&'a Item> {
-        self.items
-            .get(key)
-            .and_then(|value| if !value.is_none() { Some(value) } else { None })
+        self.items.get(key).and_then(|kv| {
+            if !kv.value.is_none() {
+                Some(&kv.value)
+            } else {
+                None
+            }
+        })
     }
 
     /// Returns an optional mutable reference to an item given the key.
     pub fn get_mut<'a>(&'a mut self, key: &str) -> Option<&'a mut Item> {
-        self.items
-            .get_mut(key)
-            .and_then(|value| if !value.is_none() { Some(value) } else { None })
+        self.items.get_mut(key).and_then(|kv| {
+            if !kv.value.is_none() {
+                Some(&mut kv.value)
+            } else {
+                None
+            }
+        })
     }
 
     /// Return references to the key-value pair stored for key, if it is present, else None.
     pub fn get_key_value<'a>(&'a self, key: &str) -> Option<(&'a Key, &'a Item)> {
-        self.items.get_full(key).and_then(|(_, key, value)| {
-            if !value.is_none() {
-                Some((key, value))
+        self.items.get(key).and_then(|kv| {
+            if !kv.value.is_none() {
+                Some((&kv.key, &kv.value))
             } else {
                 None
             }
@@ -373,10 +331,9 @@ impl Table {
 
     /// Return mutable references to the key-value pair stored for key, if it is present, else None.
     pub fn get_key_value_mut<'a>(&'a mut self, key: &str) -> Option<(KeyMut<'a>, &'a mut Item)> {
-        use indexmap::map::MutableKeys;
-        self.items.get_full_mut2(key).and_then(|(_, key, value)| {
-            if !value.is_none() {
-                Some((key.as_mut(), value))
+        self.items.get_mut(key).and_then(|kv| {
+            if !kv.value.is_none() {
+                Some((kv.key.as_mut(), &mut kv.value))
             } else {
                 None
             }
@@ -385,8 +342,8 @@ impl Table {
 
     /// Returns true if the table contains an item with the given key.
     pub fn contains_key(&self, key: &str) -> bool {
-        if let Some(value) = self.items.get(key) {
-            !value.is_none()
+        if let Some(kv) = self.items.get(key) {
+            !kv.value.is_none()
         } else {
             false
         }
@@ -394,8 +351,8 @@ impl Table {
 
     /// Returns true if the table contains a table with the given key.
     pub fn contains_table(&self, key: &str) -> bool {
-        if let Some(value) = self.items.get(key) {
-            value.is_table()
+        if let Some(kv) = self.items.get(key) {
+            kv.value.is_table()
         } else {
             false
         }
@@ -403,8 +360,8 @@ impl Table {
 
     /// Returns true if the table contains a value with the given key.
     pub fn contains_value(&self, key: &str) -> bool {
-        if let Some(value) = self.items.get(key) {
-            value.is_value()
+        if let Some(kv) = self.items.get(key) {
+            kv.value.is_value()
         } else {
             false
         }
@@ -412,8 +369,8 @@ impl Table {
 
     /// Returns true if the table contains an array of tables with the given key.
     pub fn contains_array_of_tables(&self, key: &str) -> bool {
-        if let Some(value) = self.items.get(key) {
-            value.is_array_of_tables()
+        if let Some(kv) = self.items.get(key) {
+            kv.value.is_array_of_tables()
         } else {
             false
         }
@@ -421,45 +378,24 @@ impl Table {
 
     /// Inserts a key-value pair into the map.
     pub fn insert(&mut self, key: &str, item: Item) -> Option<Item> {
-        use indexmap::map::MutableEntryKey;
-        let key = Key::new(key);
-        match self.items.entry(key.clone()) {
-            indexmap::map::Entry::Occupied(mut entry) => {
-                entry.key_mut().fmt();
-                let old = std::mem::replace(entry.get_mut(), item);
-                Some(old)
-            }
-            indexmap::map::Entry::Vacant(entry) => {
-                entry.insert(item);
-                None
-            }
-        }
+        let kv = TableKeyValue::new(Key::new(key), item);
+        self.items.insert(key.into(), kv).map(|kv| kv.value)
     }
 
     /// Inserts a key-value pair into the map.
     pub fn insert_formatted(&mut self, key: &Key, item: Item) -> Option<Item> {
-        use indexmap::map::MutableEntryKey;
-        match self.items.entry(key.clone()) {
-            indexmap::map::Entry::Occupied(mut entry) => {
-                *entry.key_mut() = key.clone();
-                let old = std::mem::replace(entry.get_mut(), item);
-                Some(old)
-            }
-            indexmap::map::Entry::Vacant(entry) => {
-                entry.insert(item);
-                None
-            }
-        }
+        let kv = TableKeyValue::new(key.to_owned(), item);
+        self.items.insert(key.get().into(), kv).map(|kv| kv.value)
     }
 
     /// Removes an item given the key.
     pub fn remove(&mut self, key: &str) -> Option<Item> {
-        self.items.shift_remove(key)
+        self.items.shift_remove(key).map(|kv| kv.value)
     }
 
     /// Removes a key from the map, returning the stored key and value if the key was previously in the map.
     pub fn remove_entry(&mut self, key: &str) -> Option<(Key, Item)> {
-        self.items.shift_remove_entry(key)
+        self.items.shift_remove(key).map(|kv| (kv.key, kv.value))
     }
 
     /// Retains only the elements specified by the `keep` predicate.
@@ -472,52 +408,54 @@ impl Table {
     where
         F: FnMut(&str, &mut Item) -> bool,
     {
-        self.items.retain(|key, value| keep(key, value));
+        self.items
+            .retain(|key, key_value| keep(key, &mut key_value.value));
     }
 }
 
-#[cfg(feature = "display")]
 impl std::fmt::Display for Table {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        use crate::encode::Encode;
         let children = self.get_values();
         // print table body
         for (key_path, value) in children {
-            crate::encode::encode_key_path_ref(&key_path, f, None, DEFAULT_KEY_DECOR)?;
+            key_path.as_slice().encode(f, None, DEFAULT_KEY_DECOR)?;
             write!(f, "=")?;
-            crate::encode::encode_value(value, f, None, DEFAULT_VALUE_DECOR)?;
+            value.encode(f, None, DEFAULT_VALUE_DECOR)?;
             writeln!(f)?;
         }
         Ok(())
     }
 }
 
-impl<K: Into<Key>, V: Into<Item>> Extend<(K, V)> for Table {
+impl<K: Into<Key>, V: Into<Value>> Extend<(K, V)> for Table {
     fn extend<T: IntoIterator<Item = (K, V)>>(&mut self, iter: T) {
         for (key, value) in iter {
             let key = key.into();
-            let value = value.into();
-            self.items.insert(key, value);
+            let value = Item::Value(value.into());
+            let value = TableKeyValue::new(key, value);
+            self.items.insert(value.key.get().into(), value);
         }
     }
 }
 
-impl<K: Into<Key>, V: Into<Item>> FromIterator<(K, V)> for Table {
+impl<K: Into<Key>, V: Into<Value>> FromIterator<(K, V)> for Table {
     fn from_iter<I>(iter: I) -> Self
     where
         I: IntoIterator<Item = (K, V)>,
     {
-        let mut table = Self::new();
+        let mut table = Table::new();
         table.extend(iter);
         table
     }
 }
 
 impl IntoIterator for Table {
-    type Item = (String, Item);
+    type Item = (InternalString, Item);
     type IntoIter = IntoIter;
 
     fn into_iter(self) -> Self::IntoIter {
-        Box::new(self.items.into_iter().map(|(k, value)| (k.into(), value)))
+        Box::new(self.items.into_iter().map(|(k, kv)| (k, kv.value)))
     }
 }
 
@@ -530,33 +468,42 @@ impl<'s> IntoIterator for &'s Table {
     }
 }
 
-pub(crate) type KeyValuePairs = IndexMap<Key, Item>;
+pub(crate) type KeyValuePairs = IndexMap<InternalString, TableKeyValue>;
 
 fn decorate_table(table: &mut Table) {
-    use indexmap::map::MutableKeys;
-    for (mut key, value) in table
+    for (key_decor, value) in table
         .items
-        .iter_mut2()
-        .filter(|(_, value)| value.is_value())
-        .map(|(key, value)| (key.as_mut(), value.as_value_mut().unwrap()))
+        .iter_mut()
+        .filter(|&(_, ref kv)| kv.value.is_value())
+        .map(|(_, kv)| (&mut kv.key.decor, kv.value.as_value_mut().unwrap()))
     {
-        key.leaf_decor_mut().clear();
-        key.dotted_decor_mut().clear();
+        key_decor.clear();
         value.decor_mut().clear();
     }
 }
 
 // `key1 = value1`
-pub(crate) const DEFAULT_ROOT_DECOR: (&str, &str) = ("", "");
 pub(crate) const DEFAULT_KEY_DECOR: (&str, &str) = ("", " ");
 pub(crate) const DEFAULT_TABLE_DECOR: (&str, &str) = ("\n", "");
 pub(crate) const DEFAULT_KEY_PATH_DECOR: (&str, &str) = ("", "");
 
-/// An owned iterator type over [`Table`]'s [`Key`]/[`Item`] pairs
-pub type IntoIter = Box<dyn Iterator<Item = (String, Item)>>;
-/// An iterator type over [`Table`]'s [`Key`]/[`Item`] pairs
+#[derive(Debug, Clone)]
+pub(crate) struct TableKeyValue {
+    pub(crate) key: Key,
+    pub(crate) value: Item,
+}
+
+impl TableKeyValue {
+    pub(crate) fn new(key: Key, value: Item) -> Self {
+        TableKeyValue { key, value }
+    }
+}
+
+/// An owned iterator type over `Table`'s key/value pairs.
+pub type IntoIter = Box<dyn Iterator<Item = (InternalString, Item)>>;
+/// An iterator type over `Table`'s key/value pairs.
 pub type Iter<'a> = Box<dyn Iterator<Item = (&'a str, &'a Item)> + 'a>;
-/// A mutable iterator type over [`Table`]'s [`Key`]/[`Item`] pairs
+/// A mutable iterator type over `Table`'s key/value pairs.
 pub type IterMut<'a> = Box<dyn Iterator<Item = (KeyMut<'a>, &'a mut Item)> + 'a>;
 
 /// This trait represents either a `Table`, or an `InlineTable`.
@@ -601,26 +548,19 @@ pub trait TableLike: crate::private::Sealed {
 
     /// Auto formats the table.
     fn fmt(&mut self);
-    /// Sorts [Key]/[Value]-pairs of the table
+    /// Sorts Key/Value Pairs of the table.
     ///
-    /// <div class="warning">
-    ///
-    /// This sorts the syntactic table (everything under the `[header]`) and not the logical map of
-    /// key-value pairs.
-    /// This does not affect the order of [sub-tables][Table] or [sub-arrays][crate::ArrayOfTables].
-    /// This is not recursive.
-    ///
-    /// </div>
+    /// Doesn't affect subtables or subarrays.
     fn sort_values(&mut self);
     /// Change this table's dotted status
     fn set_dotted(&mut self, yes: bool);
     /// Check if this is a wrapper for dotted keys, rather than a standard table
     fn is_dotted(&self) -> bool;
 
-    /// Returns an accessor to a key's formatting
-    fn key(&self, key: &str) -> Option<&'_ Key>;
-    /// Returns an accessor to a key's formatting
-    fn key_mut(&mut self, key: &str) -> Option<KeyMut<'_>>;
+    /// Returns the decor associated with a given key of the table.
+    fn key_decor_mut(&mut self, key: &str) -> Option<&mut Decor>;
+    /// Returns the decor associated with a given key of the table.
+    fn key_decor(&self, key: &str) -> Option<&Decor>;
 }
 
 impl TableLike for Table {
@@ -665,27 +605,27 @@ impl TableLike for Table {
         self.get_values()
     }
     fn fmt(&mut self) {
-        self.fmt();
+        self.fmt()
     }
     fn sort_values(&mut self) {
-        self.sort_values();
+        self.sort_values()
     }
     fn is_dotted(&self) -> bool {
         self.is_dotted()
     }
     fn set_dotted(&mut self, yes: bool) {
-        self.set_dotted(yes);
+        self.set_dotted(yes)
     }
 
-    fn key(&self, key: &str) -> Option<&'_ Key> {
-        self.key(key)
+    fn key_decor_mut(&mut self, key: &str) -> Option<&mut Decor> {
+        self.key_decor_mut(key)
     }
-    fn key_mut(&mut self, key: &str) -> Option<KeyMut<'_>> {
-        self.key_mut(key)
+    fn key_decor(&self, key: &str) -> Option<&Decor> {
+        self.key_decor(key)
     }
 }
 
-/// A view into a single location in a [`Table`], which may be vacant or occupied.
+/// A view into a single location in a map, which may be vacant or occupied.
 pub enum Entry<'a> {
     /// An occupied Entry.
     Occupied(OccupiedEntry<'a>),
@@ -731,9 +671,9 @@ impl<'a> Entry<'a> {
     }
 }
 
-/// A view into a single occupied location in a [`Table`].
+/// A view into a single occupied location in a `IndexMap`.
 pub struct OccupiedEntry<'a> {
-    pub(crate) entry: indexmap::map::OccupiedEntry<'a, Key, Item>,
+    pub(crate) entry: indexmap::map::OccupiedEntry<'a, InternalString, TableKeyValue>,
 }
 
 impl<'a> OccupiedEntry<'a> {
@@ -749,45 +689,46 @@ impl<'a> OccupiedEntry<'a> {
     /// assert_eq!("foo", map.entry("foo").key());
     /// ```
     pub fn key(&self) -> &str {
-        self.entry.key().get()
+        self.entry.key().as_str()
     }
 
     /// Gets a mutable reference to the entry key
     pub fn key_mut(&mut self) -> KeyMut<'_> {
-        use indexmap::map::MutableEntryKey;
-        self.entry.key_mut().as_mut()
+        self.entry.get_mut().key.as_mut()
     }
 
     /// Gets a reference to the value in the entry.
     pub fn get(&self) -> &Item {
-        self.entry.get()
+        &self.entry.get().value
     }
 
     /// Gets a mutable reference to the value in the entry.
     pub fn get_mut(&mut self) -> &mut Item {
-        self.entry.get_mut()
+        &mut self.entry.get_mut().value
     }
 
-    /// Converts the `OccupiedEntry` into a mutable reference to the value in the entry
+    /// Converts the OccupiedEntry into a mutable reference to the value in the entry
     /// with a lifetime bound to the map itself
     pub fn into_mut(self) -> &'a mut Item {
-        self.entry.into_mut()
+        &mut self.entry.into_mut().value
     }
 
     /// Sets the value of the entry, and returns the entry's old value
-    pub fn insert(&mut self, value: Item) -> Item {
-        self.entry.insert(value)
+    pub fn insert(&mut self, mut value: Item) -> Item {
+        std::mem::swap(&mut value, &mut self.entry.get_mut().value);
+        value
     }
 
     /// Takes the value out of the entry, and returns it
     pub fn remove(self) -> Item {
-        self.entry.shift_remove()
+        self.entry.shift_remove().value
     }
 }
 
-/// A view into a single empty location in a [`Table`].
+/// A view into a single empty location in a `IndexMap`.
 pub struct VacantEntry<'a> {
-    pub(crate) entry: indexmap::map::VacantEntry<'a, Key, Item>,
+    pub(crate) entry: indexmap::map::VacantEntry<'a, InternalString, TableKeyValue>,
+    pub(crate) key: Option<Key>,
 }
 
 impl<'a> VacantEntry<'a> {
@@ -803,13 +744,14 @@ impl<'a> VacantEntry<'a> {
     /// assert_eq!("foo", map.entry("foo").key());
     /// ```
     pub fn key(&self) -> &str {
-        self.entry.key().get()
+        self.entry.key().as_str()
     }
 
-    /// Sets the value of the entry with the `VacantEntry`'s key,
+    /// Sets the value of the entry with the VacantEntry's key,
     /// and returns a mutable reference to it
     pub fn insert(self, value: Item) -> &'a mut Item {
         let entry = self.entry;
-        entry.insert(value)
+        let key = self.key.unwrap_or_else(|| Key::new(entry.key().as_str()));
+        &mut entry.insert(TableKeyValue::new(key, value)).value
     }
 }

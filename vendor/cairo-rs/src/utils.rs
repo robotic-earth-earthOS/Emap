@@ -1,8 +1,8 @@
 // Take a look at the license at the top of the repository in the LICENSE file.
 
-use std::{ffi::CStr, fmt};
-
-use crate::Error;
+use crate::error::Error;
+use std::ffi::CStr;
+use std::fmt;
 
 // rustdoc-stripper-ignore-next
 /// Resets all static data within cairo to its original state (i.e. identical to the state at program
@@ -38,9 +38,9 @@ pub fn version_string() -> &'static str {
 
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone, Copy)]
 pub struct Version {
-    major: u8,
-    minor: u8,
-    micro: u8,
+    pub major: u8,
+    pub minor: u8,
+    pub micro: u8,
 }
 
 impl Version {
@@ -53,16 +53,6 @@ impl Version {
             minor: (version / 100 % 100) as _,
             micro: (version % 100) as _,
         }
-    }
-
-    pub fn major(self) -> u8 {
-        self.major
-    }
-    pub fn minor(self) -> u8 {
-        self.minor
-    }
-    pub fn micro(self) -> u8 {
-        self.micro
     }
 }
 

@@ -1,18 +1,18 @@
 // Take a look at the license at the top of the repository in the LICENSE file.
 
-use std::{
-    borrow::{Borrow, Cow, ToOwned},
-    cmp::{Eq, PartialEq},
-    fmt,
-    hash::{Hash, Hasher},
-    iter,
-    marker::PhantomData,
-    ops::Deref,
-    ptr, slice,
-    str::FromStr,
-};
-
-use crate::{prelude::*, translate::*, BoolError, Type};
+use crate::translate::*;
+use crate::types::StaticType;
+use crate::types::Type;
+use crate::BoolError;
+use std::borrow::{Borrow, Cow, ToOwned};
+use std::cmp::{Eq, PartialEq};
+use std::fmt;
+use std::hash::{Hash, Hasher};
+use std::iter;
+use std::ops::Deref;
+use std::ptr;
+use std::slice;
+use std::str::FromStr;
 
 // rustdoc-stripper-ignore-next
 /// Describes `Variant` types.
@@ -25,7 +25,7 @@ use crate::{prelude::*, translate::*, BoolError, Type};
 pub struct VariantType {
     // GVariantType* essentially is a char*, that always is valid UTF-8 but
     // isn't NUL-terminated.
-    ptr: ptr::NonNull<ffi::GVariantType>,
+    ptr: *mut ffi::GVariantType,
     // We query the length on creation assuming it's cheap (because type strings
     // are short) and likely to happen anyway.
     len: usize,
@@ -69,7 +69,7 @@ impl VariantType {
     // rustdoc-stripper-ignore-next
     /// Creates a `VariantType` from a maybe element type.
     #[doc(alias = "g_variant_type_new_tuple")]
-    pub fn new_tuple(items: impl IntoIterator<Item = impl AsRef<VariantTy>>) -> VariantType {
+    pub fn new_tuple<T: AsRef<VariantTy>, I: IntoIterator<Item = T>>(items: I) -> VariantType {
         let mut builder = crate::GStringBuilder::new("(");
 
         for ty in items {
@@ -90,14 +90,12 @@ impl VariantType {
         VariantTy::new(&type_string)?;
 
         let len = type_string.len();
-        unsafe {
-            let ptr = type_string.into_glib_ptr();
+        let ptr = type_string.into_raw();
 
-            Ok(VariantType {
-                ptr: ptr::NonNull::new_unchecked(ptr as *mut ffi::GVariantType),
-                len,
-            })
-        }
+        Ok(VariantType {
+            ptr: ptr as *mut ffi::GVariantType,
+            len,
+        })
     }
 }
 
@@ -105,32 +103,28 @@ unsafe impl Send for VariantType {}
 unsafe impl Sync for VariantType {}
 
 impl Drop for VariantType {
-    #[inline]
     fn drop(&mut self) {
-        unsafe { ffi::g_variant_type_free(self.ptr.as_ptr()) }
+        unsafe { ffi::g_variant_type_free(self.ptr) }
     }
 }
 
 impl AsRef<VariantTy> for VariantType {
-    #[inline]
     fn as_ref(&self) -> &VariantTy {
         self
     }
 }
 
 impl Borrow<VariantTy> for VariantType {
-    #[inline]
     fn borrow(&self) -> &VariantTy {
         self
     }
 }
 
 impl Clone for VariantType {
-    #[inline]
     fn clone(&self) -> VariantType {
         unsafe {
             VariantType {
-                ptr: ptr::NonNull::new_unchecked(ffi::g_variant_type_copy(self.ptr.as_ptr())),
+                ptr: ffi::g_variant_type_copy(self.ptr),
                 len: self.len,
             }
         }
@@ -139,12 +133,10 @@ impl Clone for VariantType {
 
 impl Deref for VariantType {
     type Target = VariantTy;
-
-    #[allow(clippy::cast_slice_from_raw_parts)]
-    #[inline]
     fn deref(&self) -> &VariantTy {
         unsafe {
-            &*(slice::from_raw_parts(self.ptr.as_ptr() as *const u8, self.len) as *const [u8]
+            assert!(self.len > 0);
+            &*(slice::from_raw_parts(self.ptr as *const u8, self.len) as *const [u8]
                 as *const VariantTy)
         }
     }
@@ -171,70 +163,54 @@ impl FromStr for VariantType {
 }
 
 impl Hash for VariantType {
-    #[inline]
     fn hash<H: Hasher>(&self, state: &mut H) {
         <VariantTy as Hash>::hash(self, state)
     }
 }
 
 impl<'a> From<VariantType> for Cow<'a, VariantTy> {
-    #[inline]
     fn from(ty: VariantType) -> Cow<'a, VariantTy> {
         Cow::Owned(ty)
     }
 }
 
 #[doc(hidden)]
-impl IntoGlibPtr<*mut ffi::GVariantType> for VariantType {
-    #[inline]
-    unsafe fn into_glib_ptr(self) -> *mut ffi::GVariantType {
-        std::mem::ManuallyDrop::new(self).to_glib_none().0
-    }
-}
-
-#[doc(hidden)]
 impl<'a> ToGlibPtr<'a, *const ffi::GVariantType> for VariantType {
-    type Storage = PhantomData<&'a Self>;
+    type Storage = &'a Self;
 
-    #[inline]
     fn to_glib_none(&'a self) -> Stash<'a, *const ffi::GVariantType, Self> {
-        Stash(self.ptr.as_ptr(), PhantomData)
+        Stash(self.ptr, self)
     }
 
-    #[inline]
     fn to_glib_full(&self) -> *const ffi::GVariantType {
-        unsafe { ffi::g_variant_type_copy(self.ptr.as_ptr()) }
+        unsafe { ffi::g_variant_type_copy(self.ptr) }
     }
 }
 
 #[doc(hidden)]
 impl<'a> ToGlibPtr<'a, *mut ffi::GVariantType> for VariantType {
-    type Storage = PhantomData<&'a Self>;
+    type Storage = &'a Self;
 
-    #[inline]
     fn to_glib_none(&'a self) -> Stash<'a, *mut ffi::GVariantType, Self> {
-        Stash(self.ptr.as_ptr(), PhantomData)
+        Stash(self.ptr, self)
     }
 
-    #[inline]
     fn to_glib_full(&self) -> *mut ffi::GVariantType {
-        unsafe { ffi::g_variant_type_copy(self.ptr.as_ptr()) }
+        unsafe { ffi::g_variant_type_copy(self.ptr) }
     }
 }
 
 #[doc(hidden)]
 impl<'a> ToGlibPtrMut<'a, *mut ffi::GVariantType> for VariantType {
-    type Storage = PhantomData<&'a mut Self>;
+    type Storage = &'a mut Self;
 
-    #[inline]
     fn to_glib_none_mut(&'a mut self) -> StashMut<'a, *mut ffi::GVariantType, Self> {
-        StashMut(self.ptr.as_ptr(), PhantomData)
+        StashMut(self.ptr, self)
     }
 }
 
 #[doc(hidden)]
 impl FromGlibPtrNone<*const ffi::GVariantType> for VariantType {
-    #[inline]
     unsafe fn from_glib_none(ptr: *const ffi::GVariantType) -> VariantType {
         VariantTy::from_ptr(ptr).to_owned()
     }
@@ -242,7 +218,6 @@ impl FromGlibPtrNone<*const ffi::GVariantType> for VariantType {
 
 #[doc(hidden)]
 impl FromGlibPtrFull<*const ffi::GVariantType> for VariantType {
-    #[inline]
     unsafe fn from_glib_full(ptr: *const ffi::GVariantType) -> VariantType {
         // Don't assume ownership of a const pointer.
         // A transfer: full annotation on a `const GVariantType*` is likely a bug.
@@ -252,14 +227,9 @@ impl FromGlibPtrFull<*const ffi::GVariantType> for VariantType {
 
 #[doc(hidden)]
 impl FromGlibPtrFull<*mut ffi::GVariantType> for VariantType {
-    #[inline]
     unsafe fn from_glib_full(ptr: *mut ffi::GVariantType) -> VariantType {
-        debug_assert!(!ptr.is_null());
-        let len: usize = ffi::g_variant_type_get_string_length(ptr) as _;
-        VariantType {
-            ptr: ptr::NonNull::new_unchecked(ptr),
-            len,
-        }
+        let len = ffi::g_variant_type_get_string_length(ptr) as usize;
+        VariantType { ptr, len }
     }
 }
 
@@ -466,7 +436,6 @@ impl VariantTy {
     /// # Safety
     ///
     /// The caller is responsible for passing in only a valid variant type string.
-    #[inline]
     pub const unsafe fn from_str_unchecked(type_string: &str) -> &VariantTy {
         std::mem::transmute::<&str, &VariantTy>(type_string)
     }
@@ -475,26 +444,21 @@ impl VariantTy {
     /// Creates `&VariantTy` with a wildcard lifetime from a `GVariantType`
     /// pointer.
     #[doc(hidden)]
-    #[allow(clippy::cast_slice_from_raw_parts)]
-    #[inline]
     pub unsafe fn from_ptr<'a>(ptr: *const ffi::GVariantType) -> &'a VariantTy {
-        debug_assert!(!ptr.is_null());
-        let len: usize = ffi::g_variant_type_get_string_length(ptr) as _;
-        debug_assert!(len > 0);
+        let len = ffi::g_variant_type_get_string_length(ptr) as usize;
+        assert!(len > 0);
         &*(slice::from_raw_parts(ptr as *const u8, len) as *const [u8] as *const VariantTy)
     }
 
     // rustdoc-stripper-ignore-next
     /// Returns a `GVariantType` pointer.
     #[doc(hidden)]
-    #[inline]
     pub fn as_ptr(&self) -> *const ffi::GVariantType {
         self.inner.as_ptr() as *const _
     }
 
     // rustdoc-stripper-ignore-next
     /// Converts to a string slice.
-    #[inline]
     pub fn as_str(&self) -> &str {
         &self.inner
     }
@@ -689,11 +653,10 @@ unsafe impl Sync for VariantTy {}
 
 #[doc(hidden)]
 impl<'a> ToGlibPtr<'a, *const ffi::GVariantType> for VariantTy {
-    type Storage = PhantomData<&'a Self>;
+    type Storage = &'a Self;
 
-    #[inline]
     fn to_glib_none(&'a self) -> Stash<'a, *const ffi::GVariantType, Self> {
-        Stash(self.as_ptr(), PhantomData)
+        Stash(self.as_ptr(), self)
     }
 }
 
@@ -704,14 +667,12 @@ impl fmt::Display for VariantTy {
 }
 
 impl<'a> From<&'a VariantTy> for Cow<'a, VariantTy> {
-    #[inline]
     fn from(ty: &'a VariantTy) -> Cow<'a, VariantTy> {
         Cow::Borrowed(ty)
     }
 }
 
 impl AsRef<VariantTy> for VariantTy {
-    #[inline]
     fn as_ref(&self) -> &Self {
         self
     }
@@ -720,11 +681,10 @@ impl AsRef<VariantTy> for VariantTy {
 impl ToOwned for VariantTy {
     type Owned = VariantType;
 
-    #[inline]
     fn to_owned(&self) -> VariantType {
         unsafe {
             VariantType {
-                ptr: ptr::NonNull::new_unchecked(ffi::g_variant_type_copy(self.as_ptr())),
+                ptr: ffi::g_variant_type_copy(self.as_ptr()),
                 len: self.inner.len(),
             }
         }
@@ -732,7 +692,6 @@ impl ToOwned for VariantTy {
 }
 
 impl StaticType for VariantTy {
-    #[inline]
     fn static_type() -> Type {
         unsafe { from_glib(ffi::g_variant_type_get_gtype()) }
     }
@@ -744,7 +703,7 @@ unsafe impl<'a> crate::value::FromValue<'a> for &'a VariantTy {
 
     unsafe fn from_value(value: &'a crate::Value) -> Self {
         let ptr = gobject_ffi::g_value_get_boxed(value.to_glib_none().0);
-        debug_assert!(!ptr.is_null());
+        assert!(!ptr.is_null());
         VariantTy::from_ptr(ptr as *const ffi::GVariantType)
     }
 }
@@ -753,7 +712,7 @@ unsafe impl<'a> crate::value::FromValue<'a> for &'a VariantTy {
 impl crate::value::ToValue for VariantTy {
     fn to_value(&self) -> crate::Value {
         unsafe {
-            let mut value = crate::Value::from_type_unchecked(VariantTy::static_type());
+            let mut value = crate::Value::from_type(VariantTy::static_type());
             gobject_ffi::g_value_set_boxed(
                 value.to_glib_none_mut().0,
                 self.to_glib_none().0 as *mut _,
@@ -773,7 +732,6 @@ impl crate::value::ToValue for &VariantTy {
         (*self).to_value()
     }
 
-    #[inline]
     fn value_type(&self) -> crate::Type {
         VariantTy::static_type()
     }
@@ -795,7 +753,6 @@ impl crate::value::ToValueOptional for &VariantTy {
 }
 
 impl StaticType for VariantType {
-    #[inline]
     fn static_type() -> Type {
         unsafe { from_glib(ffi::g_variant_type_get_gtype()) }
     }
@@ -815,7 +772,7 @@ unsafe impl<'a> crate::value::FromValue<'a> for VariantType {
 
     unsafe fn from_value(value: &'a crate::Value) -> Self {
         let ptr = gobject_ffi::g_value_get_boxed(value.to_glib_none().0);
-        debug_assert!(!ptr.is_null());
+        assert!(!ptr.is_null());
         from_glib_none(ptr as *const ffi::GVariantType)
     }
 }
@@ -824,7 +781,7 @@ unsafe impl<'a> crate::value::FromValue<'a> for VariantType {
 impl crate::value::ToValue for VariantType {
     fn to_value(&self) -> crate::Value {
         unsafe {
-            let mut value = crate::Value::from_type_unchecked(VariantType::static_type());
+            let mut value = crate::Value::from_type(VariantType::static_type());
             gobject_ffi::g_value_set_boxed(
                 value.to_glib_none_mut().0,
                 ToGlibPtr::<*mut _>::to_glib_none(&self).0 as *mut _,
@@ -835,20 +792,6 @@ impl crate::value::ToValue for VariantType {
 
     fn value_type(&self) -> crate::Type {
         VariantType::static_type()
-    }
-}
-
-#[doc(hidden)]
-impl From<VariantType> for crate::Value {
-    fn from(t: VariantType) -> Self {
-        unsafe {
-            let mut value = crate::Value::from_type_unchecked(VariantType::static_type());
-            gobject_ffi::g_value_take_boxed(
-                value.to_glib_none_mut().0,
-                IntoGlibPtr::<*mut _>::into_glib_ptr(t) as *mut _,
-            );
-            value
-        }
     }
 }
 
@@ -973,6 +916,7 @@ impl<'a> iter::FusedIterator for VariantTyIterator<'a> {}
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::ToValue;
 
     unsafe fn equal<T, U>(ptr1: *const T, ptr2: *const U) -> bool {
         from_glib(ffi::g_variant_type_equal(

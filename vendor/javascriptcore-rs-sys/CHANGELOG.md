@@ -1,29 +1,5 @@
 # Changelog
 
-## \[1.1.1]
-
-- [`4e6b9f4`](https://github.com/tauri-apps/javascriptcore-rs/commit/4e6b9f41121a2b6cbcda6f320e50921829232dc1) Properly replace dox with docsrs to fix docs.rs building.
-
-## \[1.1.0]
-
-- [`0ed9caf`](https://github.com/tauri-apps/javascriptcore-rs/commit/0ed9caf1da825bfe25fe9d7e1be7dd1f87422982) Update to gtk 0.18.
-  Increase MSRV to 1.70.0
-
-## \[1.0.0]
-
-- Cleanup codebase and bump to major.
-  - [ae6b74e](https://github.com/tauri-apps/javascriptcore-rs/commit/ae6b74eb8161d46739334b8b4e25719c563a8da9) Add change file on 2023-04-03
-
-## \[0.5.1]
-
-- Update link library to javascriptcoregtk-4.1.
-  - [371ffa6](https://github.com/tauri-apps/javascriptcore-rs/commit/371ffa6a9946a4ff7903a4896bf68a0c7fe91bdc) Update link to javascriptcoregtk-4.1 on 2023-01-26
-
-## \[0.5.0]
-
-- Update gtk crates to 0.16 and update to 2021 edition.
-  - [1674d07](https://github.com/tauri-apps/javascriptcore-rs/commit/1674d0716c4e76705ce958fc8c464bb9cb4e9320) Add change file on 2022-11-26
-
 ## \[0.4.0]
 
 - Update to gtk 0.15

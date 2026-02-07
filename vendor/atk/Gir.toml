@@ -2,7 +2,7 @@
 girs_directories = ["../gir-files"]
 library = "Atk"
 version = "1.0"
-min_cfg_version = "2.28"
+min_cfg_version = "2.18"
 target_path = "."
 work_mode = "normal"
 generate_safety_asserts = true
@@ -86,11 +86,6 @@ manual_traits = ["EditableTextExtManual"]
 name = "Atk.Image"
 status = "generate"
 trait_name = "AtkImageExt" # duplicate with gtk
-
-[[object]]
-name = "Atk.Live"
-status = "generate"
-version = "2.50"
 
 [[object]]
 name = "Atk.Misc"

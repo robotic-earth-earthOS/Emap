@@ -1,13 +1,11 @@
 // Take a look at the license at the top of the repository in the LICENSE file.
 
-use std::{
-    fmt,
-    os::windows::io::{AsRawHandle, FromRawHandle, IntoRawHandle, RawHandle},
-};
-
-use glib::{prelude::*, translate::*};
-
 use crate::InputStream;
+use glib::object::{Cast, IsA};
+use glib::translate::*;
+use std::fmt;
+
+use std::os::windows::io::{AsRawHandle, FromRawHandle, IntoRawHandle, RawHandle};
 
 glib::wrapper! {
     pub struct Win32InputStream(Object<ffi::GWin32InputStream, ffi::GWin32InputStreamClass>) @extends InputStream;
@@ -50,7 +48,7 @@ impl Win32InputStream {
     /// with `true` on this stream. At which point you may only do so when all references to this
     /// stream have been dropped.
     #[doc(alias = "g_win32_input_stream_new")]
-    pub unsafe fn take_handle(handle: impl IntoRawHandle) -> Win32InputStream {
+    pub unsafe fn take_handle<T: IntoRawHandle>(handle: T) -> Win32InputStream {
         let handle = handle.into_raw_handle();
         let close_handle = true.into_glib();
         InputStream::from_glib_full(ffi::g_win32_input_stream_new(handle, close_handle))
@@ -77,21 +75,10 @@ impl AsRawHandle for Win32InputStream {
     }
 }
 
-mod sealed {
-    pub trait Sealed {}
-    impl<T: super::IsA<super::Win32InputStream>> Sealed for T {}
-}
-
-pub trait Win32InputStreamExtManual: sealed::Sealed + IsA<Win32InputStream> + Sized {
+pub trait Win32InputStreamExtManual: Sized {
     #[doc(alias = "g_win32_input_stream_get_handle")]
     #[doc(alias = "get_handle")]
-    fn handle<T: FromRawHandle>(&self) -> T {
-        unsafe {
-            T::from_raw_handle(ffi::g_win32_input_stream_get_handle(
-                self.as_ref().to_glib_none().0,
-            ))
-        }
-    }
+    fn handle<T: FromRawHandle>(&self) -> T;
 
     // rustdoc-stripper-ignore-next
     /// Sets whether the handle of this stream will be closed when the stream is closed.
@@ -100,6 +87,18 @@ pub trait Win32InputStreamExtManual: sealed::Sealed + IsA<Win32InputStream> + Si
     /// If you pass in `false` as the parameter, you may only close the handle if the all references
     /// to the stream have been dropped. If you pass in `true`, you must never call close.
     #[doc(alias = "g_win32_input_stream_set_close_handle")]
+    unsafe fn set_close_handle(&self, close_handle: bool);
+}
+
+impl<O: IsA<Win32InputStream>> Win32InputStreamExtManual for O {
+    fn handle<T: FromRawHandle>(&self) -> T {
+        unsafe {
+            T::from_raw_handle(ffi::g_win32_input_stream_get_handle(
+                self.as_ref().to_glib_none().0,
+            ))
+        }
+    }
+
     unsafe fn set_close_handle(&self, close_handle: bool) {
         ffi::g_win32_input_stream_set_close_handle(
             self.as_ref().to_glib_none().0,
@@ -107,5 +106,3 @@ pub trait Win32InputStreamExtManual: sealed::Sealed + IsA<Win32InputStream> + Si
         );
     }
 }
-
-impl<O: IsA<Win32InputStream>> Win32InputStreamExtManual for O {}

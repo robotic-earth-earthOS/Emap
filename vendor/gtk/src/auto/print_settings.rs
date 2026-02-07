@@ -2,12 +2,19 @@
 // from gir-files (https://github.com/gtk-rs/gir-files)
 // DO NOT EDIT
 
-use crate::{
-    NumberUpLayout, PageOrientation, PageRange, PageSet, PaperSize, PrintDuplex, PrintPages,
-    PrintQuality, Unit,
-};
+use crate::NumberUpLayout;
+use crate::PageOrientation;
+use crate::PageRange;
+use crate::PageSet;
+use crate::PaperSize;
+use crate::PrintDuplex;
+use crate::PrintPages;
+use crate::PrintQuality;
+use crate::Unit;
 use glib::translate::*;
-use std::{fmt, mem, ptr};
+use std::fmt;
+use std::mem;
+use std::ptr;
 
 glib::wrapper! {
     #[doc(alias = "GtkPrintSettings")]
@@ -43,6 +50,8 @@ impl PrintSettings {
         }
     }
 
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
     #[doc(alias = "gtk_print_settings_new_from_gvariant")]
     #[doc(alias = "new_from_gvariant")]
     pub fn from_gvariant(variant: &glib::Variant) -> PrintSettings {
@@ -93,7 +102,7 @@ impl PrintSettings {
             let key: Borrowed<glib::GString> = from_glib_borrow(key);
             let value: Borrowed<glib::GString> = from_glib_borrow(value);
             let callback: *mut P = user_data as *const _ as usize as *mut P;
-            (*callback)(key.as_str(), value.as_str())
+            (*callback)(key.as_str(), value.as_str());
         }
         let func = Some(func_func::<P> as _);
         let super_callback0: &P = &func_data;
@@ -275,7 +284,7 @@ impl PrintSettings {
                     self.to_glib_none().0,
                     num_ranges.as_mut_ptr(),
                 ),
-                num_ranges.assume_init() as _,
+                num_ranges.assume_init() as usize,
             );
             ret
         }
@@ -392,7 +401,7 @@ impl PrintSettings {
                 file_name.as_ref().to_glib_none().0,
                 &mut error,
             );
-            debug_assert_eq!(is_ok == glib::ffi::GFALSE, !error.is_null());
+            assert_eq!(is_ok == glib::ffi::GFALSE, !error.is_null());
             if error.is_null() {
                 Ok(())
             } else {
@@ -415,7 +424,7 @@ impl PrintSettings {
                 group_name.to_glib_none().0,
                 &mut error,
             );
-            debug_assert_eq!(is_ok == glib::ffi::GFALSE, !error.is_null());
+            assert_eq!(is_ok == glib::ffi::GFALSE, !error.is_null());
             if error.is_null() {
                 Ok(())
             } else {
@@ -675,7 +684,7 @@ impl PrintSettings {
                 file_name.as_ref().to_glib_none().0,
                 &mut error,
             );
-            debug_assert_eq!(is_ok == glib::ffi::GFALSE, !error.is_null());
+            assert_eq!(is_ok == glib::ffi::GFALSE, !error.is_null());
             if error.is_null() {
                 Ok(())
             } else {
@@ -684,6 +693,8 @@ impl PrintSettings {
         }
     }
 
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
     #[doc(alias = "gtk_print_settings_to_gvariant")]
     pub fn to_gvariant(&self) -> Option<glib::Variant> {
         unsafe { from_glib_none(ffi::gtk_print_settings_to_gvariant(self.to_glib_none().0)) }

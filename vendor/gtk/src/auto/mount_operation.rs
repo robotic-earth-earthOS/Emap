@@ -3,12 +3,16 @@
 // DO NOT EDIT
 
 use crate::Window;
-use glib::{
-    prelude::*,
-    signal::{connect_raw, SignalHandlerId},
-    translate::*,
-};
-use std::{boxed::Box as Box_, fmt, mem::transmute};
+use glib::object::Cast;
+use glib::object::IsA;
+use glib::signal::connect_raw;
+use glib::signal::SignalHandlerId;
+use glib::translate::*;
+use glib::StaticType;
+use glib::ToValue;
+use std::boxed::Box as Box_;
+use std::fmt;
+use std::mem::transmute;
 
 glib::wrapper! {
     #[doc(alias = "GtkMountOperation")]
@@ -38,124 +42,178 @@ impl MountOperation {
     ///
     /// This method returns an instance of [`MountOperationBuilder`](crate::builders::MountOperationBuilder) which can be used to create [`MountOperation`] objects.
     pub fn builder() -> MountOperationBuilder {
-        MountOperationBuilder::new()
+        MountOperationBuilder::default()
     }
 }
 
 impl Default for MountOperation {
     fn default() -> Self {
-        glib::object::Object::new::<Self>()
+        glib::object::Object::new::<Self>(&[])
+            .expect("Can't construct MountOperation object with default parameters")
     }
 }
 
+#[derive(Clone, Default)]
 // rustdoc-stripper-ignore-next
 /// A [builder-pattern] type to construct [`MountOperation`] objects.
 ///
 /// [builder-pattern]: https://doc.rust-lang.org/1.0.0/style/ownership/builders.html
 #[must_use = "The builder must be built to be used"]
 pub struct MountOperationBuilder {
-    builder: glib::object::ObjectBuilder<'static, MountOperation>,
+    parent: Option<Window>,
+    screen: Option<gdk::Screen>,
+    anonymous: Option<bool>,
+    choice: Option<i32>,
+    domain: Option<String>,
+    #[cfg(any(feature = "gio_v2_58", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "gio_v2_58")))]
+    is_tcrypt_hidden_volume: Option<bool>,
+    #[cfg(any(feature = "gio_v2_58", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "gio_v2_58")))]
+    is_tcrypt_system_volume: Option<bool>,
+    password: Option<String>,
+    //password-save: /*Unknown type*/,
+    #[cfg(any(feature = "gio_v2_58", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "gio_v2_58")))]
+    pim: Option<u32>,
+    username: Option<String>,
 }
 
 impl MountOperationBuilder {
-    fn new() -> Self {
-        Self {
-            builder: glib::object::Object::builder(),
-        }
-    }
-
-    pub fn parent(self, parent: &impl IsA<Window>) -> Self {
-        Self {
-            builder: self.builder.property("parent", parent.clone().upcast()),
-        }
-    }
-
-    pub fn screen(self, screen: &gdk::Screen) -> Self {
-        Self {
-            builder: self.builder.property("screen", screen.clone()),
-        }
-    }
-
-    pub fn anonymous(self, anonymous: bool) -> Self {
-        Self {
-            builder: self.builder.property("anonymous", anonymous),
-        }
-    }
-
-    pub fn choice(self, choice: i32) -> Self {
-        Self {
-            builder: self.builder.property("choice", choice),
-        }
-    }
-
-    pub fn domain(self, domain: impl Into<glib::GString>) -> Self {
-        Self {
-            builder: self.builder.property("domain", domain.into()),
-        }
-    }
-
-    #[cfg(feature = "gio_v2_58")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "gio_v2_58")))]
-    pub fn is_tcrypt_hidden_volume(self, is_tcrypt_hidden_volume: bool) -> Self {
-        Self {
-            builder: self
-                .builder
-                .property("is-tcrypt-hidden-volume", is_tcrypt_hidden_volume),
-        }
-    }
-
-    #[cfg(feature = "gio_v2_58")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "gio_v2_58")))]
-    pub fn is_tcrypt_system_volume(self, is_tcrypt_system_volume: bool) -> Self {
-        Self {
-            builder: self
-                .builder
-                .property("is-tcrypt-system-volume", is_tcrypt_system_volume),
-        }
-    }
-
-    pub fn password(self, password: impl Into<glib::GString>) -> Self {
-        Self {
-            builder: self.builder.property("password", password.into()),
-        }
-    }
-
-    pub fn password_save(self, password_save: gio::PasswordSave) -> Self {
-        Self {
-            builder: self.builder.property("password-save", password_save),
-        }
-    }
-
-    #[cfg(feature = "gio_v2_58")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "gio_v2_58")))]
-    pub fn pim(self, pim: u32) -> Self {
-        Self {
-            builder: self.builder.property("pim", pim),
-        }
-    }
-
-    pub fn username(self, username: impl Into<glib::GString>) -> Self {
-        Self {
-            builder: self.builder.property("username", username.into()),
-        }
+    // rustdoc-stripper-ignore-next
+    /// Create a new [`MountOperationBuilder`].
+    pub fn new() -> Self {
+        Self::default()
     }
 
     // rustdoc-stripper-ignore-next
     /// Build the [`MountOperation`].
     #[must_use = "Building the object from the builder is usually expensive and is not expected to have side effects"]
     pub fn build(self) -> MountOperation {
-        self.builder.build()
+        let mut properties: Vec<(&str, &dyn ToValue)> = vec![];
+        if let Some(ref parent) = self.parent {
+            properties.push(("parent", parent));
+        }
+        if let Some(ref screen) = self.screen {
+            properties.push(("screen", screen));
+        }
+        if let Some(ref anonymous) = self.anonymous {
+            properties.push(("anonymous", anonymous));
+        }
+        if let Some(ref choice) = self.choice {
+            properties.push(("choice", choice));
+        }
+        if let Some(ref domain) = self.domain {
+            properties.push(("domain", domain));
+        }
+        #[cfg(any(feature = "gio_v2_58", feature = "dox"))]
+        if let Some(ref is_tcrypt_hidden_volume) = self.is_tcrypt_hidden_volume {
+            properties.push(("is-tcrypt-hidden-volume", is_tcrypt_hidden_volume));
+        }
+        #[cfg(any(feature = "gio_v2_58", feature = "dox"))]
+        if let Some(ref is_tcrypt_system_volume) = self.is_tcrypt_system_volume {
+            properties.push(("is-tcrypt-system-volume", is_tcrypt_system_volume));
+        }
+        if let Some(ref password) = self.password {
+            properties.push(("password", password));
+        }
+        #[cfg(any(feature = "gio_v2_58", feature = "dox"))]
+        if let Some(ref pim) = self.pim {
+            properties.push(("pim", pim));
+        }
+        if let Some(ref username) = self.username {
+            properties.push(("username", username));
+        }
+        glib::Object::new::<MountOperation>(&properties)
+            .expect("Failed to create an instance of MountOperation")
+    }
+
+    pub fn parent(mut self, parent: &impl IsA<Window>) -> Self {
+        self.parent = Some(parent.clone().upcast());
+        self
+    }
+
+    pub fn screen(mut self, screen: &gdk::Screen) -> Self {
+        self.screen = Some(screen.clone());
+        self
+    }
+
+    pub fn anonymous(mut self, anonymous: bool) -> Self {
+        self.anonymous = Some(anonymous);
+        self
+    }
+
+    pub fn choice(mut self, choice: i32) -> Self {
+        self.choice = Some(choice);
+        self
+    }
+
+    pub fn domain(mut self, domain: &str) -> Self {
+        self.domain = Some(domain.to_string());
+        self
+    }
+
+    #[cfg(any(feature = "gio_v2_58", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "gio_v2_58")))]
+    pub fn is_tcrypt_hidden_volume(mut self, is_tcrypt_hidden_volume: bool) -> Self {
+        self.is_tcrypt_hidden_volume = Some(is_tcrypt_hidden_volume);
+        self
+    }
+
+    #[cfg(any(feature = "gio_v2_58", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "gio_v2_58")))]
+    pub fn is_tcrypt_system_volume(mut self, is_tcrypt_system_volume: bool) -> Self {
+        self.is_tcrypt_system_volume = Some(is_tcrypt_system_volume);
+        self
+    }
+
+    pub fn password(mut self, password: &str) -> Self {
+        self.password = Some(password.to_string());
+        self
+    }
+
+    #[cfg(any(feature = "gio_v2_58", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "gio_v2_58")))]
+    pub fn pim(mut self, pim: u32) -> Self {
+        self.pim = Some(pim);
+        self
+    }
+
+    pub fn username(mut self, username: &str) -> Self {
+        self.username = Some(username.to_string());
+        self
     }
 }
 
-mod sealed {
-    pub trait Sealed {}
-    impl<T: super::IsA<super::MountOperation>> Sealed for T {}
-}
-
-pub trait GtkMountOperationExt: IsA<MountOperation> + sealed::Sealed + 'static {
+pub trait MountOperationExt: 'static {
     #[doc(alias = "gtk_mount_operation_get_parent")]
     #[doc(alias = "get_parent")]
+    fn parent(&self) -> Option<Window>;
+
+    #[doc(alias = "gtk_mount_operation_get_screen")]
+    #[doc(alias = "get_screen")]
+    fn screen(&self) -> Option<gdk::Screen>;
+
+    #[doc(alias = "gtk_mount_operation_is_showing")]
+    fn is_showing(&self) -> bool;
+
+    #[doc(alias = "gtk_mount_operation_set_parent")]
+    fn set_parent(&self, parent: Option<&impl IsA<Window>>);
+
+    #[doc(alias = "gtk_mount_operation_set_screen")]
+    fn set_screen(&self, screen: &gdk::Screen);
+
+    #[doc(alias = "is-showing")]
+    fn connect_is_showing_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "parent")]
+    fn connect_parent_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "screen")]
+    fn connect_screen_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+}
+
+impl<O: IsA<MountOperation>> MountOperationExt for O {
     fn parent(&self) -> Option<Window> {
         unsafe {
             from_glib_none(ffi::gtk_mount_operation_get_parent(
@@ -164,8 +222,6 @@ pub trait GtkMountOperationExt: IsA<MountOperation> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_mount_operation_get_screen")]
-    #[doc(alias = "get_screen")]
     fn screen(&self) -> Option<gdk::Screen> {
         unsafe {
             from_glib_none(ffi::gtk_mount_operation_get_screen(
@@ -174,7 +230,6 @@ pub trait GtkMountOperationExt: IsA<MountOperation> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_mount_operation_is_showing")]
     fn is_showing(&self) -> bool {
         unsafe {
             from_glib(ffi::gtk_mount_operation_is_showing(
@@ -183,7 +238,6 @@ pub trait GtkMountOperationExt: IsA<MountOperation> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_mount_operation_set_parent")]
     fn set_parent(&self, parent: Option<&impl IsA<Window>>) {
         unsafe {
             ffi::gtk_mount_operation_set_parent(
@@ -193,7 +247,6 @@ pub trait GtkMountOperationExt: IsA<MountOperation> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_mount_operation_set_screen")]
     fn set_screen(&self, screen: &gdk::Screen) {
         unsafe {
             ffi::gtk_mount_operation_set_screen(
@@ -203,7 +256,6 @@ pub trait GtkMountOperationExt: IsA<MountOperation> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "is-showing")]
     fn connect_is_showing_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_is_showing_trampoline<
             P: IsA<MountOperation>,
@@ -229,7 +281,6 @@ pub trait GtkMountOperationExt: IsA<MountOperation> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "parent")]
     fn connect_parent_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_parent_trampoline<
             P: IsA<MountOperation>,
@@ -255,7 +306,6 @@ pub trait GtkMountOperationExt: IsA<MountOperation> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "screen")]
     fn connect_screen_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_screen_trampoline<
             P: IsA<MountOperation>,
@@ -281,8 +331,6 @@ pub trait GtkMountOperationExt: IsA<MountOperation> + sealed::Sealed + 'static {
         }
     }
 }
-
-impl<O: IsA<MountOperation>> GtkMountOperationExt for O {}
 
 impl fmt::Display for MountOperation {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {

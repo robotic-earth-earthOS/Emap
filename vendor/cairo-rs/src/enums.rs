@@ -2,17 +2,16 @@
 
 use std::fmt::{self, Debug};
 
+use crate::error::Error;
+
 #[cfg(feature = "use_glib")]
 use glib::translate::*;
-
-use crate::Error;
 
 // Helper macro for our GValue related trait impls
 #[cfg(feature = "use_glib")]
 macro_rules! gvalue_impl {
     ($name:ty, $get_type:expr) => {
         impl glib::types::StaticType for $name {
-            #[inline]
             fn static_type() -> glib::Type {
                 unsafe { from_glib($get_type()) }
             }
@@ -43,17 +42,10 @@ macro_rules! gvalue_impl {
                 <Self as glib::StaticType>::static_type()
             }
         }
-
-        impl From<$name> for glib::Value {
-            #[inline]
-            fn from(v: $name) -> Self {
-                glib::value::ToValue::to_value(&v)
-            }
-        }
     };
 }
 
-#[derive(Clone, PartialEq, Eq, PartialOrd, Debug, Copy)]
+#[derive(Clone, PartialEq, PartialOrd, Debug, Copy)]
 #[non_exhaustive]
 #[doc(alias = "cairo_antialias_t")]
 pub enum Antialias {
@@ -133,7 +125,7 @@ impl fmt::Display for Antialias {
 #[cfg(feature = "use_glib")]
 gvalue_impl!(Antialias, ffi::gobject::cairo_gobject_antialias_get_type);
 
-#[derive(Clone, PartialEq, Eq, PartialOrd, Debug, Copy)]
+#[derive(Clone, PartialEq, PartialOrd, Debug, Copy)]
 #[non_exhaustive]
 #[doc(alias = "cairo_fill_rule_t")]
 pub enum FillRule {
@@ -184,7 +176,7 @@ impl fmt::Display for FillRule {
 #[cfg(feature = "use_glib")]
 gvalue_impl!(FillRule, ffi::gobject::cairo_gobject_fill_rule_get_type);
 
-#[derive(Clone, PartialEq, Eq, PartialOrd, Debug, Copy)]
+#[derive(Clone, PartialEq, PartialOrd, Debug, Copy)]
 #[non_exhaustive]
 #[doc(alias = "cairo_line_cap_t")]
 pub enum LineCap {
@@ -240,7 +232,7 @@ impl fmt::Display for LineCap {
 #[cfg(feature = "use_glib")]
 gvalue_impl!(LineCap, ffi::gobject::cairo_gobject_line_cap_get_type);
 
-#[derive(Clone, PartialEq, Eq, PartialOrd, Debug, Copy)]
+#[derive(Clone, PartialEq, PartialOrd, Debug, Copy)]
 #[non_exhaustive]
 #[doc(alias = "cairo_line_join_t")]
 pub enum LineJoin {
@@ -296,7 +288,7 @@ impl fmt::Display for LineJoin {
 #[cfg(feature = "use_glib")]
 gvalue_impl!(LineJoin, ffi::gobject::cairo_gobject_line_join_get_type);
 
-#[derive(Clone, PartialEq, Eq, PartialOrd, Debug, Copy)]
+#[derive(Clone, PartialEq, PartialOrd, Debug, Copy)]
 #[non_exhaustive]
 #[doc(alias = "cairo_operator_t")]
 pub enum Operator {
@@ -486,7 +478,7 @@ impl fmt::Display for Operator {
 #[cfg(feature = "use_glib")]
 gvalue_impl!(Operator, ffi::gobject::cairo_gobject_operator_get_type);
 
-#[derive(Clone, PartialEq, Eq, PartialOrd, Debug, Copy)]
+#[derive(Clone, PartialEq, PartialOrd, Debug, Copy)]
 #[non_exhaustive]
 #[doc(alias = "cairo_path_data_type_t")]
 pub enum PathDataType {
@@ -550,7 +542,7 @@ gvalue_impl!(
     ffi::gobject::cairo_gobject_path_data_type_get_type
 );
 
-#[derive(Clone, PartialEq, Eq, PartialOrd, Debug, Copy)]
+#[derive(Clone, PartialEq, PartialOrd, Debug, Copy)]
 #[non_exhaustive]
 #[doc(alias = "cairo_content_t")]
 pub enum Content {
@@ -606,7 +598,7 @@ impl fmt::Display for Content {
 #[cfg(feature = "use_glib")]
 gvalue_impl!(Content, ffi::gobject::cairo_gobject_content_get_type);
 
-#[derive(Clone, PartialEq, Eq, PartialOrd, Debug, Copy)]
+#[derive(Clone, PartialEq, PartialOrd, Debug, Copy)]
 #[non_exhaustive]
 #[doc(alias = "cairo_extend_t")]
 pub enum Extend {
@@ -667,7 +659,7 @@ impl fmt::Display for Extend {
 #[cfg(feature = "use_glib")]
 gvalue_impl!(Extend, ffi::gobject::cairo_gobject_extend_get_type);
 
-#[derive(Clone, PartialEq, Eq, PartialOrd, Debug, Copy)]
+#[derive(Clone, PartialEq, PartialOrd, Debug, Copy)]
 #[non_exhaustive]
 #[doc(alias = "cairo_filter_t")]
 pub enum Filter {
@@ -738,7 +730,7 @@ impl fmt::Display for Filter {
 #[cfg(feature = "use_glib")]
 gvalue_impl!(Filter, ffi::gobject::cairo_gobject_filter_get_type);
 
-#[derive(Clone, PartialEq, Eq, PartialOrd, Debug, Copy)]
+#[derive(Clone, PartialEq, PartialOrd, Debug, Copy)]
 #[non_exhaustive]
 #[doc(alias = "cairo_pattern_type_t")]
 pub enum PatternType {
@@ -812,7 +804,7 @@ gvalue_impl!(
     ffi::gobject::cairo_gobject_pattern_type_get_type
 );
 
-#[derive(Clone, PartialEq, Eq, PartialOrd, Debug, Copy)]
+#[derive(Clone, PartialEq, PartialOrd, Debug, Copy)]
 #[non_exhaustive]
 #[doc(alias = "cairo_font_slant_t")]
 pub enum FontSlant {
@@ -868,7 +860,7 @@ impl fmt::Display for FontSlant {
 #[cfg(feature = "use_glib")]
 gvalue_impl!(FontSlant, ffi::gobject::cairo_gobject_font_slant_get_type);
 
-#[derive(Clone, PartialEq, Eq, PartialOrd, Debug, Copy)]
+#[derive(Clone, PartialEq, PartialOrd, Debug, Copy)]
 #[non_exhaustive]
 #[doc(alias = "cairo_font_weight_t")]
 pub enum FontWeight {
@@ -919,7 +911,7 @@ impl fmt::Display for FontWeight {
 #[cfg(feature = "use_glib")]
 gvalue_impl!(FontWeight, ffi::gobject::cairo_gobject_font_weight_get_type);
 
-#[derive(Clone, PartialEq, Eq, PartialOrd, Debug, Copy)]
+#[derive(Clone, PartialEq, PartialOrd, Debug, Copy)]
 #[non_exhaustive]
 #[doc(alias = "cairo_text_cluster_flags_t")]
 pub enum TextClusterFlags {
@@ -973,7 +965,7 @@ gvalue_impl!(
     ffi::gobject::cairo_gobject_text_cluster_flags_get_type
 );
 
-#[derive(Clone, PartialEq, Eq, PartialOrd, Debug, Copy)]
+#[derive(Clone, PartialEq, PartialOrd, Debug, Copy)]
 #[non_exhaustive]
 #[doc(alias = "cairo_font_type_t")]
 pub enum FontType {
@@ -987,10 +979,6 @@ pub enum FontType {
     FontTypeQuartz,
     #[doc(alias = "FONT_TYPE_FONT_TYPE_USER")]
     FontTypeUser,
-    #[cfg(feature = "v1_18")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "v1_18")))]
-    #[doc(alias = "FONT_TYPE_FONT_TYPE_DWRITE")]
-    FontTypeDwrite,
     #[doc(hidden)]
     __Unknown(i32),
 }
@@ -1004,8 +992,6 @@ impl From<FontType> for ffi::cairo_font_type_t {
             FontType::FontTypeWin32 => ffi::FONT_TYPE_FONT_TYPE_WIN32,
             FontType::FontTypeQuartz => ffi::FONT_TYPE_FONT_TYPE_QUARTZ,
             FontType::FontTypeUser => ffi::FONT_TYPE_FONT_TYPE_USER,
-            #[cfg(feature = "v1_18")]
-            FontType::FontTypeDwrite => ffi::FONT_TYPE_FONT_TYPE_DWRITE,
             FontType::__Unknown(value) => value,
         }
     }
@@ -1020,8 +1006,6 @@ impl From<ffi::cairo_font_type_t> for FontType {
             ffi::FONT_TYPE_FONT_TYPE_WIN32 => Self::FontTypeWin32,
             ffi::FONT_TYPE_FONT_TYPE_QUARTZ => Self::FontTypeQuartz,
             ffi::FONT_TYPE_FONT_TYPE_USER => Self::FontTypeUser,
-            #[cfg(feature = "v1_18")]
-            ffi::FONT_TYPE_FONT_TYPE_DWRITE => Self::FontTypeDwrite,
             value => Self::__Unknown(value),
         }
     }
@@ -1038,8 +1022,6 @@ impl fmt::Display for FontType {
                 Self::FontTypeWin32 => "FontTypeWin32",
                 Self::FontTypeQuartz => "FontTypeQuartz",
                 Self::FontTypeUser => "FontTypeUser",
-                #[cfg(feature = "v1_18")]
-                Self::FontTypeDwrite => "FontTypeDwrite",
                 _ => "Unknown",
             }
         )
@@ -1049,7 +1031,7 @@ impl fmt::Display for FontType {
 #[cfg(feature = "use_glib")]
 gvalue_impl!(FontType, ffi::gobject::cairo_gobject_font_type_get_type);
 
-#[derive(Clone, PartialEq, Eq, PartialOrd, Debug, Copy)]
+#[derive(Clone, PartialEq, PartialOrd, Debug, Copy)]
 #[non_exhaustive]
 #[doc(alias = "cairo_subpixel_order_t")]
 pub enum SubpixelOrder {
@@ -1118,7 +1100,7 @@ gvalue_impl!(
     ffi::gobject::cairo_gobject_subpixel_order_get_type
 );
 
-#[derive(Clone, PartialEq, Eq, PartialOrd, Debug, Copy)]
+#[derive(Clone, PartialEq, PartialOrd, Debug, Copy)]
 #[non_exhaustive]
 #[doc(alias = "cairo_hint_style_t")]
 pub enum HintStyle {
@@ -1184,7 +1166,7 @@ impl fmt::Display for HintStyle {
 #[cfg(feature = "use_glib")]
 gvalue_impl!(HintStyle, ffi::gobject::cairo_gobject_hint_style_get_type);
 
-#[derive(Clone, PartialEq, Eq, PartialOrd, Debug, Copy)]
+#[derive(Clone, PartialEq, PartialOrd, Debug, Copy)]
 #[non_exhaustive]
 #[doc(alias = "cairo_hint_metrics_t")]
 pub enum HintMetrics {
@@ -1413,8 +1395,7 @@ gvalue_impl!(
 );
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
-#[cfg(all(feature = "svg", feature = "v1_16"))]
-#[cfg_attr(docsrs, doc(cfg(all(feature = "svg", feature = "v1_16"))))]
+#[cfg(any(all(feature = "svg", feature = "v1_16"), feature = "dox"))]
 #[non_exhaustive]
 #[doc(alias = "cairo_svg_unit_t")]
 pub enum SvgUnit {
@@ -1443,8 +1424,7 @@ pub enum SvgUnit {
 }
 
 #[doc(hidden)]
-#[cfg(all(feature = "svg", feature = "v1_16"))]
-#[cfg_attr(docsrs, doc(cfg(all(feature = "svg", feature = "v1_16"))))]
+#[cfg(any(all(feature = "svg", feature = "v1_16"), feature = "dox"))]
 impl From<SvgUnit> for ffi::cairo_svg_unit_t {
     fn from(val: SvgUnit) -> ffi::cairo_svg_unit_t {
         match val {
@@ -1464,8 +1444,7 @@ impl From<SvgUnit> for ffi::cairo_svg_unit_t {
 }
 
 #[doc(hidden)]
-#[cfg(all(feature = "svg", feature = "v1_16"))]
-#[cfg_attr(docsrs, doc(cfg(all(feature = "svg", feature = "v1_16"))))]
+#[cfg(any(all(feature = "svg", feature = "v1_16"), feature = "dox"))]
 impl From<ffi::cairo_svg_unit_t> for SvgUnit {
     fn from(value: ffi::cairo_svg_unit_t) -> Self {
         match value {
@@ -1484,8 +1463,7 @@ impl From<ffi::cairo_svg_unit_t> for SvgUnit {
     }
 }
 
-#[cfg(all(feature = "svg", feature = "v1_16"))]
-#[cfg_attr(docsrs, doc(cfg(all(feature = "svg", feature = "v1_16"))))]
+#[cfg(any(all(feature = "svg", feature = "v1_16"), feature = "dox"))]
 impl fmt::Display for SvgUnit {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(
@@ -1659,7 +1637,6 @@ gvalue_impl!(
 );
 
 bitflags::bitflags! {
-    #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
     pub struct PdfOutline: i32 {
         #[doc(alias = "PDF_OUTLINE_FLAG_OPEN")]
         const OPEN = ffi::PDF_OUTLINE_FLAG_OPEN;
@@ -1670,8 +1647,7 @@ bitflags::bitflags! {
     }
 }
 
-#[cfg(feature = "pdf")]
-#[cfg_attr(docsrs, doc(cfg(feature = "pdf")))]
+#[cfg(any(feature = "pdf", feature = "dox"))]
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 #[non_exhaustive]
 #[doc(alias = "cairo_pdf_metadata_t")]
@@ -1694,8 +1670,7 @@ pub enum PdfMetadata {
     __Unknown(i32),
 }
 
-#[cfg(all(feature = "pdf", feature = "v1_16"))]
-#[cfg_attr(docsrs, doc(cfg(all(feature = "pdf", feature = "v1_16"))))]
+#[cfg(any(all(feature = "pdf", feature = "v1_16"), feature = "dox"))]
 #[doc(hidden)]
 impl From<PdfMetadata> for ffi::cairo_pdf_metadata_t {
     fn from(val: PdfMetadata) -> ffi::cairo_pdf_metadata_t {
@@ -1712,8 +1687,7 @@ impl From<PdfMetadata> for ffi::cairo_pdf_metadata_t {
     }
 }
 
-#[cfg(all(feature = "pdf", feature = "v1_16"))]
-#[cfg_attr(docsrs, doc(cfg(all(feature = "pdf", feature = "v1_16"))))]
+#[cfg(any(all(feature = "pdf", feature = "v1_16"), feature = "dox"))]
 #[doc(hidden)]
 impl From<ffi::cairo_pdf_metadata_t> for PdfMetadata {
     fn from(value: ffi::cairo_pdf_metadata_t) -> Self {
@@ -1730,8 +1704,7 @@ impl From<ffi::cairo_pdf_metadata_t> for PdfMetadata {
     }
 }
 
-#[cfg(all(feature = "pdf", feature = "v1_16"))]
-#[cfg_attr(docsrs, doc(cfg(all(feature = "pdf", feature = "v1_16"))))]
+#[cfg(any(all(feature = "pdf", feature = "v1_16"), feature = "dox"))]
 impl fmt::Display for PdfMetadata {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(
@@ -1751,8 +1724,7 @@ impl fmt::Display for PdfMetadata {
     }
 }
 
-#[cfg(feature = "pdf")]
-#[cfg_attr(docsrs, doc(cfg(feature = "pdf")))]
+#[cfg(any(feature = "pdf", feature = "dox"))]
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 #[non_exhaustive]
 #[doc(alias = "cairo_pdf_version_t")]
@@ -1761,54 +1733,35 @@ pub enum PdfVersion {
     _1_4,
     #[doc(alias = "PDF_VERSION__1_5")]
     _1_5,
-    #[cfg(feature = "v1_18")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "v1_18")))]
-    #[doc(alias = "PDF_VERSION__1_6")]
-    _1_6,
-    #[cfg(feature = "v1_18")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "v1_18")))]
-    #[doc(alias = "PDF_VERSION__1_7")]
-    _1_7,
     #[doc(hidden)]
     __Unknown(i32),
 }
 
-#[cfg(feature = "pdf")]
-#[cfg_attr(docsrs, doc(cfg(feature = "pdf")))]
+#[cfg(any(feature = "pdf", feature = "dox"))]
 #[doc(hidden)]
 impl From<PdfVersion> for ffi::cairo_pdf_version_t {
     fn from(val: PdfVersion) -> ffi::cairo_pdf_version_t {
         match val {
             PdfVersion::_1_4 => ffi::PDF_VERSION__1_4,
             PdfVersion::_1_5 => ffi::PDF_VERSION__1_5,
-            #[cfg(feature = "v1_18")]
-            PdfVersion::_1_6 => ffi::PDF_VERSION__1_6,
-            #[cfg(feature = "v1_18")]
-            PdfVersion::_1_7 => ffi::PDF_VERSION__1_7,
             PdfVersion::__Unknown(value) => value,
         }
     }
 }
 
-#[cfg(feature = "pdf")]
-#[cfg_attr(docsrs, doc(cfg(feature = "pdf")))]
+#[cfg(any(feature = "pdf", feature = "dox"))]
 #[doc(hidden)]
 impl From<ffi::cairo_pdf_version_t> for PdfVersion {
     fn from(value: ffi::cairo_pdf_version_t) -> Self {
         match value {
             ffi::PDF_VERSION__1_4 => Self::_1_4,
             ffi::PDF_VERSION__1_5 => Self::_1_5,
-            #[cfg(feature = "v1_18")]
-            ffi::PDF_VERSION__1_6 => Self::_1_6,
-            #[cfg(feature = "v1_18")]
-            ffi::PDF_VERSION__1_7 => Self::_1_7,
             value => Self::__Unknown(value),
         }
     }
 }
 
-#[cfg(feature = "pdf")]
-#[cfg_attr(docsrs, doc(cfg(feature = "pdf")))]
+#[cfg(any(feature = "pdf", feature = "dox"))]
 impl fmt::Display for PdfVersion {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(
@@ -1817,18 +1770,13 @@ impl fmt::Display for PdfVersion {
             match *self {
                 Self::_1_4 => "1_4",
                 Self::_1_5 => "1_5",
-                #[cfg(feature = "v1_18")]
-                Self::_1_6 => "1_6",
-                #[cfg(feature = "v1_18")]
-                Self::_1_7 => "1_7",
                 _ => "Unknown",
             }
         )
     }
 }
 
-#[cfg(feature = "svg")]
-#[cfg_attr(docsrs, doc(cfg(feature = "svg")))]
+#[cfg(any(feature = "svg", feature = "dox"))]
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 #[non_exhaustive]
 #[doc(alias = "cairo_svg_version_t")]
@@ -1841,8 +1789,7 @@ pub enum SvgVersion {
     __Unknown(i32),
 }
 
-#[cfg(feature = "svg")]
-#[cfg_attr(docsrs, doc(cfg(feature = "svg")))]
+#[cfg(any(feature = "svg", feature = "dox"))]
 #[doc(hidden)]
 impl From<SvgVersion> for ffi::cairo_svg_version_t {
     fn from(val: SvgVersion) -> ffi::cairo_svg_version_t {
@@ -1854,8 +1801,7 @@ impl From<SvgVersion> for ffi::cairo_svg_version_t {
     }
 }
 
-#[cfg(feature = "svg")]
-#[cfg_attr(docsrs, doc(cfg(feature = "svg")))]
+#[cfg(any(feature = "svg", feature = "dox"))]
 #[doc(hidden)]
 impl From<ffi::cairo_svg_version_t> for SvgVersion {
     fn from(value: ffi::cairo_svg_version_t) -> Self {
@@ -1867,8 +1813,7 @@ impl From<ffi::cairo_svg_version_t> for SvgVersion {
     }
 }
 
-#[cfg(feature = "svg")]
-#[cfg_attr(docsrs, doc(cfg(feature = "svg")))]
+#[cfg(any(feature = "svg", feature = "dox"))]
 impl fmt::Display for SvgVersion {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(
@@ -1883,8 +1828,7 @@ impl fmt::Display for SvgVersion {
     }
 }
 
-#[cfg(feature = "ps")]
-#[cfg_attr(docsrs, doc(cfg(feature = "ps")))]
+#[cfg(any(feature = "ps", feature = "dox"))]
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 #[non_exhaustive]
 #[doc(alias = "cairo_ps_level_t")]
@@ -1897,8 +1841,7 @@ pub enum PsLevel {
     __Unknown(i32),
 }
 
-#[cfg(feature = "ps")]
-#[cfg_attr(docsrs, doc(cfg(feature = "ps")))]
+#[cfg(any(feature = "ps", feature = "dox"))]
 #[doc(hidden)]
 impl From<PsLevel> for ffi::cairo_ps_level_t {
     fn from(val: PsLevel) -> ffi::cairo_ps_level_t {
@@ -1910,8 +1853,7 @@ impl From<PsLevel> for ffi::cairo_ps_level_t {
     }
 }
 
-#[cfg(feature = "ps")]
-#[cfg_attr(docsrs, doc(cfg(feature = "ps")))]
+#[cfg(any(feature = "ps", feature = "dox"))]
 #[doc(hidden)]
 impl From<ffi::cairo_ps_level_t> for PsLevel {
     fn from(value: ffi::cairo_ps_level_t) -> Self {
@@ -1923,8 +1865,7 @@ impl From<ffi::cairo_ps_level_t> for PsLevel {
     }
 }
 
-#[cfg(feature = "ps")]
-#[cfg_attr(docsrs, doc(cfg(feature = "ps")))]
+#[cfg(any(feature = "ps", feature = "dox"))]
 impl fmt::Display for PsLevel {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(
@@ -1939,7 +1880,7 @@ impl fmt::Display for PsLevel {
     }
 }
 
-#[derive(Clone, PartialEq, Eq, PartialOrd, Copy, Debug)]
+#[derive(Clone, PartialEq, PartialOrd, Copy, Debug)]
 #[non_exhaustive]
 #[doc(alias = "cairo_mesh_corner_t")]
 pub enum MeshCorner {
@@ -1997,9 +1938,8 @@ impl fmt::Display for MeshCorner {
     }
 }
 
-#[cfg(feature = "freetype")]
-#[cfg_attr(docsrs, doc(cfg(feature = "freetype")))]
-#[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Debug, Copy)]
+#[cfg(any(feature = "freetype", feature = "dox"))]
+#[derive(Clone, PartialEq, PartialOrd, Debug, Copy)]
 #[non_exhaustive]
 #[doc(alias = "cairo_ft_synthesize_t")]
 pub enum FtSynthesize {
@@ -2011,8 +1951,7 @@ pub enum FtSynthesize {
     __Unknown(u32),
 }
 
-#[cfg(feature = "freetype")]
-#[cfg_attr(docsrs, doc(cfg(feature = "freetype")))]
+#[cfg(any(feature = "freetype", feature = "dox"))]
 #[doc(hidden)]
 impl From<FtSynthesize> for ffi::cairo_ft_synthesize_t {
     fn from(val: FtSynthesize) -> ffi::cairo_ft_synthesize_t {
@@ -2024,8 +1963,7 @@ impl From<FtSynthesize> for ffi::cairo_ft_synthesize_t {
     }
 }
 
-#[cfg(feature = "freetype")]
-#[cfg_attr(docsrs, doc(cfg(feature = "freetype")))]
+#[cfg(any(feature = "freetype", feature = "dox"))]
 #[doc(hidden)]
 impl From<ffi::cairo_ft_synthesize_t> for FtSynthesize {
     fn from(value: ffi::cairo_ft_synthesize_t) -> Self {
@@ -2037,8 +1975,7 @@ impl From<ffi::cairo_ft_synthesize_t> for FtSynthesize {
     }
 }
 
-#[cfg(feature = "freetype")]
-#[cfg_attr(docsrs, doc(cfg(feature = "freetype")))]
+#[cfg(any(feature = "freetype", feature = "dox"))]
 impl fmt::Display for FtSynthesize {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(
@@ -2053,9 +1990,8 @@ impl fmt::Display for FtSynthesize {
     }
 }
 
-#[cfg(feature = "script")]
-#[cfg_attr(docsrs, doc(cfg(feature = "script")))]
-#[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Debug, Copy)]
+#[cfg(any(feature = "script", feature = "dox"))]
+#[derive(Clone, PartialEq, PartialOrd, Debug, Copy)]
 #[non_exhaustive]
 #[doc(alias = "cairo_script_mode_t")]
 pub enum ScriptMode {
@@ -2067,8 +2003,7 @@ pub enum ScriptMode {
     __Unknown(i32),
 }
 
-#[cfg(feature = "script")]
-#[cfg_attr(docsrs, doc(cfg(feature = "script")))]
+#[cfg(any(feature = "script", feature = "dox"))]
 #[doc(hidden)]
 impl From<ScriptMode> for ffi::cairo_script_mode_t {
     fn from(val: ScriptMode) -> ffi::cairo_script_mode_t {
@@ -2080,8 +2015,7 @@ impl From<ScriptMode> for ffi::cairo_script_mode_t {
     }
 }
 
-#[cfg(feature = "script")]
-#[cfg_attr(docsrs, doc(cfg(feature = "script")))]
+#[cfg(any(feature = "script", feature = "dox"))]
 #[doc(hidden)]
 impl From<ffi::cairo_script_mode_t> for ScriptMode {
     fn from(value: ffi::cairo_script_mode_t) -> Self {
@@ -2093,8 +2027,7 @@ impl From<ffi::cairo_script_mode_t> for ScriptMode {
     }
 }
 
-#[cfg(feature = "script")]
-#[cfg_attr(docsrs, doc(cfg(feature = "script")))]
+#[cfg(any(feature = "script", feature = "dox"))]
 impl fmt::Display for ScriptMode {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(
@@ -2109,7 +2042,7 @@ impl fmt::Display for ScriptMode {
     }
 }
 
-#[derive(Clone, PartialEq, Eq, PartialOrd, Debug, Copy)]
+#[derive(Clone, PartialEq, PartialOrd, Debug, Copy)]
 #[non_exhaustive]
 #[doc(alias = "cairo_device_type_t")]
 pub enum DeviceType {

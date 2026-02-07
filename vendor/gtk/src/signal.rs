@@ -1,6 +1,7 @@
 // Take a look at the license at the top of the repository in the LICENSE file.
 
 use gdk::Rectangle;
+pub use glib::signal::Inhibit;
 use glib::signal::SignalHandlerId;
 
 use crate::{ScrollType, Widget};
@@ -140,7 +141,7 @@ pub trait SpinButtonSignals: 'static {
         F: Fn(&Self) -> Option<Result<f64, ()>> + 'static;
     fn connect_output<F>(&self, output_func: F) -> SignalHandlerId
     where
-        F: Fn(&Self) -> glib::Propagation + 'static;
+        F: Fn(&Self) -> Inhibit + 'static;
     fn connect_value_changed<F>(&self, value_changed_func: F) -> SignalHandlerId
     where
         F: Fn(&Self) + 'static;
@@ -150,6 +151,7 @@ pub trait SpinButtonSignals: 'static {
 }
 
 mod spin_button {
+    use crate::Inhibit;
     use crate::ScrollType;
     use crate::SpinButton;
     use ffi::{GtkScrollType, GtkSpinButton, GTK_INPUT_ERROR};
@@ -200,7 +202,7 @@ mod spin_button {
 
         fn connect_output<F>(&self, output_func: F) -> SignalHandlerId
         where
-            F: Fn(&Self) -> glib::Propagation + 'static,
+            F: Fn(&Self) -> Inhibit + 'static,
         {
             unsafe {
                 let f: Box<F> = Box::new(output_func);
@@ -281,7 +283,7 @@ mod spin_button {
         }
     }
 
-    unsafe extern "C" fn output_trampoline<T, F: Fn(&T) -> glib::Propagation + 'static>(
+    unsafe extern "C" fn output_trampoline<T, F: Fn(&T) -> Inhibit + 'static>(
         this: *mut GtkSpinButton,
         f: &F,
     ) -> gboolean

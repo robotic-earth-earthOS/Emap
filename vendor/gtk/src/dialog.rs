@@ -36,19 +36,9 @@ impl Dialog {
     }
 }
 
-mod sealed {
-    pub trait Sealed {}
-    impl<T: glib::IsA<crate::Dialog> + glib::IsA<crate::Widget>> Sealed for T {}
-}
-
-pub trait DialogExtManual: IsA<Dialog> + IsA<Widget> + sealed::Sealed + 'static {
+pub trait DialogExtManual: 'static {
     #[doc(alias = "gtk_dialog_add_buttons")]
-    fn add_buttons(&self, buttons: &[(&str, ResponseType)]) {
-        for &(text, id) in buttons {
-            //FIXME: self.add_button don't work on 1.8
-            Self::add_button(self, text, id);
-        }
-    }
+    fn add_buttons(&self, buttons: &[(&str, ResponseType)]);
 
     // rustdoc-stripper-ignore-next
     /// Shows the dialog and returns a `Future` that resolves to the
@@ -68,6 +58,17 @@ pub trait DialogExtManual: IsA<Dialog> + IsA<Widget> + sealed::Sealed + 'static 
     /// println!("Answer: {:?}", answer);
     /// # }
     /// ```
+    fn run_future<'a>(&'a self) -> Pin<Box<dyn Future<Output = ResponseType> + 'a>>;
+}
+
+impl<O: IsA<Dialog> + IsA<Widget>> DialogExtManual for O {
+    fn add_buttons(&self, buttons: &[(&str, ResponseType)]) {
+        for &(text, id) in buttons {
+            //FIXME: self.add_button don't work on 1.8
+            O::add_button(self, text, id);
+        }
+    }
+
     fn run_future<'a>(&'a self) -> Pin<Box<dyn Future<Output = ResponseType> + 'a>> {
         Box::pin(async move {
             let (sender, receiver) = futures_channel::oneshot::channel();
@@ -93,5 +94,3 @@ pub trait DialogExtManual: IsA<Dialog> + IsA<Widget> + sealed::Sealed + 'static 
         })
     }
 }
-
-impl<O: IsA<Dialog> + IsA<Widget>> DialogExtManual for O {}

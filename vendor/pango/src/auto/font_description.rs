@@ -2,9 +2,15 @@
 // from gir-files (https://github.com/gtk-rs/gir-files)
 // DO NOT EDIT
 
-use crate::{FontMask, Gravity, Stretch, Style, Variant, Weight};
+use crate::FontMask;
+use crate::Gravity;
+use crate::Stretch;
+use crate::Style;
+use crate::Variant;
+use crate::Weight;
 use glib::translate::*;
-use std::{fmt, hash};
+use std::fmt;
+use std::hash;
 
 glib::wrapper! {
     #[derive(Debug, PartialOrd, Ord)]
@@ -120,8 +126,8 @@ impl FontDescription {
         }
     }
 
-    #[cfg(feature = "v1_42")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "v1_42")))]
+    #[cfg(any(feature = "v1_42", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v1_42")))]
     #[doc(alias = "pango_font_description_get_variations")]
     #[doc(alias = "get_variations")]
     pub fn variations(&self) -> Option<glib::GString> {
@@ -210,8 +216,8 @@ impl FontDescription {
         }
     }
 
-    #[cfg(feature = "v1_42")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "v1_42")))]
+    #[cfg(any(feature = "v1_42", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v1_42")))]
     #[doc(alias = "pango_font_description_set_variations")]
     pub fn set_variations(&mut self, variations: Option<&str>) {
         unsafe {
@@ -222,8 +228,8 @@ impl FontDescription {
         }
     }
 
-    #[cfg(feature = "v1_42")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "v1_42")))]
+    #[cfg(any(feature = "v1_42", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v1_42")))]
     #[doc(alias = "pango_font_description_set_variations_static")]
     pub fn set_variations_static(&mut self, variations: &str) {
         unsafe {

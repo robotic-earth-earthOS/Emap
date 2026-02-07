@@ -9,17 +9,19 @@ shell-words = "1.0.0"
 tempfile = "3"
 
 [features]
-v2_58 = []
+v2_50 = []
+v2_52 = ["v2_50"]
+v2_54 = ["v2_52"]
+v2_56 = ["v2_54"]
+v2_58 = ["v2_56"]
 v2_60 = ["v2_58"]
 v2_62 = ["v2_60"]
 v2_64 = ["v2_62"]
+dox = []
 v2_66 = ["v2_64"]
 v2_68 = ["v2_66"]
 v2_70 = ["v2_68"]
 v2_72 = ["v2_70"]
-v2_74 = ["v2_72"]
-v2_76 = ["v2_74"]
-v2_78 = ["v2_76"]
 
 [lib]
 name = "glib_sys"
@@ -28,23 +30,30 @@ name = "glib_sys"
 authors = ["The gtk-rs Project Developers"]
 build = "build.rs"
 description = "FFI bindings to libglib-2.0"
-homepage = "https://gtk-rs.org/"
+homepage = "http://gtk-rs.org/"
 keywords = ["glib", "ffi", "gtk-rs", "gnome"]
 license = "MIT"
 name = "glib-sys"
 repository = "https://github.com/gtk-rs/gtk-rs-core"
-version = "0.18.1"
+version = "0.15.10"
 edition = "2021"
-rust-version = "1.70"
-
+rust-version = "1.56"
 [package.metadata.docs.rs]
-all-features = true
-rustc-args = ["--cfg", "docsrs"]
-rustdoc-args = ["--cfg", "docsrs"]
-features = []
-
+features = ["dox"]
 [package.metadata.system-deps.glib_2_0]
 name = "glib-2.0"
+version = "2.48"
+
+[package.metadata.system-deps.glib_2_0.v2_50]
+version = "2.50"
+
+[package.metadata.system-deps.glib_2_0.v2_52]
+version = "2.52"
+
+[package.metadata.system-deps.glib_2_0.v2_54]
+version = "2.54"
+
+[package.metadata.system-deps.glib_2_0.v2_56]
 version = "2.56"
 
 [package.metadata.system-deps.glib_2_0.v2_58]
@@ -69,20 +78,14 @@ version = "2.68"
 version = "2.70"
 
 [package.metadata.system-deps.glib_2_0.v2_72]
-version = "2.72"
-
-[package.metadata.system-deps.glib_2_0.v2_74]
-version = "2.74"
-
-[package.metadata.system-deps.glib_2_0.v2_76]
-version = "2.76"
-
-[package.metadata.system-deps.glib_2_0.v2_78]
-version = "2.77"
+version = "2.71"
 
 [package.metadata.system-deps.gobject_2_0]
 name = "gobject-2.0"
-version = "2.56"
+version = "2.48"
+
+[package.metadata.system-deps.gobject_2_0.v2_54]
+version = "2.54"
 
 [package.metadata.system-deps.gobject_2_0.v2_58]
 version = "2.58"

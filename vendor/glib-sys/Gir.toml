@@ -2,13 +2,12 @@
 work_mode = "sys"
 library = "GLib"
 version = "2.0"
-min_cfg_version = "2.56"
+min_cfg_version = "2.48"
 single_version_file = "."
 girs_directories = ["../../gir-files"]
 
 ignore = [
     "GLib.ANALYZER_ANALYZING",
-    "GLib.C_STD_VERSION",
     "GLib.DIR_SEPARATOR",
     "GLib.DIR_SEPARATOR_S",
     "GLib.GINT16_FORMAT",
@@ -68,46 +67,77 @@ ignore = [
 name = "GLib.*"
 status = "generate"
     [[object.function]]
+    pattern = "filename_(to|from)_(uri|utf8)"
+    is_windows_utf8 = true
+    [[object.function]]
+    pattern = "(g|s|uns)etenv"
+    is_windows_utf8 = true
+    [[object.function]]
+    name = "file_test"
+    is_windows_utf8 = true
+    [[object.function]]
+    name = "file_get_contents"
+    is_windows_utf8 = true
+    [[object.function]]
+    name = "file_open_tmp"
+    is_windows_utf8 = true
+    [[object.function]]
+    name = "mkstemp"
+    is_windows_utf8 = true
+    [[object.function]]
+    name = "get_current_dir"
+    is_windows_utf8 = true
+    [[object.function]]
+    pattern = "spawn_async.*"
+    is_windows_utf8 = true
+    [[object.function]]
+    name = "spawn_sync"
+    is_windows_utf8 = true
+    [[object.function]]
+    pattern = "spawn_command_line_.*"
+    is_windows_utf8 = true
+    [[object.function]]
+    name = "get_user_name"
+    is_windows_utf8 = true
+    [[object.function]]
+    name = "get_real_name"
+    is_windows_utf8 = true
+    [[object.function]]
+    name = "get_home_dir"
+    is_windows_utf8 = true
+    [[object.function]]
+    name = "get_tmp_dir"
+    is_windows_utf8 = true
+    [[object.function]]
+    name = "find_program_in_path"
+    is_windows_utf8 = true
+    [[object.function]]
     name = "unix_get_passwd_entry"
     cfg_condition = "unix"
     [[object.function]]
+    name = "win32_get_package_installation_directory_of_module"
+    manual = true
+    cfg_condition = "windows"
+    [[object.function]]
     name = "get_user_state_dir"
     version = "2.72"
-    [[object.function]]
-    name = "check_windows_version"
-    manual = true
-    cfg_condition = "windows"
-    [[object.function]]
-    name = "get_command_line"
-    manual = true
-    cfg_condition = "windows"
-    [[object.function]]
-    name = "error_message"
-    manual = true
-    cfg_condition = "windows"
-    [[object.function]]
-    name = "getlocale"
-    manual = true
-    cfg_condition = "windows"
-    [[object.function]]
-    name = "get_package_installation_directory_of_module"
-    manual = true
-    cfg_condition = "windows"
-    [[object.function]]
-    name = "locale_filename_from_utf8"
-    manual = true
-    cfg_condition = "windows"
-    [[object.function]]
-    name = "assertion_message_cmpint"
-    version = "2.78"
-    [[object.function]]
-    name = "test_disable_crash_reporting"
-    version = "2.78"
 
 [[object]]
-name = "GLib.LOG_DOMAIN"
-# C-only macro
-status = "ignore"
+name = "GLib.Dir"
+status = "generate"
+    [[object.function]]
+    name = "open"
+    is_windows_utf8 = true
+    [[object.function]]
+    name = "read_name"
+    is_windows_utf8 = true
+
+[[object]]
+name = "GLib.IOChannel"
+status = "generate"
+    [[object.function]]
+    name = "new_file"
+    is_windows_utf8 = true
 
 [[object]]
 name = "GLib.Pid"
@@ -116,13 +146,3 @@ status = "manual"
 [[object]]
 name = "GLib.PollFD"
 status = "manual"
-
-[[object]]
-name = "GLib.TestLogMsg"
-# layout is broken due to rust having no long double
-status = "ignore"
-
-[[object]]
-name = "GLib.macro__has_attribute___noreturn__"
-# C-only macro
-status = "ignore"

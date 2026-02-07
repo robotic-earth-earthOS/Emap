@@ -1,6 +1,6 @@
-use std::sync::{Arc, Mutex};
-
 use glib::*;
+
+use std::sync::{Arc, Mutex};
 
 // Funny thing: we can't put those two tests in two different functions, otherwise they might
 // conflict with the results of the other one (or it would be mandatory to run the tests on only

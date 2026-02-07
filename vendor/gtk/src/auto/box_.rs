@@ -2,16 +2,26 @@
 // from gir-files (https://github.com/gtk-rs/gir-files)
 // DO NOT EDIT
 
-use crate::{
-    Align, BaselinePosition, Buildable, Container, Orientable, Orientation, PackType, ResizeMode,
-    Widget,
-};
-use glib::{
-    prelude::*,
-    signal::{connect_raw, SignalHandlerId},
-    translate::*,
-};
-use std::{boxed::Box as Box_, fmt, mem, mem::transmute};
+use crate::Align;
+use crate::BaselinePosition;
+use crate::Buildable;
+use crate::Container;
+use crate::Orientable;
+use crate::Orientation;
+use crate::PackType;
+use crate::ResizeMode;
+use crate::Widget;
+use glib::object::Cast;
+use glib::object::IsA;
+use glib::signal::connect_raw;
+use glib::signal::SignalHandlerId;
+use glib::translate::*;
+use glib::StaticType;
+use glib::ToValue;
+use std::boxed::Box as Box_;
+use std::fmt;
+use std::mem;
+use std::mem::transmute;
 
 glib::wrapper! {
     #[doc(alias = "GtkBox")]
@@ -38,286 +48,490 @@ impl Box {
     ///
     /// This method returns an instance of [`BoxBuilder`](crate::builders::BoxBuilder) which can be used to create [`Box`] objects.
     pub fn builder() -> BoxBuilder {
-        BoxBuilder::new()
+        BoxBuilder::default()
     }
 }
 
 impl Default for Box {
     fn default() -> Self {
-        glib::object::Object::new::<Self>()
+        glib::object::Object::new::<Self>(&[])
+            .expect("Can't construct Box object with default parameters")
     }
 }
 
+#[derive(Clone, Default)]
 // rustdoc-stripper-ignore-next
 /// A [builder-pattern] type to construct [`Box`] objects.
 ///
 /// [builder-pattern]: https://doc.rust-lang.org/1.0.0/style/ownership/builders.html
 #[must_use = "The builder must be built to be used"]
 pub struct BoxBuilder {
-    builder: glib::object::ObjectBuilder<'static, Box>,
+    baseline_position: Option<BaselinePosition>,
+    homogeneous: Option<bool>,
+    spacing: Option<i32>,
+    border_width: Option<u32>,
+    child: Option<Widget>,
+    resize_mode: Option<ResizeMode>,
+    app_paintable: Option<bool>,
+    can_default: Option<bool>,
+    can_focus: Option<bool>,
+    events: Option<gdk::EventMask>,
+    expand: Option<bool>,
+    #[cfg(any(feature = "v3_20", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
+    focus_on_click: Option<bool>,
+    halign: Option<Align>,
+    has_default: Option<bool>,
+    has_focus: Option<bool>,
+    has_tooltip: Option<bool>,
+    height_request: Option<i32>,
+    hexpand: Option<bool>,
+    hexpand_set: Option<bool>,
+    is_focus: Option<bool>,
+    margin: Option<i32>,
+    margin_bottom: Option<i32>,
+    margin_end: Option<i32>,
+    margin_start: Option<i32>,
+    margin_top: Option<i32>,
+    name: Option<String>,
+    no_show_all: Option<bool>,
+    opacity: Option<f64>,
+    parent: Option<Container>,
+    receives_default: Option<bool>,
+    sensitive: Option<bool>,
+    tooltip_markup: Option<String>,
+    tooltip_text: Option<String>,
+    valign: Option<Align>,
+    vexpand: Option<bool>,
+    vexpand_set: Option<bool>,
+    visible: Option<bool>,
+    width_request: Option<i32>,
+    orientation: Option<Orientation>,
 }
 
 impl BoxBuilder {
-    fn new() -> Self {
-        Self {
-            builder: glib::object::Object::builder(),
-        }
-    }
-
-    pub fn baseline_position(self, baseline_position: BaselinePosition) -> Self {
-        Self {
-            builder: self
-                .builder
-                .property("baseline-position", baseline_position),
-        }
-    }
-
-    pub fn homogeneous(self, homogeneous: bool) -> Self {
-        Self {
-            builder: self.builder.property("homogeneous", homogeneous),
-        }
-    }
-
-    pub fn spacing(self, spacing: i32) -> Self {
-        Self {
-            builder: self.builder.property("spacing", spacing),
-        }
-    }
-
-    pub fn border_width(self, border_width: u32) -> Self {
-        Self {
-            builder: self.builder.property("border-width", border_width),
-        }
-    }
-
-    pub fn child(self, child: &impl IsA<Widget>) -> Self {
-        Self {
-            builder: self.builder.property("child", child.clone().upcast()),
-        }
-    }
-
-    pub fn resize_mode(self, resize_mode: ResizeMode) -> Self {
-        Self {
-            builder: self.builder.property("resize-mode", resize_mode),
-        }
-    }
-
-    pub fn app_paintable(self, app_paintable: bool) -> Self {
-        Self {
-            builder: self.builder.property("app-paintable", app_paintable),
-        }
-    }
-
-    pub fn can_default(self, can_default: bool) -> Self {
-        Self {
-            builder: self.builder.property("can-default", can_default),
-        }
-    }
-
-    pub fn can_focus(self, can_focus: bool) -> Self {
-        Self {
-            builder: self.builder.property("can-focus", can_focus),
-        }
-    }
-
-    pub fn events(self, events: gdk::EventMask) -> Self {
-        Self {
-            builder: self.builder.property("events", events),
-        }
-    }
-
-    pub fn expand(self, expand: bool) -> Self {
-        Self {
-            builder: self.builder.property("expand", expand),
-        }
-    }
-
-    pub fn focus_on_click(self, focus_on_click: bool) -> Self {
-        Self {
-            builder: self.builder.property("focus-on-click", focus_on_click),
-        }
-    }
-
-    pub fn halign(self, halign: Align) -> Self {
-        Self {
-            builder: self.builder.property("halign", halign),
-        }
-    }
-
-    pub fn has_default(self, has_default: bool) -> Self {
-        Self {
-            builder: self.builder.property("has-default", has_default),
-        }
-    }
-
-    pub fn has_focus(self, has_focus: bool) -> Self {
-        Self {
-            builder: self.builder.property("has-focus", has_focus),
-        }
-    }
-
-    pub fn has_tooltip(self, has_tooltip: bool) -> Self {
-        Self {
-            builder: self.builder.property("has-tooltip", has_tooltip),
-        }
-    }
-
-    pub fn height_request(self, height_request: i32) -> Self {
-        Self {
-            builder: self.builder.property("height-request", height_request),
-        }
-    }
-
-    pub fn hexpand(self, hexpand: bool) -> Self {
-        Self {
-            builder: self.builder.property("hexpand", hexpand),
-        }
-    }
-
-    pub fn hexpand_set(self, hexpand_set: bool) -> Self {
-        Self {
-            builder: self.builder.property("hexpand-set", hexpand_set),
-        }
-    }
-
-    pub fn is_focus(self, is_focus: bool) -> Self {
-        Self {
-            builder: self.builder.property("is-focus", is_focus),
-        }
-    }
-
-    pub fn margin(self, margin: i32) -> Self {
-        Self {
-            builder: self.builder.property("margin", margin),
-        }
-    }
-
-    pub fn margin_bottom(self, margin_bottom: i32) -> Self {
-        Self {
-            builder: self.builder.property("margin-bottom", margin_bottom),
-        }
-    }
-
-    pub fn margin_end(self, margin_end: i32) -> Self {
-        Self {
-            builder: self.builder.property("margin-end", margin_end),
-        }
-    }
-
-    pub fn margin_start(self, margin_start: i32) -> Self {
-        Self {
-            builder: self.builder.property("margin-start", margin_start),
-        }
-    }
-
-    pub fn margin_top(self, margin_top: i32) -> Self {
-        Self {
-            builder: self.builder.property("margin-top", margin_top),
-        }
-    }
-
-    pub fn name(self, name: impl Into<glib::GString>) -> Self {
-        Self {
-            builder: self.builder.property("name", name.into()),
-        }
-    }
-
-    pub fn no_show_all(self, no_show_all: bool) -> Self {
-        Self {
-            builder: self.builder.property("no-show-all", no_show_all),
-        }
-    }
-
-    pub fn opacity(self, opacity: f64) -> Self {
-        Self {
-            builder: self.builder.property("opacity", opacity),
-        }
-    }
-
-    pub fn parent(self, parent: &impl IsA<Container>) -> Self {
-        Self {
-            builder: self.builder.property("parent", parent.clone().upcast()),
-        }
-    }
-
-    pub fn receives_default(self, receives_default: bool) -> Self {
-        Self {
-            builder: self.builder.property("receives-default", receives_default),
-        }
-    }
-
-    pub fn sensitive(self, sensitive: bool) -> Self {
-        Self {
-            builder: self.builder.property("sensitive", sensitive),
-        }
-    }
-
-    pub fn tooltip_markup(self, tooltip_markup: impl Into<glib::GString>) -> Self {
-        Self {
-            builder: self
-                .builder
-                .property("tooltip-markup", tooltip_markup.into()),
-        }
-    }
-
-    pub fn tooltip_text(self, tooltip_text: impl Into<glib::GString>) -> Self {
-        Self {
-            builder: self.builder.property("tooltip-text", tooltip_text.into()),
-        }
-    }
-
-    pub fn valign(self, valign: Align) -> Self {
-        Self {
-            builder: self.builder.property("valign", valign),
-        }
-    }
-
-    pub fn vexpand(self, vexpand: bool) -> Self {
-        Self {
-            builder: self.builder.property("vexpand", vexpand),
-        }
-    }
-
-    pub fn vexpand_set(self, vexpand_set: bool) -> Self {
-        Self {
-            builder: self.builder.property("vexpand-set", vexpand_set),
-        }
-    }
-
-    pub fn visible(self, visible: bool) -> Self {
-        Self {
-            builder: self.builder.property("visible", visible),
-        }
-    }
-
-    pub fn width_request(self, width_request: i32) -> Self {
-        Self {
-            builder: self.builder.property("width-request", width_request),
-        }
-    }
-
-    pub fn orientation(self, orientation: Orientation) -> Self {
-        Self {
-            builder: self.builder.property("orientation", orientation),
-        }
+    // rustdoc-stripper-ignore-next
+    /// Create a new [`BoxBuilder`].
+    pub fn new() -> Self {
+        Self::default()
     }
 
     // rustdoc-stripper-ignore-next
     /// Build the [`Box`].
     #[must_use = "Building the object from the builder is usually expensive and is not expected to have side effects"]
     pub fn build(self) -> Box {
-        self.builder.build()
+        let mut properties: Vec<(&str, &dyn ToValue)> = vec![];
+        if let Some(ref baseline_position) = self.baseline_position {
+            properties.push(("baseline-position", baseline_position));
+        }
+        if let Some(ref homogeneous) = self.homogeneous {
+            properties.push(("homogeneous", homogeneous));
+        }
+        if let Some(ref spacing) = self.spacing {
+            properties.push(("spacing", spacing));
+        }
+        if let Some(ref border_width) = self.border_width {
+            properties.push(("border-width", border_width));
+        }
+        if let Some(ref child) = self.child {
+            properties.push(("child", child));
+        }
+        if let Some(ref resize_mode) = self.resize_mode {
+            properties.push(("resize-mode", resize_mode));
+        }
+        if let Some(ref app_paintable) = self.app_paintable {
+            properties.push(("app-paintable", app_paintable));
+        }
+        if let Some(ref can_default) = self.can_default {
+            properties.push(("can-default", can_default));
+        }
+        if let Some(ref can_focus) = self.can_focus {
+            properties.push(("can-focus", can_focus));
+        }
+        if let Some(ref events) = self.events {
+            properties.push(("events", events));
+        }
+        if let Some(ref expand) = self.expand {
+            properties.push(("expand", expand));
+        }
+        #[cfg(any(feature = "v3_20", feature = "dox"))]
+        if let Some(ref focus_on_click) = self.focus_on_click {
+            properties.push(("focus-on-click", focus_on_click));
+        }
+        if let Some(ref halign) = self.halign {
+            properties.push(("halign", halign));
+        }
+        if let Some(ref has_default) = self.has_default {
+            properties.push(("has-default", has_default));
+        }
+        if let Some(ref has_focus) = self.has_focus {
+            properties.push(("has-focus", has_focus));
+        }
+        if let Some(ref has_tooltip) = self.has_tooltip {
+            properties.push(("has-tooltip", has_tooltip));
+        }
+        if let Some(ref height_request) = self.height_request {
+            properties.push(("height-request", height_request));
+        }
+        if let Some(ref hexpand) = self.hexpand {
+            properties.push(("hexpand", hexpand));
+        }
+        if let Some(ref hexpand_set) = self.hexpand_set {
+            properties.push(("hexpand-set", hexpand_set));
+        }
+        if let Some(ref is_focus) = self.is_focus {
+            properties.push(("is-focus", is_focus));
+        }
+        if let Some(ref margin) = self.margin {
+            properties.push(("margin", margin));
+        }
+        if let Some(ref margin_bottom) = self.margin_bottom {
+            properties.push(("margin-bottom", margin_bottom));
+        }
+        if let Some(ref margin_end) = self.margin_end {
+            properties.push(("margin-end", margin_end));
+        }
+        if let Some(ref margin_start) = self.margin_start {
+            properties.push(("margin-start", margin_start));
+        }
+        if let Some(ref margin_top) = self.margin_top {
+            properties.push(("margin-top", margin_top));
+        }
+        if let Some(ref name) = self.name {
+            properties.push(("name", name));
+        }
+        if let Some(ref no_show_all) = self.no_show_all {
+            properties.push(("no-show-all", no_show_all));
+        }
+        if let Some(ref opacity) = self.opacity {
+            properties.push(("opacity", opacity));
+        }
+        if let Some(ref parent) = self.parent {
+            properties.push(("parent", parent));
+        }
+        if let Some(ref receives_default) = self.receives_default {
+            properties.push(("receives-default", receives_default));
+        }
+        if let Some(ref sensitive) = self.sensitive {
+            properties.push(("sensitive", sensitive));
+        }
+        if let Some(ref tooltip_markup) = self.tooltip_markup {
+            properties.push(("tooltip-markup", tooltip_markup));
+        }
+        if let Some(ref tooltip_text) = self.tooltip_text {
+            properties.push(("tooltip-text", tooltip_text));
+        }
+        if let Some(ref valign) = self.valign {
+            properties.push(("valign", valign));
+        }
+        if let Some(ref vexpand) = self.vexpand {
+            properties.push(("vexpand", vexpand));
+        }
+        if let Some(ref vexpand_set) = self.vexpand_set {
+            properties.push(("vexpand-set", vexpand_set));
+        }
+        if let Some(ref visible) = self.visible {
+            properties.push(("visible", visible));
+        }
+        if let Some(ref width_request) = self.width_request {
+            properties.push(("width-request", width_request));
+        }
+        if let Some(ref orientation) = self.orientation {
+            properties.push(("orientation", orientation));
+        }
+        glib::Object::new::<Box>(&properties).expect("Failed to create an instance of Box")
+    }
+
+    pub fn baseline_position(mut self, baseline_position: BaselinePosition) -> Self {
+        self.baseline_position = Some(baseline_position);
+        self
+    }
+
+    pub fn homogeneous(mut self, homogeneous: bool) -> Self {
+        self.homogeneous = Some(homogeneous);
+        self
+    }
+
+    pub fn spacing(mut self, spacing: i32) -> Self {
+        self.spacing = Some(spacing);
+        self
+    }
+
+    pub fn border_width(mut self, border_width: u32) -> Self {
+        self.border_width = Some(border_width);
+        self
+    }
+
+    pub fn child(mut self, child: &impl IsA<Widget>) -> Self {
+        self.child = Some(child.clone().upcast());
+        self
+    }
+
+    pub fn resize_mode(mut self, resize_mode: ResizeMode) -> Self {
+        self.resize_mode = Some(resize_mode);
+        self
+    }
+
+    pub fn app_paintable(mut self, app_paintable: bool) -> Self {
+        self.app_paintable = Some(app_paintable);
+        self
+    }
+
+    pub fn can_default(mut self, can_default: bool) -> Self {
+        self.can_default = Some(can_default);
+        self
+    }
+
+    pub fn can_focus(mut self, can_focus: bool) -> Self {
+        self.can_focus = Some(can_focus);
+        self
+    }
+
+    pub fn events(mut self, events: gdk::EventMask) -> Self {
+        self.events = Some(events);
+        self
+    }
+
+    pub fn expand(mut self, expand: bool) -> Self {
+        self.expand = Some(expand);
+        self
+    }
+
+    #[cfg(any(feature = "v3_20", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
+    pub fn focus_on_click(mut self, focus_on_click: bool) -> Self {
+        self.focus_on_click = Some(focus_on_click);
+        self
+    }
+
+    pub fn halign(mut self, halign: Align) -> Self {
+        self.halign = Some(halign);
+        self
+    }
+
+    pub fn has_default(mut self, has_default: bool) -> Self {
+        self.has_default = Some(has_default);
+        self
+    }
+
+    pub fn has_focus(mut self, has_focus: bool) -> Self {
+        self.has_focus = Some(has_focus);
+        self
+    }
+
+    pub fn has_tooltip(mut self, has_tooltip: bool) -> Self {
+        self.has_tooltip = Some(has_tooltip);
+        self
+    }
+
+    pub fn height_request(mut self, height_request: i32) -> Self {
+        self.height_request = Some(height_request);
+        self
+    }
+
+    pub fn hexpand(mut self, hexpand: bool) -> Self {
+        self.hexpand = Some(hexpand);
+        self
+    }
+
+    pub fn hexpand_set(mut self, hexpand_set: bool) -> Self {
+        self.hexpand_set = Some(hexpand_set);
+        self
+    }
+
+    pub fn is_focus(mut self, is_focus: bool) -> Self {
+        self.is_focus = Some(is_focus);
+        self
+    }
+
+    pub fn margin(mut self, margin: i32) -> Self {
+        self.margin = Some(margin);
+        self
+    }
+
+    pub fn margin_bottom(mut self, margin_bottom: i32) -> Self {
+        self.margin_bottom = Some(margin_bottom);
+        self
+    }
+
+    pub fn margin_end(mut self, margin_end: i32) -> Self {
+        self.margin_end = Some(margin_end);
+        self
+    }
+
+    pub fn margin_start(mut self, margin_start: i32) -> Self {
+        self.margin_start = Some(margin_start);
+        self
+    }
+
+    pub fn margin_top(mut self, margin_top: i32) -> Self {
+        self.margin_top = Some(margin_top);
+        self
+    }
+
+    pub fn name(mut self, name: &str) -> Self {
+        self.name = Some(name.to_string());
+        self
+    }
+
+    pub fn no_show_all(mut self, no_show_all: bool) -> Self {
+        self.no_show_all = Some(no_show_all);
+        self
+    }
+
+    pub fn opacity(mut self, opacity: f64) -> Self {
+        self.opacity = Some(opacity);
+        self
+    }
+
+    pub fn parent(mut self, parent: &impl IsA<Container>) -> Self {
+        self.parent = Some(parent.clone().upcast());
+        self
+    }
+
+    pub fn receives_default(mut self, receives_default: bool) -> Self {
+        self.receives_default = Some(receives_default);
+        self
+    }
+
+    pub fn sensitive(mut self, sensitive: bool) -> Self {
+        self.sensitive = Some(sensitive);
+        self
+    }
+
+    pub fn tooltip_markup(mut self, tooltip_markup: &str) -> Self {
+        self.tooltip_markup = Some(tooltip_markup.to_string());
+        self
+    }
+
+    pub fn tooltip_text(mut self, tooltip_text: &str) -> Self {
+        self.tooltip_text = Some(tooltip_text.to_string());
+        self
+    }
+
+    pub fn valign(mut self, valign: Align) -> Self {
+        self.valign = Some(valign);
+        self
+    }
+
+    pub fn vexpand(mut self, vexpand: bool) -> Self {
+        self.vexpand = Some(vexpand);
+        self
+    }
+
+    pub fn vexpand_set(mut self, vexpand_set: bool) -> Self {
+        self.vexpand_set = Some(vexpand_set);
+        self
+    }
+
+    pub fn visible(mut self, visible: bool) -> Self {
+        self.visible = Some(visible);
+        self
+    }
+
+    pub fn width_request(mut self, width_request: i32) -> Self {
+        self.width_request = Some(width_request);
+        self
+    }
+
+    pub fn orientation(mut self, orientation: Orientation) -> Self {
+        self.orientation = Some(orientation);
+        self
     }
 }
 
-mod sealed {
-    pub trait Sealed {}
-    impl<T: super::IsA<super::Box>> Sealed for T {}
-}
-
-pub trait BoxExt: IsA<Box> + sealed::Sealed + 'static {
+pub trait BoxExt: 'static {
     #[doc(alias = "gtk_box_get_baseline_position")]
     #[doc(alias = "get_baseline_position")]
+    fn baseline_position(&self) -> BaselinePosition;
+
+    #[doc(alias = "gtk_box_get_center_widget")]
+    #[doc(alias = "get_center_widget")]
+    fn center_widget(&self) -> Option<Widget>;
+
+    #[doc(alias = "gtk_box_get_homogeneous")]
+    #[doc(alias = "get_homogeneous")]
+    fn is_homogeneous(&self) -> bool;
+
+    #[doc(alias = "gtk_box_get_spacing")]
+    #[doc(alias = "get_spacing")]
+    fn spacing(&self) -> i32;
+
+    #[doc(alias = "gtk_box_pack_end")]
+    fn pack_end(&self, child: &impl IsA<Widget>, expand: bool, fill: bool, padding: u32);
+
+    #[doc(alias = "gtk_box_pack_start")]
+    fn pack_start(&self, child: &impl IsA<Widget>, expand: bool, fill: bool, padding: u32);
+
+    #[doc(alias = "gtk_box_query_child_packing")]
+    fn query_child_packing(&self, child: &impl IsA<Widget>) -> (bool, bool, u32, PackType);
+
+    #[doc(alias = "gtk_box_reorder_child")]
+    fn reorder_child(&self, child: &impl IsA<Widget>, position: i32);
+
+    #[doc(alias = "gtk_box_set_baseline_position")]
+    fn set_baseline_position(&self, position: BaselinePosition);
+
+    #[doc(alias = "gtk_box_set_center_widget")]
+    fn set_center_widget(&self, widget: Option<&impl IsA<Widget>>);
+
+    #[doc(alias = "gtk_box_set_child_packing")]
+    fn set_child_packing(
+        &self,
+        child: &impl IsA<Widget>,
+        expand: bool,
+        fill: bool,
+        padding: u32,
+        pack_type: PackType,
+    );
+
+    #[doc(alias = "gtk_box_set_homogeneous")]
+    fn set_homogeneous(&self, homogeneous: bool);
+
+    #[doc(alias = "gtk_box_set_spacing")]
+    fn set_spacing(&self, spacing: i32);
+
+    #[doc(hidden)]
+    fn child_expands<T: IsA<crate::Widget>>(&self, item: &T) -> bool;
+
+    #[doc(hidden)]
+    fn set_child_expand<T: IsA<crate::Widget>>(&self, item: &T, expand: bool);
+
+    #[doc(hidden)]
+    fn child_fills<T: IsA<crate::Widget>>(&self, item: &T) -> bool;
+
+    #[doc(hidden)]
+    fn set_child_fill<T: IsA<crate::Widget>>(&self, item: &T, fill: bool);
+
+    #[doc(hidden)]
+    #[doc(alias = "child.pack-type")]
+    fn child_pack_type<T: IsA<crate::Widget>>(&self, item: &T) -> PackType;
+
+    #[doc(hidden)]
+    #[doc(alias = "child.pack-type")]
+    fn set_child_pack_type<T: IsA<crate::Widget>>(&self, item: &T, pack_type: PackType);
+
+    #[doc(hidden)]
+    fn child_padding<T: IsA<crate::Widget>>(&self, item: &T) -> u32;
+
+    #[doc(hidden)]
+    fn set_child_padding<T: IsA<crate::Widget>>(&self, item: &T, padding: u32);
+
+    fn child_position<T: IsA<crate::Widget>>(&self, item: &T) -> i32;
+
+    fn set_child_position<T: IsA<crate::Widget>>(&self, item: &T, position: i32);
+
+    #[doc(alias = "baseline-position")]
+    fn connect_baseline_position_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "homogeneous")]
+    fn connect_homogeneous_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "spacing")]
+    fn connect_spacing_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+}
+
+impl<O: IsA<Box>> BoxExt for O {
     fn baseline_position(&self) -> BaselinePosition {
         unsafe {
             from_glib(ffi::gtk_box_get_baseline_position(
@@ -326,8 +540,6 @@ pub trait BoxExt: IsA<Box> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_box_get_center_widget")]
-    #[doc(alias = "get_center_widget")]
     fn center_widget(&self) -> Option<Widget> {
         unsafe {
             from_glib_none(ffi::gtk_box_get_center_widget(
@@ -336,19 +548,14 @@ pub trait BoxExt: IsA<Box> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_box_get_homogeneous")]
-    #[doc(alias = "get_homogeneous")]
     fn is_homogeneous(&self) -> bool {
         unsafe { from_glib(ffi::gtk_box_get_homogeneous(self.as_ref().to_glib_none().0)) }
     }
 
-    #[doc(alias = "gtk_box_get_spacing")]
-    #[doc(alias = "get_spacing")]
     fn spacing(&self) -> i32 {
         unsafe { ffi::gtk_box_get_spacing(self.as_ref().to_glib_none().0) }
     }
 
-    #[doc(alias = "gtk_box_pack_end")]
     fn pack_end(&self, child: &impl IsA<Widget>, expand: bool, fill: bool, padding: u32) {
         unsafe {
             ffi::gtk_box_pack_end(
@@ -361,7 +568,6 @@ pub trait BoxExt: IsA<Box> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_box_pack_start")]
     fn pack_start(&self, child: &impl IsA<Widget>, expand: bool, fill: bool, padding: u32) {
         unsafe {
             ffi::gtk_box_pack_start(
@@ -374,7 +580,6 @@ pub trait BoxExt: IsA<Box> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_box_query_child_packing")]
     fn query_child_packing(&self, child: &impl IsA<Widget>) -> (bool, bool, u32, PackType) {
         unsafe {
             let mut expand = mem::MaybeUninit::uninit();
@@ -389,16 +594,19 @@ pub trait BoxExt: IsA<Box> + sealed::Sealed + 'static {
                 padding.as_mut_ptr(),
                 pack_type.as_mut_ptr(),
             );
+            let expand = expand.assume_init();
+            let fill = fill.assume_init();
+            let padding = padding.assume_init();
+            let pack_type = pack_type.assume_init();
             (
-                from_glib(expand.assume_init()),
-                from_glib(fill.assume_init()),
-                padding.assume_init(),
-                from_glib(pack_type.assume_init()),
+                from_glib(expand),
+                from_glib(fill),
+                padding,
+                from_glib(pack_type),
             )
         }
     }
 
-    #[doc(alias = "gtk_box_reorder_child")]
     fn reorder_child(&self, child: &impl IsA<Widget>, position: i32) {
         unsafe {
             ffi::gtk_box_reorder_child(
@@ -409,7 +617,6 @@ pub trait BoxExt: IsA<Box> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_box_set_baseline_position")]
     fn set_baseline_position(&self, position: BaselinePosition) {
         unsafe {
             ffi::gtk_box_set_baseline_position(
@@ -419,7 +626,6 @@ pub trait BoxExt: IsA<Box> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_box_set_center_widget")]
     fn set_center_widget(&self, widget: Option<&impl IsA<Widget>>) {
         unsafe {
             ffi::gtk_box_set_center_widget(
@@ -429,7 +635,6 @@ pub trait BoxExt: IsA<Box> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_box_set_child_packing")]
     fn set_child_packing(
         &self,
         child: &impl IsA<Widget>,
@@ -450,20 +655,19 @@ pub trait BoxExt: IsA<Box> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_box_set_homogeneous")]
     fn set_homogeneous(&self, homogeneous: bool) {
         unsafe {
             ffi::gtk_box_set_homogeneous(self.as_ref().to_glib_none().0, homogeneous.into_glib());
         }
     }
 
-    #[doc(alias = "gtk_box_set_spacing")]
     fn set_spacing(&self, spacing: i32) {
         unsafe {
             ffi::gtk_box_set_spacing(self.as_ref().to_glib_none().0, spacing);
         }
     }
 
+    #[doc(hidden)]
     fn child_expands<T: IsA<crate::Widget>>(&self, item: &T) -> bool {
         crate::prelude::ContainerExtManual::child_property(
             self.as_ref(),
@@ -472,6 +676,7 @@ pub trait BoxExt: IsA<Box> + sealed::Sealed + 'static {
         )
     }
 
+    #[doc(hidden)]
     fn set_child_expand<T: IsA<crate::Widget>>(&self, item: &T, expand: bool) {
         crate::prelude::ContainerExtManual::child_set_property(
             self.as_ref(),
@@ -481,6 +686,7 @@ pub trait BoxExt: IsA<Box> + sealed::Sealed + 'static {
         )
     }
 
+    #[doc(hidden)]
     fn child_fills<T: IsA<crate::Widget>>(&self, item: &T) -> bool {
         crate::prelude::ContainerExtManual::child_property(
             self.as_ref(),
@@ -489,6 +695,7 @@ pub trait BoxExt: IsA<Box> + sealed::Sealed + 'static {
         )
     }
 
+    #[doc(hidden)]
     fn set_child_fill<T: IsA<crate::Widget>>(&self, item: &T, fill: bool) {
         crate::prelude::ContainerExtManual::child_set_property(
             self.as_ref(),
@@ -498,7 +705,7 @@ pub trait BoxExt: IsA<Box> + sealed::Sealed + 'static {
         )
     }
 
-    #[doc(alias = "child.pack-type")]
+    #[doc(hidden)]
     fn child_pack_type<T: IsA<crate::Widget>>(&self, item: &T) -> PackType {
         crate::prelude::ContainerExtManual::child_property(
             self.as_ref(),
@@ -507,7 +714,7 @@ pub trait BoxExt: IsA<Box> + sealed::Sealed + 'static {
         )
     }
 
-    #[doc(alias = "child.pack-type")]
+    #[doc(hidden)]
     fn set_child_pack_type<T: IsA<crate::Widget>>(&self, item: &T, pack_type: PackType) {
         crate::prelude::ContainerExtManual::child_set_property(
             self.as_ref(),
@@ -517,6 +724,7 @@ pub trait BoxExt: IsA<Box> + sealed::Sealed + 'static {
         )
     }
 
+    #[doc(hidden)]
     fn child_padding<T: IsA<crate::Widget>>(&self, item: &T) -> u32 {
         crate::prelude::ContainerExtManual::child_property(
             self.as_ref(),
@@ -525,6 +733,7 @@ pub trait BoxExt: IsA<Box> + sealed::Sealed + 'static {
         )
     }
 
+    #[doc(hidden)]
     fn set_child_padding<T: IsA<crate::Widget>>(&self, item: &T, padding: u32) {
         crate::prelude::ContainerExtManual::child_set_property(
             self.as_ref(),
@@ -551,7 +760,6 @@ pub trait BoxExt: IsA<Box> + sealed::Sealed + 'static {
         )
     }
 
-    #[doc(alias = "baseline-position")]
     fn connect_baseline_position_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_baseline_position_trampoline<
             P: IsA<Box>,
@@ -577,7 +785,6 @@ pub trait BoxExt: IsA<Box> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "homogeneous")]
     fn connect_homogeneous_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_homogeneous_trampoline<P: IsA<Box>, F: Fn(&P) + 'static>(
             this: *mut ffi::GtkBox,
@@ -600,7 +807,6 @@ pub trait BoxExt: IsA<Box> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "spacing")]
     fn connect_spacing_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_spacing_trampoline<P: IsA<Box>, F: Fn(&P) + 'static>(
             this: *mut ffi::GtkBox,
@@ -623,8 +829,6 @@ pub trait BoxExt: IsA<Box> + sealed::Sealed + 'static {
         }
     }
 }
-
-impl<O: IsA<Box>> BoxExt for O {}
 
 impl fmt::Display for Box {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {

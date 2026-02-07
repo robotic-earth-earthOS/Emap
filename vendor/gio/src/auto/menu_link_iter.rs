@@ -3,8 +3,10 @@
 // DO NOT EDIT
 
 use crate::MenuModel;
-use glib::{prelude::*, translate::*};
-use std::{fmt, ptr};
+use glib::object::IsA;
+use glib::translate::*;
+use std::fmt;
+use std::ptr;
 
 glib::wrapper! {
     #[doc(alias = "GMenuLinkIter")]
@@ -19,14 +21,13 @@ impl MenuLinkIter {
     pub const NONE: Option<&'static MenuLinkIter> = None;
 }
 
-mod sealed {
-    pub trait Sealed {}
-    impl<T: super::IsA<super::MenuLinkIter>> Sealed for T {}
-}
-
-pub trait MenuLinkIterExt: IsA<MenuLinkIter> + sealed::Sealed + 'static {
+pub trait MenuLinkIterExt: 'static {
     #[doc(alias = "g_menu_link_iter_get_next")]
     #[doc(alias = "get_next")]
+    fn next(&self) -> Option<(glib::GString, MenuModel)>;
+}
+
+impl<O: IsA<MenuLinkIter>> MenuLinkIterExt for O {
     fn next(&self) -> Option<(glib::GString, MenuModel)> {
         unsafe {
             let mut out_link = ptr::null();
@@ -44,8 +45,6 @@ pub trait MenuLinkIterExt: IsA<MenuLinkIter> + sealed::Sealed + 'static {
         }
     }
 }
-
-impl<O: IsA<MenuLinkIter>> MenuLinkIterExt for O {}
 
 impl fmt::Display for MenuLinkIter {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {

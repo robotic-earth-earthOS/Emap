@@ -2,13 +2,20 @@
 // from gir-files (https://github.com/gtk-rs/gir-files)
 // DO NOT EDIT
 
-use crate::{Justification, TextDirection, TextIter, WrapMode};
-use glib::{
-    prelude::*,
-    signal::{connect_raw, SignalHandlerId},
-    translate::*,
-};
-use std::{boxed::Box as Box_, fmt, mem::transmute};
+use crate::Justification;
+use crate::TextDirection;
+use crate::TextIter;
+use crate::WrapMode;
+use glib::object::Cast;
+use glib::object::IsA;
+use glib::signal::connect_raw;
+use glib::signal::SignalHandlerId;
+use glib::translate::*;
+use glib::StaticType;
+use glib::ToValue;
+use std::boxed::Box as Box_;
+use std::fmt;
+use std::mem::transmute;
 
 glib::wrapper! {
     #[doc(alias = "GtkTextTag")]
@@ -33,518 +40,1327 @@ impl TextTag {
     ///
     /// This method returns an instance of [`TextTagBuilder`](crate::builders::TextTagBuilder) which can be used to create [`TextTag`] objects.
     pub fn builder() -> TextTagBuilder {
-        TextTagBuilder::new()
+        TextTagBuilder::default()
     }
 }
 
 impl Default for TextTag {
     fn default() -> Self {
-        glib::object::Object::new::<Self>()
+        glib::object::Object::new::<Self>(&[])
+            .expect("Can't construct TextTag object with default parameters")
     }
 }
 
+#[derive(Clone, Default)]
 // rustdoc-stripper-ignore-next
 /// A [builder-pattern] type to construct [`TextTag`] objects.
 ///
 /// [builder-pattern]: https://doc.rust-lang.org/1.0.0/style/ownership/builders.html
 #[must_use = "The builder must be built to be used"]
 pub struct TextTagBuilder {
-    builder: glib::object::ObjectBuilder<'static, TextTag>,
+    accumulative_margin: Option<bool>,
+    background: Option<String>,
+    background_full_height: Option<bool>,
+    background_full_height_set: Option<bool>,
+    background_rgba: Option<gdk::RGBA>,
+    background_set: Option<bool>,
+    direction: Option<TextDirection>,
+    editable: Option<bool>,
+    editable_set: Option<bool>,
+    fallback: Option<bool>,
+    fallback_set: Option<bool>,
+    family: Option<String>,
+    family_set: Option<bool>,
+    font: Option<String>,
+    font_desc: Option<pango::FontDescription>,
+    font_features: Option<String>,
+    font_features_set: Option<bool>,
+    foreground: Option<String>,
+    foreground_rgba: Option<gdk::RGBA>,
+    foreground_set: Option<bool>,
+    indent: Option<i32>,
+    indent_set: Option<bool>,
+    invisible: Option<bool>,
+    invisible_set: Option<bool>,
+    justification: Option<Justification>,
+    justification_set: Option<bool>,
+    language: Option<String>,
+    language_set: Option<bool>,
+    left_margin: Option<i32>,
+    left_margin_set: Option<bool>,
+    letter_spacing: Option<i32>,
+    letter_spacing_set: Option<bool>,
+    name: Option<String>,
+    paragraph_background: Option<String>,
+    paragraph_background_rgba: Option<gdk::RGBA>,
+    paragraph_background_set: Option<bool>,
+    pixels_above_lines: Option<i32>,
+    pixels_above_lines_set: Option<bool>,
+    pixels_below_lines: Option<i32>,
+    pixels_below_lines_set: Option<bool>,
+    pixels_inside_wrap: Option<i32>,
+    pixels_inside_wrap_set: Option<bool>,
+    right_margin: Option<i32>,
+    right_margin_set: Option<bool>,
+    rise: Option<i32>,
+    rise_set: Option<bool>,
+    scale: Option<f64>,
+    scale_set: Option<bool>,
+    size: Option<i32>,
+    size_points: Option<f64>,
+    size_set: Option<bool>,
+    stretch: Option<pango::Stretch>,
+    stretch_set: Option<bool>,
+    strikethrough: Option<bool>,
+    strikethrough_rgba: Option<gdk::RGBA>,
+    strikethrough_rgba_set: Option<bool>,
+    strikethrough_set: Option<bool>,
+    style: Option<pango::Style>,
+    style_set: Option<bool>,
+    tabs: Option<pango::TabArray>,
+    tabs_set: Option<bool>,
+    underline: Option<pango::Underline>,
+    underline_rgba: Option<gdk::RGBA>,
+    underline_rgba_set: Option<bool>,
+    underline_set: Option<bool>,
+    variant: Option<pango::Variant>,
+    variant_set: Option<bool>,
+    weight: Option<i32>,
+    weight_set: Option<bool>,
+    wrap_mode: Option<WrapMode>,
+    wrap_mode_set: Option<bool>,
 }
 
 impl TextTagBuilder {
-    fn new() -> Self {
-        Self {
-            builder: glib::object::Object::builder(),
-        }
-    }
-
-    pub fn accumulative_margin(self, accumulative_margin: bool) -> Self {
-        Self {
-            builder: self
-                .builder
-                .property("accumulative-margin", accumulative_margin),
-        }
-    }
-
-    pub fn background(self, background: impl Into<glib::GString>) -> Self {
-        Self {
-            builder: self.builder.property("background", background.into()),
-        }
-    }
-
-    pub fn background_full_height(self, background_full_height: bool) -> Self {
-        Self {
-            builder: self
-                .builder
-                .property("background-full-height", background_full_height),
-        }
-    }
-
-    pub fn background_full_height_set(self, background_full_height_set: bool) -> Self {
-        Self {
-            builder: self
-                .builder
-                .property("background-full-height-set", background_full_height_set),
-        }
-    }
-
-    pub fn background_rgba(self, background_rgba: &gdk::RGBA) -> Self {
-        Self {
-            builder: self.builder.property("background-rgba", background_rgba),
-        }
-    }
-
-    pub fn background_set(self, background_set: bool) -> Self {
-        Self {
-            builder: self.builder.property("background-set", background_set),
-        }
-    }
-
-    pub fn direction(self, direction: TextDirection) -> Self {
-        Self {
-            builder: self.builder.property("direction", direction),
-        }
-    }
-
-    pub fn editable(self, editable: bool) -> Self {
-        Self {
-            builder: self.builder.property("editable", editable),
-        }
-    }
-
-    pub fn editable_set(self, editable_set: bool) -> Self {
-        Self {
-            builder: self.builder.property("editable-set", editable_set),
-        }
-    }
-
-    pub fn fallback(self, fallback: bool) -> Self {
-        Self {
-            builder: self.builder.property("fallback", fallback),
-        }
-    }
-
-    pub fn fallback_set(self, fallback_set: bool) -> Self {
-        Self {
-            builder: self.builder.property("fallback-set", fallback_set),
-        }
-    }
-
-    pub fn family(self, family: impl Into<glib::GString>) -> Self {
-        Self {
-            builder: self.builder.property("family", family.into()),
-        }
-    }
-
-    pub fn family_set(self, family_set: bool) -> Self {
-        Self {
-            builder: self.builder.property("family-set", family_set),
-        }
-    }
-
-    pub fn font(self, font: impl Into<glib::GString>) -> Self {
-        Self {
-            builder: self.builder.property("font", font.into()),
-        }
-    }
-
-    pub fn font_desc(self, font_desc: &pango::FontDescription) -> Self {
-        Self {
-            builder: self.builder.property("font-desc", font_desc),
-        }
-    }
-
-    pub fn font_features(self, font_features: impl Into<glib::GString>) -> Self {
-        Self {
-            builder: self.builder.property("font-features", font_features.into()),
-        }
-    }
-
-    pub fn font_features_set(self, font_features_set: bool) -> Self {
-        Self {
-            builder: self
-                .builder
-                .property("font-features-set", font_features_set),
-        }
-    }
-
-    pub fn foreground(self, foreground: impl Into<glib::GString>) -> Self {
-        Self {
-            builder: self.builder.property("foreground", foreground.into()),
-        }
-    }
-
-    pub fn foreground_rgba(self, foreground_rgba: &gdk::RGBA) -> Self {
-        Self {
-            builder: self.builder.property("foreground-rgba", foreground_rgba),
-        }
-    }
-
-    pub fn foreground_set(self, foreground_set: bool) -> Self {
-        Self {
-            builder: self.builder.property("foreground-set", foreground_set),
-        }
-    }
-
-    pub fn indent(self, indent: i32) -> Self {
-        Self {
-            builder: self.builder.property("indent", indent),
-        }
-    }
-
-    pub fn indent_set(self, indent_set: bool) -> Self {
-        Self {
-            builder: self.builder.property("indent-set", indent_set),
-        }
-    }
-
-    pub fn invisible(self, invisible: bool) -> Self {
-        Self {
-            builder: self.builder.property("invisible", invisible),
-        }
-    }
-
-    pub fn invisible_set(self, invisible_set: bool) -> Self {
-        Self {
-            builder: self.builder.property("invisible-set", invisible_set),
-        }
-    }
-
-    pub fn justification(self, justification: Justification) -> Self {
-        Self {
-            builder: self.builder.property("justification", justification),
-        }
-    }
-
-    pub fn justification_set(self, justification_set: bool) -> Self {
-        Self {
-            builder: self
-                .builder
-                .property("justification-set", justification_set),
-        }
-    }
-
-    pub fn language(self, language: impl Into<glib::GString>) -> Self {
-        Self {
-            builder: self.builder.property("language", language.into()),
-        }
-    }
-
-    pub fn language_set(self, language_set: bool) -> Self {
-        Self {
-            builder: self.builder.property("language-set", language_set),
-        }
-    }
-
-    pub fn left_margin(self, left_margin: i32) -> Self {
-        Self {
-            builder: self.builder.property("left-margin", left_margin),
-        }
-    }
-
-    pub fn left_margin_set(self, left_margin_set: bool) -> Self {
-        Self {
-            builder: self.builder.property("left-margin-set", left_margin_set),
-        }
-    }
-
-    pub fn letter_spacing(self, letter_spacing: i32) -> Self {
-        Self {
-            builder: self.builder.property("letter-spacing", letter_spacing),
-        }
-    }
-
-    pub fn letter_spacing_set(self, letter_spacing_set: bool) -> Self {
-        Self {
-            builder: self
-                .builder
-                .property("letter-spacing-set", letter_spacing_set),
-        }
-    }
-
-    pub fn name(self, name: impl Into<glib::GString>) -> Self {
-        Self {
-            builder: self.builder.property("name", name.into()),
-        }
-    }
-
-    pub fn paragraph_background(self, paragraph_background: impl Into<glib::GString>) -> Self {
-        Self {
-            builder: self
-                .builder
-                .property("paragraph-background", paragraph_background.into()),
-        }
-    }
-
-    pub fn paragraph_background_rgba(self, paragraph_background_rgba: &gdk::RGBA) -> Self {
-        Self {
-            builder: self
-                .builder
-                .property("paragraph-background-rgba", paragraph_background_rgba),
-        }
-    }
-
-    pub fn paragraph_background_set(self, paragraph_background_set: bool) -> Self {
-        Self {
-            builder: self
-                .builder
-                .property("paragraph-background-set", paragraph_background_set),
-        }
-    }
-
-    pub fn pixels_above_lines(self, pixels_above_lines: i32) -> Self {
-        Self {
-            builder: self
-                .builder
-                .property("pixels-above-lines", pixels_above_lines),
-        }
-    }
-
-    pub fn pixels_above_lines_set(self, pixels_above_lines_set: bool) -> Self {
-        Self {
-            builder: self
-                .builder
-                .property("pixels-above-lines-set", pixels_above_lines_set),
-        }
-    }
-
-    pub fn pixels_below_lines(self, pixels_below_lines: i32) -> Self {
-        Self {
-            builder: self
-                .builder
-                .property("pixels-below-lines", pixels_below_lines),
-        }
-    }
-
-    pub fn pixels_below_lines_set(self, pixels_below_lines_set: bool) -> Self {
-        Self {
-            builder: self
-                .builder
-                .property("pixels-below-lines-set", pixels_below_lines_set),
-        }
-    }
-
-    pub fn pixels_inside_wrap(self, pixels_inside_wrap: i32) -> Self {
-        Self {
-            builder: self
-                .builder
-                .property("pixels-inside-wrap", pixels_inside_wrap),
-        }
-    }
-
-    pub fn pixels_inside_wrap_set(self, pixels_inside_wrap_set: bool) -> Self {
-        Self {
-            builder: self
-                .builder
-                .property("pixels-inside-wrap-set", pixels_inside_wrap_set),
-        }
-    }
-
-    pub fn right_margin(self, right_margin: i32) -> Self {
-        Self {
-            builder: self.builder.property("right-margin", right_margin),
-        }
-    }
-
-    pub fn right_margin_set(self, right_margin_set: bool) -> Self {
-        Self {
-            builder: self.builder.property("right-margin-set", right_margin_set),
-        }
-    }
-
-    pub fn rise(self, rise: i32) -> Self {
-        Self {
-            builder: self.builder.property("rise", rise),
-        }
-    }
-
-    pub fn rise_set(self, rise_set: bool) -> Self {
-        Self {
-            builder: self.builder.property("rise-set", rise_set),
-        }
-    }
-
-    pub fn scale(self, scale: f64) -> Self {
-        Self {
-            builder: self.builder.property("scale", scale),
-        }
-    }
-
-    pub fn scale_set(self, scale_set: bool) -> Self {
-        Self {
-            builder: self.builder.property("scale-set", scale_set),
-        }
-    }
-
-    pub fn size(self, size: i32) -> Self {
-        Self {
-            builder: self.builder.property("size", size),
-        }
-    }
-
-    pub fn size_points(self, size_points: f64) -> Self {
-        Self {
-            builder: self.builder.property("size-points", size_points),
-        }
-    }
-
-    pub fn size_set(self, size_set: bool) -> Self {
-        Self {
-            builder: self.builder.property("size-set", size_set),
-        }
-    }
-
-    pub fn stretch(self, stretch: pango::Stretch) -> Self {
-        Self {
-            builder: self.builder.property("stretch", stretch),
-        }
-    }
-
-    pub fn stretch_set(self, stretch_set: bool) -> Self {
-        Self {
-            builder: self.builder.property("stretch-set", stretch_set),
-        }
-    }
-
-    pub fn strikethrough(self, strikethrough: bool) -> Self {
-        Self {
-            builder: self.builder.property("strikethrough", strikethrough),
-        }
-    }
-
-    pub fn strikethrough_rgba(self, strikethrough_rgba: &gdk::RGBA) -> Self {
-        Self {
-            builder: self
-                .builder
-                .property("strikethrough-rgba", strikethrough_rgba),
-        }
-    }
-
-    pub fn strikethrough_rgba_set(self, strikethrough_rgba_set: bool) -> Self {
-        Self {
-            builder: self
-                .builder
-                .property("strikethrough-rgba-set", strikethrough_rgba_set),
-        }
-    }
-
-    pub fn strikethrough_set(self, strikethrough_set: bool) -> Self {
-        Self {
-            builder: self
-                .builder
-                .property("strikethrough-set", strikethrough_set),
-        }
-    }
-
-    pub fn style(self, style: pango::Style) -> Self {
-        Self {
-            builder: self.builder.property("style", style),
-        }
-    }
-
-    pub fn style_set(self, style_set: bool) -> Self {
-        Self {
-            builder: self.builder.property("style-set", style_set),
-        }
-    }
-
-    pub fn tabs(self, tabs: &pango::TabArray) -> Self {
-        Self {
-            builder: self.builder.property("tabs", tabs),
-        }
-    }
-
-    pub fn tabs_set(self, tabs_set: bool) -> Self {
-        Self {
-            builder: self.builder.property("tabs-set", tabs_set),
-        }
-    }
-
-    pub fn underline(self, underline: pango::Underline) -> Self {
-        Self {
-            builder: self.builder.property("underline", underline),
-        }
-    }
-
-    pub fn underline_rgba(self, underline_rgba: &gdk::RGBA) -> Self {
-        Self {
-            builder: self.builder.property("underline-rgba", underline_rgba),
-        }
-    }
-
-    pub fn underline_rgba_set(self, underline_rgba_set: bool) -> Self {
-        Self {
-            builder: self
-                .builder
-                .property("underline-rgba-set", underline_rgba_set),
-        }
-    }
-
-    pub fn underline_set(self, underline_set: bool) -> Self {
-        Self {
-            builder: self.builder.property("underline-set", underline_set),
-        }
-    }
-
-    pub fn variant(self, variant: pango::Variant) -> Self {
-        Self {
-            builder: self.builder.property("variant", variant),
-        }
-    }
-
-    pub fn variant_set(self, variant_set: bool) -> Self {
-        Self {
-            builder: self.builder.property("variant-set", variant_set),
-        }
-    }
-
-    pub fn weight(self, weight: i32) -> Self {
-        Self {
-            builder: self.builder.property("weight", weight),
-        }
-    }
-
-    pub fn weight_set(self, weight_set: bool) -> Self {
-        Self {
-            builder: self.builder.property("weight-set", weight_set),
-        }
-    }
-
-    pub fn wrap_mode(self, wrap_mode: WrapMode) -> Self {
-        Self {
-            builder: self.builder.property("wrap-mode", wrap_mode),
-        }
-    }
-
-    pub fn wrap_mode_set(self, wrap_mode_set: bool) -> Self {
-        Self {
-            builder: self.builder.property("wrap-mode-set", wrap_mode_set),
-        }
+    // rustdoc-stripper-ignore-next
+    /// Create a new [`TextTagBuilder`].
+    pub fn new() -> Self {
+        Self::default()
     }
 
     // rustdoc-stripper-ignore-next
     /// Build the [`TextTag`].
     #[must_use = "Building the object from the builder is usually expensive and is not expected to have side effects"]
     pub fn build(self) -> TextTag {
-        self.builder.build()
+        let mut properties: Vec<(&str, &dyn ToValue)> = vec![];
+        if let Some(ref accumulative_margin) = self.accumulative_margin {
+            properties.push(("accumulative-margin", accumulative_margin));
+        }
+        if let Some(ref background) = self.background {
+            properties.push(("background", background));
+        }
+        if let Some(ref background_full_height) = self.background_full_height {
+            properties.push(("background-full-height", background_full_height));
+        }
+        if let Some(ref background_full_height_set) = self.background_full_height_set {
+            properties.push(("background-full-height-set", background_full_height_set));
+        }
+        if let Some(ref background_rgba) = self.background_rgba {
+            properties.push(("background-rgba", background_rgba));
+        }
+        if let Some(ref background_set) = self.background_set {
+            properties.push(("background-set", background_set));
+        }
+        if let Some(ref direction) = self.direction {
+            properties.push(("direction", direction));
+        }
+        if let Some(ref editable) = self.editable {
+            properties.push(("editable", editable));
+        }
+        if let Some(ref editable_set) = self.editable_set {
+            properties.push(("editable-set", editable_set));
+        }
+        if let Some(ref fallback) = self.fallback {
+            properties.push(("fallback", fallback));
+        }
+        if let Some(ref fallback_set) = self.fallback_set {
+            properties.push(("fallback-set", fallback_set));
+        }
+        if let Some(ref family) = self.family {
+            properties.push(("family", family));
+        }
+        if let Some(ref family_set) = self.family_set {
+            properties.push(("family-set", family_set));
+        }
+        if let Some(ref font) = self.font {
+            properties.push(("font", font));
+        }
+        if let Some(ref font_desc) = self.font_desc {
+            properties.push(("font-desc", font_desc));
+        }
+        if let Some(ref font_features) = self.font_features {
+            properties.push(("font-features", font_features));
+        }
+        if let Some(ref font_features_set) = self.font_features_set {
+            properties.push(("font-features-set", font_features_set));
+        }
+        if let Some(ref foreground) = self.foreground {
+            properties.push(("foreground", foreground));
+        }
+        if let Some(ref foreground_rgba) = self.foreground_rgba {
+            properties.push(("foreground-rgba", foreground_rgba));
+        }
+        if let Some(ref foreground_set) = self.foreground_set {
+            properties.push(("foreground-set", foreground_set));
+        }
+        if let Some(ref indent) = self.indent {
+            properties.push(("indent", indent));
+        }
+        if let Some(ref indent_set) = self.indent_set {
+            properties.push(("indent-set", indent_set));
+        }
+        if let Some(ref invisible) = self.invisible {
+            properties.push(("invisible", invisible));
+        }
+        if let Some(ref invisible_set) = self.invisible_set {
+            properties.push(("invisible-set", invisible_set));
+        }
+        if let Some(ref justification) = self.justification {
+            properties.push(("justification", justification));
+        }
+        if let Some(ref justification_set) = self.justification_set {
+            properties.push(("justification-set", justification_set));
+        }
+        if let Some(ref language) = self.language {
+            properties.push(("language", language));
+        }
+        if let Some(ref language_set) = self.language_set {
+            properties.push(("language-set", language_set));
+        }
+        if let Some(ref left_margin) = self.left_margin {
+            properties.push(("left-margin", left_margin));
+        }
+        if let Some(ref left_margin_set) = self.left_margin_set {
+            properties.push(("left-margin-set", left_margin_set));
+        }
+        if let Some(ref letter_spacing) = self.letter_spacing {
+            properties.push(("letter-spacing", letter_spacing));
+        }
+        if let Some(ref letter_spacing_set) = self.letter_spacing_set {
+            properties.push(("letter-spacing-set", letter_spacing_set));
+        }
+        if let Some(ref name) = self.name {
+            properties.push(("name", name));
+        }
+        if let Some(ref paragraph_background) = self.paragraph_background {
+            properties.push(("paragraph-background", paragraph_background));
+        }
+        if let Some(ref paragraph_background_rgba) = self.paragraph_background_rgba {
+            properties.push(("paragraph-background-rgba", paragraph_background_rgba));
+        }
+        if let Some(ref paragraph_background_set) = self.paragraph_background_set {
+            properties.push(("paragraph-background-set", paragraph_background_set));
+        }
+        if let Some(ref pixels_above_lines) = self.pixels_above_lines {
+            properties.push(("pixels-above-lines", pixels_above_lines));
+        }
+        if let Some(ref pixels_above_lines_set) = self.pixels_above_lines_set {
+            properties.push(("pixels-above-lines-set", pixels_above_lines_set));
+        }
+        if let Some(ref pixels_below_lines) = self.pixels_below_lines {
+            properties.push(("pixels-below-lines", pixels_below_lines));
+        }
+        if let Some(ref pixels_below_lines_set) = self.pixels_below_lines_set {
+            properties.push(("pixels-below-lines-set", pixels_below_lines_set));
+        }
+        if let Some(ref pixels_inside_wrap) = self.pixels_inside_wrap {
+            properties.push(("pixels-inside-wrap", pixels_inside_wrap));
+        }
+        if let Some(ref pixels_inside_wrap_set) = self.pixels_inside_wrap_set {
+            properties.push(("pixels-inside-wrap-set", pixels_inside_wrap_set));
+        }
+        if let Some(ref right_margin) = self.right_margin {
+            properties.push(("right-margin", right_margin));
+        }
+        if let Some(ref right_margin_set) = self.right_margin_set {
+            properties.push(("right-margin-set", right_margin_set));
+        }
+        if let Some(ref rise) = self.rise {
+            properties.push(("rise", rise));
+        }
+        if let Some(ref rise_set) = self.rise_set {
+            properties.push(("rise-set", rise_set));
+        }
+        if let Some(ref scale) = self.scale {
+            properties.push(("scale", scale));
+        }
+        if let Some(ref scale_set) = self.scale_set {
+            properties.push(("scale-set", scale_set));
+        }
+        if let Some(ref size) = self.size {
+            properties.push(("size", size));
+        }
+        if let Some(ref size_points) = self.size_points {
+            properties.push(("size-points", size_points));
+        }
+        if let Some(ref size_set) = self.size_set {
+            properties.push(("size-set", size_set));
+        }
+        if let Some(ref stretch) = self.stretch {
+            properties.push(("stretch", stretch));
+        }
+        if let Some(ref stretch_set) = self.stretch_set {
+            properties.push(("stretch-set", stretch_set));
+        }
+        if let Some(ref strikethrough) = self.strikethrough {
+            properties.push(("strikethrough", strikethrough));
+        }
+        if let Some(ref strikethrough_rgba) = self.strikethrough_rgba {
+            properties.push(("strikethrough-rgba", strikethrough_rgba));
+        }
+        if let Some(ref strikethrough_rgba_set) = self.strikethrough_rgba_set {
+            properties.push(("strikethrough-rgba-set", strikethrough_rgba_set));
+        }
+        if let Some(ref strikethrough_set) = self.strikethrough_set {
+            properties.push(("strikethrough-set", strikethrough_set));
+        }
+        if let Some(ref style) = self.style {
+            properties.push(("style", style));
+        }
+        if let Some(ref style_set) = self.style_set {
+            properties.push(("style-set", style_set));
+        }
+        if let Some(ref tabs) = self.tabs {
+            properties.push(("tabs", tabs));
+        }
+        if let Some(ref tabs_set) = self.tabs_set {
+            properties.push(("tabs-set", tabs_set));
+        }
+        if let Some(ref underline) = self.underline {
+            properties.push(("underline", underline));
+        }
+        if let Some(ref underline_rgba) = self.underline_rgba {
+            properties.push(("underline-rgba", underline_rgba));
+        }
+        if let Some(ref underline_rgba_set) = self.underline_rgba_set {
+            properties.push(("underline-rgba-set", underline_rgba_set));
+        }
+        if let Some(ref underline_set) = self.underline_set {
+            properties.push(("underline-set", underline_set));
+        }
+        if let Some(ref variant) = self.variant {
+            properties.push(("variant", variant));
+        }
+        if let Some(ref variant_set) = self.variant_set {
+            properties.push(("variant-set", variant_set));
+        }
+        if let Some(ref weight) = self.weight {
+            properties.push(("weight", weight));
+        }
+        if let Some(ref weight_set) = self.weight_set {
+            properties.push(("weight-set", weight_set));
+        }
+        if let Some(ref wrap_mode) = self.wrap_mode {
+            properties.push(("wrap-mode", wrap_mode));
+        }
+        if let Some(ref wrap_mode_set) = self.wrap_mode_set {
+            properties.push(("wrap-mode-set", wrap_mode_set));
+        }
+        glib::Object::new::<TextTag>(&properties).expect("Failed to create an instance of TextTag")
+    }
+
+    pub fn accumulative_margin(mut self, accumulative_margin: bool) -> Self {
+        self.accumulative_margin = Some(accumulative_margin);
+        self
+    }
+
+    pub fn background(mut self, background: &str) -> Self {
+        self.background = Some(background.to_string());
+        self
+    }
+
+    pub fn background_full_height(mut self, background_full_height: bool) -> Self {
+        self.background_full_height = Some(background_full_height);
+        self
+    }
+
+    pub fn background_full_height_set(mut self, background_full_height_set: bool) -> Self {
+        self.background_full_height_set = Some(background_full_height_set);
+        self
+    }
+
+    pub fn background_rgba(mut self, background_rgba: &gdk::RGBA) -> Self {
+        self.background_rgba = Some(background_rgba.clone());
+        self
+    }
+
+    pub fn background_set(mut self, background_set: bool) -> Self {
+        self.background_set = Some(background_set);
+        self
+    }
+
+    pub fn direction(mut self, direction: TextDirection) -> Self {
+        self.direction = Some(direction);
+        self
+    }
+
+    pub fn editable(mut self, editable: bool) -> Self {
+        self.editable = Some(editable);
+        self
+    }
+
+    pub fn editable_set(mut self, editable_set: bool) -> Self {
+        self.editable_set = Some(editable_set);
+        self
+    }
+
+    pub fn fallback(mut self, fallback: bool) -> Self {
+        self.fallback = Some(fallback);
+        self
+    }
+
+    pub fn fallback_set(mut self, fallback_set: bool) -> Self {
+        self.fallback_set = Some(fallback_set);
+        self
+    }
+
+    pub fn family(mut self, family: &str) -> Self {
+        self.family = Some(family.to_string());
+        self
+    }
+
+    pub fn family_set(mut self, family_set: bool) -> Self {
+        self.family_set = Some(family_set);
+        self
+    }
+
+    pub fn font(mut self, font: &str) -> Self {
+        self.font = Some(font.to_string());
+        self
+    }
+
+    pub fn font_desc(mut self, font_desc: &pango::FontDescription) -> Self {
+        self.font_desc = Some(font_desc.clone());
+        self
+    }
+
+    pub fn font_features(mut self, font_features: &str) -> Self {
+        self.font_features = Some(font_features.to_string());
+        self
+    }
+
+    pub fn font_features_set(mut self, font_features_set: bool) -> Self {
+        self.font_features_set = Some(font_features_set);
+        self
+    }
+
+    pub fn foreground(mut self, foreground: &str) -> Self {
+        self.foreground = Some(foreground.to_string());
+        self
+    }
+
+    pub fn foreground_rgba(mut self, foreground_rgba: &gdk::RGBA) -> Self {
+        self.foreground_rgba = Some(foreground_rgba.clone());
+        self
+    }
+
+    pub fn foreground_set(mut self, foreground_set: bool) -> Self {
+        self.foreground_set = Some(foreground_set);
+        self
+    }
+
+    pub fn indent(mut self, indent: i32) -> Self {
+        self.indent = Some(indent);
+        self
+    }
+
+    pub fn indent_set(mut self, indent_set: bool) -> Self {
+        self.indent_set = Some(indent_set);
+        self
+    }
+
+    pub fn invisible(mut self, invisible: bool) -> Self {
+        self.invisible = Some(invisible);
+        self
+    }
+
+    pub fn invisible_set(mut self, invisible_set: bool) -> Self {
+        self.invisible_set = Some(invisible_set);
+        self
+    }
+
+    pub fn justification(mut self, justification: Justification) -> Self {
+        self.justification = Some(justification);
+        self
+    }
+
+    pub fn justification_set(mut self, justification_set: bool) -> Self {
+        self.justification_set = Some(justification_set);
+        self
+    }
+
+    pub fn language(mut self, language: &str) -> Self {
+        self.language = Some(language.to_string());
+        self
+    }
+
+    pub fn language_set(mut self, language_set: bool) -> Self {
+        self.language_set = Some(language_set);
+        self
+    }
+
+    pub fn left_margin(mut self, left_margin: i32) -> Self {
+        self.left_margin = Some(left_margin);
+        self
+    }
+
+    pub fn left_margin_set(mut self, left_margin_set: bool) -> Self {
+        self.left_margin_set = Some(left_margin_set);
+        self
+    }
+
+    pub fn letter_spacing(mut self, letter_spacing: i32) -> Self {
+        self.letter_spacing = Some(letter_spacing);
+        self
+    }
+
+    pub fn letter_spacing_set(mut self, letter_spacing_set: bool) -> Self {
+        self.letter_spacing_set = Some(letter_spacing_set);
+        self
+    }
+
+    pub fn name(mut self, name: &str) -> Self {
+        self.name = Some(name.to_string());
+        self
+    }
+
+    pub fn paragraph_background(mut self, paragraph_background: &str) -> Self {
+        self.paragraph_background = Some(paragraph_background.to_string());
+        self
+    }
+
+    pub fn paragraph_background_rgba(mut self, paragraph_background_rgba: &gdk::RGBA) -> Self {
+        self.paragraph_background_rgba = Some(paragraph_background_rgba.clone());
+        self
+    }
+
+    pub fn paragraph_background_set(mut self, paragraph_background_set: bool) -> Self {
+        self.paragraph_background_set = Some(paragraph_background_set);
+        self
+    }
+
+    pub fn pixels_above_lines(mut self, pixels_above_lines: i32) -> Self {
+        self.pixels_above_lines = Some(pixels_above_lines);
+        self
+    }
+
+    pub fn pixels_above_lines_set(mut self, pixels_above_lines_set: bool) -> Self {
+        self.pixels_above_lines_set = Some(pixels_above_lines_set);
+        self
+    }
+
+    pub fn pixels_below_lines(mut self, pixels_below_lines: i32) -> Self {
+        self.pixels_below_lines = Some(pixels_below_lines);
+        self
+    }
+
+    pub fn pixels_below_lines_set(mut self, pixels_below_lines_set: bool) -> Self {
+        self.pixels_below_lines_set = Some(pixels_below_lines_set);
+        self
+    }
+
+    pub fn pixels_inside_wrap(mut self, pixels_inside_wrap: i32) -> Self {
+        self.pixels_inside_wrap = Some(pixels_inside_wrap);
+        self
+    }
+
+    pub fn pixels_inside_wrap_set(mut self, pixels_inside_wrap_set: bool) -> Self {
+        self.pixels_inside_wrap_set = Some(pixels_inside_wrap_set);
+        self
+    }
+
+    pub fn right_margin(mut self, right_margin: i32) -> Self {
+        self.right_margin = Some(right_margin);
+        self
+    }
+
+    pub fn right_margin_set(mut self, right_margin_set: bool) -> Self {
+        self.right_margin_set = Some(right_margin_set);
+        self
+    }
+
+    pub fn rise(mut self, rise: i32) -> Self {
+        self.rise = Some(rise);
+        self
+    }
+
+    pub fn rise_set(mut self, rise_set: bool) -> Self {
+        self.rise_set = Some(rise_set);
+        self
+    }
+
+    pub fn scale(mut self, scale: f64) -> Self {
+        self.scale = Some(scale);
+        self
+    }
+
+    pub fn scale_set(mut self, scale_set: bool) -> Self {
+        self.scale_set = Some(scale_set);
+        self
+    }
+
+    pub fn size(mut self, size: i32) -> Self {
+        self.size = Some(size);
+        self
+    }
+
+    pub fn size_points(mut self, size_points: f64) -> Self {
+        self.size_points = Some(size_points);
+        self
+    }
+
+    pub fn size_set(mut self, size_set: bool) -> Self {
+        self.size_set = Some(size_set);
+        self
+    }
+
+    pub fn stretch(mut self, stretch: pango::Stretch) -> Self {
+        self.stretch = Some(stretch);
+        self
+    }
+
+    pub fn stretch_set(mut self, stretch_set: bool) -> Self {
+        self.stretch_set = Some(stretch_set);
+        self
+    }
+
+    pub fn strikethrough(mut self, strikethrough: bool) -> Self {
+        self.strikethrough = Some(strikethrough);
+        self
+    }
+
+    pub fn strikethrough_rgba(mut self, strikethrough_rgba: &gdk::RGBA) -> Self {
+        self.strikethrough_rgba = Some(strikethrough_rgba.clone());
+        self
+    }
+
+    pub fn strikethrough_rgba_set(mut self, strikethrough_rgba_set: bool) -> Self {
+        self.strikethrough_rgba_set = Some(strikethrough_rgba_set);
+        self
+    }
+
+    pub fn strikethrough_set(mut self, strikethrough_set: bool) -> Self {
+        self.strikethrough_set = Some(strikethrough_set);
+        self
+    }
+
+    pub fn style(mut self, style: pango::Style) -> Self {
+        self.style = Some(style);
+        self
+    }
+
+    pub fn style_set(mut self, style_set: bool) -> Self {
+        self.style_set = Some(style_set);
+        self
+    }
+
+    pub fn tabs(mut self, tabs: &pango::TabArray) -> Self {
+        self.tabs = Some(tabs.clone());
+        self
+    }
+
+    pub fn tabs_set(mut self, tabs_set: bool) -> Self {
+        self.tabs_set = Some(tabs_set);
+        self
+    }
+
+    pub fn underline(mut self, underline: pango::Underline) -> Self {
+        self.underline = Some(underline);
+        self
+    }
+
+    pub fn underline_rgba(mut self, underline_rgba: &gdk::RGBA) -> Self {
+        self.underline_rgba = Some(underline_rgba.clone());
+        self
+    }
+
+    pub fn underline_rgba_set(mut self, underline_rgba_set: bool) -> Self {
+        self.underline_rgba_set = Some(underline_rgba_set);
+        self
+    }
+
+    pub fn underline_set(mut self, underline_set: bool) -> Self {
+        self.underline_set = Some(underline_set);
+        self
+    }
+
+    pub fn variant(mut self, variant: pango::Variant) -> Self {
+        self.variant = Some(variant);
+        self
+    }
+
+    pub fn variant_set(mut self, variant_set: bool) -> Self {
+        self.variant_set = Some(variant_set);
+        self
+    }
+
+    pub fn weight(mut self, weight: i32) -> Self {
+        self.weight = Some(weight);
+        self
+    }
+
+    pub fn weight_set(mut self, weight_set: bool) -> Self {
+        self.weight_set = Some(weight_set);
+        self
+    }
+
+    pub fn wrap_mode(mut self, wrap_mode: WrapMode) -> Self {
+        self.wrap_mode = Some(wrap_mode);
+        self
+    }
+
+    pub fn wrap_mode_set(mut self, wrap_mode_set: bool) -> Self {
+        self.wrap_mode_set = Some(wrap_mode_set);
+        self
     }
 }
 
-mod sealed {
-    pub trait Sealed {}
-    impl<T: super::IsA<super::TextTag>> Sealed for T {}
+pub trait TextTagExt: 'static {
+    #[cfg(any(feature = "v3_20", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
+    #[doc(alias = "gtk_text_tag_changed")]
+    fn changed(&self, size_changed: bool);
+
+    #[doc(alias = "gtk_text_tag_event")]
+    fn event(
+        &self,
+        event_object: &impl IsA<glib::Object>,
+        event: &gdk::Event,
+        iter: &TextIter,
+    ) -> bool;
+
+    #[doc(alias = "gtk_text_tag_get_priority")]
+    #[doc(alias = "get_priority")]
+    fn priority(&self) -> i32;
+
+    #[doc(alias = "gtk_text_tag_set_priority")]
+    fn set_priority(&self, priority: i32);
+
+    #[doc(alias = "accumulative-margin")]
+    fn is_accumulative_margin(&self) -> bool;
+
+    #[doc(alias = "accumulative-margin")]
+    fn set_accumulative_margin(&self, accumulative_margin: bool);
+
+    fn set_background(&self, background: Option<&str>);
+
+    #[doc(alias = "background-full-height")]
+    fn is_background_full_height(&self) -> bool;
+
+    #[doc(alias = "background-full-height")]
+    fn set_background_full_height(&self, background_full_height: bool);
+
+    #[doc(alias = "background-full-height-set")]
+    fn is_background_full_height_set(&self) -> bool;
+
+    #[doc(alias = "background-full-height-set")]
+    fn set_background_full_height_set(&self, background_full_height_set: bool);
+
+    #[doc(alias = "background-rgba")]
+    fn background_rgba(&self) -> Option<gdk::RGBA>;
+
+    #[doc(alias = "background-rgba")]
+    fn set_background_rgba(&self, background_rgba: Option<&gdk::RGBA>);
+
+    #[doc(alias = "background-set")]
+    fn is_background_set(&self) -> bool;
+
+    #[doc(alias = "background-set")]
+    fn set_background_set(&self, background_set: bool);
+
+    fn direction(&self) -> TextDirection;
+
+    fn set_direction(&self, direction: TextDirection);
+
+    fn is_editable(&self) -> bool;
+
+    fn set_editable(&self, editable: bool);
+
+    #[doc(alias = "editable-set")]
+    fn is_editable_set(&self) -> bool;
+
+    #[doc(alias = "editable-set")]
+    fn set_editable_set(&self, editable_set: bool);
+
+    fn is_fallback(&self) -> bool;
+
+    fn set_fallback(&self, fallback: bool);
+
+    #[doc(alias = "fallback-set")]
+    fn is_fallback_set(&self) -> bool;
+
+    #[doc(alias = "fallback-set")]
+    fn set_fallback_set(&self, fallback_set: bool);
+
+    fn family(&self) -> Option<glib::GString>;
+
+    fn set_family(&self, family: Option<&str>);
+
+    #[doc(alias = "family-set")]
+    fn is_family_set(&self) -> bool;
+
+    #[doc(alias = "family-set")]
+    fn set_family_set(&self, family_set: bool);
+
+    fn font(&self) -> Option<glib::GString>;
+
+    fn set_font(&self, font: Option<&str>);
+
+    #[doc(alias = "font-desc")]
+    fn font_desc(&self) -> Option<pango::FontDescription>;
+
+    #[doc(alias = "font-desc")]
+    fn set_font_desc(&self, font_desc: Option<&pango::FontDescription>);
+
+    #[doc(alias = "font-features")]
+    fn font_features(&self) -> Option<glib::GString>;
+
+    #[doc(alias = "font-features")]
+    fn set_font_features(&self, font_features: Option<&str>);
+
+    #[doc(alias = "font-features-set")]
+    fn is_font_features_set(&self) -> bool;
+
+    #[doc(alias = "font-features-set")]
+    fn set_font_features_set(&self, font_features_set: bool);
+
+    fn set_foreground(&self, foreground: Option<&str>);
+
+    #[doc(alias = "foreground-rgba")]
+    fn foreground_rgba(&self) -> Option<gdk::RGBA>;
+
+    #[doc(alias = "foreground-rgba")]
+    fn set_foreground_rgba(&self, foreground_rgba: Option<&gdk::RGBA>);
+
+    #[doc(alias = "foreground-set")]
+    fn is_foreground_set(&self) -> bool;
+
+    #[doc(alias = "foreground-set")]
+    fn set_foreground_set(&self, foreground_set: bool);
+
+    fn indent(&self) -> i32;
+
+    fn set_indent(&self, indent: i32);
+
+    #[doc(alias = "indent-set")]
+    fn is_indent_set(&self) -> bool;
+
+    #[doc(alias = "indent-set")]
+    fn set_indent_set(&self, indent_set: bool);
+
+    fn is_invisible(&self) -> bool;
+
+    fn set_invisible(&self, invisible: bool);
+
+    #[doc(alias = "invisible-set")]
+    fn is_invisible_set(&self) -> bool;
+
+    #[doc(alias = "invisible-set")]
+    fn set_invisible_set(&self, invisible_set: bool);
+
+    fn justification(&self) -> Justification;
+
+    fn set_justification(&self, justification: Justification);
+
+    #[doc(alias = "justification-set")]
+    fn is_justification_set(&self) -> bool;
+
+    #[doc(alias = "justification-set")]
+    fn set_justification_set(&self, justification_set: bool);
+
+    fn language(&self) -> Option<glib::GString>;
+
+    fn set_language(&self, language: Option<&str>);
+
+    #[doc(alias = "language-set")]
+    fn is_language_set(&self) -> bool;
+
+    #[doc(alias = "language-set")]
+    fn set_language_set(&self, language_set: bool);
+
+    #[doc(alias = "left-margin")]
+    fn left_margin(&self) -> i32;
+
+    #[doc(alias = "left-margin")]
+    fn set_left_margin(&self, left_margin: i32);
+
+    #[doc(alias = "left-margin-set")]
+    fn is_left_margin_set(&self) -> bool;
+
+    #[doc(alias = "left-margin-set")]
+    fn set_left_margin_set(&self, left_margin_set: bool);
+
+    #[doc(alias = "letter-spacing")]
+    fn letter_spacing(&self) -> i32;
+
+    #[doc(alias = "letter-spacing")]
+    fn set_letter_spacing(&self, letter_spacing: i32);
+
+    #[doc(alias = "letter-spacing-set")]
+    fn is_letter_spacing_set(&self) -> bool;
+
+    #[doc(alias = "letter-spacing-set")]
+    fn set_letter_spacing_set(&self, letter_spacing_set: bool);
+
+    fn name(&self) -> Option<glib::GString>;
+
+    #[doc(alias = "paragraph-background")]
+    fn set_paragraph_background(&self, paragraph_background: Option<&str>);
+
+    #[doc(alias = "paragraph-background-rgba")]
+    fn paragraph_background_rgba(&self) -> Option<gdk::RGBA>;
+
+    #[doc(alias = "paragraph-background-rgba")]
+    fn set_paragraph_background_rgba(&self, paragraph_background_rgba: Option<&gdk::RGBA>);
+
+    #[doc(alias = "paragraph-background-set")]
+    fn is_paragraph_background_set(&self) -> bool;
+
+    #[doc(alias = "paragraph-background-set")]
+    fn set_paragraph_background_set(&self, paragraph_background_set: bool);
+
+    #[doc(alias = "pixels-above-lines")]
+    fn pixels_above_lines(&self) -> i32;
+
+    #[doc(alias = "pixels-above-lines")]
+    fn set_pixels_above_lines(&self, pixels_above_lines: i32);
+
+    #[doc(alias = "pixels-above-lines-set")]
+    fn is_pixels_above_lines_set(&self) -> bool;
+
+    #[doc(alias = "pixels-above-lines-set")]
+    fn set_pixels_above_lines_set(&self, pixels_above_lines_set: bool);
+
+    #[doc(alias = "pixels-below-lines")]
+    fn pixels_below_lines(&self) -> i32;
+
+    #[doc(alias = "pixels-below-lines")]
+    fn set_pixels_below_lines(&self, pixels_below_lines: i32);
+
+    #[doc(alias = "pixels-below-lines-set")]
+    fn is_pixels_below_lines_set(&self) -> bool;
+
+    #[doc(alias = "pixels-below-lines-set")]
+    fn set_pixels_below_lines_set(&self, pixels_below_lines_set: bool);
+
+    #[doc(alias = "pixels-inside-wrap")]
+    fn pixels_inside_wrap(&self) -> i32;
+
+    #[doc(alias = "pixels-inside-wrap")]
+    fn set_pixels_inside_wrap(&self, pixels_inside_wrap: i32);
+
+    #[doc(alias = "pixels-inside-wrap-set")]
+    fn is_pixels_inside_wrap_set(&self) -> bool;
+
+    #[doc(alias = "pixels-inside-wrap-set")]
+    fn set_pixels_inside_wrap_set(&self, pixels_inside_wrap_set: bool);
+
+    #[doc(alias = "right-margin")]
+    fn right_margin(&self) -> i32;
+
+    #[doc(alias = "right-margin")]
+    fn set_right_margin(&self, right_margin: i32);
+
+    #[doc(alias = "right-margin-set")]
+    fn is_right_margin_set(&self) -> bool;
+
+    #[doc(alias = "right-margin-set")]
+    fn set_right_margin_set(&self, right_margin_set: bool);
+
+    fn rise(&self) -> i32;
+
+    fn set_rise(&self, rise: i32);
+
+    #[doc(alias = "rise-set")]
+    fn is_rise_set(&self) -> bool;
+
+    #[doc(alias = "rise-set")]
+    fn set_rise_set(&self, rise_set: bool);
+
+    fn scale(&self) -> f64;
+
+    fn set_scale(&self, scale: f64);
+
+    #[doc(alias = "scale-set")]
+    fn is_scale_set(&self) -> bool;
+
+    #[doc(alias = "scale-set")]
+    fn set_scale_set(&self, scale_set: bool);
+
+    fn size(&self) -> i32;
+
+    fn set_size(&self, size: i32);
+
+    #[doc(alias = "size-points")]
+    fn size_points(&self) -> f64;
+
+    #[doc(alias = "size-points")]
+    fn set_size_points(&self, size_points: f64);
+
+    #[doc(alias = "size-set")]
+    fn is_size_set(&self) -> bool;
+
+    #[doc(alias = "size-set")]
+    fn set_size_set(&self, size_set: bool);
+
+    fn stretch(&self) -> pango::Stretch;
+
+    fn set_stretch(&self, stretch: pango::Stretch);
+
+    #[doc(alias = "stretch-set")]
+    fn is_stretch_set(&self) -> bool;
+
+    #[doc(alias = "stretch-set")]
+    fn set_stretch_set(&self, stretch_set: bool);
+
+    fn is_strikethrough(&self) -> bool;
+
+    fn set_strikethrough(&self, strikethrough: bool);
+
+    #[doc(alias = "strikethrough-rgba")]
+    fn strikethrough_rgba(&self) -> Option<gdk::RGBA>;
+
+    #[doc(alias = "strikethrough-rgba")]
+    fn set_strikethrough_rgba(&self, strikethrough_rgba: Option<&gdk::RGBA>);
+
+    #[doc(alias = "strikethrough-rgba-set")]
+    fn is_strikethrough_rgba_set(&self) -> bool;
+
+    #[doc(alias = "strikethrough-rgba-set")]
+    fn set_strikethrough_rgba_set(&self, strikethrough_rgba_set: bool);
+
+    #[doc(alias = "strikethrough-set")]
+    fn is_strikethrough_set(&self) -> bool;
+
+    #[doc(alias = "strikethrough-set")]
+    fn set_strikethrough_set(&self, strikethrough_set: bool);
+
+    fn style(&self) -> pango::Style;
+
+    fn set_style(&self, style: pango::Style);
+
+    #[doc(alias = "style-set")]
+    fn is_style_set(&self) -> bool;
+
+    #[doc(alias = "style-set")]
+    fn set_style_set(&self, style_set: bool);
+
+    fn tabs(&self) -> Option<pango::TabArray>;
+
+    fn set_tabs(&self, tabs: Option<&pango::TabArray>);
+
+    #[doc(alias = "tabs-set")]
+    fn is_tabs_set(&self) -> bool;
+
+    #[doc(alias = "tabs-set")]
+    fn set_tabs_set(&self, tabs_set: bool);
+
+    fn underline(&self) -> pango::Underline;
+
+    fn set_underline(&self, underline: pango::Underline);
+
+    #[doc(alias = "underline-rgba")]
+    fn underline_rgba(&self) -> Option<gdk::RGBA>;
+
+    #[doc(alias = "underline-rgba")]
+    fn set_underline_rgba(&self, underline_rgba: Option<&gdk::RGBA>);
+
+    #[doc(alias = "underline-rgba-set")]
+    fn is_underline_rgba_set(&self) -> bool;
+
+    #[doc(alias = "underline-rgba-set")]
+    fn set_underline_rgba_set(&self, underline_rgba_set: bool);
+
+    #[doc(alias = "underline-set")]
+    fn is_underline_set(&self) -> bool;
+
+    #[doc(alias = "underline-set")]
+    fn set_underline_set(&self, underline_set: bool);
+
+    fn variant(&self) -> pango::Variant;
+
+    fn set_variant(&self, variant: pango::Variant);
+
+    #[doc(alias = "variant-set")]
+    fn is_variant_set(&self) -> bool;
+
+    #[doc(alias = "variant-set")]
+    fn set_variant_set(&self, variant_set: bool);
+
+    fn weight(&self) -> i32;
+
+    fn set_weight(&self, weight: i32);
+
+    #[doc(alias = "weight-set")]
+    fn is_weight_set(&self) -> bool;
+
+    #[doc(alias = "weight-set")]
+    fn set_weight_set(&self, weight_set: bool);
+
+    #[doc(alias = "wrap-mode")]
+    fn wrap_mode(&self) -> WrapMode;
+
+    #[doc(alias = "wrap-mode")]
+    fn set_wrap_mode(&self, wrap_mode: WrapMode);
+
+    #[doc(alias = "wrap-mode-set")]
+    fn wraps_mode_set(&self) -> bool;
+
+    #[doc(alias = "wrap-mode-set")]
+    fn set_wrap_mode_set(&self, wrap_mode_set: bool);
+
+    #[doc(alias = "event")]
+    fn connect_event<
+        F: Fn(&Self, &glib::Object, &gdk::Event, &TextIter) -> glib::signal::Inhibit + 'static,
+    >(
+        &self,
+        f: F,
+    ) -> SignalHandlerId;
+
+    #[doc(alias = "accumulative-margin")]
+    fn connect_accumulative_margin_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "background")]
+    fn connect_background_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "background-full-height")]
+    fn connect_background_full_height_notify<F: Fn(&Self) + 'static>(
+        &self,
+        f: F,
+    ) -> SignalHandlerId;
+
+    #[doc(alias = "background-full-height-set")]
+    fn connect_background_full_height_set_notify<F: Fn(&Self) + 'static>(
+        &self,
+        f: F,
+    ) -> SignalHandlerId;
+
+    #[doc(alias = "background-rgba")]
+    fn connect_background_rgba_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "background-set")]
+    fn connect_background_set_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "direction")]
+    fn connect_direction_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "editable")]
+    fn connect_editable_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "editable-set")]
+    fn connect_editable_set_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "fallback")]
+    fn connect_fallback_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "fallback-set")]
+    fn connect_fallback_set_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "family")]
+    fn connect_family_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "family-set")]
+    fn connect_family_set_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "font")]
+    fn connect_font_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "font-desc")]
+    fn connect_font_desc_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "font-features")]
+    fn connect_font_features_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "font-features-set")]
+    fn connect_font_features_set_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "foreground")]
+    fn connect_foreground_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "foreground-rgba")]
+    fn connect_foreground_rgba_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "foreground-set")]
+    fn connect_foreground_set_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "indent")]
+    fn connect_indent_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "indent-set")]
+    fn connect_indent_set_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "invisible")]
+    fn connect_invisible_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "invisible-set")]
+    fn connect_invisible_set_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "justification")]
+    fn connect_justification_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "justification-set")]
+    fn connect_justification_set_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "language")]
+    fn connect_language_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "language-set")]
+    fn connect_language_set_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "left-margin")]
+    fn connect_left_margin_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "left-margin-set")]
+    fn connect_left_margin_set_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "letter-spacing")]
+    fn connect_letter_spacing_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "letter-spacing-set")]
+    fn connect_letter_spacing_set_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "paragraph-background")]
+    fn connect_paragraph_background_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "paragraph-background-rgba")]
+    fn connect_paragraph_background_rgba_notify<F: Fn(&Self) + 'static>(
+        &self,
+        f: F,
+    ) -> SignalHandlerId;
+
+    #[doc(alias = "paragraph-background-set")]
+    fn connect_paragraph_background_set_notify<F: Fn(&Self) + 'static>(
+        &self,
+        f: F,
+    ) -> SignalHandlerId;
+
+    #[doc(alias = "pixels-above-lines")]
+    fn connect_pixels_above_lines_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "pixels-above-lines-set")]
+    fn connect_pixels_above_lines_set_notify<F: Fn(&Self) + 'static>(
+        &self,
+        f: F,
+    ) -> SignalHandlerId;
+
+    #[doc(alias = "pixels-below-lines")]
+    fn connect_pixels_below_lines_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "pixels-below-lines-set")]
+    fn connect_pixels_below_lines_set_notify<F: Fn(&Self) + 'static>(
+        &self,
+        f: F,
+    ) -> SignalHandlerId;
+
+    #[doc(alias = "pixels-inside-wrap")]
+    fn connect_pixels_inside_wrap_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "pixels-inside-wrap-set")]
+    fn connect_pixels_inside_wrap_set_notify<F: Fn(&Self) + 'static>(
+        &self,
+        f: F,
+    ) -> SignalHandlerId;
+
+    #[doc(alias = "right-margin")]
+    fn connect_right_margin_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "right-margin-set")]
+    fn connect_right_margin_set_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "rise")]
+    fn connect_rise_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "rise-set")]
+    fn connect_rise_set_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "scale")]
+    fn connect_scale_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "scale-set")]
+    fn connect_scale_set_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "size")]
+    fn connect_size_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "size-points")]
+    fn connect_size_points_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "size-set")]
+    fn connect_size_set_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "stretch")]
+    fn connect_stretch_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "stretch-set")]
+    fn connect_stretch_set_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "strikethrough")]
+    fn connect_strikethrough_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "strikethrough-rgba")]
+    fn connect_strikethrough_rgba_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "strikethrough-rgba-set")]
+    fn connect_strikethrough_rgba_set_notify<F: Fn(&Self) + 'static>(
+        &self,
+        f: F,
+    ) -> SignalHandlerId;
+
+    #[doc(alias = "strikethrough-set")]
+    fn connect_strikethrough_set_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "style")]
+    fn connect_style_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "style-set")]
+    fn connect_style_set_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "tabs")]
+    fn connect_tabs_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "tabs-set")]
+    fn connect_tabs_set_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "underline")]
+    fn connect_underline_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "underline-rgba")]
+    fn connect_underline_rgba_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "underline-rgba-set")]
+    fn connect_underline_rgba_set_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "underline-set")]
+    fn connect_underline_set_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "variant")]
+    fn connect_variant_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "variant-set")]
+    fn connect_variant_set_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "weight")]
+    fn connect_weight_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "weight-set")]
+    fn connect_weight_set_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "wrap-mode")]
+    fn connect_wrap_mode_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "wrap-mode-set")]
+    fn connect_wrap_mode_set_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
 }
 
-pub trait TextTagExt: IsA<TextTag> + sealed::Sealed + 'static {
-    #[doc(alias = "gtk_text_tag_changed")]
+impl<O: IsA<TextTag>> TextTagExt for O {
+    #[cfg(any(feature = "v3_20", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
     fn changed(&self, size_changed: bool) {
         unsafe {
             ffi::gtk_text_tag_changed(self.as_ref().to_glib_none().0, size_changed.into_glib());
         }
     }
 
-    #[doc(alias = "gtk_text_tag_event")]
     fn event(
         &self,
         event_object: &impl IsA<glib::Object>,
@@ -561,710 +1377,609 @@ pub trait TextTagExt: IsA<TextTag> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_text_tag_get_priority")]
-    #[doc(alias = "get_priority")]
     fn priority(&self) -> i32 {
         unsafe { ffi::gtk_text_tag_get_priority(self.as_ref().to_glib_none().0) }
     }
 
-    #[doc(alias = "gtk_text_tag_set_priority")]
     fn set_priority(&self, priority: i32) {
         unsafe {
             ffi::gtk_text_tag_set_priority(self.as_ref().to_glib_none().0, priority);
         }
     }
 
-    #[doc(alias = "accumulative-margin")]
     fn is_accumulative_margin(&self) -> bool {
-        ObjectExt::property(self.as_ref(), "accumulative-margin")
+        glib::ObjectExt::property(self.as_ref(), "accumulative-margin")
     }
 
-    #[doc(alias = "accumulative-margin")]
     fn set_accumulative_margin(&self, accumulative_margin: bool) {
-        ObjectExt::set_property(self.as_ref(), "accumulative-margin", accumulative_margin)
+        glib::ObjectExt::set_property(self.as_ref(), "accumulative-margin", &accumulative_margin)
     }
 
     fn set_background(&self, background: Option<&str>) {
-        ObjectExt::set_property(self.as_ref(), "background", background)
+        glib::ObjectExt::set_property(self.as_ref(), "background", &background)
     }
 
-    #[doc(alias = "background-full-height")]
     fn is_background_full_height(&self) -> bool {
-        ObjectExt::property(self.as_ref(), "background-full-height")
+        glib::ObjectExt::property(self.as_ref(), "background-full-height")
     }
 
-    #[doc(alias = "background-full-height")]
     fn set_background_full_height(&self, background_full_height: bool) {
-        ObjectExt::set_property(
+        glib::ObjectExt::set_property(
             self.as_ref(),
             "background-full-height",
-            background_full_height,
+            &background_full_height,
         )
     }
 
-    #[doc(alias = "background-full-height-set")]
     fn is_background_full_height_set(&self) -> bool {
-        ObjectExt::property(self.as_ref(), "background-full-height-set")
+        glib::ObjectExt::property(self.as_ref(), "background-full-height-set")
     }
 
-    #[doc(alias = "background-full-height-set")]
     fn set_background_full_height_set(&self, background_full_height_set: bool) {
-        ObjectExt::set_property(
+        glib::ObjectExt::set_property(
             self.as_ref(),
             "background-full-height-set",
-            background_full_height_set,
+            &background_full_height_set,
         )
     }
 
-    #[doc(alias = "background-rgba")]
     fn background_rgba(&self) -> Option<gdk::RGBA> {
-        ObjectExt::property(self.as_ref(), "background-rgba")
+        glib::ObjectExt::property(self.as_ref(), "background-rgba")
     }
 
-    #[doc(alias = "background-rgba")]
     fn set_background_rgba(&self, background_rgba: Option<&gdk::RGBA>) {
-        ObjectExt::set_property(self.as_ref(), "background-rgba", background_rgba)
+        glib::ObjectExt::set_property(self.as_ref(), "background-rgba", &background_rgba)
     }
 
-    #[doc(alias = "background-set")]
     fn is_background_set(&self) -> bool {
-        ObjectExt::property(self.as_ref(), "background-set")
+        glib::ObjectExt::property(self.as_ref(), "background-set")
     }
 
-    #[doc(alias = "background-set")]
     fn set_background_set(&self, background_set: bool) {
-        ObjectExt::set_property(self.as_ref(), "background-set", background_set)
+        glib::ObjectExt::set_property(self.as_ref(), "background-set", &background_set)
     }
 
     fn direction(&self) -> TextDirection {
-        ObjectExt::property(self.as_ref(), "direction")
+        glib::ObjectExt::property(self.as_ref(), "direction")
     }
 
     fn set_direction(&self, direction: TextDirection) {
-        ObjectExt::set_property(self.as_ref(), "direction", direction)
+        glib::ObjectExt::set_property(self.as_ref(), "direction", &direction)
     }
 
     fn is_editable(&self) -> bool {
-        ObjectExt::property(self.as_ref(), "editable")
+        glib::ObjectExt::property(self.as_ref(), "editable")
     }
 
     fn set_editable(&self, editable: bool) {
-        ObjectExt::set_property(self.as_ref(), "editable", editable)
+        glib::ObjectExt::set_property(self.as_ref(), "editable", &editable)
     }
 
-    #[doc(alias = "editable-set")]
     fn is_editable_set(&self) -> bool {
-        ObjectExt::property(self.as_ref(), "editable-set")
+        glib::ObjectExt::property(self.as_ref(), "editable-set")
     }
 
-    #[doc(alias = "editable-set")]
     fn set_editable_set(&self, editable_set: bool) {
-        ObjectExt::set_property(self.as_ref(), "editable-set", editable_set)
+        glib::ObjectExt::set_property(self.as_ref(), "editable-set", &editable_set)
     }
 
     fn is_fallback(&self) -> bool {
-        ObjectExt::property(self.as_ref(), "fallback")
+        glib::ObjectExt::property(self.as_ref(), "fallback")
     }
 
     fn set_fallback(&self, fallback: bool) {
-        ObjectExt::set_property(self.as_ref(), "fallback", fallback)
+        glib::ObjectExt::set_property(self.as_ref(), "fallback", &fallback)
     }
 
-    #[doc(alias = "fallback-set")]
     fn is_fallback_set(&self) -> bool {
-        ObjectExt::property(self.as_ref(), "fallback-set")
+        glib::ObjectExt::property(self.as_ref(), "fallback-set")
     }
 
-    #[doc(alias = "fallback-set")]
     fn set_fallback_set(&self, fallback_set: bool) {
-        ObjectExt::set_property(self.as_ref(), "fallback-set", fallback_set)
+        glib::ObjectExt::set_property(self.as_ref(), "fallback-set", &fallback_set)
     }
 
     fn family(&self) -> Option<glib::GString> {
-        ObjectExt::property(self.as_ref(), "family")
+        glib::ObjectExt::property(self.as_ref(), "family")
     }
 
     fn set_family(&self, family: Option<&str>) {
-        ObjectExt::set_property(self.as_ref(), "family", family)
+        glib::ObjectExt::set_property(self.as_ref(), "family", &family)
     }
 
-    #[doc(alias = "family-set")]
     fn is_family_set(&self) -> bool {
-        ObjectExt::property(self.as_ref(), "family-set")
+        glib::ObjectExt::property(self.as_ref(), "family-set")
     }
 
-    #[doc(alias = "family-set")]
     fn set_family_set(&self, family_set: bool) {
-        ObjectExt::set_property(self.as_ref(), "family-set", family_set)
+        glib::ObjectExt::set_property(self.as_ref(), "family-set", &family_set)
     }
 
     fn font(&self) -> Option<glib::GString> {
-        ObjectExt::property(self.as_ref(), "font")
+        glib::ObjectExt::property(self.as_ref(), "font")
     }
 
     fn set_font(&self, font: Option<&str>) {
-        ObjectExt::set_property(self.as_ref(), "font", font)
+        glib::ObjectExt::set_property(self.as_ref(), "font", &font)
     }
 
-    #[doc(alias = "font-desc")]
     fn font_desc(&self) -> Option<pango::FontDescription> {
-        ObjectExt::property(self.as_ref(), "font-desc")
+        glib::ObjectExt::property(self.as_ref(), "font-desc")
     }
 
-    #[doc(alias = "font-desc")]
     fn set_font_desc(&self, font_desc: Option<&pango::FontDescription>) {
-        ObjectExt::set_property(self.as_ref(), "font-desc", font_desc)
+        glib::ObjectExt::set_property(self.as_ref(), "font-desc", &font_desc)
     }
 
-    #[doc(alias = "font-features")]
     fn font_features(&self) -> Option<glib::GString> {
-        ObjectExt::property(self.as_ref(), "font-features")
+        glib::ObjectExt::property(self.as_ref(), "font-features")
     }
 
-    #[doc(alias = "font-features")]
     fn set_font_features(&self, font_features: Option<&str>) {
-        ObjectExt::set_property(self.as_ref(), "font-features", font_features)
+        glib::ObjectExt::set_property(self.as_ref(), "font-features", &font_features)
     }
 
-    #[doc(alias = "font-features-set")]
     fn is_font_features_set(&self) -> bool {
-        ObjectExt::property(self.as_ref(), "font-features-set")
+        glib::ObjectExt::property(self.as_ref(), "font-features-set")
     }
 
-    #[doc(alias = "font-features-set")]
     fn set_font_features_set(&self, font_features_set: bool) {
-        ObjectExt::set_property(self.as_ref(), "font-features-set", font_features_set)
+        glib::ObjectExt::set_property(self.as_ref(), "font-features-set", &font_features_set)
     }
 
     fn set_foreground(&self, foreground: Option<&str>) {
-        ObjectExt::set_property(self.as_ref(), "foreground", foreground)
+        glib::ObjectExt::set_property(self.as_ref(), "foreground", &foreground)
     }
 
-    #[doc(alias = "foreground-rgba")]
     fn foreground_rgba(&self) -> Option<gdk::RGBA> {
-        ObjectExt::property(self.as_ref(), "foreground-rgba")
+        glib::ObjectExt::property(self.as_ref(), "foreground-rgba")
     }
 
-    #[doc(alias = "foreground-rgba")]
     fn set_foreground_rgba(&self, foreground_rgba: Option<&gdk::RGBA>) {
-        ObjectExt::set_property(self.as_ref(), "foreground-rgba", foreground_rgba)
+        glib::ObjectExt::set_property(self.as_ref(), "foreground-rgba", &foreground_rgba)
     }
 
-    #[doc(alias = "foreground-set")]
     fn is_foreground_set(&self) -> bool {
-        ObjectExt::property(self.as_ref(), "foreground-set")
+        glib::ObjectExt::property(self.as_ref(), "foreground-set")
     }
 
-    #[doc(alias = "foreground-set")]
     fn set_foreground_set(&self, foreground_set: bool) {
-        ObjectExt::set_property(self.as_ref(), "foreground-set", foreground_set)
+        glib::ObjectExt::set_property(self.as_ref(), "foreground-set", &foreground_set)
     }
 
     fn indent(&self) -> i32 {
-        ObjectExt::property(self.as_ref(), "indent")
+        glib::ObjectExt::property(self.as_ref(), "indent")
     }
 
     fn set_indent(&self, indent: i32) {
-        ObjectExt::set_property(self.as_ref(), "indent", indent)
+        glib::ObjectExt::set_property(self.as_ref(), "indent", &indent)
     }
 
-    #[doc(alias = "indent-set")]
     fn is_indent_set(&self) -> bool {
-        ObjectExt::property(self.as_ref(), "indent-set")
+        glib::ObjectExt::property(self.as_ref(), "indent-set")
     }
 
-    #[doc(alias = "indent-set")]
     fn set_indent_set(&self, indent_set: bool) {
-        ObjectExt::set_property(self.as_ref(), "indent-set", indent_set)
+        glib::ObjectExt::set_property(self.as_ref(), "indent-set", &indent_set)
     }
 
     fn is_invisible(&self) -> bool {
-        ObjectExt::property(self.as_ref(), "invisible")
+        glib::ObjectExt::property(self.as_ref(), "invisible")
     }
 
     fn set_invisible(&self, invisible: bool) {
-        ObjectExt::set_property(self.as_ref(), "invisible", invisible)
+        glib::ObjectExt::set_property(self.as_ref(), "invisible", &invisible)
     }
 
-    #[doc(alias = "invisible-set")]
     fn is_invisible_set(&self) -> bool {
-        ObjectExt::property(self.as_ref(), "invisible-set")
+        glib::ObjectExt::property(self.as_ref(), "invisible-set")
     }
 
-    #[doc(alias = "invisible-set")]
     fn set_invisible_set(&self, invisible_set: bool) {
-        ObjectExt::set_property(self.as_ref(), "invisible-set", invisible_set)
+        glib::ObjectExt::set_property(self.as_ref(), "invisible-set", &invisible_set)
     }
 
     fn justification(&self) -> Justification {
-        ObjectExt::property(self.as_ref(), "justification")
+        glib::ObjectExt::property(self.as_ref(), "justification")
     }
 
     fn set_justification(&self, justification: Justification) {
-        ObjectExt::set_property(self.as_ref(), "justification", justification)
+        glib::ObjectExt::set_property(self.as_ref(), "justification", &justification)
     }
 
-    #[doc(alias = "justification-set")]
     fn is_justification_set(&self) -> bool {
-        ObjectExt::property(self.as_ref(), "justification-set")
+        glib::ObjectExt::property(self.as_ref(), "justification-set")
     }
 
-    #[doc(alias = "justification-set")]
     fn set_justification_set(&self, justification_set: bool) {
-        ObjectExt::set_property(self.as_ref(), "justification-set", justification_set)
+        glib::ObjectExt::set_property(self.as_ref(), "justification-set", &justification_set)
     }
 
     fn language(&self) -> Option<glib::GString> {
-        ObjectExt::property(self.as_ref(), "language")
+        glib::ObjectExt::property(self.as_ref(), "language")
     }
 
     fn set_language(&self, language: Option<&str>) {
-        ObjectExt::set_property(self.as_ref(), "language", language)
+        glib::ObjectExt::set_property(self.as_ref(), "language", &language)
     }
 
-    #[doc(alias = "language-set")]
     fn is_language_set(&self) -> bool {
-        ObjectExt::property(self.as_ref(), "language-set")
+        glib::ObjectExt::property(self.as_ref(), "language-set")
     }
 
-    #[doc(alias = "language-set")]
     fn set_language_set(&self, language_set: bool) {
-        ObjectExt::set_property(self.as_ref(), "language-set", language_set)
+        glib::ObjectExt::set_property(self.as_ref(), "language-set", &language_set)
     }
 
-    #[doc(alias = "left-margin")]
     fn left_margin(&self) -> i32 {
-        ObjectExt::property(self.as_ref(), "left-margin")
+        glib::ObjectExt::property(self.as_ref(), "left-margin")
     }
 
-    #[doc(alias = "left-margin")]
     fn set_left_margin(&self, left_margin: i32) {
-        ObjectExt::set_property(self.as_ref(), "left-margin", left_margin)
+        glib::ObjectExt::set_property(self.as_ref(), "left-margin", &left_margin)
     }
 
-    #[doc(alias = "left-margin-set")]
     fn is_left_margin_set(&self) -> bool {
-        ObjectExt::property(self.as_ref(), "left-margin-set")
+        glib::ObjectExt::property(self.as_ref(), "left-margin-set")
     }
 
-    #[doc(alias = "left-margin-set")]
     fn set_left_margin_set(&self, left_margin_set: bool) {
-        ObjectExt::set_property(self.as_ref(), "left-margin-set", left_margin_set)
+        glib::ObjectExt::set_property(self.as_ref(), "left-margin-set", &left_margin_set)
     }
 
-    #[doc(alias = "letter-spacing")]
     fn letter_spacing(&self) -> i32 {
-        ObjectExt::property(self.as_ref(), "letter-spacing")
+        glib::ObjectExt::property(self.as_ref(), "letter-spacing")
     }
 
-    #[doc(alias = "letter-spacing")]
     fn set_letter_spacing(&self, letter_spacing: i32) {
-        ObjectExt::set_property(self.as_ref(), "letter-spacing", letter_spacing)
+        glib::ObjectExt::set_property(self.as_ref(), "letter-spacing", &letter_spacing)
     }
 
-    #[doc(alias = "letter-spacing-set")]
     fn is_letter_spacing_set(&self) -> bool {
-        ObjectExt::property(self.as_ref(), "letter-spacing-set")
+        glib::ObjectExt::property(self.as_ref(), "letter-spacing-set")
     }
 
-    #[doc(alias = "letter-spacing-set")]
     fn set_letter_spacing_set(&self, letter_spacing_set: bool) {
-        ObjectExt::set_property(self.as_ref(), "letter-spacing-set", letter_spacing_set)
+        glib::ObjectExt::set_property(self.as_ref(), "letter-spacing-set", &letter_spacing_set)
     }
 
     fn name(&self) -> Option<glib::GString> {
-        ObjectExt::property(self.as_ref(), "name")
+        glib::ObjectExt::property(self.as_ref(), "name")
     }
 
-    #[doc(alias = "paragraph-background")]
     fn set_paragraph_background(&self, paragraph_background: Option<&str>) {
-        ObjectExt::set_property(self.as_ref(), "paragraph-background", paragraph_background)
+        glib::ObjectExt::set_property(self.as_ref(), "paragraph-background", &paragraph_background)
     }
 
-    #[doc(alias = "paragraph-background-rgba")]
     fn paragraph_background_rgba(&self) -> Option<gdk::RGBA> {
-        ObjectExt::property(self.as_ref(), "paragraph-background-rgba")
+        glib::ObjectExt::property(self.as_ref(), "paragraph-background-rgba")
     }
 
-    #[doc(alias = "paragraph-background-rgba")]
     fn set_paragraph_background_rgba(&self, paragraph_background_rgba: Option<&gdk::RGBA>) {
-        ObjectExt::set_property(
+        glib::ObjectExt::set_property(
             self.as_ref(),
             "paragraph-background-rgba",
-            paragraph_background_rgba,
+            &paragraph_background_rgba,
         )
     }
 
-    #[doc(alias = "paragraph-background-set")]
     fn is_paragraph_background_set(&self) -> bool {
-        ObjectExt::property(self.as_ref(), "paragraph-background-set")
+        glib::ObjectExt::property(self.as_ref(), "paragraph-background-set")
     }
 
-    #[doc(alias = "paragraph-background-set")]
     fn set_paragraph_background_set(&self, paragraph_background_set: bool) {
-        ObjectExt::set_property(
+        glib::ObjectExt::set_property(
             self.as_ref(),
             "paragraph-background-set",
-            paragraph_background_set,
+            &paragraph_background_set,
         )
     }
 
-    #[doc(alias = "pixels-above-lines")]
     fn pixels_above_lines(&self) -> i32 {
-        ObjectExt::property(self.as_ref(), "pixels-above-lines")
+        glib::ObjectExt::property(self.as_ref(), "pixels-above-lines")
     }
 
-    #[doc(alias = "pixels-above-lines")]
     fn set_pixels_above_lines(&self, pixels_above_lines: i32) {
-        ObjectExt::set_property(self.as_ref(), "pixels-above-lines", pixels_above_lines)
+        glib::ObjectExt::set_property(self.as_ref(), "pixels-above-lines", &pixels_above_lines)
     }
 
-    #[doc(alias = "pixels-above-lines-set")]
     fn is_pixels_above_lines_set(&self) -> bool {
-        ObjectExt::property(self.as_ref(), "pixels-above-lines-set")
+        glib::ObjectExt::property(self.as_ref(), "pixels-above-lines-set")
     }
 
-    #[doc(alias = "pixels-above-lines-set")]
     fn set_pixels_above_lines_set(&self, pixels_above_lines_set: bool) {
-        ObjectExt::set_property(
+        glib::ObjectExt::set_property(
             self.as_ref(),
             "pixels-above-lines-set",
-            pixels_above_lines_set,
+            &pixels_above_lines_set,
         )
     }
 
-    #[doc(alias = "pixels-below-lines")]
     fn pixels_below_lines(&self) -> i32 {
-        ObjectExt::property(self.as_ref(), "pixels-below-lines")
+        glib::ObjectExt::property(self.as_ref(), "pixels-below-lines")
     }
 
-    #[doc(alias = "pixels-below-lines")]
     fn set_pixels_below_lines(&self, pixels_below_lines: i32) {
-        ObjectExt::set_property(self.as_ref(), "pixels-below-lines", pixels_below_lines)
+        glib::ObjectExt::set_property(self.as_ref(), "pixels-below-lines", &pixels_below_lines)
     }
 
-    #[doc(alias = "pixels-below-lines-set")]
     fn is_pixels_below_lines_set(&self) -> bool {
-        ObjectExt::property(self.as_ref(), "pixels-below-lines-set")
+        glib::ObjectExt::property(self.as_ref(), "pixels-below-lines-set")
     }
 
-    #[doc(alias = "pixels-below-lines-set")]
     fn set_pixels_below_lines_set(&self, pixels_below_lines_set: bool) {
-        ObjectExt::set_property(
+        glib::ObjectExt::set_property(
             self.as_ref(),
             "pixels-below-lines-set",
-            pixels_below_lines_set,
+            &pixels_below_lines_set,
         )
     }
 
-    #[doc(alias = "pixels-inside-wrap")]
     fn pixels_inside_wrap(&self) -> i32 {
-        ObjectExt::property(self.as_ref(), "pixels-inside-wrap")
+        glib::ObjectExt::property(self.as_ref(), "pixels-inside-wrap")
     }
 
-    #[doc(alias = "pixels-inside-wrap")]
     fn set_pixels_inside_wrap(&self, pixels_inside_wrap: i32) {
-        ObjectExt::set_property(self.as_ref(), "pixels-inside-wrap", pixels_inside_wrap)
+        glib::ObjectExt::set_property(self.as_ref(), "pixels-inside-wrap", &pixels_inside_wrap)
     }
 
-    #[doc(alias = "pixels-inside-wrap-set")]
     fn is_pixels_inside_wrap_set(&self) -> bool {
-        ObjectExt::property(self.as_ref(), "pixels-inside-wrap-set")
+        glib::ObjectExt::property(self.as_ref(), "pixels-inside-wrap-set")
     }
 
-    #[doc(alias = "pixels-inside-wrap-set")]
     fn set_pixels_inside_wrap_set(&self, pixels_inside_wrap_set: bool) {
-        ObjectExt::set_property(
+        glib::ObjectExt::set_property(
             self.as_ref(),
             "pixels-inside-wrap-set",
-            pixels_inside_wrap_set,
+            &pixels_inside_wrap_set,
         )
     }
 
-    #[doc(alias = "right-margin")]
     fn right_margin(&self) -> i32 {
-        ObjectExt::property(self.as_ref(), "right-margin")
+        glib::ObjectExt::property(self.as_ref(), "right-margin")
     }
 
-    #[doc(alias = "right-margin")]
     fn set_right_margin(&self, right_margin: i32) {
-        ObjectExt::set_property(self.as_ref(), "right-margin", right_margin)
+        glib::ObjectExt::set_property(self.as_ref(), "right-margin", &right_margin)
     }
 
-    #[doc(alias = "right-margin-set")]
     fn is_right_margin_set(&self) -> bool {
-        ObjectExt::property(self.as_ref(), "right-margin-set")
+        glib::ObjectExt::property(self.as_ref(), "right-margin-set")
     }
 
-    #[doc(alias = "right-margin-set")]
     fn set_right_margin_set(&self, right_margin_set: bool) {
-        ObjectExt::set_property(self.as_ref(), "right-margin-set", right_margin_set)
+        glib::ObjectExt::set_property(self.as_ref(), "right-margin-set", &right_margin_set)
     }
 
     fn rise(&self) -> i32 {
-        ObjectExt::property(self.as_ref(), "rise")
+        glib::ObjectExt::property(self.as_ref(), "rise")
     }
 
     fn set_rise(&self, rise: i32) {
-        ObjectExt::set_property(self.as_ref(), "rise", rise)
+        glib::ObjectExt::set_property(self.as_ref(), "rise", &rise)
     }
 
-    #[doc(alias = "rise-set")]
     fn is_rise_set(&self) -> bool {
-        ObjectExt::property(self.as_ref(), "rise-set")
+        glib::ObjectExt::property(self.as_ref(), "rise-set")
     }
 
-    #[doc(alias = "rise-set")]
     fn set_rise_set(&self, rise_set: bool) {
-        ObjectExt::set_property(self.as_ref(), "rise-set", rise_set)
+        glib::ObjectExt::set_property(self.as_ref(), "rise-set", &rise_set)
     }
 
     fn scale(&self) -> f64 {
-        ObjectExt::property(self.as_ref(), "scale")
+        glib::ObjectExt::property(self.as_ref(), "scale")
     }
 
     fn set_scale(&self, scale: f64) {
-        ObjectExt::set_property(self.as_ref(), "scale", scale)
+        glib::ObjectExt::set_property(self.as_ref(), "scale", &scale)
     }
 
-    #[doc(alias = "scale-set")]
     fn is_scale_set(&self) -> bool {
-        ObjectExt::property(self.as_ref(), "scale-set")
+        glib::ObjectExt::property(self.as_ref(), "scale-set")
     }
 
-    #[doc(alias = "scale-set")]
     fn set_scale_set(&self, scale_set: bool) {
-        ObjectExt::set_property(self.as_ref(), "scale-set", scale_set)
+        glib::ObjectExt::set_property(self.as_ref(), "scale-set", &scale_set)
     }
 
     fn size(&self) -> i32 {
-        ObjectExt::property(self.as_ref(), "size")
+        glib::ObjectExt::property(self.as_ref(), "size")
     }
 
     fn set_size(&self, size: i32) {
-        ObjectExt::set_property(self.as_ref(), "size", size)
+        glib::ObjectExt::set_property(self.as_ref(), "size", &size)
     }
 
-    #[doc(alias = "size-points")]
     fn size_points(&self) -> f64 {
-        ObjectExt::property(self.as_ref(), "size-points")
+        glib::ObjectExt::property(self.as_ref(), "size-points")
     }
 
-    #[doc(alias = "size-points")]
     fn set_size_points(&self, size_points: f64) {
-        ObjectExt::set_property(self.as_ref(), "size-points", size_points)
+        glib::ObjectExt::set_property(self.as_ref(), "size-points", &size_points)
     }
 
-    #[doc(alias = "size-set")]
     fn is_size_set(&self) -> bool {
-        ObjectExt::property(self.as_ref(), "size-set")
+        glib::ObjectExt::property(self.as_ref(), "size-set")
     }
 
-    #[doc(alias = "size-set")]
     fn set_size_set(&self, size_set: bool) {
-        ObjectExt::set_property(self.as_ref(), "size-set", size_set)
+        glib::ObjectExt::set_property(self.as_ref(), "size-set", &size_set)
     }
 
     fn stretch(&self) -> pango::Stretch {
-        ObjectExt::property(self.as_ref(), "stretch")
+        glib::ObjectExt::property(self.as_ref(), "stretch")
     }
 
     fn set_stretch(&self, stretch: pango::Stretch) {
-        ObjectExt::set_property(self.as_ref(), "stretch", stretch)
+        glib::ObjectExt::set_property(self.as_ref(), "stretch", &stretch)
     }
 
-    #[doc(alias = "stretch-set")]
     fn is_stretch_set(&self) -> bool {
-        ObjectExt::property(self.as_ref(), "stretch-set")
+        glib::ObjectExt::property(self.as_ref(), "stretch-set")
     }
 
-    #[doc(alias = "stretch-set")]
     fn set_stretch_set(&self, stretch_set: bool) {
-        ObjectExt::set_property(self.as_ref(), "stretch-set", stretch_set)
+        glib::ObjectExt::set_property(self.as_ref(), "stretch-set", &stretch_set)
     }
 
     fn is_strikethrough(&self) -> bool {
-        ObjectExt::property(self.as_ref(), "strikethrough")
+        glib::ObjectExt::property(self.as_ref(), "strikethrough")
     }
 
     fn set_strikethrough(&self, strikethrough: bool) {
-        ObjectExt::set_property(self.as_ref(), "strikethrough", strikethrough)
+        glib::ObjectExt::set_property(self.as_ref(), "strikethrough", &strikethrough)
     }
 
-    #[doc(alias = "strikethrough-rgba")]
     fn strikethrough_rgba(&self) -> Option<gdk::RGBA> {
-        ObjectExt::property(self.as_ref(), "strikethrough-rgba")
+        glib::ObjectExt::property(self.as_ref(), "strikethrough-rgba")
     }
 
-    #[doc(alias = "strikethrough-rgba")]
     fn set_strikethrough_rgba(&self, strikethrough_rgba: Option<&gdk::RGBA>) {
-        ObjectExt::set_property(self.as_ref(), "strikethrough-rgba", strikethrough_rgba)
+        glib::ObjectExt::set_property(self.as_ref(), "strikethrough-rgba", &strikethrough_rgba)
     }
 
-    #[doc(alias = "strikethrough-rgba-set")]
     fn is_strikethrough_rgba_set(&self) -> bool {
-        ObjectExt::property(self.as_ref(), "strikethrough-rgba-set")
+        glib::ObjectExt::property(self.as_ref(), "strikethrough-rgba-set")
     }
 
-    #[doc(alias = "strikethrough-rgba-set")]
     fn set_strikethrough_rgba_set(&self, strikethrough_rgba_set: bool) {
-        ObjectExt::set_property(
+        glib::ObjectExt::set_property(
             self.as_ref(),
             "strikethrough-rgba-set",
-            strikethrough_rgba_set,
+            &strikethrough_rgba_set,
         )
     }
 
-    #[doc(alias = "strikethrough-set")]
     fn is_strikethrough_set(&self) -> bool {
-        ObjectExt::property(self.as_ref(), "strikethrough-set")
+        glib::ObjectExt::property(self.as_ref(), "strikethrough-set")
     }
 
-    #[doc(alias = "strikethrough-set")]
     fn set_strikethrough_set(&self, strikethrough_set: bool) {
-        ObjectExt::set_property(self.as_ref(), "strikethrough-set", strikethrough_set)
+        glib::ObjectExt::set_property(self.as_ref(), "strikethrough-set", &strikethrough_set)
     }
 
     fn style(&self) -> pango::Style {
-        ObjectExt::property(self.as_ref(), "style")
+        glib::ObjectExt::property(self.as_ref(), "style")
     }
 
     fn set_style(&self, style: pango::Style) {
-        ObjectExt::set_property(self.as_ref(), "style", style)
+        glib::ObjectExt::set_property(self.as_ref(), "style", &style)
     }
 
-    #[doc(alias = "style-set")]
     fn is_style_set(&self) -> bool {
-        ObjectExt::property(self.as_ref(), "style-set")
+        glib::ObjectExt::property(self.as_ref(), "style-set")
     }
 
-    #[doc(alias = "style-set")]
     fn set_style_set(&self, style_set: bool) {
-        ObjectExt::set_property(self.as_ref(), "style-set", style_set)
+        glib::ObjectExt::set_property(self.as_ref(), "style-set", &style_set)
     }
 
     fn tabs(&self) -> Option<pango::TabArray> {
-        ObjectExt::property(self.as_ref(), "tabs")
+        glib::ObjectExt::property(self.as_ref(), "tabs")
     }
 
     fn set_tabs(&self, tabs: Option<&pango::TabArray>) {
-        ObjectExt::set_property(self.as_ref(), "tabs", tabs)
+        glib::ObjectExt::set_property(self.as_ref(), "tabs", &tabs)
     }
 
-    #[doc(alias = "tabs-set")]
     fn is_tabs_set(&self) -> bool {
-        ObjectExt::property(self.as_ref(), "tabs-set")
+        glib::ObjectExt::property(self.as_ref(), "tabs-set")
     }
 
-    #[doc(alias = "tabs-set")]
     fn set_tabs_set(&self, tabs_set: bool) {
-        ObjectExt::set_property(self.as_ref(), "tabs-set", tabs_set)
+        glib::ObjectExt::set_property(self.as_ref(), "tabs-set", &tabs_set)
     }
 
     fn underline(&self) -> pango::Underline {
-        ObjectExt::property(self.as_ref(), "underline")
+        glib::ObjectExt::property(self.as_ref(), "underline")
     }
 
     fn set_underline(&self, underline: pango::Underline) {
-        ObjectExt::set_property(self.as_ref(), "underline", underline)
+        glib::ObjectExt::set_property(self.as_ref(), "underline", &underline)
     }
 
-    #[doc(alias = "underline-rgba")]
     fn underline_rgba(&self) -> Option<gdk::RGBA> {
-        ObjectExt::property(self.as_ref(), "underline-rgba")
+        glib::ObjectExt::property(self.as_ref(), "underline-rgba")
     }
 
-    #[doc(alias = "underline-rgba")]
     fn set_underline_rgba(&self, underline_rgba: Option<&gdk::RGBA>) {
-        ObjectExt::set_property(self.as_ref(), "underline-rgba", underline_rgba)
+        glib::ObjectExt::set_property(self.as_ref(), "underline-rgba", &underline_rgba)
     }
 
-    #[doc(alias = "underline-rgba-set")]
     fn is_underline_rgba_set(&self) -> bool {
-        ObjectExt::property(self.as_ref(), "underline-rgba-set")
+        glib::ObjectExt::property(self.as_ref(), "underline-rgba-set")
     }
 
-    #[doc(alias = "underline-rgba-set")]
     fn set_underline_rgba_set(&self, underline_rgba_set: bool) {
-        ObjectExt::set_property(self.as_ref(), "underline-rgba-set", underline_rgba_set)
+        glib::ObjectExt::set_property(self.as_ref(), "underline-rgba-set", &underline_rgba_set)
     }
 
-    #[doc(alias = "underline-set")]
     fn is_underline_set(&self) -> bool {
-        ObjectExt::property(self.as_ref(), "underline-set")
+        glib::ObjectExt::property(self.as_ref(), "underline-set")
     }
 
-    #[doc(alias = "underline-set")]
     fn set_underline_set(&self, underline_set: bool) {
-        ObjectExt::set_property(self.as_ref(), "underline-set", underline_set)
+        glib::ObjectExt::set_property(self.as_ref(), "underline-set", &underline_set)
     }
 
     fn variant(&self) -> pango::Variant {
-        ObjectExt::property(self.as_ref(), "variant")
+        glib::ObjectExt::property(self.as_ref(), "variant")
     }
 
     fn set_variant(&self, variant: pango::Variant) {
-        ObjectExt::set_property(self.as_ref(), "variant", variant)
+        glib::ObjectExt::set_property(self.as_ref(), "variant", &variant)
     }
 
-    #[doc(alias = "variant-set")]
     fn is_variant_set(&self) -> bool {
-        ObjectExt::property(self.as_ref(), "variant-set")
+        glib::ObjectExt::property(self.as_ref(), "variant-set")
     }
 
-    #[doc(alias = "variant-set")]
     fn set_variant_set(&self, variant_set: bool) {
-        ObjectExt::set_property(self.as_ref(), "variant-set", variant_set)
+        glib::ObjectExt::set_property(self.as_ref(), "variant-set", &variant_set)
     }
 
     fn weight(&self) -> i32 {
-        ObjectExt::property(self.as_ref(), "weight")
+        glib::ObjectExt::property(self.as_ref(), "weight")
     }
 
     fn set_weight(&self, weight: i32) {
-        ObjectExt::set_property(self.as_ref(), "weight", weight)
+        glib::ObjectExt::set_property(self.as_ref(), "weight", &weight)
     }
 
-    #[doc(alias = "weight-set")]
     fn is_weight_set(&self) -> bool {
-        ObjectExt::property(self.as_ref(), "weight-set")
+        glib::ObjectExt::property(self.as_ref(), "weight-set")
     }
 
-    #[doc(alias = "weight-set")]
     fn set_weight_set(&self, weight_set: bool) {
-        ObjectExt::set_property(self.as_ref(), "weight-set", weight_set)
+        glib::ObjectExt::set_property(self.as_ref(), "weight-set", &weight_set)
     }
 
-    #[doc(alias = "wrap-mode")]
     fn wrap_mode(&self) -> WrapMode {
-        ObjectExt::property(self.as_ref(), "wrap-mode")
+        glib::ObjectExt::property(self.as_ref(), "wrap-mode")
     }
 
-    #[doc(alias = "wrap-mode")]
     fn set_wrap_mode(&self, wrap_mode: WrapMode) {
-        ObjectExt::set_property(self.as_ref(), "wrap-mode", wrap_mode)
+        glib::ObjectExt::set_property(self.as_ref(), "wrap-mode", &wrap_mode)
     }
 
-    #[doc(alias = "wrap-mode-set")]
     fn wraps_mode_set(&self) -> bool {
-        ObjectExt::property(self.as_ref(), "wrap-mode-set")
+        glib::ObjectExt::property(self.as_ref(), "wrap-mode-set")
     }
 
-    #[doc(alias = "wrap-mode-set")]
     fn set_wrap_mode_set(&self, wrap_mode_set: bool) {
-        ObjectExt::set_property(self.as_ref(), "wrap-mode-set", wrap_mode_set)
+        glib::ObjectExt::set_property(self.as_ref(), "wrap-mode-set", &wrap_mode_set)
     }
 
-    #[doc(alias = "event")]
     fn connect_event<
-        F: Fn(&Self, &glib::Object, &gdk::Event, &TextIter) -> glib::Propagation + 'static,
+        F: Fn(&Self, &glib::Object, &gdk::Event, &TextIter) -> glib::signal::Inhibit + 'static,
     >(
         &self,
         f: F,
     ) -> SignalHandlerId {
         unsafe extern "C" fn event_trampoline<
             P: IsA<TextTag>,
-            F: Fn(&P, &glib::Object, &gdk::Event, &TextIter) -> glib::Propagation + 'static,
+            F: Fn(&P, &glib::Object, &gdk::Event, &TextIter) -> glib::signal::Inhibit + 'static,
         >(
             this: *mut ffi::GtkTextTag,
             object: *mut glib::gobject_ffi::GObject,
@@ -1294,7 +2009,6 @@ pub trait TextTagExt: IsA<TextTag> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "accumulative-margin")]
     fn connect_accumulative_margin_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_accumulative_margin_trampoline<
             P: IsA<TextTag>,
@@ -1320,7 +2034,6 @@ pub trait TextTagExt: IsA<TextTag> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "background")]
     fn connect_background_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_background_trampoline<P: IsA<TextTag>, F: Fn(&P) + 'static>(
             this: *mut ffi::GtkTextTag,
@@ -1343,7 +2056,6 @@ pub trait TextTagExt: IsA<TextTag> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "background-full-height")]
     fn connect_background_full_height_notify<F: Fn(&Self) + 'static>(
         &self,
         f: F,
@@ -1372,7 +2084,6 @@ pub trait TextTagExt: IsA<TextTag> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "background-full-height-set")]
     fn connect_background_full_height_set_notify<F: Fn(&Self) + 'static>(
         &self,
         f: F,
@@ -1401,7 +2112,6 @@ pub trait TextTagExt: IsA<TextTag> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "background-rgba")]
     fn connect_background_rgba_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_background_rgba_trampoline<
             P: IsA<TextTag>,
@@ -1427,7 +2137,6 @@ pub trait TextTagExt: IsA<TextTag> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "background-set")]
     fn connect_background_set_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_background_set_trampoline<
             P: IsA<TextTag>,
@@ -1453,7 +2162,6 @@ pub trait TextTagExt: IsA<TextTag> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "direction")]
     fn connect_direction_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_direction_trampoline<P: IsA<TextTag>, F: Fn(&P) + 'static>(
             this: *mut ffi::GtkTextTag,
@@ -1476,7 +2184,6 @@ pub trait TextTagExt: IsA<TextTag> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "editable")]
     fn connect_editable_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_editable_trampoline<P: IsA<TextTag>, F: Fn(&P) + 'static>(
             this: *mut ffi::GtkTextTag,
@@ -1499,7 +2206,6 @@ pub trait TextTagExt: IsA<TextTag> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "editable-set")]
     fn connect_editable_set_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_editable_set_trampoline<
             P: IsA<TextTag>,
@@ -1525,7 +2231,6 @@ pub trait TextTagExt: IsA<TextTag> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "fallback")]
     fn connect_fallback_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_fallback_trampoline<P: IsA<TextTag>, F: Fn(&P) + 'static>(
             this: *mut ffi::GtkTextTag,
@@ -1548,7 +2253,6 @@ pub trait TextTagExt: IsA<TextTag> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "fallback-set")]
     fn connect_fallback_set_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_fallback_set_trampoline<
             P: IsA<TextTag>,
@@ -1574,7 +2278,6 @@ pub trait TextTagExt: IsA<TextTag> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "family")]
     fn connect_family_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_family_trampoline<P: IsA<TextTag>, F: Fn(&P) + 'static>(
             this: *mut ffi::GtkTextTag,
@@ -1597,7 +2300,6 @@ pub trait TextTagExt: IsA<TextTag> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "family-set")]
     fn connect_family_set_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_family_set_trampoline<P: IsA<TextTag>, F: Fn(&P) + 'static>(
             this: *mut ffi::GtkTextTag,
@@ -1620,7 +2322,6 @@ pub trait TextTagExt: IsA<TextTag> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "font")]
     fn connect_font_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_font_trampoline<P: IsA<TextTag>, F: Fn(&P) + 'static>(
             this: *mut ffi::GtkTextTag,
@@ -1643,7 +2344,6 @@ pub trait TextTagExt: IsA<TextTag> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "font-desc")]
     fn connect_font_desc_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_font_desc_trampoline<P: IsA<TextTag>, F: Fn(&P) + 'static>(
             this: *mut ffi::GtkTextTag,
@@ -1666,7 +2366,6 @@ pub trait TextTagExt: IsA<TextTag> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "font-features")]
     fn connect_font_features_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_font_features_trampoline<
             P: IsA<TextTag>,
@@ -1692,7 +2391,6 @@ pub trait TextTagExt: IsA<TextTag> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "font-features-set")]
     fn connect_font_features_set_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_font_features_set_trampoline<
             P: IsA<TextTag>,
@@ -1718,7 +2416,6 @@ pub trait TextTagExt: IsA<TextTag> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "foreground")]
     fn connect_foreground_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_foreground_trampoline<P: IsA<TextTag>, F: Fn(&P) + 'static>(
             this: *mut ffi::GtkTextTag,
@@ -1741,7 +2438,6 @@ pub trait TextTagExt: IsA<TextTag> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "foreground-rgba")]
     fn connect_foreground_rgba_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_foreground_rgba_trampoline<
             P: IsA<TextTag>,
@@ -1767,7 +2463,6 @@ pub trait TextTagExt: IsA<TextTag> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "foreground-set")]
     fn connect_foreground_set_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_foreground_set_trampoline<
             P: IsA<TextTag>,
@@ -1793,7 +2488,6 @@ pub trait TextTagExt: IsA<TextTag> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "indent")]
     fn connect_indent_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_indent_trampoline<P: IsA<TextTag>, F: Fn(&P) + 'static>(
             this: *mut ffi::GtkTextTag,
@@ -1816,7 +2510,6 @@ pub trait TextTagExt: IsA<TextTag> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "indent-set")]
     fn connect_indent_set_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_indent_set_trampoline<P: IsA<TextTag>, F: Fn(&P) + 'static>(
             this: *mut ffi::GtkTextTag,
@@ -1839,7 +2532,6 @@ pub trait TextTagExt: IsA<TextTag> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "invisible")]
     fn connect_invisible_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_invisible_trampoline<P: IsA<TextTag>, F: Fn(&P) + 'static>(
             this: *mut ffi::GtkTextTag,
@@ -1862,7 +2554,6 @@ pub trait TextTagExt: IsA<TextTag> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "invisible-set")]
     fn connect_invisible_set_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_invisible_set_trampoline<
             P: IsA<TextTag>,
@@ -1888,7 +2579,6 @@ pub trait TextTagExt: IsA<TextTag> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "justification")]
     fn connect_justification_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_justification_trampoline<
             P: IsA<TextTag>,
@@ -1914,7 +2604,6 @@ pub trait TextTagExt: IsA<TextTag> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "justification-set")]
     fn connect_justification_set_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_justification_set_trampoline<
             P: IsA<TextTag>,
@@ -1940,7 +2629,6 @@ pub trait TextTagExt: IsA<TextTag> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "language")]
     fn connect_language_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_language_trampoline<P: IsA<TextTag>, F: Fn(&P) + 'static>(
             this: *mut ffi::GtkTextTag,
@@ -1963,7 +2651,6 @@ pub trait TextTagExt: IsA<TextTag> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "language-set")]
     fn connect_language_set_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_language_set_trampoline<
             P: IsA<TextTag>,
@@ -1989,7 +2676,6 @@ pub trait TextTagExt: IsA<TextTag> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "left-margin")]
     fn connect_left_margin_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_left_margin_trampoline<P: IsA<TextTag>, F: Fn(&P) + 'static>(
             this: *mut ffi::GtkTextTag,
@@ -2012,7 +2698,6 @@ pub trait TextTagExt: IsA<TextTag> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "left-margin-set")]
     fn connect_left_margin_set_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_left_margin_set_trampoline<
             P: IsA<TextTag>,
@@ -2038,7 +2723,6 @@ pub trait TextTagExt: IsA<TextTag> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "letter-spacing")]
     fn connect_letter_spacing_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_letter_spacing_trampoline<
             P: IsA<TextTag>,
@@ -2064,7 +2748,6 @@ pub trait TextTagExt: IsA<TextTag> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "letter-spacing-set")]
     fn connect_letter_spacing_set_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_letter_spacing_set_trampoline<
             P: IsA<TextTag>,
@@ -2090,7 +2773,6 @@ pub trait TextTagExt: IsA<TextTag> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "paragraph-background")]
     fn connect_paragraph_background_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_paragraph_background_trampoline<
             P: IsA<TextTag>,
@@ -2116,7 +2798,6 @@ pub trait TextTagExt: IsA<TextTag> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "paragraph-background-rgba")]
     fn connect_paragraph_background_rgba_notify<F: Fn(&Self) + 'static>(
         &self,
         f: F,
@@ -2145,7 +2826,6 @@ pub trait TextTagExt: IsA<TextTag> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "paragraph-background-set")]
     fn connect_paragraph_background_set_notify<F: Fn(&Self) + 'static>(
         &self,
         f: F,
@@ -2174,7 +2854,6 @@ pub trait TextTagExt: IsA<TextTag> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "pixels-above-lines")]
     fn connect_pixels_above_lines_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_pixels_above_lines_trampoline<
             P: IsA<TextTag>,
@@ -2200,7 +2879,6 @@ pub trait TextTagExt: IsA<TextTag> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "pixels-above-lines-set")]
     fn connect_pixels_above_lines_set_notify<F: Fn(&Self) + 'static>(
         &self,
         f: F,
@@ -2229,7 +2907,6 @@ pub trait TextTagExt: IsA<TextTag> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "pixels-below-lines")]
     fn connect_pixels_below_lines_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_pixels_below_lines_trampoline<
             P: IsA<TextTag>,
@@ -2255,7 +2932,6 @@ pub trait TextTagExt: IsA<TextTag> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "pixels-below-lines-set")]
     fn connect_pixels_below_lines_set_notify<F: Fn(&Self) + 'static>(
         &self,
         f: F,
@@ -2284,7 +2960,6 @@ pub trait TextTagExt: IsA<TextTag> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "pixels-inside-wrap")]
     fn connect_pixels_inside_wrap_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_pixels_inside_wrap_trampoline<
             P: IsA<TextTag>,
@@ -2310,7 +2985,6 @@ pub trait TextTagExt: IsA<TextTag> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "pixels-inside-wrap-set")]
     fn connect_pixels_inside_wrap_set_notify<F: Fn(&Self) + 'static>(
         &self,
         f: F,
@@ -2339,7 +3013,6 @@ pub trait TextTagExt: IsA<TextTag> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "right-margin")]
     fn connect_right_margin_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_right_margin_trampoline<
             P: IsA<TextTag>,
@@ -2365,7 +3038,6 @@ pub trait TextTagExt: IsA<TextTag> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "right-margin-set")]
     fn connect_right_margin_set_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_right_margin_set_trampoline<
             P: IsA<TextTag>,
@@ -2391,7 +3063,6 @@ pub trait TextTagExt: IsA<TextTag> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "rise")]
     fn connect_rise_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_rise_trampoline<P: IsA<TextTag>, F: Fn(&P) + 'static>(
             this: *mut ffi::GtkTextTag,
@@ -2414,7 +3085,6 @@ pub trait TextTagExt: IsA<TextTag> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "rise-set")]
     fn connect_rise_set_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_rise_set_trampoline<P: IsA<TextTag>, F: Fn(&P) + 'static>(
             this: *mut ffi::GtkTextTag,
@@ -2437,7 +3107,6 @@ pub trait TextTagExt: IsA<TextTag> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "scale")]
     fn connect_scale_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_scale_trampoline<P: IsA<TextTag>, F: Fn(&P) + 'static>(
             this: *mut ffi::GtkTextTag,
@@ -2460,7 +3129,6 @@ pub trait TextTagExt: IsA<TextTag> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "scale-set")]
     fn connect_scale_set_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_scale_set_trampoline<P: IsA<TextTag>, F: Fn(&P) + 'static>(
             this: *mut ffi::GtkTextTag,
@@ -2483,7 +3151,6 @@ pub trait TextTagExt: IsA<TextTag> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "size")]
     fn connect_size_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_size_trampoline<P: IsA<TextTag>, F: Fn(&P) + 'static>(
             this: *mut ffi::GtkTextTag,
@@ -2506,7 +3173,6 @@ pub trait TextTagExt: IsA<TextTag> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "size-points")]
     fn connect_size_points_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_size_points_trampoline<P: IsA<TextTag>, F: Fn(&P) + 'static>(
             this: *mut ffi::GtkTextTag,
@@ -2529,7 +3195,6 @@ pub trait TextTagExt: IsA<TextTag> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "size-set")]
     fn connect_size_set_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_size_set_trampoline<P: IsA<TextTag>, F: Fn(&P) + 'static>(
             this: *mut ffi::GtkTextTag,
@@ -2552,7 +3217,6 @@ pub trait TextTagExt: IsA<TextTag> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "stretch")]
     fn connect_stretch_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_stretch_trampoline<P: IsA<TextTag>, F: Fn(&P) + 'static>(
             this: *mut ffi::GtkTextTag,
@@ -2575,7 +3239,6 @@ pub trait TextTagExt: IsA<TextTag> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "stretch-set")]
     fn connect_stretch_set_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_stretch_set_trampoline<P: IsA<TextTag>, F: Fn(&P) + 'static>(
             this: *mut ffi::GtkTextTag,
@@ -2598,7 +3261,6 @@ pub trait TextTagExt: IsA<TextTag> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "strikethrough")]
     fn connect_strikethrough_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_strikethrough_trampoline<
             P: IsA<TextTag>,
@@ -2624,7 +3286,6 @@ pub trait TextTagExt: IsA<TextTag> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "strikethrough-rgba")]
     fn connect_strikethrough_rgba_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_strikethrough_rgba_trampoline<
             P: IsA<TextTag>,
@@ -2650,7 +3311,6 @@ pub trait TextTagExt: IsA<TextTag> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "strikethrough-rgba-set")]
     fn connect_strikethrough_rgba_set_notify<F: Fn(&Self) + 'static>(
         &self,
         f: F,
@@ -2679,7 +3339,6 @@ pub trait TextTagExt: IsA<TextTag> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "strikethrough-set")]
     fn connect_strikethrough_set_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_strikethrough_set_trampoline<
             P: IsA<TextTag>,
@@ -2705,7 +3364,6 @@ pub trait TextTagExt: IsA<TextTag> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "style")]
     fn connect_style_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_style_trampoline<P: IsA<TextTag>, F: Fn(&P) + 'static>(
             this: *mut ffi::GtkTextTag,
@@ -2728,7 +3386,6 @@ pub trait TextTagExt: IsA<TextTag> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "style-set")]
     fn connect_style_set_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_style_set_trampoline<P: IsA<TextTag>, F: Fn(&P) + 'static>(
             this: *mut ffi::GtkTextTag,
@@ -2751,7 +3408,6 @@ pub trait TextTagExt: IsA<TextTag> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "tabs")]
     fn connect_tabs_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_tabs_trampoline<P: IsA<TextTag>, F: Fn(&P) + 'static>(
             this: *mut ffi::GtkTextTag,
@@ -2774,7 +3430,6 @@ pub trait TextTagExt: IsA<TextTag> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "tabs-set")]
     fn connect_tabs_set_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_tabs_set_trampoline<P: IsA<TextTag>, F: Fn(&P) + 'static>(
             this: *mut ffi::GtkTextTag,
@@ -2797,7 +3452,6 @@ pub trait TextTagExt: IsA<TextTag> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "underline")]
     fn connect_underline_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_underline_trampoline<P: IsA<TextTag>, F: Fn(&P) + 'static>(
             this: *mut ffi::GtkTextTag,
@@ -2820,7 +3474,6 @@ pub trait TextTagExt: IsA<TextTag> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "underline-rgba")]
     fn connect_underline_rgba_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_underline_rgba_trampoline<
             P: IsA<TextTag>,
@@ -2846,7 +3499,6 @@ pub trait TextTagExt: IsA<TextTag> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "underline-rgba-set")]
     fn connect_underline_rgba_set_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_underline_rgba_set_trampoline<
             P: IsA<TextTag>,
@@ -2872,7 +3524,6 @@ pub trait TextTagExt: IsA<TextTag> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "underline-set")]
     fn connect_underline_set_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_underline_set_trampoline<
             P: IsA<TextTag>,
@@ -2898,7 +3549,6 @@ pub trait TextTagExt: IsA<TextTag> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "variant")]
     fn connect_variant_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_variant_trampoline<P: IsA<TextTag>, F: Fn(&P) + 'static>(
             this: *mut ffi::GtkTextTag,
@@ -2921,7 +3571,6 @@ pub trait TextTagExt: IsA<TextTag> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "variant-set")]
     fn connect_variant_set_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_variant_set_trampoline<P: IsA<TextTag>, F: Fn(&P) + 'static>(
             this: *mut ffi::GtkTextTag,
@@ -2944,7 +3593,6 @@ pub trait TextTagExt: IsA<TextTag> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "weight")]
     fn connect_weight_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_weight_trampoline<P: IsA<TextTag>, F: Fn(&P) + 'static>(
             this: *mut ffi::GtkTextTag,
@@ -2967,7 +3615,6 @@ pub trait TextTagExt: IsA<TextTag> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "weight-set")]
     fn connect_weight_set_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_weight_set_trampoline<P: IsA<TextTag>, F: Fn(&P) + 'static>(
             this: *mut ffi::GtkTextTag,
@@ -2990,7 +3637,6 @@ pub trait TextTagExt: IsA<TextTag> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "wrap-mode")]
     fn connect_wrap_mode_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_wrap_mode_trampoline<P: IsA<TextTag>, F: Fn(&P) + 'static>(
             this: *mut ffi::GtkTextTag,
@@ -3013,7 +3659,6 @@ pub trait TextTagExt: IsA<TextTag> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "wrap-mode-set")]
     fn connect_wrap_mode_set_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_wrap_mode_set_trampoline<
             P: IsA<TextTag>,
@@ -3039,8 +3684,6 @@ pub trait TextTagExt: IsA<TextTag> + sealed::Sealed + 'static {
         }
     }
 }
-
-impl<O: IsA<TextTag>> TextTagExt for O {}
 
 impl fmt::Display for TextTag {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {

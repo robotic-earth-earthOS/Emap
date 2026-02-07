@@ -98,14 +98,37 @@
 //!             use once_cell::sync::Lazy;
 //!             static PROPERTIES: Lazy<Vec<glib::ParamSpec>> = Lazy::new(|| {
 //!                 vec![
-//!                     glib::ParamSpecString::builder("name")
-//!                         .build(),
-//!                     glib::ParamSpecEnum::builder::<Animal>("animal")
-//!                         .build(),
-//!                     glib::ParamSpecFlags::builder::<MyFlags>("flags")
-//!                         .build(),
-//!                     glib::ParamSpecVariant::builder("variant", glib::VariantTy::ANY)
-//!                         .build(),
+//!                     glib::ParamSpecString::new(
+//!                         "name",
+//!                         "Name",
+//!                         "Name of this object",
+//!                         None,
+//!                         glib::ParamFlags::READWRITE,
+//!                     ),
+//!                     glib::ParamSpecEnum::new(
+//!                         "animal",
+//!                         "Animal",
+//!                         "Animal",
+//!                         Animal::static_type(),
+//!                         Animal::default() as i32,
+//!                         glib::ParamFlags::READWRITE,
+//!                     ),
+//!                     glib::ParamSpecFlags::new(
+//!                         "flags",
+//!                         "Flags",
+//!                         "Flags",
+//!                         MyFlags::static_type(),
+//!                         MyFlags::default().bits(),
+//!                         glib::ParamFlags::READWRITE,
+//!                     ),
+//!                     glib::ParamSpecVariant::new(
+//!                         "variant",
+//!                         "Variant",
+//!                         "Variant",
+//!                         glib::VariantTy::ANY,
+//!                         None,
+//!                         glib::ParamFlags::READWRITE,
+//!                    ),
 //!                 ]
 //!             });
 //!
@@ -114,7 +137,7 @@
 //!
 //!         // Called whenever a property is set on this instance. The id
 //!         // is the same as the index of the property in the PROPERTIES array.
-//!         fn set_property(&self, _id: usize, value: &glib::Value, pspec: &glib::ParamSpec) {
+//!         fn set_property(&self, _obj: &Self::Type, _id: usize, value: &glib::Value, pspec: &glib::ParamSpec) {
 //!             match pspec.name() {
 //!                 "name" => {
 //!                     let name = value
@@ -146,7 +169,7 @@
 //!
 //!         // Called whenever a property is retrieved from this instance. The id
 //!         // is the same as the index of the property in the PROPERTIES array.
-//!         fn property(&self, _id: usize, pspec: &glib::ParamSpec) -> glib::Value {
+//!         fn property(&self, _obj: &Self::Type, _id: usize, pspec: &glib::ParamSpec) -> glib::Value {
 //!             match pspec.name() {
 //!                 "name" => self.name.borrow().to_value(),
 //!                 "animal" => self.animal.get().to_value(),
@@ -157,10 +180,10 @@
 //!         }
 //!
 //!         // Called right after construction of the instance.
-//!         fn constructed(&self) {
+//!         fn constructed(&self, obj: &Self::Type) {
 //!             // Chain up to the parent type's implementation of this virtual
 //!             // method.
-//!             self.parent_constructed();
+//!             self.parent_constructed(obj);
 //!
 //!             // And here we could do our own initialization.
 //!         }
@@ -175,7 +198,7 @@
 //! impl SimpleObject {
 //!     // Create an object instance of the new type.
 //!     pub fn new() -> Self {
-//!         glib::Object::new()
+//!         glib::Object::new(&[]).unwrap()
 //!     }
 //! }
 //!
@@ -244,24 +267,19 @@ pub use object_impl_ref::{ObjectImplRef, ObjectImplWeakRef};
 pub mod prelude {
     // rustdoc-stripper-ignore-next
     //! Prelude that re-exports all important traits from this crate.
-    pub use super::{
-        boxed::BoxedType,
-        interface::{ObjectInterface, ObjectInterfaceExt, ObjectInterfaceType},
-        object::{DerivedObjectProperties, ObjectClassSubclassExt, ObjectImpl, ObjectImplExt},
-        shared::{RefCounted, SharedType},
-        types::{
-            ClassStruct, InstanceStruct, InstanceStructExt, IsImplementable, IsSubclassable,
-            IsSubclassableExt, ObjectSubclass, ObjectSubclassExt, ObjectSubclassIsExt,
-            ObjectSubclassType,
-        },
+    pub use super::boxed::BoxedType;
+    pub use super::interface::{ObjectInterface, ObjectInterfaceExt, ObjectInterfaceType};
+    pub use super::object::{ObjectClassSubclassExt, ObjectImpl, ObjectImplExt};
+    pub use super::shared::{RefCounted, SharedType};
+    pub use super::types::{
+        ClassStruct, InstanceStruct, IsImplementable, IsSubclassable, IsSubclassableExt,
+        ObjectSubclass, ObjectSubclassExt, ObjectSubclassIsExt, ObjectSubclassType,
     };
 }
 
-pub use self::{
-    boxed::register_boxed_type,
-    interface::register_interface,
-    signal::{
-        Signal, SignalClassHandlerToken, SignalId, SignalInvocationHint, SignalQuery, SignalType,
-    },
-    types::{register_type, InitializingObject, InitializingType, TypeData},
+pub use self::boxed::register_boxed_type;
+pub use self::interface::register_interface;
+pub use self::signal::{
+    Signal, SignalClassHandlerToken, SignalId, SignalInvocationHint, SignalQuery, SignalType,
 };
+pub use self::types::{register_type, InitializingObject, InitializingType, TypeData};

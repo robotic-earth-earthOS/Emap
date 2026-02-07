@@ -9,7 +9,7 @@
     clippy::unreadable_literal,
     clippy::upper_case_acronyms
 )]
-#![cfg_attr(docsrs, feature(doc_cfg))]
+#![cfg_attr(feature = "dox", feature(doc_cfg))]
 
 #[allow(unused_imports)]
 use libc::{
@@ -2881,7 +2881,7 @@ pub union GdkEvent {
 
 impl ::std::fmt::Debug for GdkEvent {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GdkEvent @ {self:p}"))
+        f.debug_struct(&format!("GdkEvent @ {:p}", self))
             .field("type_", unsafe { &self.type_ })
             .field("any", unsafe { &self.any })
             .field("expose", unsafe { &self.expose })
@@ -2941,7 +2941,7 @@ pub struct GdkColor {
 
 impl ::std::fmt::Debug for GdkColor {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GdkColor @ {self:p}"))
+        f.debug_struct(&format!("GdkColor @ {:p}", self))
             .field("pixel", &self.pixel)
             .field("red", &self.red)
             .field("green", &self.green)
@@ -2976,7 +2976,7 @@ pub struct GdkEventAny {
 
 impl ::std::fmt::Debug for GdkEventAny {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GdkEventAny @ {self:p}"))
+        f.debug_struct(&format!("GdkEventAny @ {:p}", self))
             .field("type_", &self.type_)
             .field("window", &self.window)
             .field("send_event", &self.send_event)
@@ -3003,7 +3003,7 @@ pub struct GdkEventButton {
 
 impl ::std::fmt::Debug for GdkEventButton {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GdkEventButton @ {self:p}"))
+        f.debug_struct(&format!("GdkEventButton @ {:p}", self))
             .field("type_", &self.type_)
             .field("window", &self.window)
             .field("send_event", &self.send_event)
@@ -3034,7 +3034,7 @@ pub struct GdkEventConfigure {
 
 impl ::std::fmt::Debug for GdkEventConfigure {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GdkEventConfigure @ {self:p}"))
+        f.debug_struct(&format!("GdkEventConfigure @ {:p}", self))
             .field("type_", &self.type_)
             .field("window", &self.window)
             .field("send_event", &self.send_event)
@@ -3066,7 +3066,7 @@ pub struct GdkEventCrossing {
 
 impl ::std::fmt::Debug for GdkEventCrossing {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GdkEventCrossing @ {self:p}"))
+        f.debug_struct(&format!("GdkEventCrossing @ {:p}", self))
             .field("type_", &self.type_)
             .field("window", &self.window)
             .field("send_event", &self.send_event)
@@ -3098,7 +3098,7 @@ pub struct GdkEventDND {
 
 impl ::std::fmt::Debug for GdkEventDND {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GdkEventDND @ {self:p}"))
+        f.debug_struct(&format!("GdkEventDND @ {:p}", self))
             .field("type_", &self.type_)
             .field("window", &self.window)
             .field("send_event", &self.send_event)
@@ -3123,7 +3123,7 @@ pub struct GdkEventExpose {
 
 impl ::std::fmt::Debug for GdkEventExpose {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GdkEventExpose @ {self:p}"))
+        f.debug_struct(&format!("GdkEventExpose @ {:p}", self))
             .field("type_", &self.type_)
             .field("window", &self.window)
             .field("send_event", &self.send_event)
@@ -3145,7 +3145,7 @@ pub struct GdkEventFocus {
 
 impl ::std::fmt::Debug for GdkEventFocus {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GdkEventFocus @ {self:p}"))
+        f.debug_struct(&format!("GdkEventFocus @ {:p}", self))
             .field("type_", &self.type_)
             .field("window", &self.window)
             .field("send_event", &self.send_event)
@@ -3167,7 +3167,7 @@ pub struct GdkEventGrabBroken {
 
 impl ::std::fmt::Debug for GdkEventGrabBroken {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GdkEventGrabBroken @ {self:p}"))
+        f.debug_struct(&format!("GdkEventGrabBroken @ {:p}", self))
             .field("type_", &self.type_)
             .field("window", &self.window)
             .field("send_event", &self.send_event)
@@ -3196,7 +3196,7 @@ pub struct GdkEventKey {
 
 impl ::std::fmt::Debug for GdkEventKey {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GdkEventKey @ {self:p}"))
+        f.debug_struct(&format!("GdkEventKey @ {:p}", self))
             .field("type_", &self.type_)
             .field("window", &self.window)
             .field("send_event", &self.send_event)
@@ -3231,7 +3231,7 @@ pub struct GdkEventMotion {
 
 impl ::std::fmt::Debug for GdkEventMotion {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GdkEventMotion @ {self:p}"))
+        f.debug_struct(&format!("GdkEventMotion @ {:p}", self))
             .field("type_", &self.type_)
             .field("window", &self.window)
             .field("send_event", &self.send_event)
@@ -3263,7 +3263,7 @@ pub struct GdkEventOwnerChange {
 
 impl ::std::fmt::Debug for GdkEventOwnerChange {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GdkEventOwnerChange @ {self:p}"))
+        f.debug_struct(&format!("GdkEventOwnerChange @ {:p}", self))
             .field("type_", &self.type_)
             .field("window", &self.window)
             .field("send_event", &self.send_event)
@@ -3291,7 +3291,7 @@ pub struct GdkEventPadAxis {
 
 impl ::std::fmt::Debug for GdkEventPadAxis {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GdkEventPadAxis @ {self:p}"))
+        f.debug_struct(&format!("GdkEventPadAxis @ {:p}", self))
             .field("type_", &self.type_)
             .field("window", &self.window)
             .field("send_event", &self.send_event)
@@ -3318,7 +3318,7 @@ pub struct GdkEventPadButton {
 
 impl ::std::fmt::Debug for GdkEventPadButton {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GdkEventPadButton @ {self:p}"))
+        f.debug_struct(&format!("GdkEventPadButton @ {:p}", self))
             .field("type_", &self.type_)
             .field("window", &self.window)
             .field("send_event", &self.send_event)
@@ -3343,7 +3343,7 @@ pub struct GdkEventPadGroupMode {
 
 impl ::std::fmt::Debug for GdkEventPadGroupMode {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GdkEventPadGroupMode @ {self:p}"))
+        f.debug_struct(&format!("GdkEventPadGroupMode @ {:p}", self))
             .field("type_", &self.type_)
             .field("window", &self.window)
             .field("send_event", &self.send_event)
@@ -3367,7 +3367,7 @@ pub struct GdkEventProperty {
 
 impl ::std::fmt::Debug for GdkEventProperty {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GdkEventProperty @ {self:p}"))
+        f.debug_struct(&format!("GdkEventProperty @ {:p}", self))
             .field("type_", &self.type_)
             .field("window", &self.window)
             .field("send_event", &self.send_event)
@@ -3390,7 +3390,7 @@ pub struct GdkEventProximity {
 
 impl ::std::fmt::Debug for GdkEventProximity {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GdkEventProximity @ {self:p}"))
+        f.debug_struct(&format!("GdkEventProximity @ {:p}", self))
             .field("type_", &self.type_)
             .field("window", &self.window)
             .field("send_event", &self.send_event)
@@ -3421,7 +3421,7 @@ pub struct GdkEventScroll {
 
 impl ::std::fmt::Debug for GdkEventScroll {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GdkEventScroll @ {self:p}"))
+        f.debug_struct(&format!("GdkEventScroll @ {:p}", self))
             .field("type_", &self.type_)
             .field("window", &self.window)
             .field("send_event", &self.send_event)
@@ -3455,7 +3455,7 @@ pub struct GdkEventSelection {
 
 impl ::std::fmt::Debug for GdkEventSelection {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GdkEventSelection @ {self:p}"))
+        f.debug_struct(&format!("GdkEventSelection @ {:p}", self))
             .field("type_", &self.type_)
             .field("window", &self.window)
             .field("send_event", &self.send_event)
@@ -3476,7 +3476,7 @@ pub struct GdkEventSequence {
 
 impl ::std::fmt::Debug for GdkEventSequence {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GdkEventSequence @ {self:p}"))
+        f.debug_struct(&format!("GdkEventSequence @ {:p}", self))
             .finish()
     }
 }
@@ -3493,7 +3493,7 @@ pub struct GdkEventSetting {
 
 impl ::std::fmt::Debug for GdkEventSetting {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GdkEventSetting @ {self:p}"))
+        f.debug_struct(&format!("GdkEventSetting @ {:p}", self))
             .field("type_", &self.type_)
             .field("window", &self.window)
             .field("send_event", &self.send_event)
@@ -3523,7 +3523,7 @@ pub struct GdkEventTouch {
 
 impl ::std::fmt::Debug for GdkEventTouch {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GdkEventTouch @ {self:p}"))
+        f.debug_struct(&format!("GdkEventTouch @ {:p}", self))
             .field("type_", &self.type_)
             .field("window", &self.window)
             .field("send_event", &self.send_event)
@@ -3563,7 +3563,7 @@ pub struct GdkEventTouchpadPinch {
 
 impl ::std::fmt::Debug for GdkEventTouchpadPinch {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GdkEventTouchpadPinch @ {self:p}"))
+        f.debug_struct(&format!("GdkEventTouchpadPinch @ {:p}", self))
             .field("type_", &self.type_)
             .field("window", &self.window)
             .field("send_event", &self.send_event)
@@ -3603,7 +3603,7 @@ pub struct GdkEventTouchpadSwipe {
 
 impl ::std::fmt::Debug for GdkEventTouchpadSwipe {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GdkEventTouchpadSwipe @ {self:p}"))
+        f.debug_struct(&format!("GdkEventTouchpadSwipe @ {:p}", self))
             .field("type_", &self.type_)
             .field("window", &self.window)
             .field("send_event", &self.send_event)
@@ -3632,7 +3632,7 @@ pub struct GdkEventVisibility {
 
 impl ::std::fmt::Debug for GdkEventVisibility {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GdkEventVisibility @ {self:p}"))
+        f.debug_struct(&format!("GdkEventVisibility @ {:p}", self))
             .field("type_", &self.type_)
             .field("window", &self.window)
             .field("send_event", &self.send_event)
@@ -3653,7 +3653,7 @@ pub struct GdkEventWindowState {
 
 impl ::std::fmt::Debug for GdkEventWindowState {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GdkEventWindowState @ {self:p}"))
+        f.debug_struct(&format!("GdkEventWindowState @ {:p}", self))
             .field("type_", &self.type_)
             .field("window", &self.window)
             .field("send_event", &self.send_event)
@@ -3687,7 +3687,7 @@ pub struct GdkFrameTimings {
 
 impl ::std::fmt::Debug for GdkFrameTimings {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GdkFrameTimings @ {self:p}"))
+        f.debug_struct(&format!("GdkFrameTimings @ {:p}", self))
             .finish()
     }
 }
@@ -3710,7 +3710,7 @@ pub struct GdkGeometry {
 
 impl ::std::fmt::Debug for GdkGeometry {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GdkGeometry @ {self:p}"))
+        f.debug_struct(&format!("GdkGeometry @ {:p}", self))
             .field("min_width", &self.min_width)
             .field("min_height", &self.min_height)
             .field("max_width", &self.max_width)
@@ -3736,7 +3736,7 @@ pub struct GdkKeymapKey {
 
 impl ::std::fmt::Debug for GdkKeymapKey {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GdkKeymapKey @ {self:p}"))
+        f.debug_struct(&format!("GdkKeymapKey @ {:p}", self))
             .field("keycode", &self.keycode)
             .field("group", &self.group)
             .field("level", &self.level)
@@ -3761,7 +3761,7 @@ pub struct GdkPoint {
 
 impl ::std::fmt::Debug for GdkPoint {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GdkPoint @ {self:p}"))
+        f.debug_struct(&format!("GdkPoint @ {:p}", self))
             .field("x", &self.x)
             .field("y", &self.y)
             .finish()
@@ -3779,7 +3779,7 @@ pub struct GdkRGBA {
 
 impl ::std::fmt::Debug for GdkRGBA {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GdkRGBA @ {self:p}"))
+        f.debug_struct(&format!("GdkRGBA @ {:p}", self))
             .field("red", &self.red)
             .field("green", &self.green)
             .field("blue", &self.blue)
@@ -3799,7 +3799,7 @@ pub struct GdkRectangle {
 
 impl ::std::fmt::Debug for GdkRectangle {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GdkRectangle @ {self:p}"))
+        f.debug_struct(&format!("GdkRectangle @ {:p}", self))
             .field("x", &self.x)
             .field("y", &self.y)
             .field("width", &self.width)
@@ -3817,7 +3817,7 @@ pub struct GdkTimeCoord {
 
 impl ::std::fmt::Debug for GdkTimeCoord {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GdkTimeCoord @ {self:p}"))
+        f.debug_struct(&format!("GdkTimeCoord @ {:p}", self))
             .field("time", &self.time)
             .finish()
     }
@@ -3844,7 +3844,7 @@ pub struct GdkWindowAttr {
 
 impl ::std::fmt::Debug for GdkWindowAttr {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GdkWindowAttr @ {self:p}"))
+        f.debug_struct(&format!("GdkWindowAttr @ {:p}", self))
             .field("title", &self.title)
             .field("event_mask", &self.event_mask)
             .field("x", &self.x)
@@ -3889,7 +3889,7 @@ pub struct GdkWindowClass {
 
 impl ::std::fmt::Debug for GdkWindowClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GdkWindowClass @ {self:p}"))
+        f.debug_struct(&format!("GdkWindowClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("pick_embedded_child", &self.pick_embedded_child)
             .field("to_embedder", &self.to_embedder)
@@ -3924,7 +3924,7 @@ pub struct GdkAppLaunchContext {
 
 impl ::std::fmt::Debug for GdkAppLaunchContext {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GdkAppLaunchContext @ {self:p}"))
+        f.debug_struct(&format!("GdkAppLaunchContext @ {:p}", self))
             .finish()
     }
 }
@@ -3937,7 +3937,7 @@ pub struct GdkCursor {
 
 impl ::std::fmt::Debug for GdkCursor {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GdkCursor @ {self:p}")).finish()
+        f.debug_struct(&format!("GdkCursor @ {:p}", self)).finish()
     }
 }
 
@@ -3949,7 +3949,7 @@ pub struct GdkDevice {
 
 impl ::std::fmt::Debug for GdkDevice {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GdkDevice @ {self:p}")).finish()
+        f.debug_struct(&format!("GdkDevice @ {:p}", self)).finish()
     }
 }
 
@@ -3961,7 +3961,7 @@ pub struct GdkDeviceManager {
 
 impl ::std::fmt::Debug for GdkDeviceManager {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GdkDeviceManager @ {self:p}"))
+        f.debug_struct(&format!("GdkDeviceManager @ {:p}", self))
             .finish()
     }
 }
@@ -3974,7 +3974,7 @@ pub struct GdkDeviceTool {
 
 impl ::std::fmt::Debug for GdkDeviceTool {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GdkDeviceTool @ {self:p}"))
+        f.debug_struct(&format!("GdkDeviceTool @ {:p}", self))
             .finish()
     }
 }
@@ -3987,7 +3987,7 @@ pub struct GdkDisplay {
 
 impl ::std::fmt::Debug for GdkDisplay {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GdkDisplay @ {self:p}")).finish()
+        f.debug_struct(&format!("GdkDisplay @ {:p}", self)).finish()
     }
 }
 
@@ -3999,7 +3999,7 @@ pub struct GdkDisplayManager {
 
 impl ::std::fmt::Debug for GdkDisplayManager {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GdkDisplayManager @ {self:p}"))
+        f.debug_struct(&format!("GdkDisplayManager @ {:p}", self))
             .finish()
     }
 }
@@ -4012,7 +4012,7 @@ pub struct GdkDragContext {
 
 impl ::std::fmt::Debug for GdkDragContext {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GdkDragContext @ {self:p}"))
+        f.debug_struct(&format!("GdkDragContext @ {:p}", self))
             .finish()
     }
 }
@@ -4025,7 +4025,7 @@ pub struct GdkDrawingContext {
 
 impl ::std::fmt::Debug for GdkDrawingContext {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GdkDrawingContext @ {self:p}"))
+        f.debug_struct(&format!("GdkDrawingContext @ {:p}", self))
             .finish()
     }
 }
@@ -4038,7 +4038,7 @@ pub struct GdkFrameClock {
 
 impl ::std::fmt::Debug for GdkFrameClock {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GdkFrameClock @ {self:p}"))
+        f.debug_struct(&format!("GdkFrameClock @ {:p}", self))
             .finish()
     }
 }
@@ -4051,7 +4051,8 @@ pub struct GdkGLContext {
 
 impl ::std::fmt::Debug for GdkGLContext {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GdkGLContext @ {self:p}")).finish()
+        f.debug_struct(&format!("GdkGLContext @ {:p}", self))
+            .finish()
     }
 }
 
@@ -4063,7 +4064,7 @@ pub struct GdkKeymap {
 
 impl ::std::fmt::Debug for GdkKeymap {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GdkKeymap @ {self:p}")).finish()
+        f.debug_struct(&format!("GdkKeymap @ {:p}", self)).finish()
     }
 }
 
@@ -4075,7 +4076,7 @@ pub struct GdkMonitor {
 
 impl ::std::fmt::Debug for GdkMonitor {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GdkMonitor @ {self:p}")).finish()
+        f.debug_struct(&format!("GdkMonitor @ {:p}", self)).finish()
     }
 }
 
@@ -4087,7 +4088,7 @@ pub struct GdkScreen {
 
 impl ::std::fmt::Debug for GdkScreen {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GdkScreen @ {self:p}")).finish()
+        f.debug_struct(&format!("GdkScreen @ {:p}", self)).finish()
     }
 }
 
@@ -4099,7 +4100,7 @@ pub struct GdkSeat {
 
 impl ::std::fmt::Debug for GdkSeat {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GdkSeat @ {self:p}"))
+        f.debug_struct(&format!("GdkSeat @ {:p}", self))
             .field("parent_instance", &self.parent_instance)
             .finish()
     }
@@ -4113,7 +4114,7 @@ pub struct GdkVisual {
 
 impl ::std::fmt::Debug for GdkVisual {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GdkVisual @ {self:p}")).finish()
+        f.debug_struct(&format!("GdkVisual @ {:p}", self)).finish()
     }
 }
 
@@ -4125,7 +4126,7 @@ pub struct GdkWindow {
 
 impl ::std::fmt::Debug for GdkWindow {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GdkWindow @ {self:p}")).finish()
+        f.debug_struct(&format!("GdkWindow @ {:p}", self)).finish()
     }
 }
 
@@ -4138,7 +4139,7 @@ pub struct GdkDevicePad {
 
 impl ::std::fmt::Debug for GdkDevicePad {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        write!(f, "GdkDevicePad @ {self:p}")
+        write!(f, "GdkDevicePad @ {:p}", self)
     }
 }
 
@@ -4168,11 +4169,15 @@ extern "C" {
     //=========================================================================
     // GdkDevicePadFeature
     //=========================================================================
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
     pub fn gdk_device_pad_feature_get_type() -> GType;
 
     //=========================================================================
     // GdkDeviceToolType
     //=========================================================================
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
     pub fn gdk_device_tool_type_get_type() -> GType;
 
     //=========================================================================
@@ -4183,6 +4188,8 @@ extern "C" {
     //=========================================================================
     // GdkDragCancelReason
     //=========================================================================
+    #[cfg(any(feature = "v3_20", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
     pub fn gdk_drag_cancel_reason_get_type() -> GType;
 
     //=========================================================================
@@ -4279,6 +4286,8 @@ extern "C" {
     //=========================================================================
     // GdkSubpixelLayout
     //=========================================================================
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
     pub fn gdk_subpixel_layout_get_type() -> GType;
 
     //=========================================================================
@@ -4319,11 +4328,15 @@ extern "C" {
     //=========================================================================
     // GdkAnchorHints
     //=========================================================================
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
     pub fn gdk_anchor_hints_get_type() -> GType;
 
     //=========================================================================
     // GdkAxisFlags
     //=========================================================================
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
     pub fn gdk_axis_flags_get_type() -> GType;
 
     //=========================================================================
@@ -4349,6 +4362,8 @@ extern "C" {
     //=========================================================================
     // GdkSeatCapabilities
     //=========================================================================
+    #[cfg(any(feature = "v3_20", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
     pub fn gdk_seat_capabilities_get_type() -> GType;
 
     //=========================================================================
@@ -4396,17 +4411,23 @@ extern "C" {
         y_win: *mut c_double,
     ) -> gboolean;
     pub fn gdk_event_get_device(event: *const GdkEvent) -> *mut GdkDevice;
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
     pub fn gdk_event_get_device_tool(event: *const GdkEvent) -> *mut GdkDeviceTool;
     pub fn gdk_event_get_event_sequence(event: *const GdkEvent) -> *mut GdkEventSequence;
     pub fn gdk_event_get_event_type(event: *const GdkEvent) -> GdkEventType;
     pub fn gdk_event_get_keycode(event: *const GdkEvent, keycode: *mut u16) -> gboolean;
     pub fn gdk_event_get_keyval(event: *const GdkEvent, keyval: *mut c_uint) -> gboolean;
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
     pub fn gdk_event_get_pointer_emulated(event: *mut GdkEvent) -> gboolean;
     pub fn gdk_event_get_root_coords(
         event: *const GdkEvent,
         x_root: *mut c_double,
         y_root: *mut c_double,
     ) -> gboolean;
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
     pub fn gdk_event_get_scancode(event: *mut GdkEvent) -> c_int;
     pub fn gdk_event_get_screen(event: *const GdkEvent) -> *mut GdkScreen;
     pub fn gdk_event_get_scroll_deltas(
@@ -4418,14 +4439,20 @@ extern "C" {
         event: *const GdkEvent,
         direction: *mut GdkScrollDirection,
     ) -> gboolean;
+    #[cfg(any(feature = "v3_20", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
     pub fn gdk_event_get_seat(event: *const GdkEvent) -> *mut GdkSeat;
     pub fn gdk_event_get_source_device(event: *const GdkEvent) -> *mut GdkDevice;
     pub fn gdk_event_get_state(event: *const GdkEvent, state: *mut GdkModifierType) -> gboolean;
     pub fn gdk_event_get_time(event: *const GdkEvent) -> u32;
     pub fn gdk_event_get_window(event: *const GdkEvent) -> *mut GdkWindow;
+    #[cfg(any(feature = "v3_20", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
     pub fn gdk_event_is_scroll_stop_event(event: *const GdkEvent) -> gboolean;
     pub fn gdk_event_put(event: *const GdkEvent);
     pub fn gdk_event_set_device(event: *mut GdkEvent, device: *mut GdkDevice);
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
     pub fn gdk_event_set_device_tool(event: *mut GdkEvent, tool: *mut GdkDeviceTool);
     pub fn gdk_event_set_screen(event: *mut GdkEvent, screen: *mut GdkScreen);
     pub fn gdk_event_set_source_device(event: *mut GdkEvent, device: *mut GdkDevice);
@@ -4486,6 +4513,8 @@ extern "C" {
     // GdkRectangle
     //=========================================================================
     pub fn gdk_rectangle_get_type() -> GType;
+    #[cfg(any(feature = "v3_20", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
     pub fn gdk_rectangle_equal(rect1: *const GdkRectangle, rect2: *const GdkRectangle) -> gboolean;
     pub fn gdk_rectangle_intersect(
         src1: *const GdkRectangle,
@@ -4570,6 +4599,8 @@ extern "C" {
         owner_events: *mut gboolean,
     ) -> gboolean;
     pub fn gdk_device_get_associated_device(device: *mut GdkDevice) -> *mut GdkDevice;
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
     pub fn gdk_device_get_axes(device: *mut GdkDevice) -> GdkAxisFlags;
     pub fn gdk_device_get_axis(
         device: *mut GdkDevice,
@@ -4619,6 +4650,8 @@ extern "C" {
         y: *mut c_double,
     );
     pub fn gdk_device_get_product_id(device: *mut GdkDevice) -> *const c_char;
+    #[cfg(any(feature = "v3_20", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
     pub fn gdk_device_get_seat(device: *mut GdkDevice) -> *mut GdkSeat;
     pub fn gdk_device_get_source(device: *mut GdkDevice) -> GdkInputSource;
     pub fn gdk_device_get_state(
@@ -4677,9 +4710,17 @@ extern "C" {
     //=========================================================================
     // GdkDeviceTool
     //=========================================================================
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
     pub fn gdk_device_tool_get_type() -> GType;
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
     pub fn gdk_device_tool_get_hardware_id(tool: *mut GdkDeviceTool) -> u64;
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
     pub fn gdk_device_tool_get_serial(tool: *mut GdkDeviceTool) -> u64;
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
     pub fn gdk_device_tool_get_tool_type(tool: *mut GdkDeviceTool) -> GdkDeviceToolType;
 
     //=========================================================================
@@ -4701,6 +4742,8 @@ extern "C" {
     pub fn gdk_display_get_default_cursor_size(display: *mut GdkDisplay) -> c_uint;
     pub fn gdk_display_get_default_group(display: *mut GdkDisplay) -> *mut GdkWindow;
     pub fn gdk_display_get_default_screen(display: *mut GdkDisplay) -> *mut GdkScreen;
+    #[cfg(any(feature = "v3_20", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
     pub fn gdk_display_get_default_seat(display: *mut GdkDisplay) -> *mut GdkSeat;
     pub fn gdk_display_get_device_manager(display: *mut GdkDisplay) -> *mut GdkDeviceManager;
     pub fn gdk_display_get_event(display: *mut GdkDisplay) -> *mut GdkEvent;
@@ -4709,17 +4752,25 @@ extern "C" {
         width: *mut c_uint,
         height: *mut c_uint,
     );
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
     pub fn gdk_display_get_monitor(display: *mut GdkDisplay, monitor_num: c_int)
         -> *mut GdkMonitor;
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
     pub fn gdk_display_get_monitor_at_point(
         display: *mut GdkDisplay,
         x: c_int,
         y: c_int,
     ) -> *mut GdkMonitor;
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
     pub fn gdk_display_get_monitor_at_window(
         display: *mut GdkDisplay,
         window: *mut GdkWindow,
     ) -> *mut GdkMonitor;
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
     pub fn gdk_display_get_n_monitors(display: *mut GdkDisplay) -> c_int;
     pub fn gdk_display_get_n_screens(display: *mut GdkDisplay) -> c_int;
     pub fn gdk_display_get_name(display: *mut GdkDisplay) -> *const c_char;
@@ -4730,6 +4781,8 @@ extern "C" {
         y: *mut c_int,
         mask: *mut GdkModifierType,
     );
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
     pub fn gdk_display_get_primary_monitor(display: *mut GdkDisplay) -> *mut GdkMonitor;
     pub fn gdk_display_get_screen(display: *mut GdkDisplay, screen_num: c_int) -> *mut GdkScreen;
     pub fn gdk_display_get_window_at_pointer(
@@ -4741,6 +4794,8 @@ extern "C" {
     pub fn gdk_display_is_closed(display: *mut GdkDisplay) -> gboolean;
     pub fn gdk_display_keyboard_ungrab(display: *mut GdkDisplay, time_: u32);
     pub fn gdk_display_list_devices(display: *mut GdkDisplay) -> *mut glib::GList;
+    #[cfg(any(feature = "v3_20", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
     pub fn gdk_display_list_seats(display: *mut GdkDisplay) -> *mut glib::GList;
     pub fn gdk_display_notify_startup_complete(display: *mut GdkDisplay, startup_id: *const c_char);
     pub fn gdk_display_peek_event(display: *mut GdkDisplay) -> *mut GdkEvent;
@@ -4800,31 +4855,47 @@ extern "C" {
     pub fn gdk_drag_context_get_actions(context: *mut GdkDragContext) -> GdkDragAction;
     pub fn gdk_drag_context_get_dest_window(context: *mut GdkDragContext) -> *mut GdkWindow;
     pub fn gdk_drag_context_get_device(context: *mut GdkDragContext) -> *mut GdkDevice;
+    #[cfg(any(feature = "v3_20", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
     pub fn gdk_drag_context_get_drag_window(context: *mut GdkDragContext) -> *mut GdkWindow;
     pub fn gdk_drag_context_get_protocol(context: *mut GdkDragContext) -> GdkDragProtocol;
     pub fn gdk_drag_context_get_selected_action(context: *mut GdkDragContext) -> GdkDragAction;
     pub fn gdk_drag_context_get_source_window(context: *mut GdkDragContext) -> *mut GdkWindow;
     pub fn gdk_drag_context_get_suggested_action(context: *mut GdkDragContext) -> GdkDragAction;
     pub fn gdk_drag_context_list_targets(context: *mut GdkDragContext) -> *mut glib::GList;
+    #[cfg(any(feature = "v3_20", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
     pub fn gdk_drag_context_manage_dnd(
         context: *mut GdkDragContext,
         ipc_window: *mut GdkWindow,
         actions: GdkDragAction,
     ) -> gboolean;
     pub fn gdk_drag_context_set_device(context: *mut GdkDragContext, device: *mut GdkDevice);
+    #[cfg(any(feature = "v3_20", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
     pub fn gdk_drag_context_set_hotspot(context: *mut GdkDragContext, hot_x: c_int, hot_y: c_int);
 
     //=========================================================================
     // GdkDrawingContext
     //=========================================================================
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
     pub fn gdk_drawing_context_get_type() -> GType;
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
     pub fn gdk_drawing_context_get_cairo_context(
         context: *mut GdkDrawingContext,
     ) -> *mut cairo::cairo_t;
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
     pub fn gdk_drawing_context_get_clip(
         context: *mut GdkDrawingContext,
     ) -> *mut cairo::cairo_region_t;
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
     pub fn gdk_drawing_context_get_window(context: *mut GdkDrawingContext) -> *mut GdkWindow;
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
     pub fn gdk_drawing_context_is_valid(context: *mut GdkDrawingContext) -> gboolean;
 
     //=========================================================================
@@ -4869,6 +4940,8 @@ extern "C" {
         minor: *mut c_int,
     );
     pub fn gdk_gl_context_get_shared_context(context: *mut GdkGLContext) -> *mut GdkGLContext;
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
     pub fn gdk_gl_context_get_use_es(context: *mut GdkGLContext) -> gboolean;
     pub fn gdk_gl_context_get_version(
         context: *mut GdkGLContext,
@@ -4876,6 +4949,8 @@ extern "C" {
         minor: *mut c_int,
     );
     pub fn gdk_gl_context_get_window(context: *mut GdkGLContext) -> *mut GdkWindow;
+    #[cfg(any(feature = "v3_20", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
     pub fn gdk_gl_context_is_legacy(context: *mut GdkGLContext) -> gboolean;
     pub fn gdk_gl_context_make_current(context: *mut GdkGLContext);
     pub fn gdk_gl_context_realize(
@@ -4889,6 +4964,8 @@ extern "C" {
         major: c_int,
         minor: c_int,
     );
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
     pub fn gdk_gl_context_set_use_es(context: *mut GdkGLContext, use_es: c_int);
 
     //=========================================================================
@@ -4940,17 +5017,41 @@ extern "C" {
     //=========================================================================
     // GdkMonitor
     //=========================================================================
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
     pub fn gdk_monitor_get_type() -> GType;
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
     pub fn gdk_monitor_get_display(monitor: *mut GdkMonitor) -> *mut GdkDisplay;
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
     pub fn gdk_monitor_get_geometry(monitor: *mut GdkMonitor, geometry: *mut GdkRectangle);
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
     pub fn gdk_monitor_get_height_mm(monitor: *mut GdkMonitor) -> c_int;
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
     pub fn gdk_monitor_get_manufacturer(monitor: *mut GdkMonitor) -> *const c_char;
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
     pub fn gdk_monitor_get_model(monitor: *mut GdkMonitor) -> *const c_char;
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
     pub fn gdk_monitor_get_refresh_rate(monitor: *mut GdkMonitor) -> c_int;
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
     pub fn gdk_monitor_get_scale_factor(monitor: *mut GdkMonitor) -> c_int;
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
     pub fn gdk_monitor_get_subpixel_layout(monitor: *mut GdkMonitor) -> GdkSubpixelLayout;
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
     pub fn gdk_monitor_get_width_mm(monitor: *mut GdkMonitor) -> c_int;
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
     pub fn gdk_monitor_get_workarea(monitor: *mut GdkMonitor, workarea: *mut GdkRectangle);
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
     pub fn gdk_monitor_is_primary(monitor: *mut GdkMonitor) -> gboolean;
 
     //=========================================================================
@@ -5020,15 +5121,29 @@ extern "C" {
     //=========================================================================
     // GdkSeat
     //=========================================================================
+    #[cfg(any(feature = "v3_20", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
     pub fn gdk_seat_get_type() -> GType;
+    #[cfg(any(feature = "v3_20", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
     pub fn gdk_seat_get_capabilities(seat: *mut GdkSeat) -> GdkSeatCapabilities;
+    #[cfg(any(feature = "v3_20", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
     pub fn gdk_seat_get_display(seat: *mut GdkSeat) -> *mut GdkDisplay;
+    #[cfg(any(feature = "v3_20", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
     pub fn gdk_seat_get_keyboard(seat: *mut GdkSeat) -> *mut GdkDevice;
+    #[cfg(any(feature = "v3_20", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
     pub fn gdk_seat_get_pointer(seat: *mut GdkSeat) -> *mut GdkDevice;
+    #[cfg(any(feature = "v3_20", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
     pub fn gdk_seat_get_slaves(
         seat: *mut GdkSeat,
         capabilities: GdkSeatCapabilities,
     ) -> *mut glib::GList;
+    #[cfg(any(feature = "v3_20", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
     pub fn gdk_seat_grab(
         seat: *mut GdkSeat,
         window: *mut GdkWindow,
@@ -5039,6 +5154,8 @@ extern "C" {
         prepare_func: GdkSeatGrabPrepareFunc,
         prepare_func_data: gpointer,
     ) -> GdkGrabStatus;
+    #[cfg(any(feature = "v3_20", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
     pub fn gdk_seat_ungrab(seat: *mut GdkSeat);
 
     //=========================================================================
@@ -5102,6 +5219,8 @@ extern "C" {
     pub fn gdk_window_set_debug_updates(setting: gboolean);
     pub fn gdk_window_add_filter(window: *mut GdkWindow, function: GdkFilterFunc, data: gpointer);
     pub fn gdk_window_beep(window: *mut GdkWindow);
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
     pub fn gdk_window_begin_draw_frame(
         window: *mut GdkWindow,
         region: *const cairo::cairo_region_t,
@@ -5179,6 +5298,8 @@ extern "C" {
     pub fn gdk_window_destroy(window: *mut GdkWindow);
     pub fn gdk_window_destroy_notify(window: *mut GdkWindow);
     pub fn gdk_window_enable_synchronized_configure(window: *mut GdkWindow);
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
     pub fn gdk_window_end_draw_frame(window: *mut GdkWindow, context: *mut GdkDrawingContext);
     pub fn gdk_window_end_paint(window: *mut GdkWindow);
     pub fn gdk_window_ensure_native(window: *mut GdkWindow) -> gboolean;
@@ -5332,8 +5453,8 @@ extern "C" {
         width: c_int,
         height: c_int,
     );
-    #[cfg(feature = "v3_24")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "v3_24")))]
+    #[cfg(any(feature = "v3_24", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_24")))]
     pub fn gdk_window_move_to_rect(
         window: *mut GdkWindow,
         rect: *const GdkRectangle,
@@ -5456,17 +5577,27 @@ extern "C" {
     //=========================================================================
     // GdkDevicePad
     //=========================================================================
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
     pub fn gdk_device_pad_get_type() -> GType;
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
     pub fn gdk_device_pad_get_feature_group(
         pad: *mut GdkDevicePad,
         feature: GdkDevicePadFeature,
         feature_idx: c_int,
     ) -> c_int;
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
     pub fn gdk_device_pad_get_group_n_modes(pad: *mut GdkDevicePad, group_idx: c_int) -> c_int;
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
     pub fn gdk_device_pad_get_n_features(
         pad: *mut GdkDevicePad,
         feature: GdkDevicePadFeature,
     ) -> c_int;
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
     pub fn gdk_device_pad_get_n_groups(pad: *mut GdkDevicePad) -> c_int;
 
     //=========================================================================
@@ -5490,6 +5621,8 @@ extern "C" {
         cr: *mut cairo::cairo_t,
         rect: *mut GdkRectangle,
     ) -> gboolean;
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
     pub fn gdk_cairo_get_drawing_context(cr: *mut cairo::cairo_t) -> *mut GdkDrawingContext;
     pub fn gdk_cairo_rectangle(cr: *mut cairo::cairo_t, rectangle: *const GdkRectangle);
     pub fn gdk_cairo_region(cr: *mut cairo::cairo_t, region: *const cairo::cairo_region_t);
@@ -5524,6 +5657,8 @@ extern "C" {
         device: *mut GdkDevice,
         targets: *mut glib::GList,
     ) -> *mut GdkDragContext;
+    #[cfg(any(feature = "v3_20", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
     pub fn gdk_drag_begin_from_point(
         window: *mut GdkWindow,
         device: *mut GdkDevice,
@@ -5532,6 +5667,8 @@ extern "C" {
         y_root: c_int,
     ) -> *mut GdkDragContext;
     pub fn gdk_drag_drop(context: *mut GdkDragContext, time_: u32);
+    #[cfg(any(feature = "v3_20", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
     pub fn gdk_drag_drop_done(context: *mut GdkDragContext, success: gboolean);
     pub fn gdk_drag_drop_succeeded(context: *mut GdkDragContext) -> gboolean;
     pub fn gdk_drag_find_window_for_screen(
@@ -5606,6 +5743,8 @@ extern "C" {
     pub fn gdk_offscreen_window_get_surface(window: *mut GdkWindow) -> *mut cairo::cairo_surface_t;
     pub fn gdk_offscreen_window_set_embedder(window: *mut GdkWindow, embedder: *mut GdkWindow);
     pub fn gdk_pango_context_get() -> *mut pango::PangoContext;
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
     pub fn gdk_pango_context_get_for_display(display: *mut GdkDisplay) -> *mut pango::PangoContext;
     pub fn gdk_pango_context_get_for_screen(screen: *mut GdkScreen) -> *mut pango::PangoContext;
     pub fn gdk_pango_layout_get_clip_region(

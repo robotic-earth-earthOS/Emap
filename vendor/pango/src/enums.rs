@@ -1,12 +1,19 @@
 // Take a look at the license at the top of the repository in the LICENSE file.
 
-#[cfg(feature = "v1_50")]
+#[cfg(any(feature = "v1_50", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v1_50")))]
+use glib::{
+    error::ErrorDomain,
+    translate::*,
+    value::{FromValue, ToValue},
+    Quark, StaticType,
+};
+#[cfg(any(feature = "v1_50", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v1_50")))]
 use std::fmt;
 
-#[cfg(feature = "v1_50")]
-use glib::{error::ErrorDomain, prelude::*, translate::*, value::FromValue, Quark};
-
-#[cfg(feature = "v1_50")]
+#[cfg(any(feature = "v1_50", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v1_50")))]
 #[derive(Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Clone, Copy)]
 #[non_exhaustive]
 #[doc(alias = "PangoLayoutDeserializeError")]
@@ -21,8 +28,8 @@ pub enum LayoutDeserializeError {
     __Unknown(i32),
 }
 
-#[cfg(feature = "v1_50")]
-#[cfg_attr(docsrs, doc(cfg(feature = "v1_50")))]
+#[cfg(any(feature = "v1_50", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v1_50")))]
 impl fmt::Display for LayoutDeserializeError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(
@@ -38,13 +45,12 @@ impl fmt::Display for LayoutDeserializeError {
     }
 }
 
-#[cfg(feature = "v1_50")]
-#[cfg_attr(docsrs, doc(cfg(feature = "v1_50")))]
+#[cfg(any(feature = "v1_50", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v1_50")))]
 #[doc(hidden)]
 impl IntoGlib for LayoutDeserializeError {
     type GlibType = ffi::PangoLayoutDeserializeError;
 
-    #[inline]
     fn into_glib(self) -> ffi::PangoLayoutDeserializeError {
         match self {
             Self::Invalid => ffi::PANGO_LAYOUT_DESERIALIZE_INVALID,
@@ -55,11 +61,10 @@ impl IntoGlib for LayoutDeserializeError {
     }
 }
 
-#[cfg(feature = "v1_50")]
-#[cfg_attr(docsrs, doc(cfg(feature = "v1_50")))]
+#[cfg(any(feature = "v1_50", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v1_50")))]
 #[doc(hidden)]
 impl FromGlib<ffi::PangoLayoutDeserializeError> for LayoutDeserializeError {
-    #[inline]
     unsafe fn from_glib(value: ffi::PangoLayoutDeserializeError) -> Self {
         match value {
             ffi::PANGO_LAYOUT_DESERIALIZE_INVALID => Self::Invalid,
@@ -70,8 +75,8 @@ impl FromGlib<ffi::PangoLayoutDeserializeError> for LayoutDeserializeError {
     }
 }
 
-#[cfg(feature = "v1_50")]
-#[cfg_attr(docsrs, doc(cfg(feature = "v1_50")))]
+#[cfg(any(feature = "v1_50", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v1_50")))]
 impl ErrorDomain for LayoutDeserializeError {
     // TODO: figure out why gir picks a non-existant quark function
     #[doc(alias = "pango_layout_deserialize_error_quark")]
@@ -93,23 +98,22 @@ impl ErrorDomain for LayoutDeserializeError {
     }
 }
 
-#[cfg(feature = "v1_50")]
-#[cfg_attr(docsrs, doc(cfg(feature = "v1_50")))]
+#[cfg(any(feature = "v1_50", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v1_50")))]
 impl StaticType for LayoutDeserializeError {
-    #[inline]
     fn static_type() -> glib::Type {
         unsafe { from_glib(ffi::pango_layout_deserialize_error_get_type()) }
     }
 }
 
-#[cfg(feature = "v1_50")]
-#[cfg_attr(docsrs, doc(cfg(feature = "v1_50")))]
+#[cfg(any(feature = "v1_50", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v1_50")))]
 impl glib::value::ValueType for LayoutDeserializeError {
     type Type = Self;
 }
 
-#[cfg(feature = "v1_50")]
-#[cfg_attr(docsrs, doc(cfg(feature = "v1_50")))]
+#[cfg(any(feature = "v1_50", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v1_50")))]
 unsafe impl<'a> FromValue<'a> for LayoutDeserializeError {
     type Checker = glib::value::GenericValueTypeChecker<Self>;
 
@@ -118,8 +122,8 @@ unsafe impl<'a> FromValue<'a> for LayoutDeserializeError {
     }
 }
 
-#[cfg(feature = "v1_50")]
-#[cfg_attr(docsrs, doc(cfg(feature = "v1_50")))]
+#[cfg(any(feature = "v1_50", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v1_50")))]
 impl ToValue for LayoutDeserializeError {
     fn to_value(&self) -> glib::Value {
         let mut value = glib::Value::for_value_type::<Self>();
@@ -131,14 +135,5 @@ impl ToValue for LayoutDeserializeError {
 
     fn value_type(&self) -> glib::Type {
         Self::static_type()
-    }
-}
-
-#[cfg(feature = "v1_50")]
-#[cfg_attr(docsrs, doc(cfg(feature = "v1_50")))]
-impl From<LayoutDeserializeError> for glib::Value {
-    #[inline]
-    fn from(v: LayoutDeserializeError) -> Self {
-        v.to_value()
     }
 }

@@ -6,12 +6,8 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-# The core windowing and multi-monitor detection engine
-tao = "0.30"
-
-# The WebView engine (renders your HTML/JS)
-wry = "0.47"
-
+gtk = { version = "0.15", features = ["v3_24"] }
+webkit2gtk = "0.18"
 # To get easy information about connected screens/HDMIs
 # (Helpful for coordinates and resolution detection)
 display-info = "0.5"
@@ -21,6 +17,7 @@ rusqlite = { version = "0.31", features = ["bundled"] }
 
 # This is your actual Web Server library
 actix-web = "4"
+actix-files = "0.6"
 
 
 serde = { version = "1.0", features = ["derive"] }

@@ -2,7 +2,9 @@
 // from gir-files (https://github.com/gtk-rs/gir-files)
 // DO NOT EDIT
 
-use crate::{DBusMethodInfo, DBusPropertyInfo, DBusSignalInfo};
+use crate::DBusMethodInfo;
+use crate::DBusPropertyInfo;
+use crate::DBusSignalInfo;
 use glib::translate::*;
 
 glib::wrapper! {

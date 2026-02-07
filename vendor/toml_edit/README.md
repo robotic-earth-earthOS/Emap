@@ -1,27 +1,29 @@
 # toml_edit
 
-[![Documentation](https://img.shields.io/badge/docs-master-blue.svg)](https://docs.rs/toml_edit)
-![License](https://img.shields.io/crates/l/toml_edit.svg)
-[![Crates Status](https://img.shields.io/crates/v/toml_edit.svg)](https://crates.io/crates/toml_edit)
+[![Build Status](https://github.com/ordian/toml_edit/workflows/Continuous%20integration/badge.svg)](https://github.com/ordian/toml_edit/actions)
+[![codecov](https://codecov.io/gh/ordian/toml_edit/branch/master/graph/badge.svg)](https://codecov.io/gh/ordian/toml_edit)
+[![crates.io](https://img.shields.io/crates/v/toml_edit.svg)](https://crates.io/crates/toml_edit)
+[![docs](https://docs.rs/toml_edit/badge.svg)](https://docs.rs/toml_edit)
+[![Join the chat at https://gitter.im/toml_edit/Lobby](https://badges.gitter.im/a.svg)](https://gitter.im/toml_edit/Lobby)
 
 
 This crate allows you to parse and modify toml
 documents, while preserving comments, spaces *and
-relative order* of items.
+relative order* or items.
 
 `toml_edit` is primarily tailored for [cargo-edit](https://github.com/killercup/cargo-edit/) needs.
 
 ## Example
 
 ```rust
-use toml_edit::{DocumentMut, value};
+use toml_edit::{Document, value};
 
 fn main() {
     let toml = r#"
 "hello" = 'toml!' # comment
 ['a'.b]
     "#;
-    let mut doc = toml.parse::<DocumentMut>().expect("invalid doc");
+    let mut doc = toml.parse::<Document>().expect("invalid doc");
     assert_eq!(doc.to_string(), toml);
     // let's add a new key/value pair inside a.b: c = {d = "hello"}
     doc["a"]["b"]["c"]["d"] = value("hello");
@@ -40,20 +42,18 @@ c = { d = "hello" }
 
 Things it does not preserve:
 
-* Order of dotted keys, see [issue](https://github.com/toml-rs/toml/issues/163).
+* Scattered array of tables (tables are reordered by default, see [test]).
+* Order of dotted keys, see [issue](https://github.com/ordian/toml_edit/issues/163).
 
 ## License
 
 Licensed under either of
 
-* Apache License, Version 2.0, ([LICENSE-APACHE](LICENSE-APACHE) or <https://www.apache.org/licenses/LICENSE-2.0>)
-* MIT license ([LICENSE-MIT](LICENSE-MIT) or <https://opensource.org/license/mit>)
-
-at your option.
+- Apache License, Version 2.0 ([LICENSE-APACHE](LICENSE-APACHE) or http://apache.org/licenses/LICENSE-2.0)
+- MIT license ([LICENSE-MIT](LICENSE-MIT) or http://opensource.org/licenses/MIT)
 
 ### Contribution
 
-Unless you explicitly state otherwise, any contribution intentionally
-submitted for inclusion in the work by you, as defined in the Apache-2.0
-license, shall be dual-licensed as above, without any additional terms or
-conditions.
+Unless you explicitly state otherwise, any contribution intentionally submitted for inclusion in the work by you, as defined in the Apache-2.0 license, shall be dual licensed as above, without any additional terms or conditions.
+
+[test]: https://github.com/ordian/toml_edit/blob/f09bd5d075fdb7d2ef8d9bb3270a34506c276753/tests/test_valid.rs#L84

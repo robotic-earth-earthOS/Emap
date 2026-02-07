@@ -2,7 +2,8 @@
 // from gir-files (https://github.com/gtk-rs/gir-files)
 // DO NOT EDIT
 
-use crate::{translate::*, TimeType};
+use crate::translate::*;
+use crate::TimeType;
 
 crate::wrapper! {
     #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -17,14 +18,13 @@ crate::wrapper! {
 
 impl TimeZone {
     #[cfg_attr(feature = "v2_68", deprecated = "Since 2.68")]
-    #[allow(deprecated)]
     #[doc(alias = "g_time_zone_new")]
     pub fn new(identifier: Option<&str>) -> TimeZone {
         unsafe { from_glib_full(ffi::g_time_zone_new(identifier.to_glib_none().0)) }
     }
 
-    #[cfg(feature = "v2_68")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "v2_68")))]
+    #[cfg(any(feature = "v2_68", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v2_68")))]
     #[doc(alias = "g_time_zone_new_identifier")]
     #[doc(alias = "new_identifier")]
     pub fn from_identifier(identifier: Option<&str>) -> Option<TimeZone> {
@@ -37,8 +37,8 @@ impl TimeZone {
         unsafe { from_glib_full(ffi::g_time_zone_new_local()) }
     }
 
-    #[cfg(feature = "v2_58")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "v2_58")))]
+    #[cfg(any(feature = "v2_58", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v2_58")))]
     #[doc(alias = "g_time_zone_new_offset")]
     #[doc(alias = "new_offset")]
     pub fn from_offset(seconds: i32) -> TimeZone {
@@ -67,8 +67,8 @@ impl TimeZone {
         }
     }
 
-    #[cfg(feature = "v2_58")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "v2_58")))]
+    #[cfg(any(feature = "v2_58", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v2_58")))]
     #[doc(alias = "g_time_zone_get_identifier")]
     #[doc(alias = "get_identifier")]
     pub fn identifier(&self) -> crate::GString {

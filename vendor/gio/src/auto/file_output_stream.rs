@@ -2,9 +2,17 @@
 // from gir-files (https://github.com/gtk-rs/gir-files)
 // DO NOT EDIT
 
-use crate::{AsyncResult, Cancellable, FileInfo, OutputStream, Seekable};
-use glib::{prelude::*, translate::*};
-use std::{boxed::Box as Box_, fmt, pin::Pin, ptr};
+use crate::AsyncResult;
+use crate::Cancellable;
+use crate::FileInfo;
+use crate::OutputStream;
+use crate::Seekable;
+use glib::object::IsA;
+use glib::translate::*;
+use std::boxed::Box as Box_;
+use std::fmt;
+use std::pin::Pin;
+use std::ptr;
 
 glib::wrapper! {
     #[doc(alias = "GFileOutputStream")]
@@ -19,14 +27,35 @@ impl FileOutputStream {
     pub const NONE: Option<&'static FileOutputStream> = None;
 }
 
-mod sealed {
-    pub trait Sealed {}
-    impl<T: super::IsA<super::FileOutputStream>> Sealed for T {}
-}
-
-pub trait FileOutputStreamExt: IsA<FileOutputStream> + sealed::Sealed + 'static {
+pub trait FileOutputStreamExt: 'static {
     #[doc(alias = "g_file_output_stream_get_etag")]
     #[doc(alias = "get_etag")]
+    fn etag(&self) -> Option<glib::GString>;
+
+    #[doc(alias = "g_file_output_stream_query_info")]
+    fn query_info(
+        &self,
+        attributes: &str,
+        cancellable: Option<&impl IsA<Cancellable>>,
+    ) -> Result<FileInfo, glib::Error>;
+
+    #[doc(alias = "g_file_output_stream_query_info_async")]
+    fn query_info_async<P: FnOnce(Result<FileInfo, glib::Error>) + 'static>(
+        &self,
+        attributes: &str,
+        io_priority: glib::Priority,
+        cancellable: Option<&impl IsA<Cancellable>>,
+        callback: P,
+    );
+
+    fn query_info_future(
+        &self,
+        attributes: &str,
+        io_priority: glib::Priority,
+    ) -> Pin<Box_<dyn std::future::Future<Output = Result<FileInfo, glib::Error>> + 'static>>;
+}
+
+impl<O: IsA<FileOutputStream>> FileOutputStreamExt for O {
     fn etag(&self) -> Option<glib::GString> {
         unsafe {
             from_glib_full(ffi::g_file_output_stream_get_etag(
@@ -35,7 +64,6 @@ pub trait FileOutputStreamExt: IsA<FileOutputStream> + sealed::Sealed + 'static 
         }
     }
 
-    #[doc(alias = "g_file_output_stream_query_info")]
     fn query_info(
         &self,
         attributes: &str,
@@ -57,7 +85,6 @@ pub trait FileOutputStreamExt: IsA<FileOutputStream> + sealed::Sealed + 'static 
         }
     }
 
-    #[doc(alias = "g_file_output_stream_query_info_async")]
     fn query_info_async<P: FnOnce(Result<FileInfo, glib::Error>) + 'static>(
         &self,
         attributes: &str,
@@ -129,8 +156,6 @@ pub trait FileOutputStreamExt: IsA<FileOutputStream> + sealed::Sealed + 'static 
         ))
     }
 }
-
-impl<O: IsA<FileOutputStream>> FileOutputStreamExt for O {}
 
 impl fmt::Display for FileOutputStream {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {

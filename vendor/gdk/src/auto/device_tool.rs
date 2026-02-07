@@ -2,8 +2,11 @@
 // from gir-files (https://github.com/gtk-rs/gir-files)
 // DO NOT EDIT
 
-use crate::{AxisFlags, DeviceToolType};
-use glib::{prelude::*, translate::*};
+use crate::AxisFlags;
+use crate::DeviceToolType;
+use glib::object::ObjectType as ObjectType_;
+use glib::translate::*;
+use glib::StaticType;
 use std::fmt;
 
 glib::wrapper! {
@@ -35,7 +38,21 @@ impl DeviceTool {
     }
 
     pub fn axes(&self) -> AxisFlags {
-        ObjectExt::property(self, "axes")
+        glib::ObjectExt::property(self, "axes")
+    }
+
+    #[doc(alias = "hardware-id")]
+    pub fn get_property_hardware_id(&self) -> u64 {
+        glib::ObjectExt::property(self, "hardware-id")
+    }
+
+    pub fn get_property_serial(&self) -> u64 {
+        glib::ObjectExt::property(self, "serial")
+    }
+
+    #[doc(alias = "tool-type")]
+    pub fn get_property_tool_type(&self) -> DeviceToolType {
+        glib::ObjectExt::property(self, "tool-type")
     }
 }
 

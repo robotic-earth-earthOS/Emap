@@ -2,7 +2,10 @@
 // from gir-files (https://github.com/gtk-rs/gir-files)
 // DO NOT EDIT
 
-use crate::{Layout, LayoutLine, LayoutRun, Rectangle};
+use crate::Layout;
+use crate::LayoutLine;
+use crate::LayoutRun;
+use crate::Rectangle;
 use glib::translate::*;
 use std::mem;
 
@@ -130,7 +133,9 @@ impl LayoutIter {
                 y0_.as_mut_ptr(),
                 y1_.as_mut_ptr(),
             );
-            (y0_.assume_init(), y1_.assume_init())
+            let y0_ = y0_.assume_init();
+            let y1_ = y1_.assume_init();
+            (y0_, y1_)
         }
     }
 
@@ -140,8 +145,8 @@ impl LayoutIter {
         unsafe { from_glib_none(ffi::pango_layout_iter_get_run(self.to_glib_none_mut().0)) }
     }
 
-    #[cfg(feature = "v1_50")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "v1_50")))]
+    #[cfg(any(feature = "v1_50", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v1_50")))]
     #[doc(alias = "pango_layout_iter_get_run_baseline")]
     #[doc(alias = "get_run_baseline")]
     pub fn run_baseline(&mut self) -> i32 {

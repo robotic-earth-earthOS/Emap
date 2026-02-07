@@ -2,13 +2,19 @@
 // from gir-files (https://github.com/tauri-apps/gir-files)
 // DO NOT EDIT
 
-use crate::{URIRequest, URIResponse};
-use glib::{
-  prelude::*,
-  signal::{connect_raw, SignalHandlerId},
-  translate::*,
-};
-use std::{boxed::Box as Box_, pin::Pin};
+use crate::URIRequest;
+use crate::URIResponse;
+use glib::object::Cast;
+use glib::object::IsA;
+use glib::signal::connect_raw;
+use glib::signal::SignalHandlerId;
+use glib::translate::*;
+use std::boxed::Box as Box_;
+use std::fmt;
+use std::mem;
+use std::mem::transmute;
+use std::pin::Pin;
+use std::ptr;
 
 glib::wrapper! {
     #[doc(alias = "WebKitWebResource")]
@@ -23,38 +29,75 @@ impl WebResource {
   pub const NONE: Option<&'static WebResource> = None;
 }
 
-mod sealed {
-  pub trait Sealed {}
-  impl<T: super::IsA<super::WebResource>> Sealed for T {}
-}
-
-pub trait WebResourceExt: IsA<WebResource> + sealed::Sealed + 'static {
+pub trait WebResourceExt: 'static {
   #[doc(alias = "webkit_web_resource_get_data")]
   #[doc(alias = "get_data")]
-  fn data<P: FnOnce(Result<Vec<u8>, glib::Error>) + 'static>(
+  fn data<P: FnOnce(Result<Vec<u8>, glib::Error>) + Send + 'static>(
+    &self,
+    cancellable: Option<&impl IsA<gio::Cancellable>>,
+    callback: P,
+  );
+
+  fn data_future(
+    &self,
+  ) -> Pin<Box_<dyn std::future::Future<Output = Result<Vec<u8>, glib::Error>> + 'static>>;
+
+  #[doc(alias = "webkit_web_resource_get_response")]
+  #[doc(alias = "get_response")]
+  fn response(&self) -> Option<URIResponse>;
+
+  #[doc(alias = "webkit_web_resource_get_uri")]
+  #[doc(alias = "get_uri")]
+  fn uri(&self) -> Option<glib::GString>;
+
+  #[doc(alias = "failed")]
+  fn connect_failed<F: Fn(&Self, &glib::Error) + 'static>(&self, f: F) -> SignalHandlerId;
+
+  #[cfg(any(feature = "v2_8", feature = "dox"))]
+  #[cfg_attr(feature = "dox", doc(cfg(feature = "v2_8")))]
+  #[doc(alias = "failed-with-tls-errors")]
+  fn connect_failed_with_tls_errors<
+    F: Fn(&Self, &gio::TlsCertificate, gio::TlsCertificateFlags) + 'static,
+  >(
+    &self,
+    f: F,
+  ) -> SignalHandlerId;
+
+  #[doc(alias = "finished")]
+  fn connect_finished<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+  #[doc(alias = "received-data")]
+  fn connect_received_data<F: Fn(&Self, u64) + 'static>(&self, f: F) -> SignalHandlerId;
+
+  #[doc(alias = "sent-request")]
+  fn connect_sent_request<F: Fn(&Self, &URIRequest, &URIResponse) + 'static>(
+    &self,
+    f: F,
+  ) -> SignalHandlerId;
+
+  #[doc(alias = "response")]
+  fn connect_response_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+  #[doc(alias = "uri")]
+  fn connect_uri_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+}
+
+impl<O: IsA<WebResource>> WebResourceExt for O {
+  fn data<P: FnOnce(Result<Vec<u8>, glib::Error>) + Send + 'static>(
     &self,
     cancellable: Option<&impl IsA<gio::Cancellable>>,
     callback: P,
   ) {
-    let main_context = glib::MainContext::ref_thread_default();
-    let is_main_context_owner = main_context.is_owner();
-    let has_acquired_main_context = (!is_main_context_owner)
-      .then(|| main_context.acquire().ok())
-      .flatten();
-    assert!(
-      is_main_context_owner || has_acquired_main_context.is_some(),
-      "Async operations only allowed if the thread is owning the MainContext"
-    );
-
-    let user_data: Box_<glib::thread_guard::ThreadGuard<P>> =
-      Box_::new(glib::thread_guard::ThreadGuard::new(callback));
-    unsafe extern "C" fn data_trampoline<P: FnOnce(Result<Vec<u8>, glib::Error>) + 'static>(
+    let user_data: Box_<P> = Box_::new(callback);
+    unsafe extern "C" fn data_trampoline<
+      P: FnOnce(Result<Vec<u8>, glib::Error>) + Send + 'static,
+    >(
       _source_object: *mut glib::gobject_ffi::GObject,
       res: *mut gio::ffi::GAsyncResult,
       user_data: glib::ffi::gpointer,
     ) {
-      let mut error = std::ptr::null_mut();
-      let mut length = std::mem::MaybeUninit::uninit();
+      let mut error = ptr::null_mut();
+      let mut length = mem::MaybeUninit::uninit();
       let ret = ffi::webkit_web_resource_get_data_finish(
         _source_object as *mut _,
         res,
@@ -64,13 +107,12 @@ pub trait WebResourceExt: IsA<WebResource> + sealed::Sealed + 'static {
       let result = if error.is_null() {
         Ok(FromGlibContainer::from_glib_full_num(
           ret,
-          length.assume_init() as _,
+          length.assume_init() as usize,
         ))
       } else {
         Err(from_glib_full(error))
       };
-      let callback: Box_<glib::thread_guard::ThreadGuard<P>> = Box_::from_raw(user_data as *mut _);
-      let callback: P = callback.into_inner();
+      let callback: Box_<P> = Box_::from_raw(user_data as *mut _);
       callback(result);
     }
     let callback = data_trampoline::<P>;
@@ -94,8 +136,6 @@ pub trait WebResourceExt: IsA<WebResource> + sealed::Sealed + 'static {
     }))
   }
 
-  #[doc(alias = "webkit_web_resource_get_response")]
-  #[doc(alias = "get_response")]
   fn response(&self) -> Option<URIResponse> {
     unsafe {
       from_glib_none(ffi::webkit_web_resource_get_response(
@@ -104,8 +144,6 @@ pub trait WebResourceExt: IsA<WebResource> + sealed::Sealed + 'static {
     }
   }
 
-  #[doc(alias = "webkit_web_resource_get_uri")]
-  #[doc(alias = "get_uri")]
   fn uri(&self) -> Option<glib::GString> {
     unsafe {
       from_glib_none(ffi::webkit_web_resource_get_uri(
@@ -114,7 +152,6 @@ pub trait WebResourceExt: IsA<WebResource> + sealed::Sealed + 'static {
     }
   }
 
-  #[doc(alias = "failed")]
   fn connect_failed<F: Fn(&Self, &glib::Error) + 'static>(&self, f: F) -> SignalHandlerId {
     unsafe extern "C" fn failed_trampoline<
       P: IsA<WebResource>,
@@ -135,7 +172,7 @@ pub trait WebResourceExt: IsA<WebResource> + sealed::Sealed + 'static {
       connect_raw(
         self.as_ptr() as *mut _,
         b"failed\0".as_ptr() as *const _,
-        Some(std::mem::transmute::<_, unsafe extern "C" fn()>(
+        Some(transmute::<_, unsafe extern "C" fn()>(
           failed_trampoline::<Self, F> as *const (),
         )),
         Box_::into_raw(f),
@@ -143,9 +180,8 @@ pub trait WebResourceExt: IsA<WebResource> + sealed::Sealed + 'static {
     }
   }
 
-  #[cfg(feature = "v2_8")]
-  #[cfg_attr(docsrs, doc(cfg(feature = "v2_8")))]
-  #[doc(alias = "failed-with-tls-errors")]
+  #[cfg(any(feature = "v2_8", feature = "dox"))]
+  #[cfg_attr(feature = "dox", doc(cfg(feature = "v2_8")))]
   fn connect_failed_with_tls_errors<
     F: Fn(&Self, &gio::TlsCertificate, gio::TlsCertificateFlags) + 'static,
   >(
@@ -173,7 +209,7 @@ pub trait WebResourceExt: IsA<WebResource> + sealed::Sealed + 'static {
       connect_raw(
         self.as_ptr() as *mut _,
         b"failed-with-tls-errors\0".as_ptr() as *const _,
-        Some(std::mem::transmute::<_, unsafe extern "C" fn()>(
+        Some(transmute::<_, unsafe extern "C" fn()>(
           failed_with_tls_errors_trampoline::<Self, F> as *const (),
         )),
         Box_::into_raw(f),
@@ -181,7 +217,6 @@ pub trait WebResourceExt: IsA<WebResource> + sealed::Sealed + 'static {
     }
   }
 
-  #[doc(alias = "finished")]
   fn connect_finished<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
     unsafe extern "C" fn finished_trampoline<P: IsA<WebResource>, F: Fn(&P) + 'static>(
       this: *mut ffi::WebKitWebResource,
@@ -195,7 +230,7 @@ pub trait WebResourceExt: IsA<WebResource> + sealed::Sealed + 'static {
       connect_raw(
         self.as_ptr() as *mut _,
         b"finished\0".as_ptr() as *const _,
-        Some(std::mem::transmute::<_, unsafe extern "C" fn()>(
+        Some(transmute::<_, unsafe extern "C" fn()>(
           finished_trampoline::<Self, F> as *const (),
         )),
         Box_::into_raw(f),
@@ -203,8 +238,6 @@ pub trait WebResourceExt: IsA<WebResource> + sealed::Sealed + 'static {
     }
   }
 
-  #[cfg_attr(feature = "v2_40", deprecated = "Since 2.40")]
-  #[doc(alias = "received-data")]
   fn connect_received_data<F: Fn(&Self, u64) + 'static>(&self, f: F) -> SignalHandlerId {
     unsafe extern "C" fn received_data_trampoline<P: IsA<WebResource>, F: Fn(&P, u64) + 'static>(
       this: *mut ffi::WebKitWebResource,
@@ -222,7 +255,7 @@ pub trait WebResourceExt: IsA<WebResource> + sealed::Sealed + 'static {
       connect_raw(
         self.as_ptr() as *mut _,
         b"received-data\0".as_ptr() as *const _,
-        Some(std::mem::transmute::<_, unsafe extern "C" fn()>(
+        Some(transmute::<_, unsafe extern "C" fn()>(
           received_data_trampoline::<Self, F> as *const (),
         )),
         Box_::into_raw(f),
@@ -230,7 +263,6 @@ pub trait WebResourceExt: IsA<WebResource> + sealed::Sealed + 'static {
     }
   }
 
-  #[doc(alias = "sent-request")]
   fn connect_sent_request<F: Fn(&Self, &URIRequest, &URIResponse) + 'static>(
     &self,
     f: F,
@@ -256,7 +288,7 @@ pub trait WebResourceExt: IsA<WebResource> + sealed::Sealed + 'static {
       connect_raw(
         self.as_ptr() as *mut _,
         b"sent-request\0".as_ptr() as *const _,
-        Some(std::mem::transmute::<_, unsafe extern "C" fn()>(
+        Some(transmute::<_, unsafe extern "C" fn()>(
           sent_request_trampoline::<Self, F> as *const (),
         )),
         Box_::into_raw(f),
@@ -264,7 +296,6 @@ pub trait WebResourceExt: IsA<WebResource> + sealed::Sealed + 'static {
     }
   }
 
-  #[doc(alias = "response")]
   fn connect_response_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
     unsafe extern "C" fn notify_response_trampoline<P: IsA<WebResource>, F: Fn(&P) + 'static>(
       this: *mut ffi::WebKitWebResource,
@@ -279,7 +310,7 @@ pub trait WebResourceExt: IsA<WebResource> + sealed::Sealed + 'static {
       connect_raw(
         self.as_ptr() as *mut _,
         b"notify::response\0".as_ptr() as *const _,
-        Some(std::mem::transmute::<_, unsafe extern "C" fn()>(
+        Some(transmute::<_, unsafe extern "C" fn()>(
           notify_response_trampoline::<Self, F> as *const (),
         )),
         Box_::into_raw(f),
@@ -287,7 +318,6 @@ pub trait WebResourceExt: IsA<WebResource> + sealed::Sealed + 'static {
     }
   }
 
-  #[doc(alias = "uri")]
   fn connect_uri_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
     unsafe extern "C" fn notify_uri_trampoline<P: IsA<WebResource>, F: Fn(&P) + 'static>(
       this: *mut ffi::WebKitWebResource,
@@ -302,7 +332,7 @@ pub trait WebResourceExt: IsA<WebResource> + sealed::Sealed + 'static {
       connect_raw(
         self.as_ptr() as *mut _,
         b"notify::uri\0".as_ptr() as *const _,
-        Some(std::mem::transmute::<_, unsafe extern "C" fn()>(
+        Some(transmute::<_, unsafe extern "C" fn()>(
           notify_uri_trampoline::<Self, F> as *const (),
         )),
         Box_::into_raw(f),
@@ -311,4 +341,8 @@ pub trait WebResourceExt: IsA<WebResource> + sealed::Sealed + 'static {
   }
 }
 
-impl<O: IsA<WebResource>> WebResourceExt for O {}
+impl fmt::Display for WebResource {
+  fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    f.write_str("WebResource")
+  }
+}

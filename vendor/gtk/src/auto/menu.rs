@@ -2,15 +2,26 @@
 // from gir-files (https://github.com/gtk-rs/gir-files)
 // DO NOT EDIT
 
-use crate::{
-    AccelGroup, Align, Buildable, Container, MenuItem, MenuShell, ResizeMode, ScrollType, Widget,
-};
-use glib::{
-    prelude::*,
-    signal::{connect_raw, SignalHandlerId},
-    translate::*,
-};
-use std::{boxed::Box as Box_, fmt, mem::transmute};
+use crate::AccelGroup;
+use crate::Align;
+use crate::Buildable;
+use crate::Container;
+use crate::MenuItem;
+use crate::MenuShell;
+use crate::ResizeMode;
+use crate::ScrollType;
+use crate::Widget;
+use glib::object::Cast;
+use glib::object::IsA;
+use glib::object::ObjectExt;
+use glib::signal::connect_raw;
+use glib::signal::SignalHandlerId;
+use glib::translate::*;
+use glib::StaticType;
+use glib::ToValue;
+use std::boxed::Box as Box_;
+use std::fmt;
+use std::mem::transmute;
 
 glib::wrapper! {
     #[doc(alias = "GtkMenu")]
@@ -47,7 +58,7 @@ impl Menu {
     ///
     /// This method returns an instance of [`MenuBuilder`](crate::builders::MenuBuilder) which can be used to create [`Menu`] objects.
     pub fn builder() -> MenuBuilder {
-        MenuBuilder::new()
+        MenuBuilder::default()
     }
 
     #[doc(alias = "gtk_menu_get_for_attach_widget")]
@@ -68,321 +79,693 @@ impl Default for Menu {
     }
 }
 
+#[derive(Clone, Default)]
 // rustdoc-stripper-ignore-next
 /// A [builder-pattern] type to construct [`Menu`] objects.
 ///
 /// [builder-pattern]: https://doc.rust-lang.org/1.0.0/style/ownership/builders.html
 #[must_use = "The builder must be built to be used"]
 pub struct MenuBuilder {
-    builder: glib::object::ObjectBuilder<'static, Menu>,
+    accel_group: Option<AccelGroup>,
+    accel_path: Option<String>,
+    active: Option<i32>,
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
+    anchor_hints: Option<gdk::AnchorHints>,
+    attach_widget: Option<Widget>,
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
+    menu_type_hint: Option<gdk::WindowTypeHint>,
+    monitor: Option<i32>,
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
+    rect_anchor_dx: Option<i32>,
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
+    rect_anchor_dy: Option<i32>,
+    reserve_toggle_size: Option<bool>,
+    take_focus: Option<bool>,
+    border_width: Option<u32>,
+    child: Option<Widget>,
+    resize_mode: Option<ResizeMode>,
+    app_paintable: Option<bool>,
+    can_default: Option<bool>,
+    can_focus: Option<bool>,
+    events: Option<gdk::EventMask>,
+    expand: Option<bool>,
+    #[cfg(any(feature = "v3_20", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
+    focus_on_click: Option<bool>,
+    halign: Option<Align>,
+    has_default: Option<bool>,
+    has_focus: Option<bool>,
+    has_tooltip: Option<bool>,
+    height_request: Option<i32>,
+    hexpand: Option<bool>,
+    hexpand_set: Option<bool>,
+    is_focus: Option<bool>,
+    margin: Option<i32>,
+    margin_bottom: Option<i32>,
+    margin_end: Option<i32>,
+    margin_start: Option<i32>,
+    margin_top: Option<i32>,
+    name: Option<String>,
+    no_show_all: Option<bool>,
+    opacity: Option<f64>,
+    parent: Option<Container>,
+    receives_default: Option<bool>,
+    sensitive: Option<bool>,
+    tooltip_markup: Option<String>,
+    tooltip_text: Option<String>,
+    valign: Option<Align>,
+    vexpand: Option<bool>,
+    vexpand_set: Option<bool>,
+    visible: Option<bool>,
+    width_request: Option<i32>,
 }
 
 impl MenuBuilder {
-    fn new() -> Self {
-        Self {
-            builder: glib::object::Object::builder(),
-        }
-    }
-
-    pub fn accel_group(self, accel_group: &impl IsA<AccelGroup>) -> Self {
-        Self {
-            builder: self
-                .builder
-                .property("accel-group", accel_group.clone().upcast()),
-        }
-    }
-
-    pub fn accel_path(self, accel_path: impl Into<glib::GString>) -> Self {
-        Self {
-            builder: self.builder.property("accel-path", accel_path.into()),
-        }
-    }
-
-    pub fn active(self, active: i32) -> Self {
-        Self {
-            builder: self.builder.property("active", active),
-        }
-    }
-
-    pub fn anchor_hints(self, anchor_hints: gdk::AnchorHints) -> Self {
-        Self {
-            builder: self.builder.property("anchor-hints", anchor_hints),
-        }
-    }
-
-    pub fn attach_widget(self, attach_widget: &impl IsA<Widget>) -> Self {
-        Self {
-            builder: self
-                .builder
-                .property("attach-widget", attach_widget.clone().upcast()),
-        }
-    }
-
-    pub fn menu_type_hint(self, menu_type_hint: gdk::WindowTypeHint) -> Self {
-        Self {
-            builder: self.builder.property("menu-type-hint", menu_type_hint),
-        }
-    }
-
-    pub fn monitor(self, monitor: i32) -> Self {
-        Self {
-            builder: self.builder.property("monitor", monitor),
-        }
-    }
-
-    pub fn rect_anchor_dx(self, rect_anchor_dx: i32) -> Self {
-        Self {
-            builder: self.builder.property("rect-anchor-dx", rect_anchor_dx),
-        }
-    }
-
-    pub fn rect_anchor_dy(self, rect_anchor_dy: i32) -> Self {
-        Self {
-            builder: self.builder.property("rect-anchor-dy", rect_anchor_dy),
-        }
-    }
-
-    pub fn reserve_toggle_size(self, reserve_toggle_size: bool) -> Self {
-        Self {
-            builder: self
-                .builder
-                .property("reserve-toggle-size", reserve_toggle_size),
-        }
-    }
-
-    pub fn take_focus(self, take_focus: bool) -> Self {
-        Self {
-            builder: self.builder.property("take-focus", take_focus),
-        }
-    }
-
-    pub fn border_width(self, border_width: u32) -> Self {
-        Self {
-            builder: self.builder.property("border-width", border_width),
-        }
-    }
-
-    pub fn child(self, child: &impl IsA<Widget>) -> Self {
-        Self {
-            builder: self.builder.property("child", child.clone().upcast()),
-        }
-    }
-
-    pub fn resize_mode(self, resize_mode: ResizeMode) -> Self {
-        Self {
-            builder: self.builder.property("resize-mode", resize_mode),
-        }
-    }
-
-    pub fn app_paintable(self, app_paintable: bool) -> Self {
-        Self {
-            builder: self.builder.property("app-paintable", app_paintable),
-        }
-    }
-
-    pub fn can_default(self, can_default: bool) -> Self {
-        Self {
-            builder: self.builder.property("can-default", can_default),
-        }
-    }
-
-    pub fn can_focus(self, can_focus: bool) -> Self {
-        Self {
-            builder: self.builder.property("can-focus", can_focus),
-        }
-    }
-
-    pub fn events(self, events: gdk::EventMask) -> Self {
-        Self {
-            builder: self.builder.property("events", events),
-        }
-    }
-
-    pub fn expand(self, expand: bool) -> Self {
-        Self {
-            builder: self.builder.property("expand", expand),
-        }
-    }
-
-    pub fn focus_on_click(self, focus_on_click: bool) -> Self {
-        Self {
-            builder: self.builder.property("focus-on-click", focus_on_click),
-        }
-    }
-
-    pub fn halign(self, halign: Align) -> Self {
-        Self {
-            builder: self.builder.property("halign", halign),
-        }
-    }
-
-    pub fn has_default(self, has_default: bool) -> Self {
-        Self {
-            builder: self.builder.property("has-default", has_default),
-        }
-    }
-
-    pub fn has_focus(self, has_focus: bool) -> Self {
-        Self {
-            builder: self.builder.property("has-focus", has_focus),
-        }
-    }
-
-    pub fn has_tooltip(self, has_tooltip: bool) -> Self {
-        Self {
-            builder: self.builder.property("has-tooltip", has_tooltip),
-        }
-    }
-
-    pub fn height_request(self, height_request: i32) -> Self {
-        Self {
-            builder: self.builder.property("height-request", height_request),
-        }
-    }
-
-    pub fn hexpand(self, hexpand: bool) -> Self {
-        Self {
-            builder: self.builder.property("hexpand", hexpand),
-        }
-    }
-
-    pub fn hexpand_set(self, hexpand_set: bool) -> Self {
-        Self {
-            builder: self.builder.property("hexpand-set", hexpand_set),
-        }
-    }
-
-    pub fn is_focus(self, is_focus: bool) -> Self {
-        Self {
-            builder: self.builder.property("is-focus", is_focus),
-        }
-    }
-
-    pub fn margin(self, margin: i32) -> Self {
-        Self {
-            builder: self.builder.property("margin", margin),
-        }
-    }
-
-    pub fn margin_bottom(self, margin_bottom: i32) -> Self {
-        Self {
-            builder: self.builder.property("margin-bottom", margin_bottom),
-        }
-    }
-
-    pub fn margin_end(self, margin_end: i32) -> Self {
-        Self {
-            builder: self.builder.property("margin-end", margin_end),
-        }
-    }
-
-    pub fn margin_start(self, margin_start: i32) -> Self {
-        Self {
-            builder: self.builder.property("margin-start", margin_start),
-        }
-    }
-
-    pub fn margin_top(self, margin_top: i32) -> Self {
-        Self {
-            builder: self.builder.property("margin-top", margin_top),
-        }
-    }
-
-    pub fn name(self, name: impl Into<glib::GString>) -> Self {
-        Self {
-            builder: self.builder.property("name", name.into()),
-        }
-    }
-
-    pub fn no_show_all(self, no_show_all: bool) -> Self {
-        Self {
-            builder: self.builder.property("no-show-all", no_show_all),
-        }
-    }
-
-    pub fn opacity(self, opacity: f64) -> Self {
-        Self {
-            builder: self.builder.property("opacity", opacity),
-        }
-    }
-
-    pub fn parent(self, parent: &impl IsA<Container>) -> Self {
-        Self {
-            builder: self.builder.property("parent", parent.clone().upcast()),
-        }
-    }
-
-    pub fn receives_default(self, receives_default: bool) -> Self {
-        Self {
-            builder: self.builder.property("receives-default", receives_default),
-        }
-    }
-
-    pub fn sensitive(self, sensitive: bool) -> Self {
-        Self {
-            builder: self.builder.property("sensitive", sensitive),
-        }
-    }
-
-    pub fn tooltip_markup(self, tooltip_markup: impl Into<glib::GString>) -> Self {
-        Self {
-            builder: self
-                .builder
-                .property("tooltip-markup", tooltip_markup.into()),
-        }
-    }
-
-    pub fn tooltip_text(self, tooltip_text: impl Into<glib::GString>) -> Self {
-        Self {
-            builder: self.builder.property("tooltip-text", tooltip_text.into()),
-        }
-    }
-
-    pub fn valign(self, valign: Align) -> Self {
-        Self {
-            builder: self.builder.property("valign", valign),
-        }
-    }
-
-    pub fn vexpand(self, vexpand: bool) -> Self {
-        Self {
-            builder: self.builder.property("vexpand", vexpand),
-        }
-    }
-
-    pub fn vexpand_set(self, vexpand_set: bool) -> Self {
-        Self {
-            builder: self.builder.property("vexpand-set", vexpand_set),
-        }
-    }
-
-    pub fn visible(self, visible: bool) -> Self {
-        Self {
-            builder: self.builder.property("visible", visible),
-        }
-    }
-
-    pub fn width_request(self, width_request: i32) -> Self {
-        Self {
-            builder: self.builder.property("width-request", width_request),
-        }
+    // rustdoc-stripper-ignore-next
+    /// Create a new [`MenuBuilder`].
+    pub fn new() -> Self {
+        Self::default()
     }
 
     // rustdoc-stripper-ignore-next
     /// Build the [`Menu`].
     #[must_use = "Building the object from the builder is usually expensive and is not expected to have side effects"]
     pub fn build(self) -> Menu {
-        self.builder.build()
+        let mut properties: Vec<(&str, &dyn ToValue)> = vec![];
+        if let Some(ref accel_group) = self.accel_group {
+            properties.push(("accel-group", accel_group));
+        }
+        if let Some(ref accel_path) = self.accel_path {
+            properties.push(("accel-path", accel_path));
+        }
+        if let Some(ref active) = self.active {
+            properties.push(("active", active));
+        }
+        #[cfg(any(feature = "v3_22", feature = "dox"))]
+        if let Some(ref anchor_hints) = self.anchor_hints {
+            properties.push(("anchor-hints", anchor_hints));
+        }
+        if let Some(ref attach_widget) = self.attach_widget {
+            properties.push(("attach-widget", attach_widget));
+        }
+        #[cfg(any(feature = "v3_22", feature = "dox"))]
+        if let Some(ref menu_type_hint) = self.menu_type_hint {
+            properties.push(("menu-type-hint", menu_type_hint));
+        }
+        if let Some(ref monitor) = self.monitor {
+            properties.push(("monitor", monitor));
+        }
+        #[cfg(any(feature = "v3_22", feature = "dox"))]
+        if let Some(ref rect_anchor_dx) = self.rect_anchor_dx {
+            properties.push(("rect-anchor-dx", rect_anchor_dx));
+        }
+        #[cfg(any(feature = "v3_22", feature = "dox"))]
+        if let Some(ref rect_anchor_dy) = self.rect_anchor_dy {
+            properties.push(("rect-anchor-dy", rect_anchor_dy));
+        }
+        if let Some(ref reserve_toggle_size) = self.reserve_toggle_size {
+            properties.push(("reserve-toggle-size", reserve_toggle_size));
+        }
+        if let Some(ref take_focus) = self.take_focus {
+            properties.push(("take-focus", take_focus));
+        }
+        if let Some(ref border_width) = self.border_width {
+            properties.push(("border-width", border_width));
+        }
+        if let Some(ref child) = self.child {
+            properties.push(("child", child));
+        }
+        if let Some(ref resize_mode) = self.resize_mode {
+            properties.push(("resize-mode", resize_mode));
+        }
+        if let Some(ref app_paintable) = self.app_paintable {
+            properties.push(("app-paintable", app_paintable));
+        }
+        if let Some(ref can_default) = self.can_default {
+            properties.push(("can-default", can_default));
+        }
+        if let Some(ref can_focus) = self.can_focus {
+            properties.push(("can-focus", can_focus));
+        }
+        if let Some(ref events) = self.events {
+            properties.push(("events", events));
+        }
+        if let Some(ref expand) = self.expand {
+            properties.push(("expand", expand));
+        }
+        #[cfg(any(feature = "v3_20", feature = "dox"))]
+        if let Some(ref focus_on_click) = self.focus_on_click {
+            properties.push(("focus-on-click", focus_on_click));
+        }
+        if let Some(ref halign) = self.halign {
+            properties.push(("halign", halign));
+        }
+        if let Some(ref has_default) = self.has_default {
+            properties.push(("has-default", has_default));
+        }
+        if let Some(ref has_focus) = self.has_focus {
+            properties.push(("has-focus", has_focus));
+        }
+        if let Some(ref has_tooltip) = self.has_tooltip {
+            properties.push(("has-tooltip", has_tooltip));
+        }
+        if let Some(ref height_request) = self.height_request {
+            properties.push(("height-request", height_request));
+        }
+        if let Some(ref hexpand) = self.hexpand {
+            properties.push(("hexpand", hexpand));
+        }
+        if let Some(ref hexpand_set) = self.hexpand_set {
+            properties.push(("hexpand-set", hexpand_set));
+        }
+        if let Some(ref is_focus) = self.is_focus {
+            properties.push(("is-focus", is_focus));
+        }
+        if let Some(ref margin) = self.margin {
+            properties.push(("margin", margin));
+        }
+        if let Some(ref margin_bottom) = self.margin_bottom {
+            properties.push(("margin-bottom", margin_bottom));
+        }
+        if let Some(ref margin_end) = self.margin_end {
+            properties.push(("margin-end", margin_end));
+        }
+        if let Some(ref margin_start) = self.margin_start {
+            properties.push(("margin-start", margin_start));
+        }
+        if let Some(ref margin_top) = self.margin_top {
+            properties.push(("margin-top", margin_top));
+        }
+        if let Some(ref name) = self.name {
+            properties.push(("name", name));
+        }
+        if let Some(ref no_show_all) = self.no_show_all {
+            properties.push(("no-show-all", no_show_all));
+        }
+        if let Some(ref opacity) = self.opacity {
+            properties.push(("opacity", opacity));
+        }
+        if let Some(ref parent) = self.parent {
+            properties.push(("parent", parent));
+        }
+        if let Some(ref receives_default) = self.receives_default {
+            properties.push(("receives-default", receives_default));
+        }
+        if let Some(ref sensitive) = self.sensitive {
+            properties.push(("sensitive", sensitive));
+        }
+        if let Some(ref tooltip_markup) = self.tooltip_markup {
+            properties.push(("tooltip-markup", tooltip_markup));
+        }
+        if let Some(ref tooltip_text) = self.tooltip_text {
+            properties.push(("tooltip-text", tooltip_text));
+        }
+        if let Some(ref valign) = self.valign {
+            properties.push(("valign", valign));
+        }
+        if let Some(ref vexpand) = self.vexpand {
+            properties.push(("vexpand", vexpand));
+        }
+        if let Some(ref vexpand_set) = self.vexpand_set {
+            properties.push(("vexpand-set", vexpand_set));
+        }
+        if let Some(ref visible) = self.visible {
+            properties.push(("visible", visible));
+        }
+        if let Some(ref width_request) = self.width_request {
+            properties.push(("width-request", width_request));
+        }
+        glib::Object::new::<Menu>(&properties).expect("Failed to create an instance of Menu")
+    }
+
+    pub fn accel_group(mut self, accel_group: &impl IsA<AccelGroup>) -> Self {
+        self.accel_group = Some(accel_group.clone().upcast());
+        self
+    }
+
+    pub fn accel_path(mut self, accel_path: &str) -> Self {
+        self.accel_path = Some(accel_path.to_string());
+        self
+    }
+
+    pub fn active(mut self, active: i32) -> Self {
+        self.active = Some(active);
+        self
+    }
+
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
+    pub fn anchor_hints(mut self, anchor_hints: gdk::AnchorHints) -> Self {
+        self.anchor_hints = Some(anchor_hints);
+        self
+    }
+
+    pub fn attach_widget(mut self, attach_widget: &impl IsA<Widget>) -> Self {
+        self.attach_widget = Some(attach_widget.clone().upcast());
+        self
+    }
+
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
+    pub fn menu_type_hint(mut self, menu_type_hint: gdk::WindowTypeHint) -> Self {
+        self.menu_type_hint = Some(menu_type_hint);
+        self
+    }
+
+    pub fn monitor(mut self, monitor: i32) -> Self {
+        self.monitor = Some(monitor);
+        self
+    }
+
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
+    pub fn rect_anchor_dx(mut self, rect_anchor_dx: i32) -> Self {
+        self.rect_anchor_dx = Some(rect_anchor_dx);
+        self
+    }
+
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
+    pub fn rect_anchor_dy(mut self, rect_anchor_dy: i32) -> Self {
+        self.rect_anchor_dy = Some(rect_anchor_dy);
+        self
+    }
+
+    pub fn reserve_toggle_size(mut self, reserve_toggle_size: bool) -> Self {
+        self.reserve_toggle_size = Some(reserve_toggle_size);
+        self
+    }
+
+    pub fn take_focus(mut self, take_focus: bool) -> Self {
+        self.take_focus = Some(take_focus);
+        self
+    }
+
+    pub fn border_width(mut self, border_width: u32) -> Self {
+        self.border_width = Some(border_width);
+        self
+    }
+
+    pub fn child(mut self, child: &impl IsA<Widget>) -> Self {
+        self.child = Some(child.clone().upcast());
+        self
+    }
+
+    pub fn resize_mode(mut self, resize_mode: ResizeMode) -> Self {
+        self.resize_mode = Some(resize_mode);
+        self
+    }
+
+    pub fn app_paintable(mut self, app_paintable: bool) -> Self {
+        self.app_paintable = Some(app_paintable);
+        self
+    }
+
+    pub fn can_default(mut self, can_default: bool) -> Self {
+        self.can_default = Some(can_default);
+        self
+    }
+
+    pub fn can_focus(mut self, can_focus: bool) -> Self {
+        self.can_focus = Some(can_focus);
+        self
+    }
+
+    pub fn events(mut self, events: gdk::EventMask) -> Self {
+        self.events = Some(events);
+        self
+    }
+
+    pub fn expand(mut self, expand: bool) -> Self {
+        self.expand = Some(expand);
+        self
+    }
+
+    #[cfg(any(feature = "v3_20", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
+    pub fn focus_on_click(mut self, focus_on_click: bool) -> Self {
+        self.focus_on_click = Some(focus_on_click);
+        self
+    }
+
+    pub fn halign(mut self, halign: Align) -> Self {
+        self.halign = Some(halign);
+        self
+    }
+
+    pub fn has_default(mut self, has_default: bool) -> Self {
+        self.has_default = Some(has_default);
+        self
+    }
+
+    pub fn has_focus(mut self, has_focus: bool) -> Self {
+        self.has_focus = Some(has_focus);
+        self
+    }
+
+    pub fn has_tooltip(mut self, has_tooltip: bool) -> Self {
+        self.has_tooltip = Some(has_tooltip);
+        self
+    }
+
+    pub fn height_request(mut self, height_request: i32) -> Self {
+        self.height_request = Some(height_request);
+        self
+    }
+
+    pub fn hexpand(mut self, hexpand: bool) -> Self {
+        self.hexpand = Some(hexpand);
+        self
+    }
+
+    pub fn hexpand_set(mut self, hexpand_set: bool) -> Self {
+        self.hexpand_set = Some(hexpand_set);
+        self
+    }
+
+    pub fn is_focus(mut self, is_focus: bool) -> Self {
+        self.is_focus = Some(is_focus);
+        self
+    }
+
+    pub fn margin(mut self, margin: i32) -> Self {
+        self.margin = Some(margin);
+        self
+    }
+
+    pub fn margin_bottom(mut self, margin_bottom: i32) -> Self {
+        self.margin_bottom = Some(margin_bottom);
+        self
+    }
+
+    pub fn margin_end(mut self, margin_end: i32) -> Self {
+        self.margin_end = Some(margin_end);
+        self
+    }
+
+    pub fn margin_start(mut self, margin_start: i32) -> Self {
+        self.margin_start = Some(margin_start);
+        self
+    }
+
+    pub fn margin_top(mut self, margin_top: i32) -> Self {
+        self.margin_top = Some(margin_top);
+        self
+    }
+
+    pub fn name(mut self, name: &str) -> Self {
+        self.name = Some(name.to_string());
+        self
+    }
+
+    pub fn no_show_all(mut self, no_show_all: bool) -> Self {
+        self.no_show_all = Some(no_show_all);
+        self
+    }
+
+    pub fn opacity(mut self, opacity: f64) -> Self {
+        self.opacity = Some(opacity);
+        self
+    }
+
+    pub fn parent(mut self, parent: &impl IsA<Container>) -> Self {
+        self.parent = Some(parent.clone().upcast());
+        self
+    }
+
+    pub fn receives_default(mut self, receives_default: bool) -> Self {
+        self.receives_default = Some(receives_default);
+        self
+    }
+
+    pub fn sensitive(mut self, sensitive: bool) -> Self {
+        self.sensitive = Some(sensitive);
+        self
+    }
+
+    pub fn tooltip_markup(mut self, tooltip_markup: &str) -> Self {
+        self.tooltip_markup = Some(tooltip_markup.to_string());
+        self
+    }
+
+    pub fn tooltip_text(mut self, tooltip_text: &str) -> Self {
+        self.tooltip_text = Some(tooltip_text.to_string());
+        self
+    }
+
+    pub fn valign(mut self, valign: Align) -> Self {
+        self.valign = Some(valign);
+        self
+    }
+
+    pub fn vexpand(mut self, vexpand: bool) -> Self {
+        self.vexpand = Some(vexpand);
+        self
+    }
+
+    pub fn vexpand_set(mut self, vexpand_set: bool) -> Self {
+        self.vexpand_set = Some(vexpand_set);
+        self
+    }
+
+    pub fn visible(mut self, visible: bool) -> Self {
+        self.visible = Some(visible);
+        self
+    }
+
+    pub fn width_request(mut self, width_request: i32) -> Self {
+        self.width_request = Some(width_request);
+        self
     }
 }
 
-mod sealed {
-    pub trait Sealed {}
-    impl<T: super::IsA<super::Menu>> Sealed for T {}
+pub trait GtkMenuExt: 'static {
+    #[doc(alias = "gtk_menu_attach")]
+    fn attach(
+        &self,
+        child: &impl IsA<Widget>,
+        left_attach: u32,
+        right_attach: u32,
+        top_attach: u32,
+        bottom_attach: u32,
+    );
+
+    #[doc(alias = "gtk_menu_detach")]
+    fn detach(&self);
+
+    #[doc(alias = "gtk_menu_get_accel_group")]
+    #[doc(alias = "get_accel_group")]
+    fn accel_group(&self) -> Option<AccelGroup>;
+
+    #[doc(alias = "gtk_menu_get_accel_path")]
+    #[doc(alias = "get_accel_path")]
+    fn accel_path(&self) -> Option<glib::GString>;
+
+    #[doc(alias = "gtk_menu_get_active")]
+    #[doc(alias = "get_active")]
+    fn active(&self) -> Option<Widget>;
+
+    #[doc(alias = "gtk_menu_get_attach_widget")]
+    #[doc(alias = "get_attach_widget")]
+    fn attach_widget(&self) -> Option<Widget>;
+
+    #[doc(alias = "gtk_menu_get_monitor")]
+    #[doc(alias = "get_monitor")]
+    fn monitor(&self) -> i32;
+
+    #[doc(alias = "gtk_menu_get_reserve_toggle_size")]
+    #[doc(alias = "get_reserve_toggle_size")]
+    fn must_reserve_toggle_size(&self) -> bool;
+
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
+    #[doc(alias = "gtk_menu_place_on_monitor")]
+    fn place_on_monitor(&self, monitor: &gdk::Monitor);
+
+    #[doc(alias = "gtk_menu_popdown")]
+    fn popdown(&self);
+
+    //#[cfg_attr(feature = "v3_22", deprecated = "Since 3.22")]
+    //#[doc(alias = "gtk_menu_popup")]
+    //fn popup(&self, parent_menu_shell: Option<&impl IsA<Widget>>, parent_menu_item: Option<&impl IsA<Widget>>, func: Option<Box_<dyn FnOnce(&Menu, i32, i32, bool) + 'static>>, button: u32, activate_time: u32);
+
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
+    #[doc(alias = "gtk_menu_popup_at_pointer")]
+    fn popup_at_pointer(&self, trigger_event: Option<&gdk::Event>);
+
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
+    #[doc(alias = "gtk_menu_popup_at_rect")]
+    fn popup_at_rect(
+        &self,
+        rect_window: &gdk::Window,
+        rect: &gdk::Rectangle,
+        rect_anchor: gdk::Gravity,
+        menu_anchor: gdk::Gravity,
+        trigger_event: Option<&gdk::Event>,
+    );
+
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
+    #[doc(alias = "gtk_menu_popup_at_widget")]
+    fn popup_at_widget(
+        &self,
+        widget: &impl IsA<Widget>,
+        widget_anchor: gdk::Gravity,
+        menu_anchor: gdk::Gravity,
+        trigger_event: Option<&gdk::Event>,
+    );
+
+    //#[cfg_attr(feature = "v3_22", deprecated = "Since 3.22")]
+    //#[doc(alias = "gtk_menu_popup_for_device")]
+    //fn popup_for_device(&self, device: Option<&gdk::Device>, parent_menu_shell: Option<&impl IsA<Widget>>, parent_menu_item: Option<&impl IsA<Widget>>, func: Option<Box_<dyn Fn(&Menu, i32, i32, bool) + 'static>>, button: u32, activate_time: u32);
+
+    #[doc(alias = "gtk_menu_reorder_child")]
+    fn reorder_child(&self, child: &impl IsA<Widget>, position: i32);
+
+    #[doc(alias = "gtk_menu_reposition")]
+    fn reposition(&self);
+
+    #[doc(alias = "gtk_menu_set_accel_group")]
+    fn set_accel_group(&self, accel_group: Option<&impl IsA<AccelGroup>>);
+
+    #[doc(alias = "gtk_menu_set_accel_path")]
+    fn set_accel_path(&self, accel_path: Option<&str>);
+
+    #[doc(alias = "gtk_menu_set_active")]
+    fn set_active(&self, index: u32);
+
+    #[doc(alias = "gtk_menu_set_monitor")]
+    fn set_monitor(&self, monitor_num: i32);
+
+    #[doc(alias = "gtk_menu_set_reserve_toggle_size")]
+    fn set_reserve_toggle_size(&self, reserve_toggle_size: bool);
+
+    #[doc(alias = "gtk_menu_set_screen")]
+    fn set_screen(&self, screen: Option<&gdk::Screen>);
+
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
+    #[doc(alias = "anchor-hints")]
+    fn anchor_hints(&self) -> gdk::AnchorHints;
+
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
+    #[doc(alias = "anchor-hints")]
+    fn set_anchor_hints(&self, anchor_hints: gdk::AnchorHints);
+
+    #[doc(alias = "attach-widget")]
+    fn set_attach_widget<P: IsA<Widget>>(&self, attach_widget: Option<&P>);
+
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
+    #[doc(alias = "menu-type-hint")]
+    fn menu_type_hint(&self) -> gdk::WindowTypeHint;
+
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
+    #[doc(alias = "menu-type-hint")]
+    fn set_menu_type_hint(&self, menu_type_hint: gdk::WindowTypeHint);
+
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
+    #[doc(alias = "rect-anchor-dx")]
+    fn rect_anchor_dx(&self) -> i32;
+
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
+    #[doc(alias = "rect-anchor-dx")]
+    fn set_rect_anchor_dx(&self, rect_anchor_dx: i32);
+
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
+    #[doc(alias = "rect-anchor-dy")]
+    fn rect_anchor_dy(&self) -> i32;
+
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
+    #[doc(alias = "rect-anchor-dy")]
+    fn set_rect_anchor_dy(&self, rect_anchor_dy: i32);
+
+    #[doc(alias = "item.bottom-attach")]
+    fn item_bottom_attach<T: IsA<MenuItem>>(&self, item: &T) -> i32;
+
+    #[doc(alias = "item.bottom-attach")]
+    fn set_item_bottom_attach<T: IsA<MenuItem>>(&self, item: &T, bottom_attach: i32);
+
+    #[doc(alias = "item.left-attach")]
+    fn item_left_attach<T: IsA<MenuItem>>(&self, item: &T) -> i32;
+
+    #[doc(alias = "item.left-attach")]
+    fn set_item_left_attach<T: IsA<MenuItem>>(&self, item: &T, left_attach: i32);
+
+    #[doc(alias = "item.right-attach")]
+    fn item_right_attach<T: IsA<MenuItem>>(&self, item: &T) -> i32;
+
+    #[doc(alias = "item.right-attach")]
+    fn set_item_right_attach<T: IsA<MenuItem>>(&self, item: &T, right_attach: i32);
+
+    #[doc(alias = "item.top-attach")]
+    fn item_top_attach<T: IsA<MenuItem>>(&self, item: &T) -> i32;
+
+    #[doc(alias = "item.top-attach")]
+    fn set_item_top_attach<T: IsA<MenuItem>>(&self, item: &T, top_attach: i32);
+
+    #[doc(alias = "move-scroll")]
+    fn connect_move_scroll<F: Fn(&Self, ScrollType) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    fn emit_move_scroll(&self, scroll_type: ScrollType);
+
+    //#[cfg(any(feature = "v3_22", feature = "dox"))]
+    //#[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
+    //#[doc(alias = "popped-up")]
+    //fn connect_popped_up<Unsupported or ignored types>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "accel-group")]
+    fn connect_accel_group_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "accel-path")]
+    fn connect_accel_path_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "active")]
+    fn connect_active_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
+    #[doc(alias = "anchor-hints")]
+    fn connect_anchor_hints_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "attach-widget")]
+    fn connect_attach_widget_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
+    #[doc(alias = "menu-type-hint")]
+    fn connect_menu_type_hint_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "monitor")]
+    fn connect_monitor_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
+    #[doc(alias = "rect-anchor-dx")]
+    fn connect_rect_anchor_dx_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
+    #[doc(alias = "rect-anchor-dy")]
+    fn connect_rect_anchor_dy_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "reserve-toggle-size")]
+    fn connect_reserve_toggle_size_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
 }
 
-pub trait GtkMenuExt: IsA<Menu> + sealed::Sealed + 'static {
-    #[doc(alias = "gtk_menu_attach")]
+impl<O: IsA<Menu>> GtkMenuExt for O {
     fn attach(
         &self,
         child: &impl IsA<Widget>,
@@ -403,15 +786,12 @@ pub trait GtkMenuExt: IsA<Menu> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_menu_detach")]
     fn detach(&self) {
         unsafe {
             ffi::gtk_menu_detach(self.as_ref().to_glib_none().0);
         }
     }
 
-    #[doc(alias = "gtk_menu_get_accel_group")]
-    #[doc(alias = "get_accel_group")]
     fn accel_group(&self) -> Option<AccelGroup> {
         unsafe {
             from_glib_none(ffi::gtk_menu_get_accel_group(
@@ -420,20 +800,14 @@ pub trait GtkMenuExt: IsA<Menu> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_menu_get_accel_path")]
-    #[doc(alias = "get_accel_path")]
     fn accel_path(&self) -> Option<glib::GString> {
         unsafe { from_glib_none(ffi::gtk_menu_get_accel_path(self.as_ref().to_glib_none().0)) }
     }
 
-    #[doc(alias = "gtk_menu_get_active")]
-    #[doc(alias = "get_active")]
     fn active(&self) -> Option<Widget> {
         unsafe { from_glib_none(ffi::gtk_menu_get_active(self.as_ref().to_glib_none().0)) }
     }
 
-    #[doc(alias = "gtk_menu_get_attach_widget")]
-    #[doc(alias = "get_attach_widget")]
     fn attach_widget(&self) -> Option<Widget> {
         unsafe {
             from_glib_none(ffi::gtk_menu_get_attach_widget(
@@ -442,14 +816,10 @@ pub trait GtkMenuExt: IsA<Menu> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_menu_get_monitor")]
-    #[doc(alias = "get_monitor")]
     fn monitor(&self) -> i32 {
         unsafe { ffi::gtk_menu_get_monitor(self.as_ref().to_glib_none().0) }
     }
 
-    #[doc(alias = "gtk_menu_get_reserve_toggle_size")]
-    #[doc(alias = "get_reserve_toggle_size")]
     fn must_reserve_toggle_size(&self) -> bool {
         unsafe {
             from_glib(ffi::gtk_menu_get_reserve_toggle_size(
@@ -458,7 +828,8 @@ pub trait GtkMenuExt: IsA<Menu> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_menu_place_on_monitor")]
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
     fn place_on_monitor(&self, monitor: &gdk::Monitor) {
         unsafe {
             ffi::gtk_menu_place_on_monitor(
@@ -468,14 +839,18 @@ pub trait GtkMenuExt: IsA<Menu> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_menu_popdown")]
     fn popdown(&self) {
         unsafe {
             ffi::gtk_menu_popdown(self.as_ref().to_glib_none().0);
         }
     }
 
-    #[doc(alias = "gtk_menu_popup_at_pointer")]
+    //fn popup(&self, parent_menu_shell: Option<&impl IsA<Widget>>, parent_menu_item: Option<&impl IsA<Widget>>, func: Option<Box_<dyn FnOnce(&Menu, i32, i32, bool) + 'static>>, button: u32, activate_time: u32) {
+    //    unsafe { TODO: call ffi:gtk_menu_popup() }
+    //}
+
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
     fn popup_at_pointer(&self, trigger_event: Option<&gdk::Event>) {
         unsafe {
             ffi::gtk_menu_popup_at_pointer(
@@ -485,7 +860,8 @@ pub trait GtkMenuExt: IsA<Menu> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_menu_popup_at_rect")]
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
     fn popup_at_rect(
         &self,
         rect_window: &gdk::Window,
@@ -506,7 +882,8 @@ pub trait GtkMenuExt: IsA<Menu> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_menu_popup_at_widget")]
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
     fn popup_at_widget(
         &self,
         widget: &impl IsA<Widget>,
@@ -525,7 +902,10 @@ pub trait GtkMenuExt: IsA<Menu> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_menu_reorder_child")]
+    //fn popup_for_device(&self, device: Option<&gdk::Device>, parent_menu_shell: Option<&impl IsA<Widget>>, parent_menu_item: Option<&impl IsA<Widget>>, func: Option<Box_<dyn Fn(&Menu, i32, i32, bool) + 'static>>, button: u32, activate_time: u32) {
+    //    unsafe { TODO: call ffi:gtk_menu_popup_for_device() }
+    //}
+
     fn reorder_child(&self, child: &impl IsA<Widget>, position: i32) {
         unsafe {
             ffi::gtk_menu_reorder_child(
@@ -536,14 +916,12 @@ pub trait GtkMenuExt: IsA<Menu> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_menu_reposition")]
     fn reposition(&self) {
         unsafe {
             ffi::gtk_menu_reposition(self.as_ref().to_glib_none().0);
         }
     }
 
-    #[doc(alias = "gtk_menu_set_accel_group")]
     fn set_accel_group(&self, accel_group: Option<&impl IsA<AccelGroup>>) {
         unsafe {
             ffi::gtk_menu_set_accel_group(
@@ -553,7 +931,6 @@ pub trait GtkMenuExt: IsA<Menu> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_menu_set_accel_path")]
     fn set_accel_path(&self, accel_path: Option<&str>) {
         unsafe {
             ffi::gtk_menu_set_accel_path(
@@ -563,21 +940,18 @@ pub trait GtkMenuExt: IsA<Menu> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_menu_set_active")]
     fn set_active(&self, index: u32) {
         unsafe {
             ffi::gtk_menu_set_active(self.as_ref().to_glib_none().0, index);
         }
     }
 
-    #[doc(alias = "gtk_menu_set_monitor")]
     fn set_monitor(&self, monitor_num: i32) {
         unsafe {
             ffi::gtk_menu_set_monitor(self.as_ref().to_glib_none().0, monitor_num);
         }
     }
 
-    #[doc(alias = "gtk_menu_set_reserve_toggle_size")]
     fn set_reserve_toggle_size(&self, reserve_toggle_size: bool) {
         unsafe {
             ffi::gtk_menu_set_reserve_toggle_size(
@@ -587,59 +961,64 @@ pub trait GtkMenuExt: IsA<Menu> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_menu_set_screen")]
     fn set_screen(&self, screen: Option<&gdk::Screen>) {
         unsafe {
             ffi::gtk_menu_set_screen(self.as_ref().to_glib_none().0, screen.to_glib_none().0);
         }
     }
 
-    #[doc(alias = "anchor-hints")]
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
     fn anchor_hints(&self) -> gdk::AnchorHints {
-        ObjectExt::property(self.as_ref(), "anchor-hints")
+        glib::ObjectExt::property(self.as_ref(), "anchor-hints")
     }
 
-    #[doc(alias = "anchor-hints")]
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
     fn set_anchor_hints(&self, anchor_hints: gdk::AnchorHints) {
-        ObjectExt::set_property(self.as_ref(), "anchor-hints", anchor_hints)
+        glib::ObjectExt::set_property(self.as_ref(), "anchor-hints", &anchor_hints)
     }
 
-    #[doc(alias = "attach-widget")]
     fn set_attach_widget<P: IsA<Widget>>(&self, attach_widget: Option<&P>) {
-        ObjectExt::set_property(self.as_ref(), "attach-widget", attach_widget)
+        glib::ObjectExt::set_property(self.as_ref(), "attach-widget", &attach_widget)
     }
 
-    #[doc(alias = "menu-type-hint")]
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
     fn menu_type_hint(&self) -> gdk::WindowTypeHint {
-        ObjectExt::property(self.as_ref(), "menu-type-hint")
+        glib::ObjectExt::property(self.as_ref(), "menu-type-hint")
     }
 
-    #[doc(alias = "menu-type-hint")]
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
     fn set_menu_type_hint(&self, menu_type_hint: gdk::WindowTypeHint) {
-        ObjectExt::set_property(self.as_ref(), "menu-type-hint", menu_type_hint)
+        glib::ObjectExt::set_property(self.as_ref(), "menu-type-hint", &menu_type_hint)
     }
 
-    #[doc(alias = "rect-anchor-dx")]
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
     fn rect_anchor_dx(&self) -> i32 {
-        ObjectExt::property(self.as_ref(), "rect-anchor-dx")
+        glib::ObjectExt::property(self.as_ref(), "rect-anchor-dx")
     }
 
-    #[doc(alias = "rect-anchor-dx")]
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
     fn set_rect_anchor_dx(&self, rect_anchor_dx: i32) {
-        ObjectExt::set_property(self.as_ref(), "rect-anchor-dx", rect_anchor_dx)
+        glib::ObjectExt::set_property(self.as_ref(), "rect-anchor-dx", &rect_anchor_dx)
     }
 
-    #[doc(alias = "rect-anchor-dy")]
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
     fn rect_anchor_dy(&self) -> i32 {
-        ObjectExt::property(self.as_ref(), "rect-anchor-dy")
+        glib::ObjectExt::property(self.as_ref(), "rect-anchor-dy")
     }
 
-    #[doc(alias = "rect-anchor-dy")]
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
     fn set_rect_anchor_dy(&self, rect_anchor_dy: i32) {
-        ObjectExt::set_property(self.as_ref(), "rect-anchor-dy", rect_anchor_dy)
+        glib::ObjectExt::set_property(self.as_ref(), "rect-anchor-dy", &rect_anchor_dy)
     }
 
-    #[doc(alias = "item.bottom-attach")]
     fn item_bottom_attach<T: IsA<MenuItem>>(&self, item: &T) -> i32 {
         crate::prelude::ContainerExtManual::child_property(
             self.as_ref(),
@@ -648,7 +1027,6 @@ pub trait GtkMenuExt: IsA<Menu> + sealed::Sealed + 'static {
         )
     }
 
-    #[doc(alias = "item.bottom-attach")]
     fn set_item_bottom_attach<T: IsA<MenuItem>>(&self, item: &T, bottom_attach: i32) {
         crate::prelude::ContainerExtManual::child_set_property(
             self.as_ref(),
@@ -658,7 +1036,6 @@ pub trait GtkMenuExt: IsA<Menu> + sealed::Sealed + 'static {
         )
     }
 
-    #[doc(alias = "item.left-attach")]
     fn item_left_attach<T: IsA<MenuItem>>(&self, item: &T) -> i32 {
         crate::prelude::ContainerExtManual::child_property(
             self.as_ref(),
@@ -667,7 +1044,6 @@ pub trait GtkMenuExt: IsA<Menu> + sealed::Sealed + 'static {
         )
     }
 
-    #[doc(alias = "item.left-attach")]
     fn set_item_left_attach<T: IsA<MenuItem>>(&self, item: &T, left_attach: i32) {
         crate::prelude::ContainerExtManual::child_set_property(
             self.as_ref(),
@@ -677,7 +1053,6 @@ pub trait GtkMenuExt: IsA<Menu> + sealed::Sealed + 'static {
         )
     }
 
-    #[doc(alias = "item.right-attach")]
     fn item_right_attach<T: IsA<MenuItem>>(&self, item: &T) -> i32 {
         crate::prelude::ContainerExtManual::child_property(
             self.as_ref(),
@@ -686,7 +1061,6 @@ pub trait GtkMenuExt: IsA<Menu> + sealed::Sealed + 'static {
         )
     }
 
-    #[doc(alias = "item.right-attach")]
     fn set_item_right_attach<T: IsA<MenuItem>>(&self, item: &T, right_attach: i32) {
         crate::prelude::ContainerExtManual::child_set_property(
             self.as_ref(),
@@ -696,7 +1070,6 @@ pub trait GtkMenuExt: IsA<Menu> + sealed::Sealed + 'static {
         )
     }
 
-    #[doc(alias = "item.top-attach")]
     fn item_top_attach<T: IsA<MenuItem>>(&self, item: &T) -> i32 {
         crate::prelude::ContainerExtManual::child_property(
             self.as_ref(),
@@ -705,7 +1078,6 @@ pub trait GtkMenuExt: IsA<Menu> + sealed::Sealed + 'static {
         )
     }
 
-    #[doc(alias = "item.top-attach")]
     fn set_item_top_attach<T: IsA<MenuItem>>(&self, item: &T, top_attach: i32) {
         crate::prelude::ContainerExtManual::child_set_property(
             self.as_ref(),
@@ -715,7 +1087,6 @@ pub trait GtkMenuExt: IsA<Menu> + sealed::Sealed + 'static {
         )
     }
 
-    #[doc(alias = "move-scroll")]
     fn connect_move_scroll<F: Fn(&Self, ScrollType) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn move_scroll_trampoline<
             P: IsA<Menu>,
@@ -748,13 +1119,13 @@ pub trait GtkMenuExt: IsA<Menu> + sealed::Sealed + 'static {
         self.emit_by_name::<()>("move-scroll", &[&scroll_type]);
     }
 
-    //#[doc(alias = "popped-up")]
+    //#[cfg(any(feature = "v3_22", feature = "dox"))]
+    //#[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
     //fn connect_popped_up<Unsupported or ignored types>(&self, f: F) -> SignalHandlerId {
     //    Unimplemented flipped_rect: *.Pointer
     //    Unimplemented final_rect: *.Pointer
     //}
 
-    #[doc(alias = "accel-group")]
     fn connect_accel_group_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_accel_group_trampoline<P: IsA<Menu>, F: Fn(&P) + 'static>(
             this: *mut ffi::GtkMenu,
@@ -777,7 +1148,6 @@ pub trait GtkMenuExt: IsA<Menu> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "accel-path")]
     fn connect_accel_path_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_accel_path_trampoline<P: IsA<Menu>, F: Fn(&P) + 'static>(
             this: *mut ffi::GtkMenu,
@@ -800,7 +1170,6 @@ pub trait GtkMenuExt: IsA<Menu> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "active")]
     fn connect_active_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_active_trampoline<P: IsA<Menu>, F: Fn(&P) + 'static>(
             this: *mut ffi::GtkMenu,
@@ -823,7 +1192,8 @@ pub trait GtkMenuExt: IsA<Menu> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "anchor-hints")]
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
     fn connect_anchor_hints_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_anchor_hints_trampoline<P: IsA<Menu>, F: Fn(&P) + 'static>(
             this: *mut ffi::GtkMenu,
@@ -846,7 +1216,6 @@ pub trait GtkMenuExt: IsA<Menu> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "attach-widget")]
     fn connect_attach_widget_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_attach_widget_trampoline<P: IsA<Menu>, F: Fn(&P) + 'static>(
             this: *mut ffi::GtkMenu,
@@ -869,7 +1238,8 @@ pub trait GtkMenuExt: IsA<Menu> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "menu-type-hint")]
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
     fn connect_menu_type_hint_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_menu_type_hint_trampoline<P: IsA<Menu>, F: Fn(&P) + 'static>(
             this: *mut ffi::GtkMenu,
@@ -892,7 +1262,6 @@ pub trait GtkMenuExt: IsA<Menu> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "monitor")]
     fn connect_monitor_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_monitor_trampoline<P: IsA<Menu>, F: Fn(&P) + 'static>(
             this: *mut ffi::GtkMenu,
@@ -915,7 +1284,8 @@ pub trait GtkMenuExt: IsA<Menu> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "rect-anchor-dx")]
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
     fn connect_rect_anchor_dx_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_rect_anchor_dx_trampoline<P: IsA<Menu>, F: Fn(&P) + 'static>(
             this: *mut ffi::GtkMenu,
@@ -938,7 +1308,8 @@ pub trait GtkMenuExt: IsA<Menu> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "rect-anchor-dy")]
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
     fn connect_rect_anchor_dy_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_rect_anchor_dy_trampoline<P: IsA<Menu>, F: Fn(&P) + 'static>(
             this: *mut ffi::GtkMenu,
@@ -961,7 +1332,6 @@ pub trait GtkMenuExt: IsA<Menu> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "reserve-toggle-size")]
     fn connect_reserve_toggle_size_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_reserve_toggle_size_trampoline<
             P: IsA<Menu>,
@@ -987,8 +1357,6 @@ pub trait GtkMenuExt: IsA<Menu> + sealed::Sealed + 'static {
         }
     }
 }
-
-impl<O: IsA<Menu>> GtkMenuExt for O {}
 
 impl fmt::Display for Menu {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {

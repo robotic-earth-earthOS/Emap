@@ -98,13 +98,10 @@ pub use self::text_range::TextRange;
 mod enums;
 pub use self::enums::CoordType;
 pub use self::enums::Layer;
-#[cfg(feature = "v2_50")]
-#[cfg_attr(docsrs, doc(cfg(feature = "v2_50")))]
-pub use self::enums::Live;
 pub use self::enums::RelationType;
 pub use self::enums::Role;
-#[cfg(feature = "v2_30")]
-#[cfg_attr(docsrs, doc(cfg(feature = "v2_30")))]
+#[cfg(any(feature = "v2_30", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v2_30")))]
 pub use self::enums::ScrollType;
 pub use self::enums::StateType;
 pub use self::enums::TextAttribute;

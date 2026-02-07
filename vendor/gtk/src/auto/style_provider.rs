@@ -2,8 +2,10 @@
 // from gir-files (https://github.com/gtk-rs/gir-files)
 // DO NOT EDIT
 
-use crate::{StateFlags, WidgetPath};
-use glib::{prelude::*, translate::*};
+use crate::StateFlags;
+use crate::WidgetPath;
+use glib::object::IsA;
+use glib::translate::*;
 use std::fmt;
 
 glib::wrapper! {
@@ -19,14 +21,18 @@ impl StyleProvider {
     pub const NONE: Option<&'static StyleProvider> = None;
 }
 
-mod sealed {
-    pub trait Sealed {}
-    impl<T: super::IsA<super::StyleProvider>> Sealed for T {}
-}
-
-pub trait StyleProviderExt: IsA<StyleProvider> + sealed::Sealed + 'static {
+pub trait StyleProviderExt: 'static {
     #[doc(alias = "gtk_style_provider_get_style_property")]
     #[doc(alias = "get_style_property")]
+    fn style_property(
+        &self,
+        path: &WidgetPath,
+        state: StateFlags,
+        pspec: impl AsRef<glib::ParamSpec>,
+    ) -> Option<glib::Value>;
+}
+
+impl<O: IsA<StyleProvider>> StyleProviderExt for O {
     fn style_property(
         &self,
         path: &WidgetPath,
@@ -50,8 +56,6 @@ pub trait StyleProviderExt: IsA<StyleProvider> + sealed::Sealed + 'static {
         }
     }
 }
-
-impl<O: IsA<StyleProvider>> StyleProviderExt for O {}
 
 impl fmt::Display for StyleProvider {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {

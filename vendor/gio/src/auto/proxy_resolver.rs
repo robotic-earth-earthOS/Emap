@@ -2,9 +2,14 @@
 // from gir-files (https://github.com/gtk-rs/gir-files)
 // DO NOT EDIT
 
-use crate::{AsyncResult, Cancellable};
-use glib::{prelude::*, translate::*};
-use std::{boxed::Box as Box_, fmt, pin::Pin, ptr};
+use crate::AsyncResult;
+use crate::Cancellable;
+use glib::object::IsA;
+use glib::translate::*;
+use std::boxed::Box as Box_;
+use std::fmt;
+use std::pin::Pin;
+use std::ptr;
 
 glib::wrapper! {
     #[doc(alias = "GProxyResolver")]
@@ -20,19 +25,39 @@ impl ProxyResolver {
 
     #[doc(alias = "g_proxy_resolver_get_default")]
     #[doc(alias = "get_default")]
-    #[allow(clippy::should_implement_trait)]
     pub fn default() -> ProxyResolver {
         unsafe { from_glib_none(ffi::g_proxy_resolver_get_default()) }
     }
 }
 
-mod sealed {
-    pub trait Sealed {}
-    impl<T: super::IsA<super::ProxyResolver>> Sealed for T {}
+pub trait ProxyResolverExt: 'static {
+    #[doc(alias = "g_proxy_resolver_is_supported")]
+    fn is_supported(&self) -> bool;
+
+    #[doc(alias = "g_proxy_resolver_lookup")]
+    fn lookup(
+        &self,
+        uri: &str,
+        cancellable: Option<&impl IsA<Cancellable>>,
+    ) -> Result<Vec<glib::GString>, glib::Error>;
+
+    #[doc(alias = "g_proxy_resolver_lookup_async")]
+    fn lookup_async<P: FnOnce(Result<Vec<glib::GString>, glib::Error>) + 'static>(
+        &self,
+        uri: &str,
+        cancellable: Option<&impl IsA<Cancellable>>,
+        callback: P,
+    );
+
+    fn lookup_future(
+        &self,
+        uri: &str,
+    ) -> Pin<
+        Box_<dyn std::future::Future<Output = Result<Vec<glib::GString>, glib::Error>> + 'static>,
+    >;
 }
 
-pub trait ProxyResolverExt: IsA<ProxyResolver> + sealed::Sealed + 'static {
-    #[doc(alias = "g_proxy_resolver_is_supported")]
+impl<O: IsA<ProxyResolver>> ProxyResolverExt for O {
     fn is_supported(&self) -> bool {
         unsafe {
             from_glib(ffi::g_proxy_resolver_is_supported(
@@ -41,7 +66,6 @@ pub trait ProxyResolverExt: IsA<ProxyResolver> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_proxy_resolver_lookup")]
     fn lookup(
         &self,
         uri: &str,
@@ -63,7 +87,6 @@ pub trait ProxyResolverExt: IsA<ProxyResolver> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_proxy_resolver_lookup_async")]
     fn lookup_async<P: FnOnce(Result<Vec<glib::GString>, glib::Error>) + 'static>(
         &self,
         uri: &str,
@@ -131,8 +154,6 @@ pub trait ProxyResolverExt: IsA<ProxyResolver> + sealed::Sealed + 'static {
         ))
     }
 }
-
-impl<O: IsA<ProxyResolver>> ProxyResolverExt for O {}
 
 impl fmt::Display for ProxyResolver {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {

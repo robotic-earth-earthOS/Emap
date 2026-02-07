@@ -11,38 +11,21 @@
 
 [package]
 edition = "2021"
-rust-version = "1.70"
+rust-version = "1.56"
 name = "pango-sys"
-version = "0.18.0"
+version = "0.15.10"
 authors = ["The gtk-rs Project Developers"]
 build = "build.rs"
 description = "FFI bindings to libpango-1.0"
-homepage = "https://gtk-rs.org/"
-keywords = [
-    "pango",
-    "ffi",
-    "gtk-rs",
-    "gnome",
-]
+homepage = "http://gtk-rs.org/"
+keywords = ["pango", "ffi", "gtk-rs", "gnome"]
 license = "MIT"
 repository = "https://github.com/gtk-rs/gtk-rs-core"
-resolver = "1"
-
 [package.metadata.docs.rs]
-all-features = true
-features = []
-rustc-args = [
-    "--cfg",
-    "docsrs",
-]
-rustdoc-args = [
-    "--cfg",
-    "docsrs",
-]
-
+features = ["dox"]
 [package.metadata.system-deps.pango]
 name = "pango"
-version = "1.40"
+version = "1.38"
 
 [package.metadata.system-deps.pango.v1_42]
 version = "1.42"
@@ -60,32 +43,30 @@ version = "1.48"
 version = "1.49.2"
 
 [package.metadata.system-deps.pango.v1_52]
-version = "1.51"
+version = "1.52"
 
 [lib]
 name = "pango_sys"
-
 [dependencies.glib]
-version = "0.18"
+version = "0.15.1"
 package = "glib-sys"
 
 [dependencies.gobject]
-version = "0.18"
+version = "0.15.1"
 package = "gobject-sys"
 
 [dependencies.libc]
 version = "0.2"
-
 [dev-dependencies.shell-words]
 version = "1.0.0"
 
 [dev-dependencies.tempfile]
 version = "3"
-
 [build-dependencies.system-deps]
 version = "6"
 
 [features]
+dox = []
 v1_42 = []
 v1_44 = ["v1_42"]
 v1_46 = ["v1_44"]

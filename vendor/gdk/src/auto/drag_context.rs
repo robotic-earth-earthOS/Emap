@@ -2,13 +2,31 @@
 // from gir-files (https://github.com/gtk-rs/gir-files)
 // DO NOT EDIT
 
-use crate::{Atom, Device, DragAction, DragCancelReason, DragProtocol, Window};
-use glib::{
-    prelude::*,
-    signal::{connect_raw, SignalHandlerId},
-    translate::*,
-};
-use std::{boxed::Box as Box_, fmt, mem::transmute};
+use crate::Atom;
+use crate::Device;
+use crate::DragAction;
+#[cfg(any(feature = "v3_20", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
+use crate::DragCancelReason;
+use crate::DragProtocol;
+use crate::Window;
+#[cfg(any(feature = "v3_20", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
+use glib::object::ObjectType as ObjectType_;
+#[cfg(any(feature = "v3_20", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
+use glib::signal::connect_raw;
+#[cfg(any(feature = "v3_20", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
+use glib::signal::SignalHandlerId;
+use glib::translate::*;
+#[cfg(any(feature = "v3_20", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
+use std::boxed::Box as Box_;
+use std::fmt;
+#[cfg(any(feature = "v3_20", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
+use std::mem::transmute;
 
 glib::wrapper! {
     #[doc(alias = "GdkDragContext")]
@@ -38,6 +56,8 @@ impl DragContext {
         unsafe { from_glib_none(ffi::gdk_drag_context_get_device(self.to_glib_none().0)) }
     }
 
+    #[cfg(any(feature = "v3_20", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
     #[doc(alias = "gdk_drag_context_get_drag_window")]
     #[doc(alias = "get_drag_window")]
     pub fn drag_window(&self) -> Option<Window> {
@@ -89,6 +109,8 @@ impl DragContext {
         }
     }
 
+    #[cfg(any(feature = "v3_20", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
     #[doc(alias = "gdk_drag_context_manage_dnd")]
     pub fn manage_dnd(&self, ipc_window: &Window, actions: DragAction) -> bool {
         unsafe {
@@ -101,15 +123,14 @@ impl DragContext {
     }
 
     #[doc(alias = "gdk_drag_context_set_device")]
-    pub fn set_device(&self, device: &impl IsA<Device>) {
+    pub fn set_device(&self, device: &Device) {
         unsafe {
-            ffi::gdk_drag_context_set_device(
-                self.to_glib_none().0,
-                device.as_ref().to_glib_none().0,
-            );
+            ffi::gdk_drag_context_set_device(self.to_glib_none().0, device.to_glib_none().0);
         }
     }
 
+    #[cfg(any(feature = "v3_20", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
     #[doc(alias = "gdk_drag_context_set_hotspot")]
     pub fn set_hotspot(&self, hot_x: i32, hot_y: i32) {
         unsafe {
@@ -117,6 +138,8 @@ impl DragContext {
         }
     }
 
+    #[cfg(any(feature = "v3_20", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
     #[doc(alias = "action-changed")]
     pub fn connect_action_changed<F: Fn(&Self, DragAction) + 'static>(
         &self,
@@ -145,6 +168,8 @@ impl DragContext {
         }
     }
 
+    #[cfg(any(feature = "v3_20", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
     #[doc(alias = "cancel")]
     pub fn connect_cancel<F: Fn(&Self, DragCancelReason) + 'static>(
         &self,
@@ -171,6 +196,8 @@ impl DragContext {
         }
     }
 
+    #[cfg(any(feature = "v3_20", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
     #[doc(alias = "dnd-finished")]
     pub fn connect_dnd_finished<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn dnd_finished_trampoline<F: Fn(&DragContext) + 'static>(
@@ -193,6 +220,8 @@ impl DragContext {
         }
     }
 
+    #[cfg(any(feature = "v3_20", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
     #[doc(alias = "drop-performed")]
     pub fn connect_drop_performed<F: Fn(&Self, i32) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn drop_performed_trampoline<F: Fn(&DragContext, i32) + 'static>(

@@ -1,19 +1,20 @@
 // Take a look at the license at the top of the repository in the LICENSE file.
 
-#[cfg(all(unix, feature = "v2_58"))]
-use std::boxed::Box as Box_;
-#[cfg(all(unix, feature = "v2_58"))]
-use std::os::unix::io::AsRawFd;
-#[cfg(all(unix, feature = "v2_58"))]
-use std::ptr;
-
-#[cfg(all(feature = "v2_58", unix))]
-use glib::Error;
-use glib::{prelude::*, translate::*, GString};
-
-#[cfg(all(feature = "v2_58", unix))]
+#[cfg(any(all(feature = "v2_58", unix), all(unix, feature = "dox")))]
 use crate::AppLaunchContext;
 use crate::DesktopAppInfo;
+use glib::object::IsA;
+use glib::translate::*;
+#[cfg(any(all(feature = "v2_58", unix), all(unix, feature = "dox")))]
+use glib::Error;
+use glib::GString;
+#[cfg(any(all(feature = "v2_58", unix), all(unix, feature = "dox")))]
+use std::boxed::Box as Box_;
+#[cfg(any(all(feature = "v2_58", unix), all(unix, feature = "dox")))]
+use std::ptr;
+
+#[cfg(any(all(feature = "v2_58", unix), all(unix, feature = "dox")))]
+use std::os::unix::io::AsRawFd;
 
 impl DesktopAppInfo {
     #[doc(alias = "g_desktop_app_info_search")]
@@ -44,15 +45,31 @@ impl DesktopAppInfo {
     }
 }
 
-mod sealed {
-    pub trait Sealed {}
-    impl<T: super::IsA<super::DesktopAppInfo>> Sealed for T {}
+pub trait DesktopAppInfoExtManual {
+    #[cfg(any(all(feature = "v2_58", unix), all(unix, feature = "dox")))]
+    #[cfg_attr(feature = "dox", doc(cfg(all(feature = "v2_58", unix))))]
+    #[doc(alias = "g_desktop_app_info_launch_uris_as_manager_with_fds")]
+    fn launch_uris_as_manager_with_fds<
+        P: IsA<AppLaunchContext>,
+        T: AsRawFd,
+        U: AsRawFd,
+        V: AsRawFd,
+    >(
+        &self,
+        uris: &[&str],
+        launch_context: Option<&P>,
+        spawn_flags: glib::SpawnFlags,
+        user_setup: Option<Box_<dyn FnOnce() + 'static>>,
+        pid_callback: Option<&mut dyn (FnMut(&DesktopAppInfo, glib::Pid))>,
+        stdin_fd: &mut T,
+        stdout_fd: &mut U,
+        stderr_fd: &mut V,
+    ) -> Result<(), Error>;
 }
 
-pub trait DesktopAppInfoExtManual: sealed::Sealed + IsA<DesktopAppInfo> {
-    #[cfg(all(feature = "v2_58", unix))]
-    #[cfg_attr(docsrs, doc(cfg(all(feature = "v2_58", unix))))]
-    #[doc(alias = "g_desktop_app_info_launch_uris_as_manager_with_fds")]
+impl<O: IsA<DesktopAppInfo>> DesktopAppInfoExtManual for O {
+    #[cfg(any(all(feature = "v2_58", unix), all(unix, feature = "dox")))]
+    #[cfg_attr(feature = "dox", doc(cfg(all(feature = "v2_58", unix))))]
     fn launch_uris_as_manager_with_fds<
         P: IsA<AppLaunchContext>,
         T: AsRawFd,
@@ -70,19 +87,21 @@ pub trait DesktopAppInfoExtManual: sealed::Sealed + IsA<DesktopAppInfo> {
         stderr_fd: &mut V,
     ) -> Result<(), Error> {
         let user_setup_data: Box_<Option<Box_<dyn FnOnce() + 'static>>> = Box_::new(user_setup);
-        unsafe extern "C" fn user_setup_func(user_data: glib::ffi::gpointer) {
+        unsafe extern "C" fn user_setup_func<P: IsA<AppLaunchContext>>(
+            user_data: glib::ffi::gpointer,
+        ) {
             let callback: Box_<Option<Box_<dyn FnOnce() + 'static>>> =
                 Box_::from_raw(user_data as *mut _);
             let callback = (*callback).expect("cannot get closure...");
             callback()
         }
         let user_setup = if user_setup_data.is_some() {
-            Some(user_setup_func as _)
+            Some(user_setup_func::<P> as _)
         } else {
             None
         };
         let pid_callback_data: Option<&mut dyn (FnMut(&DesktopAppInfo, glib::Pid))> = pid_callback;
-        unsafe extern "C" fn pid_callback_func(
+        unsafe extern "C" fn pid_callback_func<P: IsA<AppLaunchContext>>(
             appinfo: *mut ffi::GDesktopAppInfo,
             pid: glib::ffi::GPid,
             user_data: glib::ffi::gpointer,
@@ -99,7 +118,7 @@ pub trait DesktopAppInfoExtManual: sealed::Sealed + IsA<DesktopAppInfo> {
             };
         }
         let pid_callback = if pid_callback_data.is_some() {
-            Some(pid_callback_func as _)
+            Some(pid_callback_func::<P> as _)
         } else {
             None
         };
@@ -130,5 +149,3 @@ pub trait DesktopAppInfoExtManual: sealed::Sealed + IsA<DesktopAppInfo> {
         }
     }
 }
-
-impl<O: IsA<DesktopAppInfo>> DesktopAppInfoExtManual for O {}

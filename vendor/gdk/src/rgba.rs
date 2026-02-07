@@ -72,6 +72,7 @@ impl RGBA {
             blue: 0f64,
             alpha: 1f64,
         },
+        phantom: std::marker::PhantomData,
     };
 
     pub const BLUE: RGBA = RGBA {
@@ -81,6 +82,7 @@ impl RGBA {
             blue: 1f64,
             alpha: 1f64,
         },
+        phantom: std::marker::PhantomData,
     };
 
     pub const GREEN: RGBA = RGBA {
@@ -90,6 +92,7 @@ impl RGBA {
             blue: 0f64,
             alpha: 1f64,
         },
+        phantom: std::marker::PhantomData,
     };
 
     pub const RED: RGBA = RGBA {
@@ -99,6 +102,7 @@ impl RGBA {
             blue: 0f64,
             alpha: 1f64,
         },
+        phantom: std::marker::PhantomData,
     };
 
     pub const WHITE: RGBA = RGBA {
@@ -108,6 +112,7 @@ impl RGBA {
             blue: 1f64,
             alpha: 1f64,
         },
+        phantom: std::marker::PhantomData,
     };
 }
 

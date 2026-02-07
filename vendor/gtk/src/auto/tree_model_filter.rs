@@ -2,9 +2,15 @@
 // from gir-files (https://github.com/gtk-rs/gir-files)
 // DO NOT EDIT
 
-use crate::{TreeDragSource, TreeIter, TreeModel, TreePath};
-use glib::{prelude::*, translate::*};
-use std::{boxed::Box as Box_, fmt};
+use crate::TreeDragSource;
+use crate::TreeIter;
+use crate::TreeModel;
+use crate::TreePath;
+use glib::object::IsA;
+use glib::translate::*;
+use glib::StaticType;
+use std::boxed::Box as Box_;
+use std::fmt;
 
 glib::wrapper! {
     #[doc(alias = "GtkTreeModelFilter")]
@@ -19,20 +25,49 @@ impl TreeModelFilter {
     pub const NONE: Option<&'static TreeModelFilter> = None;
 }
 
-mod sealed {
-    pub trait Sealed {}
-    impl<T: super::IsA<super::TreeModelFilter>> Sealed for T {}
+pub trait TreeModelFilterExt: 'static {
+    #[doc(alias = "gtk_tree_model_filter_clear_cache")]
+    fn clear_cache(&self);
+
+    #[doc(alias = "gtk_tree_model_filter_convert_child_iter_to_iter")]
+    fn convert_child_iter_to_iter(&self, child_iter: &TreeIter) -> Option<TreeIter>;
+
+    #[doc(alias = "gtk_tree_model_filter_convert_child_path_to_path")]
+    fn convert_child_path_to_path(&self, child_path: &TreePath) -> Option<TreePath>;
+
+    #[doc(alias = "gtk_tree_model_filter_convert_iter_to_child_iter")]
+    fn convert_iter_to_child_iter(&self, filter_iter: &TreeIter) -> TreeIter;
+
+    #[doc(alias = "gtk_tree_model_filter_convert_path_to_child_path")]
+    fn convert_path_to_child_path(&self, filter_path: &TreePath) -> Option<TreePath>;
+
+    #[doc(alias = "gtk_tree_model_filter_get_model")]
+    #[doc(alias = "get_model")]
+    fn model(&self) -> Option<TreeModel>;
+
+    #[doc(alias = "gtk_tree_model_filter_refilter")]
+    fn refilter(&self);
+
+    //#[doc(alias = "gtk_tree_model_filter_set_modify_func")]
+    //fn set_modify_func<P: Fn(&TreeModel, &TreeIter, &glib::Value, i32) + 'static>(&self, types: /*Unimplemented*/&CArray TypeId { ns_id: 0, id: 30 }, func: P);
+
+    #[doc(alias = "gtk_tree_model_filter_set_visible_column")]
+    fn set_visible_column(&self, column: i32);
+
+    #[doc(alias = "gtk_tree_model_filter_set_visible_func")]
+    fn set_visible_func<P: Fn(&TreeModel, &TreeIter) -> bool + 'static>(&self, func: P);
+
+    #[doc(alias = "child-model")]
+    fn child_model(&self) -> Option<TreeModel>;
 }
 
-pub trait TreeModelFilterExt: IsA<TreeModelFilter> + sealed::Sealed + 'static {
-    #[doc(alias = "gtk_tree_model_filter_clear_cache")]
+impl<O: IsA<TreeModelFilter>> TreeModelFilterExt for O {
     fn clear_cache(&self) {
         unsafe {
             ffi::gtk_tree_model_filter_clear_cache(self.as_ref().to_glib_none().0);
         }
     }
 
-    #[doc(alias = "gtk_tree_model_filter_convert_child_iter_to_iter")]
     fn convert_child_iter_to_iter(&self, child_iter: &TreeIter) -> Option<TreeIter> {
         unsafe {
             let mut filter_iter = TreeIter::uninitialized();
@@ -49,7 +84,6 @@ pub trait TreeModelFilterExt: IsA<TreeModelFilter> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_tree_model_filter_convert_child_path_to_path")]
     fn convert_child_path_to_path(&self, child_path: &TreePath) -> Option<TreePath> {
         unsafe {
             from_glib_full(ffi::gtk_tree_model_filter_convert_child_path_to_path(
@@ -59,7 +93,6 @@ pub trait TreeModelFilterExt: IsA<TreeModelFilter> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_tree_model_filter_convert_iter_to_child_iter")]
     fn convert_iter_to_child_iter(&self, filter_iter: &TreeIter) -> TreeIter {
         unsafe {
             let mut child_iter = TreeIter::uninitialized();
@@ -72,7 +105,6 @@ pub trait TreeModelFilterExt: IsA<TreeModelFilter> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_tree_model_filter_convert_path_to_child_path")]
     fn convert_path_to_child_path(&self, filter_path: &TreePath) -> Option<TreePath> {
         unsafe {
             from_glib_full(ffi::gtk_tree_model_filter_convert_path_to_child_path(
@@ -82,8 +114,6 @@ pub trait TreeModelFilterExt: IsA<TreeModelFilter> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_tree_model_filter_get_model")]
-    #[doc(alias = "get_model")]
     fn model(&self) -> Option<TreeModel> {
         unsafe {
             from_glib_none(ffi::gtk_tree_model_filter_get_model(
@@ -92,26 +122,22 @@ pub trait TreeModelFilterExt: IsA<TreeModelFilter> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_tree_model_filter_refilter")]
     fn refilter(&self) {
         unsafe {
             ffi::gtk_tree_model_filter_refilter(self.as_ref().to_glib_none().0);
         }
     }
 
-    //#[doc(alias = "gtk_tree_model_filter_set_modify_func")]
     //fn set_modify_func<P: Fn(&TreeModel, &TreeIter, &glib::Value, i32) + 'static>(&self, types: /*Unimplemented*/&CArray TypeId { ns_id: 0, id: 30 }, func: P) {
     //    unsafe { TODO: call ffi:gtk_tree_model_filter_set_modify_func() }
     //}
 
-    #[doc(alias = "gtk_tree_model_filter_set_visible_column")]
     fn set_visible_column(&self, column: i32) {
         unsafe {
             ffi::gtk_tree_model_filter_set_visible_column(self.as_ref().to_glib_none().0, column);
         }
     }
 
-    #[doc(alias = "gtk_tree_model_filter_set_visible_func")]
     fn set_visible_func<P: Fn(&TreeModel, &TreeIter) -> bool + 'static>(&self, func: P) {
         let func_data: Box_<P> = Box_::new(func);
         unsafe extern "C" fn func_func<P: Fn(&TreeModel, &TreeIter) -> bool + 'static>(
@@ -122,7 +148,8 @@ pub trait TreeModelFilterExt: IsA<TreeModelFilter> + sealed::Sealed + 'static {
             let model = from_glib_borrow(model);
             let iter = from_glib_borrow(iter);
             let callback: &P = &*(data as *mut _);
-            (*callback)(&model, &iter).into_glib()
+            let res = (*callback)(&model, &iter);
+            res.into_glib()
         }
         let func = Some(func_func::<P> as _);
         unsafe extern "C" fn destroy_func<P: Fn(&TreeModel, &TreeIter) -> bool + 'static>(
@@ -142,13 +169,10 @@ pub trait TreeModelFilterExt: IsA<TreeModelFilter> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "child-model")]
     fn child_model(&self) -> Option<TreeModel> {
-        ObjectExt::property(self.as_ref(), "child-model")
+        glib::ObjectExt::property(self.as_ref(), "child-model")
     }
 }
-
-impl<O: IsA<TreeModelFilter>> TreeModelFilterExt for O {}
 
 impl fmt::Display for TreeModelFilter {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {

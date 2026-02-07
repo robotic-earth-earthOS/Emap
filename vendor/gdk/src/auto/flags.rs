@@ -2,92 +2,97 @@
 // from gir-files (https://github.com/gtk-rs/gir-files)
 // DO NOT EDIT
 
-use glib::{bitflags::bitflags, prelude::*, translate::*};
+use bitflags::bitflags;
+use glib::translate::*;
+use glib::value::FromValue;
+use glib::value::ToValue;
+use glib::StaticType;
+use glib::Type;
 use std::fmt;
 
+#[cfg(any(feature = "v3_22", feature = "dox"))]
 bitflags! {
-    #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
     #[doc(alias = "GdkAnchorHints")]
     pub struct AnchorHints: u32 {
         #[doc(alias = "GDK_ANCHOR_FLIP_X")]
-        const FLIP_X = ffi::GDK_ANCHOR_FLIP_X as _;
+        const FLIP_X = ffi::GDK_ANCHOR_FLIP_X as u32;
         #[doc(alias = "GDK_ANCHOR_FLIP_Y")]
-        const FLIP_Y = ffi::GDK_ANCHOR_FLIP_Y as _;
+        const FLIP_Y = ffi::GDK_ANCHOR_FLIP_Y as u32;
         #[doc(alias = "GDK_ANCHOR_SLIDE_X")]
-        const SLIDE_X = ffi::GDK_ANCHOR_SLIDE_X as _;
+        const SLIDE_X = ffi::GDK_ANCHOR_SLIDE_X as u32;
         #[doc(alias = "GDK_ANCHOR_SLIDE_Y")]
-        const SLIDE_Y = ffi::GDK_ANCHOR_SLIDE_Y as _;
+        const SLIDE_Y = ffi::GDK_ANCHOR_SLIDE_Y as u32;
         #[doc(alias = "GDK_ANCHOR_RESIZE_X")]
-        const RESIZE_X = ffi::GDK_ANCHOR_RESIZE_X as _;
+        const RESIZE_X = ffi::GDK_ANCHOR_RESIZE_X as u32;
         #[doc(alias = "GDK_ANCHOR_RESIZE_Y")]
-        const RESIZE_Y = ffi::GDK_ANCHOR_RESIZE_Y as _;
+        const RESIZE_Y = ffi::GDK_ANCHOR_RESIZE_Y as u32;
         #[doc(alias = "GDK_ANCHOR_FLIP")]
-        const FLIP = ffi::GDK_ANCHOR_FLIP as _;
+        const FLIP = ffi::GDK_ANCHOR_FLIP as u32;
         #[doc(alias = "GDK_ANCHOR_SLIDE")]
-        const SLIDE = ffi::GDK_ANCHOR_SLIDE as _;
+        const SLIDE = ffi::GDK_ANCHOR_SLIDE as u32;
         #[doc(alias = "GDK_ANCHOR_RESIZE")]
-        const RESIZE = ffi::GDK_ANCHOR_RESIZE as _;
+        const RESIZE = ffi::GDK_ANCHOR_RESIZE as u32;
     }
 }
 
+#[cfg(any(feature = "v3_22", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
 impl fmt::Display for AnchorHints {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         <Self as fmt::Debug>::fmt(self, f)
     }
 }
 
+#[cfg(any(feature = "v3_22", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
 #[doc(hidden)]
 impl IntoGlib for AnchorHints {
     type GlibType = ffi::GdkAnchorHints;
 
-    #[inline]
     fn into_glib(self) -> ffi::GdkAnchorHints {
         self.bits()
     }
 }
 
+#[cfg(any(feature = "v3_22", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
 #[doc(hidden)]
 impl FromGlib<ffi::GdkAnchorHints> for AnchorHints {
-    #[inline]
     unsafe fn from_glib(value: ffi::GdkAnchorHints) -> Self {
         skip_assert_initialized!();
         Self::from_bits_truncate(value)
     }
 }
 
+#[cfg(any(feature = "v3_22", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
 impl StaticType for AnchorHints {
-    #[inline]
-    fn static_type() -> glib::Type {
+    fn static_type() -> Type {
         unsafe { from_glib(ffi::gdk_anchor_hints_get_type()) }
     }
 }
 
-impl glib::HasParamSpec for AnchorHints {
-    type ParamSpec = glib::ParamSpecFlags;
-    type SetValue = Self;
-    type BuilderFn = fn(&str) -> glib::ParamSpecFlagsBuilder<Self>;
-
-    fn param_spec_builder() -> Self::BuilderFn {
-        |name| Self::ParamSpec::builder(name)
-    }
-}
-
+#[cfg(any(feature = "v3_22", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
 impl glib::value::ValueType for AnchorHints {
     type Type = Self;
 }
 
-unsafe impl<'a> glib::value::FromValue<'a> for AnchorHints {
+#[cfg(any(feature = "v3_22", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
+unsafe impl<'a> FromValue<'a> for AnchorHints {
     type Checker = glib::value::GenericValueTypeChecker<Self>;
 
-    #[inline]
     unsafe fn from_value(value: &'a glib::Value) -> Self {
         skip_assert_initialized!();
         from_glib(glib::gobject_ffi::g_value_get_flags(value.to_glib_none().0))
     }
 }
 
+#[cfg(any(feature = "v3_22", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
 impl ToValue for AnchorHints {
-    #[inline]
     fn to_value(&self) -> glib::Value {
         let mut value = glib::Value::for_value_type::<Self>();
         unsafe {
@@ -96,103 +101,94 @@ impl ToValue for AnchorHints {
         value
     }
 
-    #[inline]
     fn value_type(&self) -> glib::Type {
         Self::static_type()
     }
 }
 
-impl From<AnchorHints> for glib::Value {
-    #[inline]
-    fn from(v: AnchorHints) -> Self {
-        skip_assert_initialized!();
-        ToValue::to_value(&v)
-    }
-}
-
+#[cfg(any(feature = "v3_22", feature = "dox"))]
 bitflags! {
-    #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
     #[doc(alias = "GdkAxisFlags")]
     pub struct AxisFlags: u32 {
         #[doc(alias = "GDK_AXIS_FLAG_X")]
-        const X = ffi::GDK_AXIS_FLAG_X as _;
+        const X = ffi::GDK_AXIS_FLAG_X as u32;
         #[doc(alias = "GDK_AXIS_FLAG_Y")]
-        const Y = ffi::GDK_AXIS_FLAG_Y as _;
+        const Y = ffi::GDK_AXIS_FLAG_Y as u32;
         #[doc(alias = "GDK_AXIS_FLAG_PRESSURE")]
-        const PRESSURE = ffi::GDK_AXIS_FLAG_PRESSURE as _;
+        const PRESSURE = ffi::GDK_AXIS_FLAG_PRESSURE as u32;
         #[doc(alias = "GDK_AXIS_FLAG_XTILT")]
-        const XTILT = ffi::GDK_AXIS_FLAG_XTILT as _;
+        const XTILT = ffi::GDK_AXIS_FLAG_XTILT as u32;
         #[doc(alias = "GDK_AXIS_FLAG_YTILT")]
-        const YTILT = ffi::GDK_AXIS_FLAG_YTILT as _;
+        const YTILT = ffi::GDK_AXIS_FLAG_YTILT as u32;
         #[doc(alias = "GDK_AXIS_FLAG_WHEEL")]
-        const WHEEL = ffi::GDK_AXIS_FLAG_WHEEL as _;
+        const WHEEL = ffi::GDK_AXIS_FLAG_WHEEL as u32;
         #[doc(alias = "GDK_AXIS_FLAG_DISTANCE")]
-        const DISTANCE = ffi::GDK_AXIS_FLAG_DISTANCE as _;
+        const DISTANCE = ffi::GDK_AXIS_FLAG_DISTANCE as u32;
         #[doc(alias = "GDK_AXIS_FLAG_ROTATION")]
-        const ROTATION = ffi::GDK_AXIS_FLAG_ROTATION as _;
+        const ROTATION = ffi::GDK_AXIS_FLAG_ROTATION as u32;
         #[doc(alias = "GDK_AXIS_FLAG_SLIDER")]
-        const SLIDER = ffi::GDK_AXIS_FLAG_SLIDER as _;
+        const SLIDER = ffi::GDK_AXIS_FLAG_SLIDER as u32;
     }
 }
 
+#[cfg(any(feature = "v3_22", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
 impl fmt::Display for AxisFlags {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         <Self as fmt::Debug>::fmt(self, f)
     }
 }
 
+#[cfg(any(feature = "v3_22", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
 #[doc(hidden)]
 impl IntoGlib for AxisFlags {
     type GlibType = ffi::GdkAxisFlags;
 
-    #[inline]
     fn into_glib(self) -> ffi::GdkAxisFlags {
         self.bits()
     }
 }
 
+#[cfg(any(feature = "v3_22", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
 #[doc(hidden)]
 impl FromGlib<ffi::GdkAxisFlags> for AxisFlags {
-    #[inline]
     unsafe fn from_glib(value: ffi::GdkAxisFlags) -> Self {
         skip_assert_initialized!();
         Self::from_bits_truncate(value)
     }
 }
 
+#[cfg(any(feature = "v3_22", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
 impl StaticType for AxisFlags {
-    #[inline]
-    fn static_type() -> glib::Type {
+    fn static_type() -> Type {
         unsafe { from_glib(ffi::gdk_axis_flags_get_type()) }
     }
 }
 
-impl glib::HasParamSpec for AxisFlags {
-    type ParamSpec = glib::ParamSpecFlags;
-    type SetValue = Self;
-    type BuilderFn = fn(&str) -> glib::ParamSpecFlagsBuilder<Self>;
-
-    fn param_spec_builder() -> Self::BuilderFn {
-        |name| Self::ParamSpec::builder(name)
-    }
-}
-
+#[cfg(any(feature = "v3_22", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
 impl glib::value::ValueType for AxisFlags {
     type Type = Self;
 }
 
-unsafe impl<'a> glib::value::FromValue<'a> for AxisFlags {
+#[cfg(any(feature = "v3_22", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
+unsafe impl<'a> FromValue<'a> for AxisFlags {
     type Checker = glib::value::GenericValueTypeChecker<Self>;
 
-    #[inline]
     unsafe fn from_value(value: &'a glib::Value) -> Self {
         skip_assert_initialized!();
         from_glib(glib::gobject_ffi::g_value_get_flags(value.to_glib_none().0))
     }
 }
 
+#[cfg(any(feature = "v3_22", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
 impl ToValue for AxisFlags {
-    #[inline]
     fn to_value(&self) -> glib::Value {
         let mut value = glib::Value::for_value_type::<Self>();
         unsafe {
@@ -201,36 +197,26 @@ impl ToValue for AxisFlags {
         value
     }
 
-    #[inline]
     fn value_type(&self) -> glib::Type {
         Self::static_type()
     }
 }
 
-impl From<AxisFlags> for glib::Value {
-    #[inline]
-    fn from(v: AxisFlags) -> Self {
-        skip_assert_initialized!();
-        ToValue::to_value(&v)
-    }
-}
-
 bitflags! {
-    #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
     #[doc(alias = "GdkDragAction")]
     pub struct DragAction: u32 {
         #[doc(alias = "GDK_ACTION_DEFAULT")]
-        const DEFAULT = ffi::GDK_ACTION_DEFAULT as _;
+        const DEFAULT = ffi::GDK_ACTION_DEFAULT as u32;
         #[doc(alias = "GDK_ACTION_COPY")]
-        const COPY = ffi::GDK_ACTION_COPY as _;
+        const COPY = ffi::GDK_ACTION_COPY as u32;
         #[doc(alias = "GDK_ACTION_MOVE")]
-        const MOVE = ffi::GDK_ACTION_MOVE as _;
+        const MOVE = ffi::GDK_ACTION_MOVE as u32;
         #[doc(alias = "GDK_ACTION_LINK")]
-        const LINK = ffi::GDK_ACTION_LINK as _;
+        const LINK = ffi::GDK_ACTION_LINK as u32;
         #[doc(alias = "GDK_ACTION_PRIVATE")]
-        const PRIVATE = ffi::GDK_ACTION_PRIVATE as _;
+        const PRIVATE = ffi::GDK_ACTION_PRIVATE as u32;
         #[doc(alias = "GDK_ACTION_ASK")]
-        const ASK = ffi::GDK_ACTION_ASK as _;
+        const ASK = ffi::GDK_ACTION_ASK as u32;
     }
 }
 
@@ -244,7 +230,6 @@ impl fmt::Display for DragAction {
 impl IntoGlib for DragAction {
     type GlibType = ffi::GdkDragAction;
 
-    #[inline]
     fn into_glib(self) -> ffi::GdkDragAction {
         self.bits()
     }
@@ -252,7 +237,6 @@ impl IntoGlib for DragAction {
 
 #[doc(hidden)]
 impl FromGlib<ffi::GdkDragAction> for DragAction {
-    #[inline]
     unsafe fn from_glib(value: ffi::GdkDragAction) -> Self {
         skip_assert_initialized!();
         Self::from_bits_truncate(value)
@@ -260,19 +244,8 @@ impl FromGlib<ffi::GdkDragAction> for DragAction {
 }
 
 impl StaticType for DragAction {
-    #[inline]
-    fn static_type() -> glib::Type {
+    fn static_type() -> Type {
         unsafe { from_glib(ffi::gdk_drag_action_get_type()) }
-    }
-}
-
-impl glib::HasParamSpec for DragAction {
-    type ParamSpec = glib::ParamSpecFlags;
-    type SetValue = Self;
-    type BuilderFn = fn(&str) -> glib::ParamSpecFlagsBuilder<Self>;
-
-    fn param_spec_builder() -> Self::BuilderFn {
-        |name| Self::ParamSpec::builder(name)
     }
 }
 
@@ -280,10 +253,9 @@ impl glib::value::ValueType for DragAction {
     type Type = Self;
 }
 
-unsafe impl<'a> glib::value::FromValue<'a> for DragAction {
+unsafe impl<'a> FromValue<'a> for DragAction {
     type Checker = glib::value::GenericValueTypeChecker<Self>;
 
-    #[inline]
     unsafe fn from_value(value: &'a glib::Value) -> Self {
         skip_assert_initialized!();
         from_glib(glib::gobject_ffi::g_value_get_flags(value.to_glib_none().0))
@@ -291,7 +263,6 @@ unsafe impl<'a> glib::value::FromValue<'a> for DragAction {
 }
 
 impl ToValue for DragAction {
-    #[inline]
     fn to_value(&self) -> glib::Value {
         let mut value = glib::Value::for_value_type::<Self>();
         unsafe {
@@ -300,76 +271,66 @@ impl ToValue for DragAction {
         value
     }
 
-    #[inline]
     fn value_type(&self) -> glib::Type {
         Self::static_type()
     }
 }
 
-impl From<DragAction> for glib::Value {
-    #[inline]
-    fn from(v: DragAction) -> Self {
-        skip_assert_initialized!();
-        ToValue::to_value(&v)
-    }
-}
-
 bitflags! {
-    #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
     #[doc(alias = "GdkEventMask")]
     pub struct EventMask: u32 {
         #[doc(alias = "GDK_EXPOSURE_MASK")]
-        const EXPOSURE_MASK = ffi::GDK_EXPOSURE_MASK as _;
+        const EXPOSURE_MASK = ffi::GDK_EXPOSURE_MASK as u32;
         #[doc(alias = "GDK_POINTER_MOTION_MASK")]
-        const POINTER_MOTION_MASK = ffi::GDK_POINTER_MOTION_MASK as _;
+        const POINTER_MOTION_MASK = ffi::GDK_POINTER_MOTION_MASK as u32;
         #[doc(alias = "GDK_POINTER_MOTION_HINT_MASK")]
-        const POINTER_MOTION_HINT_MASK = ffi::GDK_POINTER_MOTION_HINT_MASK as _;
+        const POINTER_MOTION_HINT_MASK = ffi::GDK_POINTER_MOTION_HINT_MASK as u32;
         #[doc(alias = "GDK_BUTTON_MOTION_MASK")]
-        const BUTTON_MOTION_MASK = ffi::GDK_BUTTON_MOTION_MASK as _;
+        const BUTTON_MOTION_MASK = ffi::GDK_BUTTON_MOTION_MASK as u32;
         #[doc(alias = "GDK_BUTTON1_MOTION_MASK")]
-        const BUTTON1_MOTION_MASK = ffi::GDK_BUTTON1_MOTION_MASK as _;
+        const BUTTON1_MOTION_MASK = ffi::GDK_BUTTON1_MOTION_MASK as u32;
         #[doc(alias = "GDK_BUTTON2_MOTION_MASK")]
-        const BUTTON2_MOTION_MASK = ffi::GDK_BUTTON2_MOTION_MASK as _;
+        const BUTTON2_MOTION_MASK = ffi::GDK_BUTTON2_MOTION_MASK as u32;
         #[doc(alias = "GDK_BUTTON3_MOTION_MASK")]
-        const BUTTON3_MOTION_MASK = ffi::GDK_BUTTON3_MOTION_MASK as _;
+        const BUTTON3_MOTION_MASK = ffi::GDK_BUTTON3_MOTION_MASK as u32;
         #[doc(alias = "GDK_BUTTON_PRESS_MASK")]
-        const BUTTON_PRESS_MASK = ffi::GDK_BUTTON_PRESS_MASK as _;
+        const BUTTON_PRESS_MASK = ffi::GDK_BUTTON_PRESS_MASK as u32;
         #[doc(alias = "GDK_BUTTON_RELEASE_MASK")]
-        const BUTTON_RELEASE_MASK = ffi::GDK_BUTTON_RELEASE_MASK as _;
+        const BUTTON_RELEASE_MASK = ffi::GDK_BUTTON_RELEASE_MASK as u32;
         #[doc(alias = "GDK_KEY_PRESS_MASK")]
-        const KEY_PRESS_MASK = ffi::GDK_KEY_PRESS_MASK as _;
+        const KEY_PRESS_MASK = ffi::GDK_KEY_PRESS_MASK as u32;
         #[doc(alias = "GDK_KEY_RELEASE_MASK")]
-        const KEY_RELEASE_MASK = ffi::GDK_KEY_RELEASE_MASK as _;
+        const KEY_RELEASE_MASK = ffi::GDK_KEY_RELEASE_MASK as u32;
         #[doc(alias = "GDK_ENTER_NOTIFY_MASK")]
-        const ENTER_NOTIFY_MASK = ffi::GDK_ENTER_NOTIFY_MASK as _;
+        const ENTER_NOTIFY_MASK = ffi::GDK_ENTER_NOTIFY_MASK as u32;
         #[doc(alias = "GDK_LEAVE_NOTIFY_MASK")]
-        const LEAVE_NOTIFY_MASK = ffi::GDK_LEAVE_NOTIFY_MASK as _;
+        const LEAVE_NOTIFY_MASK = ffi::GDK_LEAVE_NOTIFY_MASK as u32;
         #[doc(alias = "GDK_FOCUS_CHANGE_MASK")]
-        const FOCUS_CHANGE_MASK = ffi::GDK_FOCUS_CHANGE_MASK as _;
+        const FOCUS_CHANGE_MASK = ffi::GDK_FOCUS_CHANGE_MASK as u32;
         #[doc(alias = "GDK_STRUCTURE_MASK")]
-        const STRUCTURE_MASK = ffi::GDK_STRUCTURE_MASK as _;
+        const STRUCTURE_MASK = ffi::GDK_STRUCTURE_MASK as u32;
         #[doc(alias = "GDK_PROPERTY_CHANGE_MASK")]
-        const PROPERTY_CHANGE_MASK = ffi::GDK_PROPERTY_CHANGE_MASK as _;
+        const PROPERTY_CHANGE_MASK = ffi::GDK_PROPERTY_CHANGE_MASK as u32;
         #[doc(alias = "GDK_VISIBILITY_NOTIFY_MASK")]
-        const VISIBILITY_NOTIFY_MASK = ffi::GDK_VISIBILITY_NOTIFY_MASK as _;
+        const VISIBILITY_NOTIFY_MASK = ffi::GDK_VISIBILITY_NOTIFY_MASK as u32;
         #[doc(alias = "GDK_PROXIMITY_IN_MASK")]
-        const PROXIMITY_IN_MASK = ffi::GDK_PROXIMITY_IN_MASK as _;
+        const PROXIMITY_IN_MASK = ffi::GDK_PROXIMITY_IN_MASK as u32;
         #[doc(alias = "GDK_PROXIMITY_OUT_MASK")]
-        const PROXIMITY_OUT_MASK = ffi::GDK_PROXIMITY_OUT_MASK as _;
+        const PROXIMITY_OUT_MASK = ffi::GDK_PROXIMITY_OUT_MASK as u32;
         #[doc(alias = "GDK_SUBSTRUCTURE_MASK")]
-        const SUBSTRUCTURE_MASK = ffi::GDK_SUBSTRUCTURE_MASK as _;
+        const SUBSTRUCTURE_MASK = ffi::GDK_SUBSTRUCTURE_MASK as u32;
         #[doc(alias = "GDK_SCROLL_MASK")]
-        const SCROLL_MASK = ffi::GDK_SCROLL_MASK as _;
+        const SCROLL_MASK = ffi::GDK_SCROLL_MASK as u32;
         #[doc(alias = "GDK_TOUCH_MASK")]
-        const TOUCH_MASK = ffi::GDK_TOUCH_MASK as _;
+        const TOUCH_MASK = ffi::GDK_TOUCH_MASK as u32;
         #[doc(alias = "GDK_SMOOTH_SCROLL_MASK")]
-        const SMOOTH_SCROLL_MASK = ffi::GDK_SMOOTH_SCROLL_MASK as _;
+        const SMOOTH_SCROLL_MASK = ffi::GDK_SMOOTH_SCROLL_MASK as u32;
         #[doc(alias = "GDK_TOUCHPAD_GESTURE_MASK")]
-        const TOUCHPAD_GESTURE_MASK = ffi::GDK_TOUCHPAD_GESTURE_MASK as _;
+        const TOUCHPAD_GESTURE_MASK = ffi::GDK_TOUCHPAD_GESTURE_MASK as u32;
         #[doc(alias = "GDK_TABLET_PAD_MASK")]
-        const TABLET_PAD_MASK = ffi::GDK_TABLET_PAD_MASK as _;
+        const TABLET_PAD_MASK = ffi::GDK_TABLET_PAD_MASK as u32;
         #[doc(alias = "GDK_ALL_EVENTS_MASK")]
-        const ALL_EVENTS_MASK = ffi::GDK_ALL_EVENTS_MASK as _;
+        const ALL_EVENTS_MASK = ffi::GDK_ALL_EVENTS_MASK as u32;
     }
 }
 
@@ -383,7 +344,6 @@ impl fmt::Display for EventMask {
 impl IntoGlib for EventMask {
     type GlibType = ffi::GdkEventMask;
 
-    #[inline]
     fn into_glib(self) -> ffi::GdkEventMask {
         self.bits()
     }
@@ -391,7 +351,6 @@ impl IntoGlib for EventMask {
 
 #[doc(hidden)]
 impl FromGlib<ffi::GdkEventMask> for EventMask {
-    #[inline]
     unsafe fn from_glib(value: ffi::GdkEventMask) -> Self {
         skip_assert_initialized!();
         Self::from_bits_truncate(value)
@@ -399,19 +358,8 @@ impl FromGlib<ffi::GdkEventMask> for EventMask {
 }
 
 impl StaticType for EventMask {
-    #[inline]
-    fn static_type() -> glib::Type {
+    fn static_type() -> Type {
         unsafe { from_glib(ffi::gdk_event_mask_get_type()) }
-    }
-}
-
-impl glib::HasParamSpec for EventMask {
-    type ParamSpec = glib::ParamSpecFlags;
-    type SetValue = Self;
-    type BuilderFn = fn(&str) -> glib::ParamSpecFlagsBuilder<Self>;
-
-    fn param_spec_builder() -> Self::BuilderFn {
-        |name| Self::ParamSpec::builder(name)
     }
 }
 
@@ -419,10 +367,9 @@ impl glib::value::ValueType for EventMask {
     type Type = Self;
 }
 
-unsafe impl<'a> glib::value::FromValue<'a> for EventMask {
+unsafe impl<'a> FromValue<'a> for EventMask {
     type Checker = glib::value::GenericValueTypeChecker<Self>;
 
-    #[inline]
     unsafe fn from_value(value: &'a glib::Value) -> Self {
         skip_assert_initialized!();
         from_glib(glib::gobject_ffi::g_value_get_flags(value.to_glib_none().0))
@@ -430,7 +377,6 @@ unsafe impl<'a> glib::value::FromValue<'a> for EventMask {
 }
 
 impl ToValue for EventMask {
-    #[inline]
     fn to_value(&self) -> glib::Value {
         let mut value = glib::Value::for_value_type::<Self>();
         unsafe {
@@ -439,40 +385,30 @@ impl ToValue for EventMask {
         value
     }
 
-    #[inline]
     fn value_type(&self) -> glib::Type {
         Self::static_type()
     }
 }
 
-impl From<EventMask> for glib::Value {
-    #[inline]
-    fn from(v: EventMask) -> Self {
-        skip_assert_initialized!();
-        ToValue::to_value(&v)
-    }
-}
-
 bitflags! {
-    #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
     #[doc(alias = "GdkFrameClockPhase")]
     pub struct FrameClockPhase: u32 {
         #[doc(alias = "GDK_FRAME_CLOCK_PHASE_NONE")]
-        const NONE = ffi::GDK_FRAME_CLOCK_PHASE_NONE as _;
+        const NONE = ffi::GDK_FRAME_CLOCK_PHASE_NONE as u32;
         #[doc(alias = "GDK_FRAME_CLOCK_PHASE_FLUSH_EVENTS")]
-        const FLUSH_EVENTS = ffi::GDK_FRAME_CLOCK_PHASE_FLUSH_EVENTS as _;
+        const FLUSH_EVENTS = ffi::GDK_FRAME_CLOCK_PHASE_FLUSH_EVENTS as u32;
         #[doc(alias = "GDK_FRAME_CLOCK_PHASE_BEFORE_PAINT")]
-        const BEFORE_PAINT = ffi::GDK_FRAME_CLOCK_PHASE_BEFORE_PAINT as _;
+        const BEFORE_PAINT = ffi::GDK_FRAME_CLOCK_PHASE_BEFORE_PAINT as u32;
         #[doc(alias = "GDK_FRAME_CLOCK_PHASE_UPDATE")]
-        const UPDATE = ffi::GDK_FRAME_CLOCK_PHASE_UPDATE as _;
+        const UPDATE = ffi::GDK_FRAME_CLOCK_PHASE_UPDATE as u32;
         #[doc(alias = "GDK_FRAME_CLOCK_PHASE_LAYOUT")]
-        const LAYOUT = ffi::GDK_FRAME_CLOCK_PHASE_LAYOUT as _;
+        const LAYOUT = ffi::GDK_FRAME_CLOCK_PHASE_LAYOUT as u32;
         #[doc(alias = "GDK_FRAME_CLOCK_PHASE_PAINT")]
-        const PAINT = ffi::GDK_FRAME_CLOCK_PHASE_PAINT as _;
+        const PAINT = ffi::GDK_FRAME_CLOCK_PHASE_PAINT as u32;
         #[doc(alias = "GDK_FRAME_CLOCK_PHASE_RESUME_EVENTS")]
-        const RESUME_EVENTS = ffi::GDK_FRAME_CLOCK_PHASE_RESUME_EVENTS as _;
+        const RESUME_EVENTS = ffi::GDK_FRAME_CLOCK_PHASE_RESUME_EVENTS as u32;
         #[doc(alias = "GDK_FRAME_CLOCK_PHASE_AFTER_PAINT")]
-        const AFTER_PAINT = ffi::GDK_FRAME_CLOCK_PHASE_AFTER_PAINT as _;
+        const AFTER_PAINT = ffi::GDK_FRAME_CLOCK_PHASE_AFTER_PAINT as u32;
     }
 }
 
@@ -486,7 +422,6 @@ impl fmt::Display for FrameClockPhase {
 impl IntoGlib for FrameClockPhase {
     type GlibType = ffi::GdkFrameClockPhase;
 
-    #[inline]
     fn into_glib(self) -> ffi::GdkFrameClockPhase {
         self.bits()
     }
@@ -494,7 +429,6 @@ impl IntoGlib for FrameClockPhase {
 
 #[doc(hidden)]
 impl FromGlib<ffi::GdkFrameClockPhase> for FrameClockPhase {
-    #[inline]
     unsafe fn from_glib(value: ffi::GdkFrameClockPhase) -> Self {
         skip_assert_initialized!();
         Self::from_bits_truncate(value)
@@ -502,19 +436,8 @@ impl FromGlib<ffi::GdkFrameClockPhase> for FrameClockPhase {
 }
 
 impl StaticType for FrameClockPhase {
-    #[inline]
-    fn static_type() -> glib::Type {
+    fn static_type() -> Type {
         unsafe { from_glib(ffi::gdk_frame_clock_phase_get_type()) }
-    }
-}
-
-impl glib::HasParamSpec for FrameClockPhase {
-    type ParamSpec = glib::ParamSpecFlags;
-    type SetValue = Self;
-    type BuilderFn = fn(&str) -> glib::ParamSpecFlagsBuilder<Self>;
-
-    fn param_spec_builder() -> Self::BuilderFn {
-        |name| Self::ParamSpec::builder(name)
     }
 }
 
@@ -522,10 +445,9 @@ impl glib::value::ValueType for FrameClockPhase {
     type Type = Self;
 }
 
-unsafe impl<'a> glib::value::FromValue<'a> for FrameClockPhase {
+unsafe impl<'a> FromValue<'a> for FrameClockPhase {
     type Checker = glib::value::GenericValueTypeChecker<Self>;
 
-    #[inline]
     unsafe fn from_value(value: &'a glib::Value) -> Self {
         skip_assert_initialized!();
         from_glib(glib::gobject_ffi::g_value_get_flags(value.to_glib_none().0))
@@ -533,7 +455,6 @@ unsafe impl<'a> glib::value::FromValue<'a> for FrameClockPhase {
 }
 
 impl ToValue for FrameClockPhase {
-    #[inline]
     fn to_value(&self) -> glib::Value {
         let mut value = glib::Value::for_value_type::<Self>();
         unsafe {
@@ -542,88 +463,78 @@ impl ToValue for FrameClockPhase {
         value
     }
 
-    #[inline]
     fn value_type(&self) -> glib::Type {
         Self::static_type()
     }
 }
 
-impl From<FrameClockPhase> for glib::Value {
-    #[inline]
-    fn from(v: FrameClockPhase) -> Self {
-        skip_assert_initialized!();
-        ToValue::to_value(&v)
-    }
-}
-
 bitflags! {
-    #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
     #[doc(alias = "GdkModifierType")]
     pub struct ModifierType: u32 {
         #[doc(alias = "GDK_SHIFT_MASK")]
-        const SHIFT_MASK = ffi::GDK_SHIFT_MASK as _;
+        const SHIFT_MASK = ffi::GDK_SHIFT_MASK as u32;
         #[doc(alias = "GDK_LOCK_MASK")]
-        const LOCK_MASK = ffi::GDK_LOCK_MASK as _;
+        const LOCK_MASK = ffi::GDK_LOCK_MASK as u32;
         #[doc(alias = "GDK_CONTROL_MASK")]
-        const CONTROL_MASK = ffi::GDK_CONTROL_MASK as _;
+        const CONTROL_MASK = ffi::GDK_CONTROL_MASK as u32;
         #[doc(alias = "GDK_MOD1_MASK")]
-        const MOD1_MASK = ffi::GDK_MOD1_MASK as _;
+        const MOD1_MASK = ffi::GDK_MOD1_MASK as u32;
         #[doc(alias = "GDK_MOD2_MASK")]
-        const MOD2_MASK = ffi::GDK_MOD2_MASK as _;
+        const MOD2_MASK = ffi::GDK_MOD2_MASK as u32;
         #[doc(alias = "GDK_MOD3_MASK")]
-        const MOD3_MASK = ffi::GDK_MOD3_MASK as _;
+        const MOD3_MASK = ffi::GDK_MOD3_MASK as u32;
         #[doc(alias = "GDK_MOD4_MASK")]
-        const MOD4_MASK = ffi::GDK_MOD4_MASK as _;
+        const MOD4_MASK = ffi::GDK_MOD4_MASK as u32;
         #[doc(alias = "GDK_MOD5_MASK")]
-        const MOD5_MASK = ffi::GDK_MOD5_MASK as _;
+        const MOD5_MASK = ffi::GDK_MOD5_MASK as u32;
         #[doc(alias = "GDK_BUTTON1_MASK")]
-        const BUTTON1_MASK = ffi::GDK_BUTTON1_MASK as _;
+        const BUTTON1_MASK = ffi::GDK_BUTTON1_MASK as u32;
         #[doc(alias = "GDK_BUTTON2_MASK")]
-        const BUTTON2_MASK = ffi::GDK_BUTTON2_MASK as _;
+        const BUTTON2_MASK = ffi::GDK_BUTTON2_MASK as u32;
         #[doc(alias = "GDK_BUTTON3_MASK")]
-        const BUTTON3_MASK = ffi::GDK_BUTTON3_MASK as _;
+        const BUTTON3_MASK = ffi::GDK_BUTTON3_MASK as u32;
         #[doc(alias = "GDK_BUTTON4_MASK")]
-        const BUTTON4_MASK = ffi::GDK_BUTTON4_MASK as _;
+        const BUTTON4_MASK = ffi::GDK_BUTTON4_MASK as u32;
         #[doc(alias = "GDK_BUTTON5_MASK")]
-        const BUTTON5_MASK = ffi::GDK_BUTTON5_MASK as _;
+        const BUTTON5_MASK = ffi::GDK_BUTTON5_MASK as u32;
         #[doc(alias = "GDK_MODIFIER_RESERVED_13_MASK")]
-        const MODIFIER_RESERVED_13_MASK = ffi::GDK_MODIFIER_RESERVED_13_MASK as _;
+        const MODIFIER_RESERVED_13_MASK = ffi::GDK_MODIFIER_RESERVED_13_MASK as u32;
         #[doc(alias = "GDK_MODIFIER_RESERVED_14_MASK")]
-        const MODIFIER_RESERVED_14_MASK = ffi::GDK_MODIFIER_RESERVED_14_MASK as _;
+        const MODIFIER_RESERVED_14_MASK = ffi::GDK_MODIFIER_RESERVED_14_MASK as u32;
         #[doc(alias = "GDK_MODIFIER_RESERVED_15_MASK")]
-        const MODIFIER_RESERVED_15_MASK = ffi::GDK_MODIFIER_RESERVED_15_MASK as _;
+        const MODIFIER_RESERVED_15_MASK = ffi::GDK_MODIFIER_RESERVED_15_MASK as u32;
         #[doc(alias = "GDK_MODIFIER_RESERVED_16_MASK")]
-        const MODIFIER_RESERVED_16_MASK = ffi::GDK_MODIFIER_RESERVED_16_MASK as _;
+        const MODIFIER_RESERVED_16_MASK = ffi::GDK_MODIFIER_RESERVED_16_MASK as u32;
         #[doc(alias = "GDK_MODIFIER_RESERVED_17_MASK")]
-        const MODIFIER_RESERVED_17_MASK = ffi::GDK_MODIFIER_RESERVED_17_MASK as _;
+        const MODIFIER_RESERVED_17_MASK = ffi::GDK_MODIFIER_RESERVED_17_MASK as u32;
         #[doc(alias = "GDK_MODIFIER_RESERVED_18_MASK")]
-        const MODIFIER_RESERVED_18_MASK = ffi::GDK_MODIFIER_RESERVED_18_MASK as _;
+        const MODIFIER_RESERVED_18_MASK = ffi::GDK_MODIFIER_RESERVED_18_MASK as u32;
         #[doc(alias = "GDK_MODIFIER_RESERVED_19_MASK")]
-        const MODIFIER_RESERVED_19_MASK = ffi::GDK_MODIFIER_RESERVED_19_MASK as _;
+        const MODIFIER_RESERVED_19_MASK = ffi::GDK_MODIFIER_RESERVED_19_MASK as u32;
         #[doc(alias = "GDK_MODIFIER_RESERVED_20_MASK")]
-        const MODIFIER_RESERVED_20_MASK = ffi::GDK_MODIFIER_RESERVED_20_MASK as _;
+        const MODIFIER_RESERVED_20_MASK = ffi::GDK_MODIFIER_RESERVED_20_MASK as u32;
         #[doc(alias = "GDK_MODIFIER_RESERVED_21_MASK")]
-        const MODIFIER_RESERVED_21_MASK = ffi::GDK_MODIFIER_RESERVED_21_MASK as _;
+        const MODIFIER_RESERVED_21_MASK = ffi::GDK_MODIFIER_RESERVED_21_MASK as u32;
         #[doc(alias = "GDK_MODIFIER_RESERVED_22_MASK")]
-        const MODIFIER_RESERVED_22_MASK = ffi::GDK_MODIFIER_RESERVED_22_MASK as _;
+        const MODIFIER_RESERVED_22_MASK = ffi::GDK_MODIFIER_RESERVED_22_MASK as u32;
         #[doc(alias = "GDK_MODIFIER_RESERVED_23_MASK")]
-        const MODIFIER_RESERVED_23_MASK = ffi::GDK_MODIFIER_RESERVED_23_MASK as _;
+        const MODIFIER_RESERVED_23_MASK = ffi::GDK_MODIFIER_RESERVED_23_MASK as u32;
         #[doc(alias = "GDK_MODIFIER_RESERVED_24_MASK")]
-        const MODIFIER_RESERVED_24_MASK = ffi::GDK_MODIFIER_RESERVED_24_MASK as _;
+        const MODIFIER_RESERVED_24_MASK = ffi::GDK_MODIFIER_RESERVED_24_MASK as u32;
         #[doc(alias = "GDK_MODIFIER_RESERVED_25_MASK")]
-        const MODIFIER_RESERVED_25_MASK = ffi::GDK_MODIFIER_RESERVED_25_MASK as _;
+        const MODIFIER_RESERVED_25_MASK = ffi::GDK_MODIFIER_RESERVED_25_MASK as u32;
         #[doc(alias = "GDK_SUPER_MASK")]
-        const SUPER_MASK = ffi::GDK_SUPER_MASK as _;
+        const SUPER_MASK = ffi::GDK_SUPER_MASK as u32;
         #[doc(alias = "GDK_HYPER_MASK")]
-        const HYPER_MASK = ffi::GDK_HYPER_MASK as _;
+        const HYPER_MASK = ffi::GDK_HYPER_MASK as u32;
         #[doc(alias = "GDK_META_MASK")]
-        const META_MASK = ffi::GDK_META_MASK as _;
+        const META_MASK = ffi::GDK_META_MASK as u32;
         #[doc(alias = "GDK_MODIFIER_RESERVED_29_MASK")]
-        const MODIFIER_RESERVED_29_MASK = ffi::GDK_MODIFIER_RESERVED_29_MASK as _;
+        const MODIFIER_RESERVED_29_MASK = ffi::GDK_MODIFIER_RESERVED_29_MASK as u32;
         #[doc(alias = "GDK_RELEASE_MASK")]
-        const RELEASE_MASK = ffi::GDK_RELEASE_MASK as _;
+        const RELEASE_MASK = ffi::GDK_RELEASE_MASK as u32;
         #[doc(alias = "GDK_MODIFIER_MASK")]
-        const MODIFIER_MASK = ffi::GDK_MODIFIER_MASK as _;
+        const MODIFIER_MASK = ffi::GDK_MODIFIER_MASK as u32;
     }
 }
 
@@ -637,7 +548,6 @@ impl fmt::Display for ModifierType {
 impl IntoGlib for ModifierType {
     type GlibType = ffi::GdkModifierType;
 
-    #[inline]
     fn into_glib(self) -> ffi::GdkModifierType {
         self.bits()
     }
@@ -645,7 +555,6 @@ impl IntoGlib for ModifierType {
 
 #[doc(hidden)]
 impl FromGlib<ffi::GdkModifierType> for ModifierType {
-    #[inline]
     unsafe fn from_glib(value: ffi::GdkModifierType) -> Self {
         skip_assert_initialized!();
         Self::from_bits_truncate(value)
@@ -653,19 +562,8 @@ impl FromGlib<ffi::GdkModifierType> for ModifierType {
 }
 
 impl StaticType for ModifierType {
-    #[inline]
-    fn static_type() -> glib::Type {
+    fn static_type() -> Type {
         unsafe { from_glib(ffi::gdk_modifier_type_get_type()) }
-    }
-}
-
-impl glib::HasParamSpec for ModifierType {
-    type ParamSpec = glib::ParamSpecFlags;
-    type SetValue = Self;
-    type BuilderFn = fn(&str) -> glib::ParamSpecFlagsBuilder<Self>;
-
-    fn param_spec_builder() -> Self::BuilderFn {
-        |name| Self::ParamSpec::builder(name)
     }
 }
 
@@ -673,10 +571,9 @@ impl glib::value::ValueType for ModifierType {
     type Type = Self;
 }
 
-unsafe impl<'a> glib::value::FromValue<'a> for ModifierType {
+unsafe impl<'a> FromValue<'a> for ModifierType {
     type Checker = glib::value::GenericValueTypeChecker<Self>;
 
-    #[inline]
     unsafe fn from_value(value: &'a glib::Value) -> Self {
         skip_assert_initialized!();
         from_glib(glib::gobject_ffi::g_value_get_flags(value.to_glib_none().0))
@@ -684,7 +581,6 @@ unsafe impl<'a> glib::value::FromValue<'a> for ModifierType {
 }
 
 impl ToValue for ModifierType {
-    #[inline]
     fn to_value(&self) -> glib::Value {
         let mut value = glib::Value::for_value_type::<Self>();
         unsafe {
@@ -693,99 +589,90 @@ impl ToValue for ModifierType {
         value
     }
 
-    #[inline]
     fn value_type(&self) -> glib::Type {
         Self::static_type()
     }
 }
 
-impl From<ModifierType> for glib::Value {
-    #[inline]
-    fn from(v: ModifierType) -> Self {
-        skip_assert_initialized!();
-        ToValue::to_value(&v)
-    }
-}
-
+#[cfg(any(feature = "v3_20", feature = "dox"))]
 bitflags! {
-    #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
     #[doc(alias = "GdkSeatCapabilities")]
     pub struct SeatCapabilities: u32 {
         #[doc(alias = "GDK_SEAT_CAPABILITY_NONE")]
-        const NONE = ffi::GDK_SEAT_CAPABILITY_NONE as _;
+        const NONE = ffi::GDK_SEAT_CAPABILITY_NONE as u32;
         #[doc(alias = "GDK_SEAT_CAPABILITY_POINTER")]
-        const POINTER = ffi::GDK_SEAT_CAPABILITY_POINTER as _;
+        const POINTER = ffi::GDK_SEAT_CAPABILITY_POINTER as u32;
         #[doc(alias = "GDK_SEAT_CAPABILITY_TOUCH")]
-        const TOUCH = ffi::GDK_SEAT_CAPABILITY_TOUCH as _;
+        const TOUCH = ffi::GDK_SEAT_CAPABILITY_TOUCH as u32;
         #[doc(alias = "GDK_SEAT_CAPABILITY_TABLET_STYLUS")]
-        const TABLET_STYLUS = ffi::GDK_SEAT_CAPABILITY_TABLET_STYLUS as _;
+        const TABLET_STYLUS = ffi::GDK_SEAT_CAPABILITY_TABLET_STYLUS as u32;
         #[doc(alias = "GDK_SEAT_CAPABILITY_KEYBOARD")]
-        const KEYBOARD = ffi::GDK_SEAT_CAPABILITY_KEYBOARD as _;
+        const KEYBOARD = ffi::GDK_SEAT_CAPABILITY_KEYBOARD as u32;
         #[doc(alias = "GDK_SEAT_CAPABILITY_ALL_POINTING")]
-        const ALL_POINTING = ffi::GDK_SEAT_CAPABILITY_ALL_POINTING as _;
+        const ALL_POINTING = ffi::GDK_SEAT_CAPABILITY_ALL_POINTING as u32;
         #[doc(alias = "GDK_SEAT_CAPABILITY_ALL")]
-        const ALL = ffi::GDK_SEAT_CAPABILITY_ALL as _;
+        const ALL = ffi::GDK_SEAT_CAPABILITY_ALL as u32;
     }
 }
 
+#[cfg(any(feature = "v3_20", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
 impl fmt::Display for SeatCapabilities {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         <Self as fmt::Debug>::fmt(self, f)
     }
 }
 
+#[cfg(any(feature = "v3_20", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
 #[doc(hidden)]
 impl IntoGlib for SeatCapabilities {
     type GlibType = ffi::GdkSeatCapabilities;
 
-    #[inline]
     fn into_glib(self) -> ffi::GdkSeatCapabilities {
         self.bits()
     }
 }
 
+#[cfg(any(feature = "v3_20", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
 #[doc(hidden)]
 impl FromGlib<ffi::GdkSeatCapabilities> for SeatCapabilities {
-    #[inline]
     unsafe fn from_glib(value: ffi::GdkSeatCapabilities) -> Self {
         skip_assert_initialized!();
         Self::from_bits_truncate(value)
     }
 }
 
+#[cfg(any(feature = "v3_20", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
 impl StaticType for SeatCapabilities {
-    #[inline]
-    fn static_type() -> glib::Type {
+    fn static_type() -> Type {
         unsafe { from_glib(ffi::gdk_seat_capabilities_get_type()) }
     }
 }
 
-impl glib::HasParamSpec for SeatCapabilities {
-    type ParamSpec = glib::ParamSpecFlags;
-    type SetValue = Self;
-    type BuilderFn = fn(&str) -> glib::ParamSpecFlagsBuilder<Self>;
-
-    fn param_spec_builder() -> Self::BuilderFn {
-        |name| Self::ParamSpec::builder(name)
-    }
-}
-
+#[cfg(any(feature = "v3_20", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
 impl glib::value::ValueType for SeatCapabilities {
     type Type = Self;
 }
 
-unsafe impl<'a> glib::value::FromValue<'a> for SeatCapabilities {
+#[cfg(any(feature = "v3_20", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
+unsafe impl<'a> FromValue<'a> for SeatCapabilities {
     type Checker = glib::value::GenericValueTypeChecker<Self>;
 
-    #[inline]
     unsafe fn from_value(value: &'a glib::Value) -> Self {
         skip_assert_initialized!();
         from_glib(glib::gobject_ffi::g_value_get_flags(value.to_glib_none().0))
     }
 }
 
+#[cfg(any(feature = "v3_20", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
 impl ToValue for SeatCapabilities {
-    #[inline]
     fn to_value(&self) -> glib::Value {
         let mut value = glib::Value::for_value_type::<Self>();
         unsafe {
@@ -794,38 +681,28 @@ impl ToValue for SeatCapabilities {
         value
     }
 
-    #[inline]
     fn value_type(&self) -> glib::Type {
         Self::static_type()
     }
 }
 
-impl From<SeatCapabilities> for glib::Value {
-    #[inline]
-    fn from(v: SeatCapabilities) -> Self {
-        skip_assert_initialized!();
-        ToValue::to_value(&v)
-    }
-}
-
 bitflags! {
-    #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
     #[doc(alias = "GdkWMDecoration")]
     pub struct WMDecoration: u32 {
         #[doc(alias = "GDK_DECOR_ALL")]
-        const ALL = ffi::GDK_DECOR_ALL as _;
+        const ALL = ffi::GDK_DECOR_ALL as u32;
         #[doc(alias = "GDK_DECOR_BORDER")]
-        const BORDER = ffi::GDK_DECOR_BORDER as _;
+        const BORDER = ffi::GDK_DECOR_BORDER as u32;
         #[doc(alias = "GDK_DECOR_RESIZEH")]
-        const RESIZEH = ffi::GDK_DECOR_RESIZEH as _;
+        const RESIZEH = ffi::GDK_DECOR_RESIZEH as u32;
         #[doc(alias = "GDK_DECOR_TITLE")]
-        const TITLE = ffi::GDK_DECOR_TITLE as _;
+        const TITLE = ffi::GDK_DECOR_TITLE as u32;
         #[doc(alias = "GDK_DECOR_MENU")]
-        const MENU = ffi::GDK_DECOR_MENU as _;
+        const MENU = ffi::GDK_DECOR_MENU as u32;
         #[doc(alias = "GDK_DECOR_MINIMIZE")]
-        const MINIMIZE = ffi::GDK_DECOR_MINIMIZE as _;
+        const MINIMIZE = ffi::GDK_DECOR_MINIMIZE as u32;
         #[doc(alias = "GDK_DECOR_MAXIMIZE")]
-        const MAXIMIZE = ffi::GDK_DECOR_MAXIMIZE as _;
+        const MAXIMIZE = ffi::GDK_DECOR_MAXIMIZE as u32;
     }
 }
 
@@ -839,7 +716,6 @@ impl fmt::Display for WMDecoration {
 impl IntoGlib for WMDecoration {
     type GlibType = ffi::GdkWMDecoration;
 
-    #[inline]
     fn into_glib(self) -> ffi::GdkWMDecoration {
         self.bits()
     }
@@ -847,7 +723,6 @@ impl IntoGlib for WMDecoration {
 
 #[doc(hidden)]
 impl FromGlib<ffi::GdkWMDecoration> for WMDecoration {
-    #[inline]
     unsafe fn from_glib(value: ffi::GdkWMDecoration) -> Self {
         skip_assert_initialized!();
         Self::from_bits_truncate(value)
@@ -855,19 +730,8 @@ impl FromGlib<ffi::GdkWMDecoration> for WMDecoration {
 }
 
 impl StaticType for WMDecoration {
-    #[inline]
-    fn static_type() -> glib::Type {
+    fn static_type() -> Type {
         unsafe { from_glib(ffi::gdk_wm_decoration_get_type()) }
-    }
-}
-
-impl glib::HasParamSpec for WMDecoration {
-    type ParamSpec = glib::ParamSpecFlags;
-    type SetValue = Self;
-    type BuilderFn = fn(&str) -> glib::ParamSpecFlagsBuilder<Self>;
-
-    fn param_spec_builder() -> Self::BuilderFn {
-        |name| Self::ParamSpec::builder(name)
     }
 }
 
@@ -875,10 +739,9 @@ impl glib::value::ValueType for WMDecoration {
     type Type = Self;
 }
 
-unsafe impl<'a> glib::value::FromValue<'a> for WMDecoration {
+unsafe impl<'a> FromValue<'a> for WMDecoration {
     type Checker = glib::value::GenericValueTypeChecker<Self>;
 
-    #[inline]
     unsafe fn from_value(value: &'a glib::Value) -> Self {
         skip_assert_initialized!();
         from_glib(glib::gobject_ffi::g_value_get_flags(value.to_glib_none().0))
@@ -886,7 +749,6 @@ unsafe impl<'a> glib::value::FromValue<'a> for WMDecoration {
 }
 
 impl ToValue for WMDecoration {
-    #[inline]
     fn to_value(&self) -> glib::Value {
         let mut value = glib::Value::for_value_type::<Self>();
         unsafe {
@@ -895,36 +757,26 @@ impl ToValue for WMDecoration {
         value
     }
 
-    #[inline]
     fn value_type(&self) -> glib::Type {
         Self::static_type()
     }
 }
 
-impl From<WMDecoration> for glib::Value {
-    #[inline]
-    fn from(v: WMDecoration) -> Self {
-        skip_assert_initialized!();
-        ToValue::to_value(&v)
-    }
-}
-
 bitflags! {
-    #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
     #[doc(alias = "GdkWMFunction")]
     pub struct WMFunction: u32 {
         #[doc(alias = "GDK_FUNC_ALL")]
-        const ALL = ffi::GDK_FUNC_ALL as _;
+        const ALL = ffi::GDK_FUNC_ALL as u32;
         #[doc(alias = "GDK_FUNC_RESIZE")]
-        const RESIZE = ffi::GDK_FUNC_RESIZE as _;
+        const RESIZE = ffi::GDK_FUNC_RESIZE as u32;
         #[doc(alias = "GDK_FUNC_MOVE")]
-        const MOVE = ffi::GDK_FUNC_MOVE as _;
+        const MOVE = ffi::GDK_FUNC_MOVE as u32;
         #[doc(alias = "GDK_FUNC_MINIMIZE")]
-        const MINIMIZE = ffi::GDK_FUNC_MINIMIZE as _;
+        const MINIMIZE = ffi::GDK_FUNC_MINIMIZE as u32;
         #[doc(alias = "GDK_FUNC_MAXIMIZE")]
-        const MAXIMIZE = ffi::GDK_FUNC_MAXIMIZE as _;
+        const MAXIMIZE = ffi::GDK_FUNC_MAXIMIZE as u32;
         #[doc(alias = "GDK_FUNC_CLOSE")]
-        const CLOSE = ffi::GDK_FUNC_CLOSE as _;
+        const CLOSE = ffi::GDK_FUNC_CLOSE as u32;
     }
 }
 
@@ -938,7 +790,6 @@ impl fmt::Display for WMFunction {
 impl IntoGlib for WMFunction {
     type GlibType = ffi::GdkWMFunction;
 
-    #[inline]
     fn into_glib(self) -> ffi::GdkWMFunction {
         self.bits()
     }
@@ -946,7 +797,6 @@ impl IntoGlib for WMFunction {
 
 #[doc(hidden)]
 impl FromGlib<ffi::GdkWMFunction> for WMFunction {
-    #[inline]
     unsafe fn from_glib(value: ffi::GdkWMFunction) -> Self {
         skip_assert_initialized!();
         Self::from_bits_truncate(value)
@@ -954,19 +804,8 @@ impl FromGlib<ffi::GdkWMFunction> for WMFunction {
 }
 
 impl StaticType for WMFunction {
-    #[inline]
-    fn static_type() -> glib::Type {
+    fn static_type() -> Type {
         unsafe { from_glib(ffi::gdk_wm_function_get_type()) }
-    }
-}
-
-impl glib::HasParamSpec for WMFunction {
-    type ParamSpec = glib::ParamSpecFlags;
-    type SetValue = Self;
-    type BuilderFn = fn(&str) -> glib::ParamSpecFlagsBuilder<Self>;
-
-    fn param_spec_builder() -> Self::BuilderFn {
-        |name| Self::ParamSpec::builder(name)
     }
 }
 
@@ -974,10 +813,9 @@ impl glib::value::ValueType for WMFunction {
     type Type = Self;
 }
 
-unsafe impl<'a> glib::value::FromValue<'a> for WMFunction {
+unsafe impl<'a> FromValue<'a> for WMFunction {
     type Checker = glib::value::GenericValueTypeChecker<Self>;
 
-    #[inline]
     unsafe fn from_value(value: &'a glib::Value) -> Self {
         skip_assert_initialized!();
         from_glib(glib::gobject_ffi::g_value_get_flags(value.to_glib_none().0))
@@ -985,7 +823,6 @@ unsafe impl<'a> glib::value::FromValue<'a> for WMFunction {
 }
 
 impl ToValue for WMFunction {
-    #[inline]
     fn to_value(&self) -> glib::Value {
         let mut value = glib::Value::for_value_type::<Self>();
         unsafe {
@@ -994,42 +831,32 @@ impl ToValue for WMFunction {
         value
     }
 
-    #[inline]
     fn value_type(&self) -> glib::Type {
         Self::static_type()
     }
 }
 
-impl From<WMFunction> for glib::Value {
-    #[inline]
-    fn from(v: WMFunction) -> Self {
-        skip_assert_initialized!();
-        ToValue::to_value(&v)
-    }
-}
-
 bitflags! {
-    #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
     #[doc(alias = "GdkWindowHints")]
     pub struct WindowHints: u32 {
         #[doc(alias = "GDK_HINT_POS")]
-        const POS = ffi::GDK_HINT_POS as _;
+        const POS = ffi::GDK_HINT_POS as u32;
         #[doc(alias = "GDK_HINT_MIN_SIZE")]
-        const MIN_SIZE = ffi::GDK_HINT_MIN_SIZE as _;
+        const MIN_SIZE = ffi::GDK_HINT_MIN_SIZE as u32;
         #[doc(alias = "GDK_HINT_MAX_SIZE")]
-        const MAX_SIZE = ffi::GDK_HINT_MAX_SIZE as _;
+        const MAX_SIZE = ffi::GDK_HINT_MAX_SIZE as u32;
         #[doc(alias = "GDK_HINT_BASE_SIZE")]
-        const BASE_SIZE = ffi::GDK_HINT_BASE_SIZE as _;
+        const BASE_SIZE = ffi::GDK_HINT_BASE_SIZE as u32;
         #[doc(alias = "GDK_HINT_ASPECT")]
-        const ASPECT = ffi::GDK_HINT_ASPECT as _;
+        const ASPECT = ffi::GDK_HINT_ASPECT as u32;
         #[doc(alias = "GDK_HINT_RESIZE_INC")]
-        const RESIZE_INC = ffi::GDK_HINT_RESIZE_INC as _;
+        const RESIZE_INC = ffi::GDK_HINT_RESIZE_INC as u32;
         #[doc(alias = "GDK_HINT_WIN_GRAVITY")]
-        const WIN_GRAVITY = ffi::GDK_HINT_WIN_GRAVITY as _;
+        const WIN_GRAVITY = ffi::GDK_HINT_WIN_GRAVITY as u32;
         #[doc(alias = "GDK_HINT_USER_POS")]
-        const USER_POS = ffi::GDK_HINT_USER_POS as _;
+        const USER_POS = ffi::GDK_HINT_USER_POS as u32;
         #[doc(alias = "GDK_HINT_USER_SIZE")]
-        const USER_SIZE = ffi::GDK_HINT_USER_SIZE as _;
+        const USER_SIZE = ffi::GDK_HINT_USER_SIZE as u32;
     }
 }
 
@@ -1043,7 +870,6 @@ impl fmt::Display for WindowHints {
 impl IntoGlib for WindowHints {
     type GlibType = ffi::GdkWindowHints;
 
-    #[inline]
     fn into_glib(self) -> ffi::GdkWindowHints {
         self.bits()
     }
@@ -1051,7 +877,6 @@ impl IntoGlib for WindowHints {
 
 #[doc(hidden)]
 impl FromGlib<ffi::GdkWindowHints> for WindowHints {
-    #[inline]
     unsafe fn from_glib(value: ffi::GdkWindowHints) -> Self {
         skip_assert_initialized!();
         Self::from_bits_truncate(value)
@@ -1059,19 +884,8 @@ impl FromGlib<ffi::GdkWindowHints> for WindowHints {
 }
 
 impl StaticType for WindowHints {
-    #[inline]
-    fn static_type() -> glib::Type {
+    fn static_type() -> Type {
         unsafe { from_glib(ffi::gdk_window_hints_get_type()) }
-    }
-}
-
-impl glib::HasParamSpec for WindowHints {
-    type ParamSpec = glib::ParamSpecFlags;
-    type SetValue = Self;
-    type BuilderFn = fn(&str) -> glib::ParamSpecFlagsBuilder<Self>;
-
-    fn param_spec_builder() -> Self::BuilderFn {
-        |name| Self::ParamSpec::builder(name)
     }
 }
 
@@ -1079,10 +893,9 @@ impl glib::value::ValueType for WindowHints {
     type Type = Self;
 }
 
-unsafe impl<'a> glib::value::FromValue<'a> for WindowHints {
+unsafe impl<'a> FromValue<'a> for WindowHints {
     type Checker = glib::value::GenericValueTypeChecker<Self>;
 
-    #[inline]
     unsafe fn from_value(value: &'a glib::Value) -> Self {
         skip_assert_initialized!();
         from_glib(glib::gobject_ffi::g_value_get_flags(value.to_glib_none().0))
@@ -1090,7 +903,6 @@ unsafe impl<'a> glib::value::FromValue<'a> for WindowHints {
 }
 
 impl ToValue for WindowHints {
-    #[inline]
     fn to_value(&self) -> glib::Value {
         let mut value = glib::Value::for_value_type::<Self>();
         unsafe {
@@ -1099,58 +911,48 @@ impl ToValue for WindowHints {
         value
     }
 
-    #[inline]
     fn value_type(&self) -> glib::Type {
         Self::static_type()
     }
 }
 
-impl From<WindowHints> for glib::Value {
-    #[inline]
-    fn from(v: WindowHints) -> Self {
-        skip_assert_initialized!();
-        ToValue::to_value(&v)
-    }
-}
-
 bitflags! {
-    #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
     #[doc(alias = "GdkWindowState")]
     pub struct WindowState: u32 {
         #[doc(alias = "GDK_WINDOW_STATE_WITHDRAWN")]
-        const WITHDRAWN = ffi::GDK_WINDOW_STATE_WITHDRAWN as _;
+        const WITHDRAWN = ffi::GDK_WINDOW_STATE_WITHDRAWN as u32;
         #[doc(alias = "GDK_WINDOW_STATE_ICONIFIED")]
-        const ICONIFIED = ffi::GDK_WINDOW_STATE_ICONIFIED as _;
+        const ICONIFIED = ffi::GDK_WINDOW_STATE_ICONIFIED as u32;
         #[doc(alias = "GDK_WINDOW_STATE_MAXIMIZED")]
-        const MAXIMIZED = ffi::GDK_WINDOW_STATE_MAXIMIZED as _;
+        const MAXIMIZED = ffi::GDK_WINDOW_STATE_MAXIMIZED as u32;
         #[doc(alias = "GDK_WINDOW_STATE_STICKY")]
-        const STICKY = ffi::GDK_WINDOW_STATE_STICKY as _;
+        const STICKY = ffi::GDK_WINDOW_STATE_STICKY as u32;
         #[doc(alias = "GDK_WINDOW_STATE_FULLSCREEN")]
-        const FULLSCREEN = ffi::GDK_WINDOW_STATE_FULLSCREEN as _;
+        const FULLSCREEN = ffi::GDK_WINDOW_STATE_FULLSCREEN as u32;
         #[doc(alias = "GDK_WINDOW_STATE_ABOVE")]
-        const ABOVE = ffi::GDK_WINDOW_STATE_ABOVE as _;
+        const ABOVE = ffi::GDK_WINDOW_STATE_ABOVE as u32;
         #[doc(alias = "GDK_WINDOW_STATE_BELOW")]
-        const BELOW = ffi::GDK_WINDOW_STATE_BELOW as _;
+        const BELOW = ffi::GDK_WINDOW_STATE_BELOW as u32;
         #[doc(alias = "GDK_WINDOW_STATE_FOCUSED")]
-        const FOCUSED = ffi::GDK_WINDOW_STATE_FOCUSED as _;
+        const FOCUSED = ffi::GDK_WINDOW_STATE_FOCUSED as u32;
         #[doc(alias = "GDK_WINDOW_STATE_TILED")]
-        const TILED = ffi::GDK_WINDOW_STATE_TILED as _;
+        const TILED = ffi::GDK_WINDOW_STATE_TILED as u32;
         #[doc(alias = "GDK_WINDOW_STATE_TOP_TILED")]
-        const TOP_TILED = ffi::GDK_WINDOW_STATE_TOP_TILED as _;
+        const TOP_TILED = ffi::GDK_WINDOW_STATE_TOP_TILED as u32;
         #[doc(alias = "GDK_WINDOW_STATE_TOP_RESIZABLE")]
-        const TOP_RESIZABLE = ffi::GDK_WINDOW_STATE_TOP_RESIZABLE as _;
+        const TOP_RESIZABLE = ffi::GDK_WINDOW_STATE_TOP_RESIZABLE as u32;
         #[doc(alias = "GDK_WINDOW_STATE_RIGHT_TILED")]
-        const RIGHT_TILED = ffi::GDK_WINDOW_STATE_RIGHT_TILED as _;
+        const RIGHT_TILED = ffi::GDK_WINDOW_STATE_RIGHT_TILED as u32;
         #[doc(alias = "GDK_WINDOW_STATE_RIGHT_RESIZABLE")]
-        const RIGHT_RESIZABLE = ffi::GDK_WINDOW_STATE_RIGHT_RESIZABLE as _;
+        const RIGHT_RESIZABLE = ffi::GDK_WINDOW_STATE_RIGHT_RESIZABLE as u32;
         #[doc(alias = "GDK_WINDOW_STATE_BOTTOM_TILED")]
-        const BOTTOM_TILED = ffi::GDK_WINDOW_STATE_BOTTOM_TILED as _;
+        const BOTTOM_TILED = ffi::GDK_WINDOW_STATE_BOTTOM_TILED as u32;
         #[doc(alias = "GDK_WINDOW_STATE_BOTTOM_RESIZABLE")]
-        const BOTTOM_RESIZABLE = ffi::GDK_WINDOW_STATE_BOTTOM_RESIZABLE as _;
+        const BOTTOM_RESIZABLE = ffi::GDK_WINDOW_STATE_BOTTOM_RESIZABLE as u32;
         #[doc(alias = "GDK_WINDOW_STATE_LEFT_TILED")]
-        const LEFT_TILED = ffi::GDK_WINDOW_STATE_LEFT_TILED as _;
+        const LEFT_TILED = ffi::GDK_WINDOW_STATE_LEFT_TILED as u32;
         #[doc(alias = "GDK_WINDOW_STATE_LEFT_RESIZABLE")]
-        const LEFT_RESIZABLE = ffi::GDK_WINDOW_STATE_LEFT_RESIZABLE as _;
+        const LEFT_RESIZABLE = ffi::GDK_WINDOW_STATE_LEFT_RESIZABLE as u32;
     }
 }
 
@@ -1164,7 +966,6 @@ impl fmt::Display for WindowState {
 impl IntoGlib for WindowState {
     type GlibType = ffi::GdkWindowState;
 
-    #[inline]
     fn into_glib(self) -> ffi::GdkWindowState {
         self.bits()
     }
@@ -1172,7 +973,6 @@ impl IntoGlib for WindowState {
 
 #[doc(hidden)]
 impl FromGlib<ffi::GdkWindowState> for WindowState {
-    #[inline]
     unsafe fn from_glib(value: ffi::GdkWindowState) -> Self {
         skip_assert_initialized!();
         Self::from_bits_truncate(value)
@@ -1180,19 +980,8 @@ impl FromGlib<ffi::GdkWindowState> for WindowState {
 }
 
 impl StaticType for WindowState {
-    #[inline]
-    fn static_type() -> glib::Type {
+    fn static_type() -> Type {
         unsafe { from_glib(ffi::gdk_window_state_get_type()) }
-    }
-}
-
-impl glib::HasParamSpec for WindowState {
-    type ParamSpec = glib::ParamSpecFlags;
-    type SetValue = Self;
-    type BuilderFn = fn(&str) -> glib::ParamSpecFlagsBuilder<Self>;
-
-    fn param_spec_builder() -> Self::BuilderFn {
-        |name| Self::ParamSpec::builder(name)
     }
 }
 
@@ -1200,10 +989,9 @@ impl glib::value::ValueType for WindowState {
     type Type = Self;
 }
 
-unsafe impl<'a> glib::value::FromValue<'a> for WindowState {
+unsafe impl<'a> FromValue<'a> for WindowState {
     type Checker = glib::value::GenericValueTypeChecker<Self>;
 
-    #[inline]
     unsafe fn from_value(value: &'a glib::Value) -> Self {
         skip_assert_initialized!();
         from_glib(glib::gobject_ffi::g_value_get_flags(value.to_glib_none().0))
@@ -1211,7 +999,6 @@ unsafe impl<'a> glib::value::FromValue<'a> for WindowState {
 }
 
 impl ToValue for WindowState {
-    #[inline]
     fn to_value(&self) -> glib::Value {
         let mut value = glib::Value::for_value_type::<Self>();
         unsafe {
@@ -1220,16 +1007,7 @@ impl ToValue for WindowState {
         value
     }
 
-    #[inline]
     fn value_type(&self) -> glib::Type {
         Self::static_type()
-    }
-}
-
-impl From<WindowState> for glib::Value {
-    #[inline]
-    fn from(v: WindowState) -> Self {
-        skip_assert_initialized!();
-        ToValue::to_value(&v)
     }
 }

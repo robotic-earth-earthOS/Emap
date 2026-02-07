@@ -11,24 +11,23 @@ use super::cell_renderer::CellRendererImpl;
 use crate::CellRendererText;
 
 pub trait CellRendererTextImpl: CellRendererTextImplExt + CellRendererImpl {
-    fn edited(&self, path: &str, new_text: &str) {
-        self.parent_edited(path, new_text);
+    fn edited(&self, renderer: &Self::Type, path: &str, new_text: &str) {
+        self.parent_edited(renderer, path, new_text);
     }
 }
 
-mod sealed {
-    pub trait Sealed {}
-    impl<T: super::CellRendererTextImpl> Sealed for T {}
+pub trait CellRendererTextImplExt: ObjectSubclass {
+    fn parent_edited(&self, renderer: &Self::Type, path: &str, new_text: &str);
 }
 
-pub trait CellRendererTextImplExt: ObjectSubclass + sealed::Sealed {
-    fn parent_edited(&self, path: &str, new_text: &str) {
+impl<T: CellRendererTextImpl> CellRendererTextImplExt for T {
+    fn parent_edited(&self, renderer: &Self::Type, path: &str, new_text: &str) {
         unsafe {
-            let data = Self::type_data();
+            let data = T::type_data();
             let parent_class = data.as_ref().parent_class() as *mut ffi::GtkCellRendererTextClass;
             if let Some(f) = (*parent_class).edited {
                 f(
-                    self.obj()
+                    renderer
                         .unsafe_cast_ref::<CellRendererText>()
                         .to_glib_none()
                         .0,
@@ -39,8 +38,6 @@ pub trait CellRendererTextImplExt: ObjectSubclass + sealed::Sealed {
         }
     }
 }
-
-impl<T: CellRendererTextImpl> CellRendererTextImplExt for T {}
 
 unsafe impl<T: CellRendererTextImpl> IsSubclassable<T> for CellRendererText {
     fn class_init(class: &mut ::glib::Class<Self>) {
@@ -62,8 +59,10 @@ unsafe extern "C" fn cell_renderer_text_edited<T: CellRendererTextImpl>(
 ) {
     let instance = &*(ptr as *mut T::Instance);
     let imp = instance.imp();
+    let wrap: Borrowed<CellRendererText> = from_glib_borrow(ptr);
 
     imp.edited(
+        wrap.unsafe_cast_ref(),
         &GString::from_glib_borrow(path),
         &GString::from_glib_borrow(new_text),
     )

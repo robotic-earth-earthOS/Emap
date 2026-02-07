@@ -3,8 +3,10 @@
 // DO NOT EDIT
 
 use crate::Cancellable;
-use glib::{prelude::*, translate::*};
-use std::{fmt, ptr};
+use glib::object::IsA;
+use glib::translate::*;
+use std::fmt;
+use std::ptr;
 
 glib::wrapper! {
     #[doc(alias = "GSeekable")]
@@ -19,23 +21,41 @@ impl Seekable {
     pub const NONE: Option<&'static Seekable> = None;
 }
 
-mod sealed {
-    pub trait Sealed {}
-    impl<T: super::IsA<super::Seekable>> Sealed for T {}
+pub trait SeekableExt: 'static {
+    #[doc(alias = "g_seekable_can_seek")]
+    fn can_seek(&self) -> bool;
+
+    #[doc(alias = "g_seekable_can_truncate")]
+    fn can_truncate(&self) -> bool;
+
+    #[doc(alias = "g_seekable_seek")]
+    fn seek(
+        &self,
+        offset: i64,
+        type_: glib::SeekType,
+        cancellable: Option<&impl IsA<Cancellable>>,
+    ) -> Result<(), glib::Error>;
+
+    #[doc(alias = "g_seekable_tell")]
+    fn tell(&self) -> i64;
+
+    #[doc(alias = "g_seekable_truncate")]
+    fn truncate(
+        &self,
+        offset: i64,
+        cancellable: Option<&impl IsA<Cancellable>>,
+    ) -> Result<(), glib::Error>;
 }
 
-pub trait SeekableExt: IsA<Seekable> + sealed::Sealed + 'static {
-    #[doc(alias = "g_seekable_can_seek")]
+impl<O: IsA<Seekable>> SeekableExt for O {
     fn can_seek(&self) -> bool {
         unsafe { from_glib(ffi::g_seekable_can_seek(self.as_ref().to_glib_none().0)) }
     }
 
-    #[doc(alias = "g_seekable_can_truncate")]
     fn can_truncate(&self) -> bool {
         unsafe { from_glib(ffi::g_seekable_can_truncate(self.as_ref().to_glib_none().0)) }
     }
 
-    #[doc(alias = "g_seekable_seek")]
     fn seek(
         &self,
         offset: i64,
@@ -51,7 +71,7 @@ pub trait SeekableExt: IsA<Seekable> + sealed::Sealed + 'static {
                 cancellable.map(|p| p.as_ref()).to_glib_none().0,
                 &mut error,
             );
-            debug_assert_eq!(is_ok == glib::ffi::GFALSE, !error.is_null());
+            assert_eq!(is_ok == glib::ffi::GFALSE, !error.is_null());
             if error.is_null() {
                 Ok(())
             } else {
@@ -60,12 +80,10 @@ pub trait SeekableExt: IsA<Seekable> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_seekable_tell")]
     fn tell(&self) -> i64 {
         unsafe { ffi::g_seekable_tell(self.as_ref().to_glib_none().0) }
     }
 
-    #[doc(alias = "g_seekable_truncate")]
     fn truncate(
         &self,
         offset: i64,
@@ -79,7 +97,7 @@ pub trait SeekableExt: IsA<Seekable> + sealed::Sealed + 'static {
                 cancellable.map(|p| p.as_ref()).to_glib_none().0,
                 &mut error,
             );
-            debug_assert_eq!(is_ok == glib::ffi::GFALSE, !error.is_null());
+            assert_eq!(is_ok == glib::ffi::GFALSE, !error.is_null());
             if error.is_null() {
                 Ok(())
             } else {
@@ -88,8 +106,6 @@ pub trait SeekableExt: IsA<Seekable> + sealed::Sealed + 'static {
         }
     }
 }
-
-impl<O: IsA<Seekable>> SeekableExt for O {}
 
 impl fmt::Display for Seekable {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {

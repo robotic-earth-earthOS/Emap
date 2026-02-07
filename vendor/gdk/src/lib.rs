@@ -1,6 +1,6 @@
 // Take a look at the license at the top of the repository in the LICENSE file.
 
-#![cfg_attr(docsrs, feature(doc_cfg))]
+#![cfg_attr(feature = "dox", feature(doc_cfg))]
 #![allow(clippy::missing_safety_doc)]
 #![allow(clippy::upper_case_acronyms)]
 #![allow(clippy::wrong_self_convention)]
@@ -44,8 +44,11 @@ mod event_grab_broken;
 mod event_key;
 mod event_motion;
 mod event_owner_change;
+#[cfg(any(feature = "v3_22", feature = "dox"))]
 mod event_pad_axis;
+#[cfg(any(feature = "v3_22", feature = "dox"))]
 mod event_pad_button;
+#[cfg(any(feature = "v3_22", feature = "dox"))]
 mod event_pad_group_mode;
 mod event_property;
 mod event_proximity;
@@ -119,8 +122,11 @@ pub use crate::geometry::Geometry;
 pub use crate::keymap_key::KeymapKey;
 pub use crate::time_coord::TimeCoord;
 pub use crate::window::WindowAttr;
+#[cfg(any(feature = "v3_22", feature = "dox"))]
 pub use event_pad_axis::EventPadAxis;
+#[cfg(any(feature = "v3_22", feature = "dox"))]
 pub use event_pad_button::EventPadButton;
+#[cfg(any(feature = "v3_22", feature = "dox"))]
 pub use event_pad_group_mode::EventPadGroupMode;
 pub use event_touchpad_pinch::EventTouchpadPinch;
 pub use event_touchpad_swipe::EventTouchpadSwipe;

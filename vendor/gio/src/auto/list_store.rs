@@ -3,10 +3,14 @@
 // DO NOT EDIT
 
 use crate::ListModel;
-use glib::{prelude::*, translate::*};
+use glib::object::Cast;
+use glib::object::IsA;
+use glib::translate::*;
+use glib::StaticType;
+use glib::ToValue;
 use std::fmt;
-#[cfg(feature = "v2_64")]
-#[cfg_attr(docsrs, doc(cfg(feature = "v2_64")))]
+#[cfg(any(feature = "v2_64", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v2_64")))]
 use std::mem;
 
 glib::wrapper! {
@@ -19,12 +23,17 @@ glib::wrapper! {
 }
 
 impl ListStore {
+    #[doc(alias = "g_list_store_new")]
+    pub fn new(item_type: glib::types::Type) -> ListStore {
+        unsafe { from_glib_full(ffi::g_list_store_new(item_type.into_glib())) }
+    }
+
     // rustdoc-stripper-ignore-next
     /// Creates a new builder-pattern struct instance to construct [`ListStore`] objects.
     ///
     /// This method returns an instance of [`ListStoreBuilder`](crate::builders::ListStoreBuilder) which can be used to create [`ListStore`] objects.
     pub fn builder() -> ListStoreBuilder {
-        ListStoreBuilder::new()
+        ListStoreBuilder::default()
     }
 
     #[doc(alias = "g_list_store_append")]
@@ -34,8 +43,8 @@ impl ListStore {
         }
     }
 
-    #[cfg(feature = "v2_64")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "v2_64")))]
+    #[cfg(any(feature = "v2_64", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v2_64")))]
     #[doc(alias = "g_list_store_find")]
     pub fn find(&self, item: &impl IsA<glib::Object>) -> Option<u32> {
         unsafe {
@@ -45,8 +54,9 @@ impl ListStore {
                 item.as_ref().to_glib_none().0,
                 position.as_mut_ptr(),
             ));
+            let position = position.assume_init();
             if ret {
-                Some(position.assume_init())
+                Some(position)
             } else {
                 None
             }
@@ -79,33 +89,45 @@ impl ListStore {
     }
 }
 
+impl Default for ListStore {
+    fn default() -> Self {
+        glib::object::Object::new::<Self>(&[])
+            .expect("Can't construct ListStore object with default parameters")
+    }
+}
+
+#[derive(Clone, Default)]
 // rustdoc-stripper-ignore-next
 /// A [builder-pattern] type to construct [`ListStore`] objects.
 ///
 /// [builder-pattern]: https://doc.rust-lang.org/1.0.0/style/ownership/builders.html
 #[must_use = "The builder must be built to be used"]
 pub struct ListStoreBuilder {
-    builder: glib::object::ObjectBuilder<'static, ListStore>,
+    item_type: Option<glib::types::Type>,
 }
 
 impl ListStoreBuilder {
-    fn new() -> Self {
-        Self {
-            builder: glib::object::Object::builder(),
-        }
-    }
-
-    pub fn item_type(self, item_type: glib::types::Type) -> Self {
-        Self {
-            builder: self.builder.property("item-type", item_type),
-        }
+    // rustdoc-stripper-ignore-next
+    /// Create a new [`ListStoreBuilder`].
+    pub fn new() -> Self {
+        Self::default()
     }
 
     // rustdoc-stripper-ignore-next
     /// Build the [`ListStore`].
     #[must_use = "Building the object from the builder is usually expensive and is not expected to have side effects"]
     pub fn build(self) -> ListStore {
-        self.builder.build()
+        let mut properties: Vec<(&str, &dyn ToValue)> = vec![];
+        if let Some(ref item_type) = self.item_type {
+            properties.push(("item-type", item_type));
+        }
+        glib::Object::new::<ListStore>(&properties)
+            .expect("Failed to create an instance of ListStore")
+    }
+
+    pub fn item_type(mut self, item_type: glib::types::Type) -> Self {
+        self.item_type = Some(item_type);
+        self
     }
 }
 

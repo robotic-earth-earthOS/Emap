@@ -1,17 +1,15 @@
 # Rust GTK 3 bindings
 
-**This project is UNMAINTAINED. Please take a look at [gtk4-rs](https://github.com/gtk-rs/gtk4-rs) instead!**
-
 [Project site](http://gtk-rs.org/)
 
 __Rust__ bindings and wrappers for __GTK 3__, part of [gtk3-rs](https://github.com/gtk-rs/gtk3-rs),
 a multi-platform GUI toolkit. It is a part of [gtk-rs](http://gtk-rs.org/).
 
-GTK __3.22.30__ is the lowest supported version for the underlying library.
+GTK __3.18__ is the lowest supported version for the underlying library.
 
 ## Minimum supported Rust version
 
-Currently, the minimum supported Rust version is `1.70.0`.
+Currently, the minimum supported Rust version is `1.56.0`.
 
 ## Building
 
@@ -142,15 +140,15 @@ to a [`gtk`](mod@crate) function will abort the process.
 
 ## Library versions
 
-By default this crate provides only GTK 3.22.30 APIs. You can access additional
-functionality by selecting one of the `v3_24`, etc. features.
+By default this crate provides only GTK 3.18 APIs. You can access additional
+functionality by selecting one of the `v3_20`, `v3_24`, etc. features.
 
 `Cargo.toml` example:
 
 ```toml
 [dependencies.gtk]
 version = "0.x.y"
-features = ["v3_24"]
+features = ["v3_20"]
 ```
 
 Take care when choosing the version to target: some of your users might
@@ -172,7 +170,7 @@ with the actual Rust API.
 Generate the docs:
 
 ```shell
-> RUSTFLAGS="--cfg docsrs" cargo doc
+> cargo doc --features dox
 ```
 
 (if the installed GTK+ version is lower than 3.16, adjust the feature name accordingly).

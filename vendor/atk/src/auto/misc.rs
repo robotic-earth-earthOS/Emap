@@ -2,7 +2,8 @@
 // from gir-files (https://github.com/gtk-rs/gir-files)
 // DO NOT EDIT
 
-use glib::{prelude::*, translate::*};
+use glib::object::IsA;
+use glib::translate::*;
 use std::fmt;
 
 glib::wrapper! {
@@ -25,28 +26,27 @@ impl Misc {
     }
 }
 
-mod sealed {
-    pub trait Sealed {}
-    impl<T: super::IsA<super::Misc>> Sealed for T {}
+pub trait AtkMiscExt: 'static {
+    #[doc(alias = "atk_misc_threads_enter")]
+    fn threads_enter(&self);
+
+    #[doc(alias = "atk_misc_threads_leave")]
+    fn threads_leave(&self);
 }
 
-pub trait AtkMiscExt: IsA<Misc> + sealed::Sealed + 'static {
-    #[doc(alias = "atk_misc_threads_enter")]
+impl<O: IsA<Misc>> AtkMiscExt for O {
     fn threads_enter(&self) {
         unsafe {
             ffi::atk_misc_threads_enter(self.as_ref().to_glib_none().0);
         }
     }
 
-    #[doc(alias = "atk_misc_threads_leave")]
     fn threads_leave(&self) {
         unsafe {
             ffi::atk_misc_threads_leave(self.as_ref().to_glib_none().0);
         }
     }
 }
-
-impl<O: IsA<Misc>> AtkMiscExt for O {}
 
 impl fmt::Display for Misc {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {

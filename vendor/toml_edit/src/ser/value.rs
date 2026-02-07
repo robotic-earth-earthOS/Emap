@@ -1,8 +1,4 @@
 use super::Error;
-use super::SerializeMap;
-use super::SerializeStructVariant;
-use super::SerializeTupleVariant;
-use super::SerializeValueArray;
 
 /// Serialization for TOML [values][crate::Value].
 ///
@@ -17,8 +13,6 @@ use super::SerializeValueArray;
 /// # Examples
 ///
 /// ```
-/// # #[cfg(feature = "parse")] {
-/// # #[cfg(feature = "display")] {
 /// use serde::Serialize;
 ///
 /// #[derive(Serialize)]
@@ -48,8 +42,6 @@ use super::SerializeValueArray;
 ///     toml_edit::ser::ValueSerializer::new()
 /// ).unwrap();
 /// println!("{}", value)
-/// # }
-/// # }
 /// ```
 #[derive(Default)]
 #[non_exhaustive]
@@ -62,16 +54,16 @@ impl ValueSerializer {
     }
 }
 
-impl serde_core::ser::Serializer for ValueSerializer {
+impl serde::ser::Serializer for ValueSerializer {
     type Ok = crate::Value;
     type Error = Error;
-    type SerializeSeq = SerializeValueArray;
-    type SerializeTuple = SerializeValueArray;
-    type SerializeTupleStruct = SerializeValueArray;
-    type SerializeTupleVariant = SerializeTupleVariant;
-    type SerializeMap = SerializeMap;
-    type SerializeStruct = SerializeMap;
-    type SerializeStructVariant = SerializeStructVariant;
+    type SerializeSeq = super::SerializeValueArray;
+    type SerializeTuple = super::SerializeValueArray;
+    type SerializeTupleStruct = super::SerializeValueArray;
+    type SerializeTupleVariant = super::SerializeTupleVariant;
+    type SerializeMap = super::SerializeMap;
+    type SerializeStruct = super::SerializeMap;
+    type SerializeStructVariant = super::SerializeStructVariant;
 
     fn serialize_bool(self, v: bool) -> Result<Self::Ok, Self::Error> {
         Ok(v.into())
@@ -108,7 +100,7 @@ impl serde_core::ser::Serializer for ValueSerializer {
     fn serialize_u64(self, v: u64) -> Result<Self::Ok, Self::Error> {
         let v: i64 = v
             .try_into()
-            .map_err(|_err| Error::out_of_range(Some("u64")))?;
+            .map_err(|_err| Error::OutOfRange(Some("u64")))?;
         self.serialize_i64(v)
     }
 
@@ -116,17 +108,7 @@ impl serde_core::ser::Serializer for ValueSerializer {
         self.serialize_f64(v as f64)
     }
 
-    fn serialize_f64(self, mut v: f64) -> Result<Self::Ok, Self::Error> {
-        // Discard sign of NaN when serialized using Serde.
-        //
-        // In all likelihood the sign of NaNs is not meaningful in the user's
-        // program. Ending up with `-nan` in the TOML document would usually be
-        // surprising and undesirable, when the sign of the NaN was not
-        // intentionally controlled by the caller, or may even be
-        // nondeterministic if it comes from arithmetic operations or a cast.
-        if v.is_nan() {
-            v = v.copysign(1.0);
-        }
+    fn serialize_f64(self, v: f64) -> Result<Self::Ok, Self::Error> {
         Ok(v.into())
     }
 
@@ -140,27 +122,27 @@ impl serde_core::ser::Serializer for ValueSerializer {
     }
 
     fn serialize_bytes(self, value: &[u8]) -> Result<Self::Ok, Self::Error> {
-        use serde_core::ser::Serialize;
+        use serde::ser::Serialize;
         value.serialize(self)
     }
 
     fn serialize_none(self) -> Result<Self::Ok, Self::Error> {
-        Err(Error::unsupported_none())
+        Err(Error::UnsupportedNone)
     }
 
-    fn serialize_some<T>(self, value: &T) -> Result<Self::Ok, Self::Error>
+    fn serialize_some<T: ?Sized>(self, value: &T) -> Result<Self::Ok, Self::Error>
     where
-        T: serde_core::ser::Serialize + ?Sized,
+        T: serde::ser::Serialize,
     {
         value.serialize(self)
     }
 
     fn serialize_unit(self) -> Result<Self::Ok, Self::Error> {
-        Err(Error::unsupported_type(Some("unit")))
+        Err(Error::UnsupportedType(Some("unit")))
     }
 
     fn serialize_unit_struct(self, name: &'static str) -> Result<Self::Ok, Self::Error> {
-        Err(Error::unsupported_type(Some(name)))
+        Err(Error::UnsupportedType(Some(name)))
     }
 
     fn serialize_unit_variant(
@@ -172,18 +154,18 @@ impl serde_core::ser::Serializer for ValueSerializer {
         self.serialize_str(variant)
     }
 
-    fn serialize_newtype_struct<T>(
+    fn serialize_newtype_struct<T: ?Sized>(
         self,
         _name: &'static str,
         value: &T,
     ) -> Result<Self::Ok, Self::Error>
     where
-        T: serde_core::ser::Serialize + ?Sized,
+        T: serde::ser::Serialize,
     {
         value.serialize(self)
     }
 
-    fn serialize_newtype_variant<T>(
+    fn serialize_newtype_variant<T: ?Sized>(
         self,
         _name: &'static str,
         _variant_index: u32,
@@ -191,7 +173,7 @@ impl serde_core::ser::Serializer for ValueSerializer {
         value: &T,
     ) -> Result<Self::Ok, Self::Error>
     where
-        T: serde_core::ser::Serialize + ?Sized,
+        T: serde::ser::Serialize,
     {
         let value = value.serialize(self)?;
         let mut table = crate::InlineTable::new();
@@ -200,7 +182,11 @@ impl serde_core::ser::Serializer for ValueSerializer {
     }
 
     fn serialize_seq(self, len: Option<usize>) -> Result<Self::SerializeSeq, Self::Error> {
-        Ok(SerializeValueArray::seq(len))
+        let serializer = match len {
+            Some(len) => super::SerializeValueArray::with_capacity(len),
+            None => super::SerializeValueArray::new(),
+        };
+        Ok(serializer)
     }
 
     fn serialize_tuple(self, len: usize) -> Result<Self::SerializeTuple, Self::Error> {
@@ -222,11 +208,15 @@ impl serde_core::ser::Serializer for ValueSerializer {
         variant: &'static str,
         len: usize,
     ) -> Result<Self::SerializeTupleVariant, Self::Error> {
-        Ok(SerializeTupleVariant::tuple(variant, len))
+        Ok(super::SerializeTupleVariant::tuple(variant, len))
     }
 
     fn serialize_map(self, len: Option<usize>) -> Result<Self::SerializeMap, Self::Error> {
-        Ok(SerializeMap::map(len))
+        let serializer = match len {
+            Some(len) => super::SerializeMap::table_with_capacity(len),
+            None => super::SerializeMap::table(),
+        };
+        Ok(serializer)
     }
 
     fn serialize_struct(
@@ -234,7 +224,11 @@ impl serde_core::ser::Serializer for ValueSerializer {
         name: &'static str,
         len: usize,
     ) -> Result<Self::SerializeStruct, Self::Error> {
-        Ok(SerializeMap::struct_(name, Some(len)))
+        if name == toml_datetime::__unstable::NAME {
+            Ok(super::SerializeMap::datetime())
+        } else {
+            self.serialize_map(Some(len))
+        }
     }
 
     fn serialize_struct_variant(
@@ -244,6 +238,6 @@ impl serde_core::ser::Serializer for ValueSerializer {
         variant: &'static str,
         len: usize,
     ) -> Result<Self::SerializeStructVariant, Self::Error> {
-        Ok(SerializeStructVariant::struct_(variant, len))
+        Ok(super::SerializeStructVariant::struct_(variant, len))
     }
 }

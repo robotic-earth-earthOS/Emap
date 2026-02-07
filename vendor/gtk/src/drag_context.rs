@@ -4,13 +4,39 @@ use crate::Widget;
 use glib::object::IsA;
 use glib::translate::*;
 
-mod sealed {
-    pub trait Sealed {}
-    impl<T: glib::IsA<gdk::DragContext>> Sealed for T {}
+pub trait DragContextExtManual: 'static {
+    #[doc(alias = "gtk_drag_finish")]
+    fn drag_finish(&self, success: bool, del: bool, time_: u32);
+
+    #[doc(alias = "gtk_drag_cancel")]
+    fn drag_cancel(&self);
+
+    #[doc(alias = "gtk_drag_get_source_widget")]
+    fn drag_get_source_widget(&self) -> Option<Widget>;
+
+    #[doc(alias = "gtk_drag_set_icon_default")]
+    fn drag_set_icon_default(&self);
+
+    #[doc(alias = "gtk_drag_set_icon_gicon")]
+    fn drag_set_icon_gicon<P: IsA<gio::Icon>>(&self, icon: &P, hot_x: i32, hot_y: i32);
+
+    #[doc(alias = "gtk_drag_set_icon_name")]
+    fn drag_set_icon_name(&self, icon_name: &str, hot_x: i32, hot_y: i32);
+
+    #[doc(alias = "gtk_drag_set_icon_pixbuf")]
+    fn drag_set_icon_pixbuf(&self, pixbuf: &gdk_pixbuf::Pixbuf, hot_x: i32, hot_y: i32);
+
+    #[doc(alias = "gtk_drag_set_icon_stock")]
+    fn drag_set_icon_stock(&self, stock_id: &str, hot_x: i32, hot_y: i32);
+
+    #[doc(alias = "gtk_drag_set_icon_surface")]
+    fn drag_set_icon_surface(&self, surface: &cairo::Surface);
+
+    #[doc(alias = "gtk_drag_set_icon_widget")]
+    fn drag_set_icon_widget<P: IsA<Widget>>(&self, widget: &P, hot_x: i32, hot_y: i32);
 }
 
-pub trait DragContextExtManual: IsA<gdk::DragContext> + sealed::Sealed + 'static {
-    #[doc(alias = "gtk_drag_finish")]
+impl<O: IsA<gdk::DragContext>> DragContextExtManual for O {
     fn drag_finish(&self, success: bool, del: bool, time_: u32) {
         unsafe {
             ffi::gtk_drag_finish(
@@ -22,7 +48,6 @@ pub trait DragContextExtManual: IsA<gdk::DragContext> + sealed::Sealed + 'static
         };
     }
 
-    #[doc(alias = "gtk_drag_cancel")]
     fn drag_cancel(&self) {
         assert_initialized_main_thread!();
         unsafe {
@@ -30,7 +55,6 @@ pub trait DragContextExtManual: IsA<gdk::DragContext> + sealed::Sealed + 'static
         }
     }
 
-    #[doc(alias = "gtk_drag_get_source_widget")]
     fn drag_get_source_widget(&self) -> Option<Widget> {
         assert_initialized_main_thread!();
         unsafe {
@@ -40,7 +64,6 @@ pub trait DragContextExtManual: IsA<gdk::DragContext> + sealed::Sealed + 'static
         }
     }
 
-    #[doc(alias = "gtk_drag_set_icon_default")]
     fn drag_set_icon_default(&self) {
         assert_initialized_main_thread!();
         unsafe {
@@ -48,7 +71,6 @@ pub trait DragContextExtManual: IsA<gdk::DragContext> + sealed::Sealed + 'static
         }
     }
 
-    #[doc(alias = "gtk_drag_set_icon_gicon")]
     fn drag_set_icon_gicon<P: IsA<gio::Icon>>(&self, icon: &P, hot_x: i32, hot_y: i32) {
         assert_initialized_main_thread!();
         unsafe {
@@ -61,7 +83,6 @@ pub trait DragContextExtManual: IsA<gdk::DragContext> + sealed::Sealed + 'static
         }
     }
 
-    #[doc(alias = "gtk_drag_set_icon_name")]
     fn drag_set_icon_name(&self, icon_name: &str, hot_x: i32, hot_y: i32) {
         assert_initialized_main_thread!();
         unsafe {
@@ -74,7 +95,6 @@ pub trait DragContextExtManual: IsA<gdk::DragContext> + sealed::Sealed + 'static
         }
     }
 
-    #[doc(alias = "gtk_drag_set_icon_pixbuf")]
     fn drag_set_icon_pixbuf(&self, pixbuf: &gdk_pixbuf::Pixbuf, hot_x: i32, hot_y: i32) {
         assert_initialized_main_thread!();
         unsafe {
@@ -87,7 +107,6 @@ pub trait DragContextExtManual: IsA<gdk::DragContext> + sealed::Sealed + 'static
         }
     }
 
-    #[doc(alias = "gtk_drag_set_icon_stock")]
     fn drag_set_icon_stock(&self, stock_id: &str, hot_x: i32, hot_y: i32) {
         assert_initialized_main_thread!();
         unsafe {
@@ -100,7 +119,6 @@ pub trait DragContextExtManual: IsA<gdk::DragContext> + sealed::Sealed + 'static
         }
     }
 
-    #[doc(alias = "gtk_drag_set_icon_surface")]
     fn drag_set_icon_surface(&self, surface: &cairo::Surface) {
         assert_initialized_main_thread!();
         unsafe {
@@ -111,7 +129,6 @@ pub trait DragContextExtManual: IsA<gdk::DragContext> + sealed::Sealed + 'static
         }
     }
 
-    #[doc(alias = "gtk_drag_set_icon_widget")]
     fn drag_set_icon_widget<P: IsA<Widget>>(&self, widget: &P, hot_x: i32, hot_y: i32) {
         assert_initialized_main_thread!();
         unsafe {
@@ -124,5 +141,3 @@ pub trait DragContextExtManual: IsA<gdk::DragContext> + sealed::Sealed + 'static
         }
     }
 }
-
-impl<O: IsA<gdk::DragContext>> DragContextExtManual for O {}

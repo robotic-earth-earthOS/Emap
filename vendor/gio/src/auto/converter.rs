@@ -2,7 +2,8 @@
 // from gir-files (https://github.com/gtk-rs/gir-files)
 // DO NOT EDIT
 
-use glib::{prelude::*, translate::*};
+use glib::object::IsA;
+use glib::translate::*;
 use std::fmt;
 
 glib::wrapper! {
@@ -18,21 +19,18 @@ impl Converter {
     pub const NONE: Option<&'static Converter> = None;
 }
 
-mod sealed {
-    pub trait Sealed {}
-    impl<T: super::IsA<super::Converter>> Sealed for T {}
+pub trait ConverterExt: 'static {
+    #[doc(alias = "g_converter_reset")]
+    fn reset(&self);
 }
 
-pub trait ConverterExt: IsA<Converter> + sealed::Sealed + 'static {
-    #[doc(alias = "g_converter_reset")]
+impl<O: IsA<Converter>> ConverterExt for O {
     fn reset(&self) {
         unsafe {
             ffi::g_converter_reset(self.as_ref().to_glib_none().0);
         }
     }
 }
-
-impl<O: IsA<Converter>> ConverterExt for O {}
 
 impl fmt::Display for Converter {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {

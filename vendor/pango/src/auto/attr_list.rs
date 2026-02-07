@@ -2,10 +2,11 @@
 // from gir-files (https://github.com/gtk-rs/gir-files)
 // DO NOT EDIT
 
-use crate::{AttrIterator, Attribute};
+use crate::AttrIterator;
+use crate::Attribute;
 use glib::translate::*;
-#[cfg(feature = "v1_50")]
-#[cfg_attr(docsrs, doc(cfg(feature = "v1_50")))]
+#[cfg(any(feature = "v1_50", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v1_50")))]
 use std::fmt;
 
 glib::wrapper! {
@@ -41,7 +42,8 @@ impl AttrList {
         ) -> glib::ffi::gboolean {
             let attribute = from_glib_borrow(attribute);
             let callback: *mut P = user_data as *const _ as usize as *mut P;
-            (*callback)(&attribute).into_glib()
+            let res = (*callback)(&attribute);
+            res.into_glib()
         }
         let func = Some(func_func::<P> as _);
         let super_callback0: &P = &func_data;
@@ -54,8 +56,8 @@ impl AttrList {
         }
     }
 
-    #[cfg(feature = "v1_44")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "v1_44")))]
+    #[cfg(any(feature = "v1_44", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v1_44")))]
     #[doc(alias = "pango_attr_list_get_attributes")]
     #[doc(alias = "get_attributes")]
     pub fn attributes(&self) -> Vec<Attribute> {
@@ -68,7 +70,7 @@ impl AttrList {
 
     #[doc(alias = "pango_attr_list_get_iterator")]
     #[doc(alias = "get_iterator")]
-    pub fn iterator(&self) -> AttrIterator {
+    pub fn iterator(&self) -> Option<AttrIterator> {
         unsafe { from_glib_full(ffi::pango_attr_list_get_iterator(self.to_glib_none().0)) }
     }
 
@@ -79,16 +81,16 @@ impl AttrList {
         }
     }
 
-    #[cfg(feature = "v1_50")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "v1_50")))]
+    #[cfg(any(feature = "v1_50", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v1_50")))]
     #[doc(alias = "pango_attr_list_to_string")]
     #[doc(alias = "to_string")]
     pub fn to_str(&self) -> glib::GString {
         unsafe { from_glib_full(ffi::pango_attr_list_to_string(self.to_glib_none().0)) }
     }
 
-    #[cfg(feature = "v1_44")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "v1_44")))]
+    #[cfg(any(feature = "v1_44", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v1_44")))]
     #[doc(alias = "pango_attr_list_update")]
     pub fn update(&self, pos: i32, remove: i32, add: i32) {
         unsafe {
@@ -96,8 +98,8 @@ impl AttrList {
         }
     }
 
-    #[cfg(feature = "v1_50")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "v1_50")))]
+    #[cfg(any(feature = "v1_50", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v1_50")))]
     #[doc(alias = "pango_attr_list_from_string")]
     pub fn from_string(text: &str) -> Result<AttrList, glib::BoolError> {
         unsafe {
@@ -113,8 +115,8 @@ impl Default for AttrList {
     }
 }
 
-#[cfg(feature = "v1_50")]
-#[cfg_attr(docsrs, doc(cfg(feature = "v1_50")))]
+#[cfg(any(feature = "v1_50", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v1_50")))]
 impl fmt::Display for AttrList {
     #[inline]
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {

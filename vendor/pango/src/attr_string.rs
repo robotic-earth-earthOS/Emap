@@ -1,8 +1,7 @@
 // Take a look at the license at the top of the repository in the LICENSE file.
 
-use glib::translate::*;
-
 use crate::AttrType;
+use glib::translate::*;
 
 define_attribute_struct!(AttrString, ffi::PangoAttrString, &[AttrType::Family]);
 

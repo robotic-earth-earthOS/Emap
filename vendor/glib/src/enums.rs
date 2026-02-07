@@ -1,12 +1,10 @@
 // Take a look at the license at the top of the repository in the LICENSE file.
 
-use std::{cmp, ffi::CStr, fmt, ptr};
-
-use crate::{
-    translate::*,
-    value::{FromValue, ValueTypeChecker},
-    HasParamSpec, ParamSpecEnum, ParamSpecFlags, StaticType, Type, Value,
-};
+use crate::translate::*;
+use crate::value::Value;
+use crate::Type;
+use std::ffi::CStr;
+use std::{cmp, fmt, ptr};
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Hash)]
 pub enum UserDirectory {
@@ -26,13 +24,15 @@ pub enum UserDirectory {
     Templates,
     #[doc(alias = "G_USER_DIRECTORY_VIDEOS")]
     Videos,
+    #[doc(hidden)]
+    #[doc(alias = "G_USER_N_DIRECTORIES")]
+    NDirectories,
 }
 
 #[doc(hidden)]
 impl IntoGlib for UserDirectory {
     type GlibType = ffi::GUserDirectory;
 
-    #[inline]
     fn into_glib(self) -> ffi::GUserDirectory {
         match self {
             Self::Desktop => ffi::G_USER_DIRECTORY_DESKTOP,
@@ -43,6 +43,7 @@ impl IntoGlib for UserDirectory {
             Self::PublicShare => ffi::G_USER_DIRECTORY_PUBLIC_SHARE,
             Self::Templates => ffi::G_USER_DIRECTORY_TEMPLATES,
             Self::Videos => ffi::G_USER_DIRECTORY_VIDEOS,
+            Self::NDirectories => ffi::G_USER_N_DIRECTORIES,
         }
     }
 }
@@ -68,17 +69,10 @@ impl fmt::Debug for EnumClass {
 
 impl EnumClass {
     // rustdoc-stripper-ignore-next
-    /// Create a new `EnumClass` from a static type `T`.
-    ///
-    /// Panics if `T` is not representing an enum.
-    pub fn new<T: StaticType + HasParamSpec<ParamSpec = ParamSpecEnum>>() -> Self {
-        Self::with_type(T::static_type()).expect("invalid enum class")
-    }
-    // rustdoc-stripper-ignore-next
     /// Create a new `EnumClass` from a `Type`.
     ///
     /// Returns `None` if `type_` is not representing an enum.
-    pub fn with_type(type_: Type) -> Option<Self> {
+    pub fn new(type_: Type) -> Option<Self> {
         unsafe {
             let is_enum: bool = from_glib(gobject_ffi::g_type_is_a(
                 type_.into_glib(),
@@ -190,7 +184,6 @@ impl EnumClass {
 }
 
 impl Drop for EnumClass {
-    #[inline]
     fn drop(&mut self) {
         unsafe {
             gobject_ffi::g_type_class_unref(self.0.as_ptr() as *mut _);
@@ -199,7 +192,6 @@ impl Drop for EnumClass {
 }
 
 impl Clone for EnumClass {
-    #[inline]
     fn clone(&self) -> Self {
         unsafe {
             Self(ptr::NonNull::new(gobject_ffi::g_type_class_ref(self.type_().into_glib()) as *mut _).unwrap())
@@ -252,7 +244,7 @@ impl EnumValue {
     /// Convert enum value to a `Value`.
     pub fn to_value(&self, enum_: &EnumClass) -> Value {
         unsafe {
-            let mut v = Value::from_type_unchecked(enum_.type_());
+            let mut v = Value::from_type(enum_.type_());
             gobject_ffi::g_value_set_enum(v.to_glib_none_mut().0, self.0.value);
             v
         }
@@ -262,7 +254,7 @@ impl EnumValue {
     /// Convert enum value from a `Value`.
     pub fn from_value(value: &Value) -> Option<(EnumClass, &EnumValue)> {
         unsafe {
-            let enum_class = EnumClass::with_type(value.type_())?;
+            let enum_class = EnumClass::new(value.type_())?;
             let v = enum_class.value(gobject_ffi::g_value_get_enum(value.to_glib_none().0))?;
             let v = &*(v as *const EnumValue);
             Some((enum_class, v))
@@ -280,7 +272,7 @@ impl Eq for EnumValue {}
 
 impl PartialOrd for EnumValue {
     fn partial_cmp(&self, other: &Self) -> Option<cmp::Ordering> {
-        Some(self.cmp(other))
+        self.value().partial_cmp(&other.value())
     }
 }
 
@@ -289,44 +281,6 @@ impl Ord for EnumValue {
         self.value().cmp(&other.value())
     }
 }
-
-unsafe impl<'a, 'b> FromValue<'a> for &'b EnumValue {
-    type Checker = EnumTypeChecker;
-
-    unsafe fn from_value(value: &'a Value) -> Self {
-        let (_, v) = EnumValue::from_value(value).unwrap();
-        // SAFETY: The enum class and its values live forever
-        std::mem::transmute(v)
-    }
-}
-
-pub struct EnumTypeChecker();
-unsafe impl ValueTypeChecker for EnumTypeChecker {
-    type Error = InvalidEnumError;
-
-    fn check(value: &Value) -> Result<(), Self::Error> {
-        let t = value.type_();
-        if t.is_a(Type::ENUM) {
-            Ok(())
-        } else {
-            Err(InvalidEnumError)
-        }
-    }
-}
-
-// rustdoc-stripper-ignore-next
-/// An error returned from the [`get`](struct.Value.html#method.get) function
-/// on a [`Value`](struct.Value.html) for enum types.
-#[derive(Clone, PartialEq, Eq, Debug)]
-pub struct InvalidEnumError;
-
-impl fmt::Display for InvalidEnumError {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "Value is not an enum")
-    }
-}
-
-impl std::error::Error for InvalidEnumError {}
 
 // rustdoc-stripper-ignore-next
 /// Representation of a `flags` for dynamically, at runtime, querying the values of the enum and
@@ -349,17 +303,10 @@ impl fmt::Debug for FlagsClass {
 
 impl FlagsClass {
     // rustdoc-stripper-ignore-next
-    /// Create a new `FlagsClass` from a static type `T`.
-    ///
-    /// Panics if `T` is not representing an flags type.
-    pub fn new<T: StaticType + HasParamSpec<ParamSpec = ParamSpecFlags>>() -> Self {
-        Self::with_type(T::static_type()).expect("invalid flags class")
-    }
-    // rustdoc-stripper-ignore-next
     /// Create a new `FlagsClass` from a `Type`
     ///
     /// Returns `None` if `type_` is not representing a flags type.
-    pub fn with_type(type_: Type) -> Option<Self> {
+    pub fn new(type_: Type) -> Option<Self> {
         unsafe {
             let is_flags: bool = from_glib(gobject_ffi::g_type_is_a(
                 type_.into_glib(),
@@ -650,33 +597,6 @@ impl FlagsClass {
     }
 
     // rustdoc-stripper-ignore-next
-    /// Converts an integer `value` to a string of nicks separated by `|`.
-    pub fn to_nick_string(&self, mut value: u32) -> String {
-        let mut s = String::new();
-        for val in self.values() {
-            let v = val.value();
-            if v != 0 && (value & v) == v {
-                value &= !v;
-                if !s.is_empty() {
-                    s.push('|');
-                }
-                s.push_str(val.nick());
-            }
-        }
-        s
-    }
-
-    // rustdoc-stripper-ignore-next
-    /// Converts a string of nicks `s` separated by `|` to an integer value.
-    pub fn from_nick_string(&self, s: &str) -> Result<u32, ParseFlagsError> {
-        s.split('|').try_fold(0u32, |acc, flag| {
-            self.value_by_nick(flag.trim())
-                .map(|v| acc + v.value())
-                .ok_or_else(|| ParseFlagsError(flag.to_owned()))
-        })
-    }
-
-    // rustdoc-stripper-ignore-next
     /// Returns a new `FlagsBuilder` for conveniently setting/unsetting flags
     /// and building a `Value`.
     pub fn builder(&self) -> FlagsBuilder {
@@ -696,7 +616,6 @@ impl FlagsClass {
 }
 
 impl Drop for FlagsClass {
-    #[inline]
     fn drop(&mut self) {
         unsafe {
             gobject_ffi::g_type_class_unref(self.0.as_ptr() as *mut _);
@@ -705,28 +624,10 @@ impl Drop for FlagsClass {
 }
 
 impl Clone for FlagsClass {
-    #[inline]
     fn clone(&self) -> Self {
         unsafe {
             Self(ptr::NonNull::new(gobject_ffi::g_type_class_ref(self.type_().into_glib()) as *mut _).unwrap())
         }
-    }
-}
-
-#[derive(Debug)]
-pub struct ParseFlagsError(String);
-
-impl std::error::Error for ParseFlagsError {}
-
-impl fmt::Display for ParseFlagsError {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "Unknown flag: '{}'", self.0)
-    }
-}
-
-impl ParseFlagsError {
-    pub fn flag(&self) -> &str {
-        &self.0
     }
 }
 
@@ -775,7 +676,7 @@ impl FlagsValue {
     /// Convert flags value to a `Value`.
     pub fn to_value(&self, flags: &FlagsClass) -> Value {
         unsafe {
-            let mut v = Value::from_type_unchecked(flags.type_());
+            let mut v = Value::from_type(flags.type_());
             gobject_ffi::g_value_set_flags(v.to_glib_none_mut().0, self.0.value);
             v
         }
@@ -785,7 +686,7 @@ impl FlagsValue {
     /// Convert flags values from a `Value`. This returns all flags that are set.
     pub fn from_value(value: &Value) -> Option<(FlagsClass, Vec<&FlagsValue>)> {
         unsafe {
-            let flags_class = FlagsClass::with_type(value.type_())?;
+            let flags_class = FlagsClass::new(value.type_())?;
             let mut res = Vec::new();
             let f = gobject_ffi::g_value_get_flags(value.to_glib_none().0);
             for v in flags_class.values() {
@@ -828,7 +729,7 @@ impl Eq for FlagsValue {}
 pub struct FlagsBuilder<'a>(&'a FlagsClass, Option<Value>);
 impl<'a> FlagsBuilder<'a> {
     fn new(flags_class: &FlagsClass) -> FlagsBuilder {
-        let value = unsafe { Value::from_type_unchecked(flags_class.type_()) };
+        let value = Value::from_type(flags_class.type_());
         FlagsBuilder(flags_class, Some(value))
     }
 
@@ -904,51 +805,15 @@ impl<'a> FlagsBuilder<'a> {
     }
 }
 
-unsafe impl<'a, 'b> FromValue<'a> for Vec<&'b FlagsValue> {
-    type Checker = FlagsTypeChecker;
-
-    unsafe fn from_value(value: &'a Value) -> Self {
-        let (_, v) = FlagsValue::from_value(value).unwrap();
-        // SAFETY: The enum class and its values live forever
-        std::mem::transmute(v)
-    }
-}
-
-pub struct FlagsTypeChecker();
-unsafe impl ValueTypeChecker for FlagsTypeChecker {
-    type Error = InvalidFlagsError;
-
-    fn check(value: &Value) -> Result<(), Self::Error> {
-        let t = value.type_();
-        if t.is_a(Type::FLAGS) {
-            Ok(())
-        } else {
-            Err(InvalidFlagsError)
-        }
-    }
-}
-
-// rustdoc-stripper-ignore-next
-/// An error returned from the [`get`](struct.Value.html#method.get) function
-/// on a [`Value`](struct.Value.html) for flags types.
-#[derive(Clone, PartialEq, Eq, Debug)]
-pub struct InvalidFlagsError;
-
-impl fmt::Display for InvalidFlagsError {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "Value is not a flags")
-    }
-}
-
-impl std::error::Error for InvalidFlagsError {}
-
 #[cfg(test)]
 mod tests {
     use super::*;
 
+    use crate::StaticType;
+
     #[test]
     fn test_flags() {
-        let flags = FlagsClass::new::<crate::BindingFlags>();
+        let flags = FlagsClass::new(crate::BindingFlags::static_type()).unwrap();
         let values = flags.values();
         let def1 = values
             .iter()
@@ -956,10 +821,6 @@ mod tests {
             .unwrap();
         let def2 = flags.value_by_name("G_BINDING_DEFAULT").unwrap();
         assert!(ptr::eq(def1, def2));
-
-        let value = flags.to_value(0).unwrap();
-        let values = value.get::<Vec<&FlagsValue>>().unwrap();
-        assert_eq!(values.len(), 0);
 
         assert_eq!(def1.value(), crate::BindingFlags::DEFAULT.bits());
     }

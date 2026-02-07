@@ -3,7 +3,8 @@
 // DO NOT EDIT
 
 use crate::Object;
-use glib::{prelude::*, translate::*};
+use glib::object::IsA;
+use glib::translate::*;
 use std::fmt;
 
 glib::wrapper! {
@@ -29,14 +30,13 @@ impl GObjectAccessible {
     }
 }
 
-mod sealed {
-    pub trait Sealed {}
-    impl<T: super::IsA<super::GObjectAccessible>> Sealed for T {}
-}
-
-pub trait GObjectAccessibleExt: IsA<GObjectAccessible> + sealed::Sealed + 'static {
+pub trait GObjectAccessibleExt: 'static {
     #[doc(alias = "atk_gobject_accessible_get_object")]
     #[doc(alias = "get_object")]
+    fn object(&self) -> Option<glib::Object>;
+}
+
+impl<O: IsA<GObjectAccessible>> GObjectAccessibleExt for O {
     fn object(&self) -> Option<glib::Object> {
         unsafe {
             from_glib_none(ffi::atk_gobject_accessible_get_object(
@@ -45,8 +45,6 @@ pub trait GObjectAccessibleExt: IsA<GObjectAccessible> + sealed::Sealed + 'stati
         }
     }
 }
-
-impl<O: IsA<GObjectAccessible>> GObjectAccessibleExt for O {}
 
 impl fmt::Display for GObjectAccessible {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {

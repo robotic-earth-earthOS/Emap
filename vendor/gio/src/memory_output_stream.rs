@@ -2,7 +2,8 @@
 
 #[cfg(test)]
 mod tests {
-    use crate::{prelude::*, MemoryOutputStream};
+    use crate::prelude::*;
+    use crate::MemoryOutputStream;
 
     #[test]
     fn steal_empty() {

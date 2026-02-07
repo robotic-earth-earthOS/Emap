@@ -1,10 +1,7 @@
 // Take a look at the license at the top of the repository in the LICENSE file.
 
-#[cfg(test)]
+use glib::*;
 use std::sync::mpsc::{channel, Sender};
-
-#[cfg(test)]
-use glib::{MainContext, MainLoop};
 
 #[cfg(test)]
 pub fn run_async<T: Send + 'static, Q: FnOnce(Sender<T>, MainLoop) + Send + 'static>(

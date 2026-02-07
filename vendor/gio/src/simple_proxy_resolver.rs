@@ -1,43 +1,35 @@
 // Take a look at the license at the top of the repository in the LICENSE file.
 
-use glib::{prelude::*, translate::*, IntoStrV};
-
-use crate::{ProxyResolver, SimpleProxyResolver};
+use crate::ProxyResolver;
+use crate::SimpleProxyResolver;
+use glib::object::IsA;
+use glib::translate::*;
 
 impl SimpleProxyResolver {
     #[doc(alias = "g_simple_proxy_resolver_new")]
     #[allow(clippy::new_ret_no_self)]
-    pub fn new(default_proxy: Option<&str>, ignore_hosts: impl IntoStrV) -> ProxyResolver {
+    pub fn new(default_proxy: Option<&str>, ignore_hosts: &[&str]) -> ProxyResolver {
         unsafe {
-            ignore_hosts.run_with_strv(|ignore_hosts| {
-                from_glib_full(ffi::g_simple_proxy_resolver_new(
-                    default_proxy.to_glib_none().0,
-                    ignore_hosts.as_ptr() as *mut _,
-                ))
-            })
+            from_glib_full(ffi::g_simple_proxy_resolver_new(
+                default_proxy.to_glib_none().0,
+                ignore_hosts.to_glib_none().0,
+            ))
         }
     }
 }
 
-mod sealed {
-    pub trait Sealed {}
-    impl<T: super::IsA<super::SimpleProxyResolver>> Sealed for T {}
-}
-
-pub trait SimpleProxyResolverExtManual:
-    sealed::Sealed + IsA<SimpleProxyResolver> + 'static
-{
+pub trait SimpleProxyResolverExtManual: 'static {
     #[doc(alias = "g_simple_proxy_resolver_set_ignore_hosts")]
-    fn set_ignore_hosts(&self, ignore_hosts: impl IntoStrV) {
+    fn set_ignore_hosts(&self, ignore_hosts: &[&str]);
+}
+
+impl<O: IsA<SimpleProxyResolver>> SimpleProxyResolverExtManual for O {
+    fn set_ignore_hosts(&self, ignore_hosts: &[&str]) {
         unsafe {
-            ignore_hosts.run_with_strv(|ignore_hosts| {
-                ffi::g_simple_proxy_resolver_set_ignore_hosts(
-                    self.as_ref().to_glib_none().0,
-                    ignore_hosts.as_ptr() as *mut _,
-                );
-            })
+            ffi::g_simple_proxy_resolver_set_ignore_hosts(
+                self.as_ref().to_glib_none().0,
+                ignore_hosts.to_glib_none().0,
+            );
         }
     }
 }
-
-impl<O: IsA<SimpleProxyResolver>> SimpleProxyResolverExtManual for O {}

@@ -3,16 +3,12 @@
 // rustdoc-stripper-ignore-next
 //! Runtime type information.
 
-use std::{
-    fmt,
-    marker::PhantomData,
-    mem,
-    num::{NonZeroI32, NonZeroI64, NonZeroI8, NonZeroU32, NonZeroU64, NonZeroU8},
-    path::{Path, PathBuf},
-    ptr,
-};
+use crate::translate::*;
+use crate::Slice;
 
-use crate::{translate::*, IntoGStr, Slice};
+use std::fmt;
+use std::mem;
+use std::ptr;
 
 // rustdoc-stripper-ignore-next
 /// A GLib or GLib-based library type
@@ -20,10 +16,6 @@ use crate::{translate::*, IntoGStr, Slice};
 #[doc(alias = "GType")]
 #[repr(transparent)]
 pub struct Type(ffi::GType);
-
-unsafe impl TransparentType for Type {
-    type GlibType = ffi::GType;
-}
 
 impl Type {
     // rustdoc-stripper-ignore-next
@@ -156,7 +148,6 @@ impl Type {
     }
 
     #[doc(alias = "g_type_is_a")]
-    #[inline]
     pub fn is_a(self, other: Self) -> bool {
         unsafe {
             from_glib(gobject_ffi::g_type_is_a(
@@ -180,7 +171,7 @@ impl Type {
             let mut n_children = 0u32;
             let children = gobject_ffi::g_type_children(self.into_glib(), &mut n_children);
 
-            Slice::from_glib_full_num(children, n_children as usize)
+            Slice::from_glib_full_num_copy(children as *mut Self, n_children as usize)
         }
     }
 
@@ -190,7 +181,7 @@ impl Type {
             let mut n_interfaces = 0u32;
             let interfaces = gobject_ffi::g_type_interfaces(self.into_glib(), &mut n_interfaces);
 
-            Slice::from_glib_full_num(interfaces, n_interfaces as usize)
+            Slice::from_glib_full_num_copy(interfaces as *mut Self, n_interfaces as usize)
         }
     }
 
@@ -198,7 +189,7 @@ impl Type {
     pub fn interface_prerequisites(self) -> Slice<Self> {
         unsafe {
             match self {
-                t if !t.is_a(Self::INTERFACE) => Slice::from_glib_full_num(ptr::null_mut(), 0),
+                t if !t.is_a(Self::INTERFACE) => Slice::from_glib_full_num_copy(ptr::null_mut(), 0),
                 _ => {
                     let mut n_prereqs = 0u32;
                     let prereqs = gobject_ffi::g_type_interface_prerequisites(
@@ -206,19 +197,16 @@ impl Type {
                         &mut n_prereqs,
                     );
 
-                    Slice::from_glib_full_num(prereqs, n_prereqs as usize)
+                    Slice::from_glib_full_num_copy(prereqs as *mut Self, n_prereqs as usize)
                 }
             }
         }
     }
 
     #[doc(alias = "g_type_from_name")]
-    pub fn from_name(name: impl IntoGStr) -> Option<Self> {
+    pub fn from_name(name: &str) -> Option<Self> {
         unsafe {
-            let type_ = name.run_with_gstr(|name| {
-                Self::from_glib(gobject_ffi::g_type_from_name(name.as_ptr()))
-            });
-
+            let type_: Self = from_glib(gobject_ffi::g_type_from_name(name.to_glib_none().0));
             Some(type_).filter(|t| t.is_valid())
         }
     }
@@ -253,7 +241,6 @@ pub trait StaticType {
 
 impl StaticType for Type {
     #[doc(alias = "g_gtype_get_type")]
-    #[inline]
     fn static_type() -> Type {
         unsafe { from_glib(gobject_ffi::g_gtype_get_type()) }
     }
@@ -267,7 +254,6 @@ pub trait StaticTypeExt {
 }
 
 impl<T: StaticType> StaticTypeExt for T {
-    #[inline]
     fn ensure_type() {
         T::static_type();
     }
@@ -282,7 +268,6 @@ impl crate::value::ValueType for Type {
 unsafe impl<'a> crate::value::FromValue<'a> for Type {
     type Checker = crate::value::GenericValueTypeChecker<Self>;
 
-    #[inline]
     unsafe fn from_value(value: &'a crate::Value) -> Self {
         from_glib(gobject_ffi::g_value_get_gtype(value.to_glib_none().0))
     }
@@ -290,38 +275,26 @@ unsafe impl<'a> crate::value::FromValue<'a> for Type {
 
 #[doc(hidden)]
 impl crate::value::ToValue for Type {
-    #[inline]
     fn to_value(&self) -> crate::Value {
         unsafe {
-            let mut value = crate::Value::from_type_unchecked(Type::static_type());
+            let mut value = crate::Value::from_type(Type::static_type());
             gobject_ffi::g_value_set_gtype(value.to_glib_none_mut().0, self.into_glib());
             value
         }
     }
 
-    #[inline]
     fn value_type(&self) -> crate::Type {
         Type::static_type()
     }
 }
 
-#[doc(hidden)]
-impl From<Type> for crate::Value {
-    #[inline]
-    fn from(t: Type) -> Self {
-        crate::value::ToValue::to_value(&t)
-    }
-}
-
 impl<'a, T: ?Sized + StaticType> StaticType for &'a T {
-    #[inline]
     fn static_type() -> Type {
         T::static_type()
     }
 }
 
 impl<'a, T: ?Sized + StaticType> StaticType for &'a mut T {
-    #[inline]
     fn static_type() -> Type {
         T::static_type()
     }
@@ -330,7 +303,6 @@ impl<'a, T: ?Sized + StaticType> StaticType for &'a mut T {
 macro_rules! builtin {
     ($name:ty, $val:ident) => {
         impl StaticType for $name {
-            #[inline]
             fn static_type() -> Type {
                 Type::$val
             }
@@ -362,7 +334,6 @@ pub type Pointer = ffi::gpointer;
 pub type Pointee = libc::c_void;
 
 impl StaticType for ptr::NonNull<Pointee> {
-    #[inline]
     fn static_type() -> Type {
         Pointer::static_type()
     }
@@ -374,56 +345,48 @@ pub struct ILong(pub libc::c_long);
 impl std::ops::Deref for ILong {
     type Target = libc::c_long;
 
-    #[inline]
     fn deref(&self) -> &Self::Target {
         &self.0
     }
 }
 
 impl std::ops::DerefMut for ILong {
-    #[inline]
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.0
     }
 }
 
 impl From<libc::c_long> for ILong {
-    #[inline]
     fn from(v: libc::c_long) -> ILong {
         ILong(v)
     }
 }
 
 impl From<ILong> for libc::c_long {
-    #[inline]
     fn from(v: ILong) -> libc::c_long {
         v.0
     }
 }
 
 impl PartialEq<libc::c_long> for ILong {
-    #[inline]
     fn eq(&self, other: &libc::c_long) -> bool {
         &self.0 == other
     }
 }
 
 impl PartialEq<ILong> for libc::c_long {
-    #[inline]
     fn eq(&self, other: &ILong) -> bool {
         self == &other.0
     }
 }
 
 impl PartialOrd<libc::c_long> for ILong {
-    #[inline]
     fn partial_cmp(&self, other: &libc::c_long) -> Option<std::cmp::Ordering> {
         self.0.partial_cmp(other)
     }
 }
 
 impl PartialOrd<ILong> for libc::c_long {
-    #[inline]
     fn partial_cmp(&self, other: &ILong) -> Option<std::cmp::Ordering> {
         self.partial_cmp(&other.0)
     }
@@ -435,56 +398,48 @@ pub struct ULong(pub libc::c_ulong);
 impl std::ops::Deref for ULong {
     type Target = libc::c_ulong;
 
-    #[inline]
     fn deref(&self) -> &Self::Target {
         &self.0
     }
 }
 
 impl std::ops::DerefMut for ULong {
-    #[inline]
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.0
     }
 }
 
 impl From<libc::c_ulong> for ULong {
-    #[inline]
     fn from(v: libc::c_ulong) -> ULong {
         ULong(v)
     }
 }
 
 impl From<ULong> for libc::c_ulong {
-    #[inline]
     fn from(v: ULong) -> libc::c_ulong {
         v.0
     }
 }
 
 impl PartialEq<libc::c_ulong> for ULong {
-    #[inline]
     fn eq(&self, other: &libc::c_ulong) -> bool {
         &self.0 == other
     }
 }
 
 impl PartialEq<ULong> for libc::c_ulong {
-    #[inline]
     fn eq(&self, other: &ULong) -> bool {
         self == &other.0
     }
 }
 
 impl PartialOrd<libc::c_ulong> for ULong {
-    #[inline]
     fn partial_cmp(&self, other: &libc::c_ulong) -> Option<std::cmp::Ordering> {
         self.0.partial_cmp(other)
     }
 }
 
 impl PartialOrd<ULong> for libc::c_ulong {
-    #[inline]
     fn partial_cmp(&self, other: &ULong) -> Option<std::cmp::Ordering> {
         self.partial_cmp(&other.0)
     }
@@ -492,43 +447,32 @@ impl PartialOrd<ULong> for libc::c_ulong {
 
 builtin!(bool, BOOL);
 builtin!(i8, I8);
-builtin!(NonZeroI8, I8);
 builtin!(u8, U8);
-builtin!(NonZeroU8, U8);
 builtin!(i32, I32);
-builtin!(NonZeroI32, I32);
 builtin!(u32, U32);
-builtin!(NonZeroU32, U32);
 builtin!(i64, I64);
-builtin!(NonZeroI64, I64);
 builtin!(u64, U64);
-builtin!(NonZeroU64, U64);
 builtin!(ILong, I_LONG);
 builtin!(ULong, U_LONG);
 builtin!(f32, F32);
 builtin!(f64, F64);
 builtin!(str, STRING);
 builtin!(String, STRING);
-builtin!(PathBuf, STRING);
-builtin!(Path, STRING);
 builtin!(Pointer, POINTER);
 
 impl<'a> StaticType for [&'a str] {
-    #[inline]
     fn static_type() -> Type {
         unsafe { from_glib(ffi::g_strv_get_type()) }
     }
 }
 
 impl StaticType for Vec<String> {
-    #[inline]
     fn static_type() -> Type {
         unsafe { from_glib(ffi::g_strv_get_type()) }
     }
 }
 
 impl StaticType for () {
-    #[inline]
     fn static_type() -> Type {
         Type::UNIT
     }
@@ -559,16 +503,16 @@ impl IntoGlib for Type {
 }
 
 impl<'a> ToGlibContainerFromSlice<'a, *mut ffi::GType> for Type {
-    type Storage = PhantomData<&'a [Type]>;
+    type Storage = Option<Vec<ffi::GType>>;
 
-    #[inline]
     fn to_glib_none_from_slice(t: &'a [Type]) -> (*mut ffi::GType, Self::Storage) {
-        (t.as_ptr() as *mut ffi::GType, PhantomData)
+        let mut vec = t.iter().map(|t| t.into_glib()).collect::<Vec<_>>();
+
+        (vec.as_mut_ptr(), Some(vec))
     }
 
-    #[inline]
     fn to_glib_container_from_slice(t: &'a [Type]) -> (*mut ffi::GType, Self::Storage) {
-        (Self::to_glib_full_from_slice(t), PhantomData)
+        (Self::to_glib_full_from_slice(t), None)
     }
 
     fn to_glib_full_from_slice(t: &[Type]) -> *mut ffi::GType {
@@ -578,9 +522,10 @@ impl<'a> ToGlibContainerFromSlice<'a, *mut ffi::GType> for Type {
 
         unsafe {
             let res =
-                ffi::g_malloc(mem::size_of::<ffi::GType>() * (t.len() + 1)) as *mut ffi::GType;
-            std::ptr::copy_nonoverlapping(t.as_ptr() as *const ffi::GType, res, t.len());
-            *res.add(t.len()) = 0;
+                ffi::g_malloc0(mem::size_of::<ffi::GType>() * (t.len() + 1)) as *mut ffi::GType;
+            for (i, v) in t.iter().enumerate() {
+                *res.add(i) = v.into_glib();
+            }
             res
         }
     }
@@ -592,10 +537,10 @@ impl FromGlibContainerAsVec<Type, *const ffi::GType> for Type {
             return Vec::new();
         }
 
-        let mut res = Vec::<Self>::with_capacity(num);
-        let res_ptr = res.as_mut_ptr() as *mut ffi::GType;
-        std::ptr::copy_nonoverlapping(ptr, res_ptr, num);
-        res.set_len(num);
+        let mut res = Vec::with_capacity(num);
+        for i in 0..num {
+            res.push(from_glib(*ptr.add(i)));
+        }
         res
     }
 
@@ -628,10 +573,9 @@ impl FromGlibContainerAsVec<Type, *mut ffi::GType> for Type {
 
 #[cfg(test)]
 mod tests {
-    use std::collections::{BTreeSet, HashSet};
-
     use super::*;
     use crate::InitiallyUnowned;
+    use std::collections::{BTreeSet, HashSet};
 
     #[test]
     fn invalid() {

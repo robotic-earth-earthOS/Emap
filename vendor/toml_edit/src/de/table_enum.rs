@@ -7,11 +7,11 @@ pub(crate) struct TableEnumDeserializer {
 
 impl TableEnumDeserializer {
     pub(crate) fn new(value: crate::Item) -> Self {
-        Self { value }
+        TableEnumDeserializer { value }
     }
 }
 
-impl<'de> serde_core::de::VariantAccess<'de> for TableEnumDeserializer {
+impl<'de> serde::de::VariantAccess<'de> for TableEnumDeserializer {
     type Error = Error;
 
     fn unit_variant(self) -> Result<(), Self::Error> {
@@ -53,14 +53,14 @@ impl<'de> serde_core::de::VariantAccess<'de> for TableEnumDeserializer {
 
     fn newtype_variant_seed<T>(self, seed: T) -> Result<T::Value, Self::Error>
     where
-        T: serde_core::de::DeserializeSeed<'de>,
+        T: serde::de::DeserializeSeed<'de>,
     {
         seed.deserialize(super::ValueDeserializer::new(self.value))
     }
 
     fn tuple_variant<V>(self, len: usize, visitor: V) -> Result<V::Value, Self::Error>
     where
-        V: serde_core::de::Visitor<'de>,
+        V: serde::de::Visitor<'de>,
     {
         match self.value {
             crate::Item::ArrayOfTables(values) => {
@@ -68,13 +68,13 @@ impl<'de> serde_core::de::VariantAccess<'de> for TableEnumDeserializer {
                 let tuple_values = values.values.into_iter().collect::<Vec<_>>();
 
                 if tuple_values.len() == len {
-                    serde_core::de::Deserializer::deserialize_seq(
+                    serde::de::Deserializer::deserialize_seq(
                         super::ArrayDeserializer::new(tuple_values, values_span),
                         visitor,
                     )
                 } else {
                     Err(Error::custom(
-                        format!("expected tuple with length {len}"),
+                        format!("expected tuple with length {}", len),
                         values_span,
                     ))
                 }
@@ -84,69 +84,99 @@ impl<'de> serde_core::de::VariantAccess<'de> for TableEnumDeserializer {
                 let tuple_values = values.values.into_iter().collect::<Vec<_>>();
 
                 if tuple_values.len() == len {
-                    serde_core::de::Deserializer::deserialize_seq(
+                    serde::de::Deserializer::deserialize_seq(
                         super::ArrayDeserializer::new(tuple_values, values_span),
                         visitor,
                     )
                 } else {
                     Err(Error::custom(
-                        format!("expected tuple with length {len}"),
+                        format!("expected tuple with length {}", len),
                         values_span,
                     ))
                 }
             }
             crate::Item::Table(values) => {
                 let values_span = values.span();
-                let tuple_values: Result<Vec<_>, _> = values
+                let tuple_values = values
                     .items
                     .into_iter()
                     .enumerate()
-                    .map(|(index, (key, value))| match key.get().parse::<usize>() {
-                        Ok(key_index) if key_index == index => Ok(value),
-                        Ok(_) | Err(_) => Err(Error::custom(
-                            format!("expected table key `{}`, but was `{}`", index, key.get()),
-                            key.span(),
-                        )),
-                    })
-                    .collect();
-                let tuple_values = tuple_values?;
+                    .map(
+                        |(index, (_, value))| match value.key.get().parse::<usize>() {
+                            Ok(key_index) if key_index == index => Ok(value.value),
+                            Ok(_) | Err(_) => Err(Error::custom(
+                                format!(
+                                    "expected table key `{}`, but was `{}`",
+                                    index,
+                                    value.key.get()
+                                ),
+                                value.key.span(),
+                            )),
+                        },
+                    )
+                    // Fold all values into a `Vec`, or return the first error.
+                    .fold(Ok(Vec::with_capacity(len)), |result, value_result| {
+                        result.and_then(move |mut tuple_values| match value_result {
+                            Ok(value) => {
+                                tuple_values.push(value);
+                                Ok(tuple_values)
+                            }
+                            // `Result<de::Value, Self::Error>` to `Result<Vec<_>, Self::Error>`
+                            Err(e) => Err(e),
+                        })
+                    })?;
 
                 if tuple_values.len() == len {
-                    serde_core::de::Deserializer::deserialize_seq(
+                    serde::de::Deserializer::deserialize_seq(
                         super::ArrayDeserializer::new(tuple_values, values_span),
                         visitor,
                     )
                 } else {
                     Err(Error::custom(
-                        format!("expected tuple with length {len}"),
+                        format!("expected tuple with length {}", len),
                         values_span,
                     ))
                 }
             }
             crate::Item::Value(crate::Value::InlineTable(values)) => {
                 let values_span = values.span();
-                let tuple_values: Result<Vec<_>, _> = values
+                let tuple_values = values
                     .items
                     .into_iter()
                     .enumerate()
-                    .map(|(index, (key, value))| match key.get().parse::<usize>() {
-                        Ok(key_index) if key_index == index => Ok(value),
-                        Ok(_) | Err(_) => Err(Error::custom(
-                            format!("expected table key `{}`, but was `{}`", index, key.get()),
-                            key.span(),
-                        )),
-                    })
-                    .collect();
-                let tuple_values = tuple_values?;
+                    .map(
+                        |(index, (_, value))| match value.key.get().parse::<usize>() {
+                            Ok(key_index) if key_index == index => Ok(value.value),
+                            Ok(_) | Err(_) => Err(Error::custom(
+                                format!(
+                                    "expected table key `{}`, but was `{}`",
+                                    index,
+                                    value.key.get()
+                                ),
+                                value.key.span(),
+                            )),
+                        },
+                    )
+                    // Fold all values into a `Vec`, or return the first error.
+                    .fold(Ok(Vec::with_capacity(len)), |result, value_result| {
+                        result.and_then(move |mut tuple_values| match value_result {
+                            Ok(value) => {
+                                tuple_values.push(value);
+                                Ok(tuple_values)
+                            }
+                            // `Result<de::Value, Self::Error>` to `Result<Vec<_>, Self::Error>`
+                            Err(e) => Err(e),
+                        })
+                    })?;
 
                 if tuple_values.len() == len {
-                    serde_core::de::Deserializer::deserialize_seq(
+                    serde::de::Deserializer::deserialize_seq(
                         super::ArrayDeserializer::new(tuple_values, values_span),
                         visitor,
                     )
                 } else {
                     Err(Error::custom(
-                        format!("expected tuple with length {len}"),
+                        format!("expected tuple with length {}", len),
                         values_span,
                     ))
                 }
@@ -164,9 +194,9 @@ impl<'de> serde_core::de::VariantAccess<'de> for TableEnumDeserializer {
         visitor: V,
     ) -> Result<V::Value, Self::Error>
     where
-        V: serde_core::de::Visitor<'de>,
+        V: serde::de::Visitor<'de>,
     {
-        serde_core::de::Deserializer::deserialize_struct(
+        serde::de::Deserializer::deserialize_struct(
             super::ValueDeserializer::new(self.value).with_struct_key_validation(),
             "", // TODO: this should be the variant name
             fields,

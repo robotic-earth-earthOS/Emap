@@ -1,15 +1,22 @@
 // Take a look at the license at the top of the repository in the LICENSE file.
 
-use std::fmt;
-#[cfg(feature = "use_glib")]
-use std::marker::PhantomData;
+use crate::error::Error;
+use crate::utils::status_to_result;
+use libc::c_double;
 
-use crate::{utils::status_to_result, Error};
+// checker-ignore-item
+#[repr(C)]
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct Matrix {
+    pub xx: c_double,
+    pub yx: c_double,
 
-#[repr(transparent)]
-#[derive(Clone, Copy, PartialEq)]
-#[doc(alias = "cairo_matrix_t")]
-pub struct Matrix(ffi::cairo_matrix_t);
+    pub xy: c_double,
+    pub yy: c_double,
+
+    pub x0: c_double,
+    pub y0: c_double,
+}
 
 impl Default for Matrix {
     fn default() -> Self {
@@ -18,103 +25,48 @@ impl Default for Matrix {
 }
 
 impl Matrix {
-    #[inline]
-    pub(crate) fn ptr(&self) -> *const ffi::cairo_matrix_t {
+    pub(crate) fn ptr(&self) -> *const ffi::Matrix {
         self as *const Matrix as _
     }
 
-    #[inline]
-    pub(crate) fn mut_ptr(&mut self) -> *mut ffi::cairo_matrix_t {
+    pub(crate) fn mut_ptr(&mut self) -> *mut ffi::Matrix {
         self as *mut Matrix as _
     }
 
-    #[inline]
     pub(crate) fn null() -> Self {
-        Self(ffi::cairo_matrix_t {
+        Self {
             xx: 0.0,
             yx: 0.0,
             xy: 0.0,
             yy: 0.0,
             x0: 0.0,
             y0: 0.0,
-        })
+        }
     }
 
-    #[inline]
     pub fn identity() -> Self {
-        Self(ffi::cairo_matrix_t {
+        Self {
             xx: 1.0,
             yx: 0.0,
             xy: 0.0,
             yy: 1.0,
             x0: 0.0,
             y0: 0.0,
-        })
+        }
     }
 
-    #[inline]
     pub fn new(xx: f64, yx: f64, xy: f64, yy: f64, x0: f64, y0: f64) -> Self {
-        Self(ffi::cairo_matrix_t {
+        Self {
             xx,
             yx,
             xy,
             yy,
             x0,
             y0,
-        })
-    }
-
-    #[inline]
-    pub fn xx(&self) -> f64 {
-        self.0.xx
-    }
-    #[inline]
-    pub fn set_xx(&mut self, xx: f64) {
-        self.0.xx = xx;
-    }
-    #[inline]
-    pub fn yx(&self) -> f64 {
-        self.0.yx
-    }
-    #[inline]
-    pub fn set_yx(&mut self, yx: f64) {
-        self.0.yx = yx;
-    }
-    #[inline]
-    pub fn xy(&self) -> f64 {
-        self.0.xy
-    }
-    #[inline]
-    pub fn set_xy(&mut self, xy: f64) {
-        self.0.xy = xy;
-    }
-    #[inline]
-    pub fn yy(&self) -> f64 {
-        self.0.yy
-    }
-    #[inline]
-    pub fn set_yy(&mut self, yy: f64) {
-        self.0.yy = yy;
-    }
-    #[inline]
-    pub fn x0(&self) -> f64 {
-        self.0.x0
-    }
-    #[inline]
-    pub fn set_x0(&mut self, x0: f64) {
-        self.0.x0 = x0;
-    }
-    #[inline]
-    pub fn y0(&self) -> f64 {
-        self.0.y0
-    }
-    #[inline]
-    pub fn set_y0(&mut self, y0: f64) {
-        self.0.y0 = y0;
+        }
     }
 
     #[doc(alias = "cairo_matrix_multiply")]
-    #[inline]
     pub fn multiply(left: &Matrix, right: &Matrix) -> Matrix {
         let mut matrix = Self::null();
         unsafe {
@@ -124,25 +76,21 @@ impl Matrix {
     }
 
     #[doc(alias = "cairo_matrix_translate")]
-    #[inline]
     pub fn translate(&mut self, tx: f64, ty: f64) {
         unsafe { ffi::cairo_matrix_translate(self.mut_ptr(), tx, ty) }
     }
 
     #[doc(alias = "cairo_matrix_scale")]
-    #[inline]
     pub fn scale(&mut self, sx: f64, sy: f64) {
         unsafe { ffi::cairo_matrix_scale(self.mut_ptr(), sx, sy) }
     }
 
     #[doc(alias = "cairo_matrix_rotate")]
-    #[inline]
     pub fn rotate(&mut self, angle: f64) {
         unsafe { ffi::cairo_matrix_rotate(self.mut_ptr(), angle) }
     }
 
     #[doc(alias = "cairo_matrix_invert")]
-    #[inline]
     pub fn invert(&mut self) {
         let status = unsafe { ffi::cairo_matrix_invert(self.mut_ptr()) };
         status_to_result(status).expect("Failed to invert the matrix")
@@ -158,7 +106,6 @@ impl Matrix {
     }
 
     #[doc(alias = "cairo_matrix_transform_distance")]
-    #[inline]
     pub fn transform_distance(&self, _dx: f64, _dy: f64) -> (f64, f64) {
         let mut dx = _dx;
         let mut dy = _dy;
@@ -170,7 +117,6 @@ impl Matrix {
     }
 
     #[doc(alias = "cairo_matrix_transform_point")]
-    #[inline]
     pub fn transform_point(&self, _x: f64, _y: f64) -> (f64, f64) {
         let mut x = _x;
         let mut y = _y;
@@ -179,19 +125,6 @@ impl Matrix {
             ffi::cairo_matrix_transform_point(self.ptr(), &mut x, &mut y);
         }
         (x, y)
-    }
-}
-
-impl fmt::Debug for Matrix {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.debug_struct("Matrix")
-            .field("xx", &self.xx())
-            .field("yx", &self.yx())
-            .field("xy", &self.xy())
-            .field("yy", &self.yy())
-            .field("x0", &self.x0())
-            .field("y0", &self.y0())
-            .finish()
     }
 }
 
@@ -206,52 +139,48 @@ impl Uninitialized for Matrix {
 
 #[cfg(feature = "use_glib")]
 #[doc(hidden)]
-impl<'a> ToGlibPtr<'a, *const ffi::cairo_matrix_t> for Matrix {
-    type Storage = PhantomData<&'a Self>;
+impl<'a> ToGlibPtr<'a, *const ffi::Matrix> for Matrix {
+    type Storage = &'a Self;
 
     #[inline]
-    fn to_glib_none(&'a self) -> Stash<'a, *const ffi::cairo_matrix_t, Self> {
-        Stash(
-            self as *const Matrix as *const ffi::cairo_matrix_t,
-            PhantomData,
-        )
+    fn to_glib_none(&'a self) -> Stash<'a, *const ffi::Matrix, Self> {
+        let ptr: *const Matrix = &*self;
+        Stash(ptr as *const ffi::Matrix, self)
     }
 }
 
 #[cfg(feature = "use_glib")]
 #[doc(hidden)]
-impl<'a> ToGlibPtrMut<'a, *mut ffi::cairo_matrix_t> for Matrix {
-    type Storage = PhantomData<&'a mut Self>;
+impl<'a> ToGlibPtrMut<'a, *mut ffi::Matrix> for Matrix {
+    type Storage = &'a mut Self;
 
     #[inline]
-    fn to_glib_none_mut(&'a mut self) -> StashMut<'a, *mut ffi::cairo_matrix_t, Self> {
-        StashMut(self as *mut Matrix as *mut ffi::cairo_matrix_t, PhantomData)
+    fn to_glib_none_mut(&'a mut self) -> StashMut<'a, *mut ffi::Matrix, Self> {
+        let ptr: *mut Matrix = &mut *self;
+        StashMut(ptr as *mut ffi::Matrix, self)
     }
 }
 
 #[cfg(feature = "use_glib")]
 #[doc(hidden)]
-impl FromGlibPtrNone<*const ffi::cairo_matrix_t> for Matrix {
-    #[inline]
-    unsafe fn from_glib_none(ptr: *const ffi::cairo_matrix_t) -> Self {
+impl FromGlibPtrNone<*const ffi::Matrix> for Matrix {
+    unsafe fn from_glib_none(ptr: *const ffi::Matrix) -> Self {
         *(ptr as *const Matrix)
     }
 }
 
 #[cfg(feature = "use_glib")]
 #[doc(hidden)]
-impl FromGlibPtrBorrow<*mut ffi::cairo_matrix_t> for Matrix {
-    #[inline]
-    unsafe fn from_glib_borrow(ptr: *mut ffi::cairo_matrix_t) -> crate::Borrowed<Self> {
+impl FromGlibPtrBorrow<*mut ffi::Matrix> for Matrix {
+    unsafe fn from_glib_borrow(ptr: *mut ffi::Matrix) -> crate::Borrowed<Self> {
         crate::Borrowed::new(*(ptr as *mut Matrix))
     }
 }
 
 #[cfg(feature = "use_glib")]
 #[doc(hidden)]
-impl FromGlibPtrNone<*mut ffi::cairo_matrix_t> for Matrix {
-    #[inline]
-    unsafe fn from_glib_none(ptr: *mut ffi::cairo_matrix_t) -> Self {
+impl FromGlibPtrNone<*mut ffi::Matrix> for Matrix {
+    unsafe fn from_glib_none(ptr: *mut ffi::Matrix) -> Self {
         *(ptr as *mut Matrix)
     }
 }
@@ -259,13 +188,32 @@ impl FromGlibPtrNone<*mut ffi::cairo_matrix_t> for Matrix {
 #[cfg(feature = "use_glib")]
 gvalue_impl_inline!(
     Matrix,
-    ffi::cairo_matrix_t,
+    ffi::Matrix,
     ffi::gobject::cairo_gobject_matrix_get_type
 );
 
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn memory_layout_is_ffi_equivalent() {
+        macro_rules! dummy_values {
+            ($Matrix: ident) => {
+                $Matrix {
+                    xx: 1.0,
+                    yx: 2.0,
+                    xy: 3.0,
+                    yy: 4.0,
+                    x0: 5.0,
+                    y0: 6.0,
+                }
+            };
+        }
+        use crate::ffi::Matrix as FfiMatrix;
+        let transmuted: Matrix = unsafe { std::mem::transmute(dummy_values!(FfiMatrix)) };
+        assert_eq!(transmuted, dummy_values!(Matrix));
+    }
 
     #[test]
     fn invalid_matrix_does_not_invert() {

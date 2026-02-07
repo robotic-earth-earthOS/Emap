@@ -1,11 +1,16 @@
 // Take a look at the license at the top of the repository in the LICENSE file.
 
+use crate::object::ObjectRef;
+use crate::prelude::*;
+use crate::translate::*;
+use crate::Binding;
+use crate::BindingFlags;
+use crate::BindingGroup;
+use crate::BoolError;
+use crate::Object;
+use crate::ParamSpec;
+use crate::Value;
 use std::{fmt, ptr};
-
-use crate::{
-    object::ObjectRef, prelude::*, translate::*, Binding, BindingFlags, BindingGroup, BoolError,
-    Object, ParamSpec, Value,
-};
 
 impl BindingGroup {
     #[doc(alias = "bind_with_closures")]
@@ -95,27 +100,6 @@ impl<'a> BindingGroupBuilder<'a> {
     }
 
     // rustdoc-stripper-ignore-next
-    /// Set the binding flags to [`BIDIRECTIONAL`][crate::BindingFlags::BIDIRECTIONAL].
-    pub fn bidirectional(mut self) -> Self {
-        self.flags |= crate::BindingFlags::BIDIRECTIONAL;
-        self
-    }
-
-    // rustdoc-stripper-ignore-next
-    /// Set the binding flags to [`SYNC_CREATE`][crate::BindingFlags::SYNC_CREATE].
-    pub fn sync_create(mut self) -> Self {
-        self.flags |= crate::BindingFlags::SYNC_CREATE;
-        self
-    }
-
-    // rustdoc-stripper-ignore-next
-    /// Set the binding flags to [`INVERT_BOOLEAN`][crate::BindingFlags::INVERT_BOOLEAN].
-    pub fn invert_boolean(mut self) -> Self {
-        self.flags |= crate::BindingFlags::INVERT_BOOLEAN;
-        self
-    }
-
-    // rustdoc-stripper-ignore-next
     /// Establish the property binding.
     ///
     /// This fails if the provided properties do not exist.
@@ -168,12 +152,13 @@ impl<'a> BindingGroupBuilder<'a> {
                     let pspec_name = transform_data.2.clone();
                     let source = binding.source().unwrap();
                     let pspec = source.find_property(&pspec_name);
-                    assert!(pspec.is_some(), "Source object does not have a property {pspec_name}");
+                    assert!(pspec.is_some(), "Source object does not have a property {}", pspec_name);
                     let pspec = pspec.unwrap();
 
                     assert!(
                         res.type_().is_a(pspec.value_type()),
-                        "Source property {pspec_name} expected type {} but transform_from function returned {}",
+                        "Source property {} expected type {} but transform_from function returned {}",
+                        pspec_name,
                         pspec.value_type(),
                         res.type_()
                     );
@@ -272,7 +257,8 @@ impl<'a> BindingGroupBuilder<'a> {
 
 #[cfg(test)]
 mod test {
-    use crate::{prelude::*, subclass::prelude::*};
+    use crate::prelude::*;
+    use crate::subclass::prelude::*;
 
     #[test]
     fn binding_without_source() {
@@ -284,7 +270,7 @@ mod test {
         assert!(source.find_property("name").is_some());
         binding_group
             .bind("name", &target, "name")
-            .bidirectional()
+            .flags(crate::BindingFlags::BIDIRECTIONAL)
             .build();
 
         binding_group.set_source(Some(&source));
@@ -321,14 +307,14 @@ mod test {
         binding_group.set_source(Some(&source));
         binding_group
             .bind("name", &target, "name")
-            .sync_create()
+            .flags(crate::BindingFlags::SYNC_CREATE)
             .transform_to(|_binding, value| {
                 let value = value.get::<&str>().unwrap();
-                Some(format!("{value} World").to_value())
+                Some(format!("{} World", value).to_value())
             })
             .transform_from(|_binding, value| {
                 let value = value.get::<&str>().unwrap();
-                Some(format!("{value} World").to_value())
+                Some(format!("{} World", value).to_value())
             })
             .build();
 
@@ -346,15 +332,14 @@ mod test {
         binding_group.set_source(Some(&source));
         binding_group
             .bind("name", &target, "name")
-            .sync_create()
-            .bidirectional()
+            .flags(crate::BindingFlags::SYNC_CREATE | crate::BindingFlags::BIDIRECTIONAL)
             .transform_to(|_binding, value| {
                 let value = value.get::<&str>().unwrap();
-                Some(format!("{value} World").to_value())
+                Some(format!("{} World", value).to_value())
             })
             .transform_from(|_binding, value| {
                 let value = value.get::<&str>().unwrap();
-                Some(format!("{value} World").to_value())
+                Some(format!("{} World", value).to_value())
             })
             .build();
 
@@ -372,7 +357,7 @@ mod test {
         binding_group.set_source(Some(&source));
         binding_group
             .bind("name", &target, "enabled")
-            .sync_create()
+            .flags(crate::BindingFlags::SYNC_CREATE)
             .transform_to(|_binding, value| {
                 let value = value.get::<&str>().unwrap();
                 Some((value == "Hello").to_value())
@@ -400,8 +385,7 @@ mod test {
         binding_group.set_source(Some(&source));
         binding_group
             .bind("name", &target, "enabled")
-            .sync_create()
-            .bidirectional()
+            .flags(crate::BindingFlags::SYNC_CREATE | crate::BindingFlags::BIDIRECTIONAL)
             .transform_to(|_binding, value| {
                 let value = value.get::<&str>().unwrap();
                 Some((value == "Hello").to_value())
@@ -419,11 +403,11 @@ mod test {
     }
 
     mod imp {
-        use std::cell::RefCell;
+        use super::*;
 
         use once_cell::sync::Lazy;
+        use std::cell::RefCell;
 
-        use super::*;
         use crate as glib;
 
         #[derive(Debug, Default)]
@@ -442,19 +426,31 @@ mod test {
             fn properties() -> &'static [crate::ParamSpec] {
                 static PROPERTIES: Lazy<Vec<crate::ParamSpec>> = Lazy::new(|| {
                     vec![
-                        crate::ParamSpecString::builder("name")
-                            .explicit_notify()
-                            .build(),
-                        crate::ParamSpecBoolean::builder("enabled")
-                            .explicit_notify()
-                            .build(),
+                        crate::ParamSpecString::new(
+                            "name",
+                            "name",
+                            "name",
+                            None,
+                            crate::ParamFlags::READWRITE | crate::ParamFlags::EXPLICIT_NOTIFY,
+                        ),
+                        crate::ParamSpecBoolean::new(
+                            "enabled",
+                            "enabled",
+                            "enabled",
+                            false,
+                            crate::ParamFlags::READWRITE | crate::ParamFlags::EXPLICIT_NOTIFY,
+                        ),
                     ]
                 });
                 PROPERTIES.as_ref()
             }
 
-            fn property(&self, _id: usize, pspec: &crate::ParamSpec) -> crate::Value {
-                let obj = self.obj();
+            fn property(
+                &self,
+                obj: &Self::Type,
+                _id: usize,
+                pspec: &crate::ParamSpec,
+            ) -> crate::Value {
                 match pspec.name() {
                     "name" => obj.name().to_value(),
                     "enabled" => obj.enabled().to_value(),
@@ -462,8 +458,13 @@ mod test {
                 }
             }
 
-            fn set_property(&self, _id: usize, value: &crate::Value, pspec: &crate::ParamSpec) {
-                let obj = self.obj();
+            fn set_property(
+                &self,
+                obj: &Self::Type,
+                _id: usize,
+                value: &crate::Value,
+                pspec: &crate::ParamSpec,
+            ) {
                 match pspec.name() {
                     "name" => obj.set_name(value.get().unwrap()),
                     "enabled" => obj.set_enabled(value.get().unwrap()),
@@ -479,7 +480,7 @@ mod test {
 
     impl Default for TestObject {
         fn default() -> Self {
-            crate::Object::new()
+            crate::Object::new(&[]).unwrap()
         }
     }
 

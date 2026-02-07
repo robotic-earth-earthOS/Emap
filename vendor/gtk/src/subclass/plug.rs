@@ -9,29 +9,26 @@ use super::window::WindowImpl;
 use crate::Plug;
 
 pub trait PlugImpl: PlugImplExt + WindowImpl {
-    fn embedded(&self) {
-        self.parent_embedded()
+    fn embedded(&self, plug: &Self::Type) {
+        self.parent_embedded(plug)
     }
 }
 
-mod sealed {
-    pub trait Sealed {}
-    impl<T: super::PlugImpl> Sealed for T {}
+pub trait PlugImplExt: ObjectSubclass {
+    fn parent_embedded(&self, plug: &Self::Type);
 }
 
-pub trait PlugImplExt: ObjectSubclass + sealed::Sealed {
-    fn parent_embedded(&self) {
+impl<T: PlugImpl> PlugImplExt for T {
+    fn parent_embedded(&self, plug: &Self::Type) {
         unsafe {
-            let data = Self::type_data();
+            let data = T::type_data();
             let parent_class = data.as_ref().parent_class() as *mut ffi::GtkPlugClass;
             if let Some(f) = (*parent_class).embedded {
-                f(self.obj().unsafe_cast_ref::<Plug>().to_glib_none().0)
+                f(plug.unsafe_cast_ref::<Plug>().to_glib_none().0)
             }
         }
     }
 }
-
-impl<T: PlugImpl> PlugImplExt for T {}
 
 unsafe impl<T: PlugImpl> IsSubclassable<T> for Plug {
     fn class_init(class: &mut ::glib::Class<Self>) {
@@ -49,6 +46,7 @@ unsafe impl<T: PlugImpl> IsSubclassable<T> for Plug {
 unsafe extern "C" fn plug_embedded<T: PlugImpl>(ptr: *mut ffi::GtkPlug) {
     let instance = &*(ptr as *mut T::Instance);
     let imp = instance.imp();
+    let wrap: Borrowed<Plug> = from_glib_borrow(ptr);
 
-    imp.embedded()
+    imp.embedded(wrap.unsafe_cast_ref())
 }

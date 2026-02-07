@@ -1,12 +1,12 @@
 // Take a look at the license at the top of the repository in the LICENSE file.
 
-use std::{fmt, mem, ptr};
-
-use glib::translate::*;
-
 use crate::CoverageLevel;
+use glib::translate::*;
+use std::fmt;
+use std::mem;
+use std::ptr;
 
-#[cfg(feature = "v1_44")]
+#[cfg(any(feature = "v1_44", feature = "dox"))]
 glib::wrapper! {
     #[doc(alias = "PangoCoverage")]
     pub struct Coverage(Object<ffi::PangoCoverage>);
@@ -17,7 +17,7 @@ glib::wrapper! {
 }
 
 // There was no get_type() function before 1.44
-#[cfg(not(feature = "v1_44"))]
+#[cfg(not(any(feature = "v1_44", feature = "dox")))]
 glib::wrapper! {
     #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
     #[doc(alias = "PangoCoverage")]

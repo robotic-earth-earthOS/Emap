@@ -2,7 +2,9 @@
 // from gir-files (https://github.com/gtk-rs/gir-files)
 // DO NOT EDIT
 
-use crate::{prelude::*, translate::*};
+use crate::error::ErrorDomain;
+use crate::translate::*;
+use crate::Quark;
 use std::fmt;
 
 #[derive(Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Clone, Copy)]
@@ -17,6 +19,8 @@ pub enum ChecksumType {
     Sha256,
     #[doc(alias = "G_CHECKSUM_SHA512")]
     Sha512,
+    #[cfg(any(feature = "v2_52", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v2_52")))]
     #[doc(alias = "G_CHECKSUM_SHA384")]
     Sha384,
     #[doc(hidden)]
@@ -33,6 +37,7 @@ impl fmt::Display for ChecksumType {
                 Self::Sha1 => "Sha1",
                 Self::Sha256 => "Sha256",
                 Self::Sha512 => "Sha512",
+                #[cfg(any(feature = "v2_52", feature = "dox"))]
                 Self::Sha384 => "Sha384",
                 _ => "Unknown",
             }
@@ -44,13 +49,13 @@ impl fmt::Display for ChecksumType {
 impl IntoGlib for ChecksumType {
     type GlibType = ffi::GChecksumType;
 
-    #[inline]
     fn into_glib(self) -> ffi::GChecksumType {
         match self {
             Self::Md5 => ffi::G_CHECKSUM_MD5,
             Self::Sha1 => ffi::G_CHECKSUM_SHA1,
             Self::Sha256 => ffi::G_CHECKSUM_SHA256,
             Self::Sha512 => ffi::G_CHECKSUM_SHA512,
+            #[cfg(any(feature = "v2_52", feature = "dox"))]
             Self::Sha384 => ffi::G_CHECKSUM_SHA384,
             Self::__Unknown(value) => value,
         }
@@ -59,118 +64,15 @@ impl IntoGlib for ChecksumType {
 
 #[doc(hidden)]
 impl FromGlib<ffi::GChecksumType> for ChecksumType {
-    #[inline]
     unsafe fn from_glib(value: ffi::GChecksumType) -> Self {
         match value {
             ffi::G_CHECKSUM_MD5 => Self::Md5,
             ffi::G_CHECKSUM_SHA1 => Self::Sha1,
             ffi::G_CHECKSUM_SHA256 => Self::Sha256,
             ffi::G_CHECKSUM_SHA512 => Self::Sha512,
+            #[cfg(any(feature = "v2_52", feature = "dox"))]
             ffi::G_CHECKSUM_SHA384 => Self::Sha384,
             value => Self::__Unknown(value),
-        }
-    }
-}
-
-#[derive(Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Clone, Copy)]
-#[non_exhaustive]
-#[doc(alias = "GConvertError")]
-pub enum ConvertError {
-    #[doc(alias = "G_CONVERT_ERROR_NO_CONVERSION")]
-    NoConversion,
-    #[doc(alias = "G_CONVERT_ERROR_ILLEGAL_SEQUENCE")]
-    IllegalSequence,
-    #[doc(alias = "G_CONVERT_ERROR_FAILED")]
-    Failed,
-    #[doc(alias = "G_CONVERT_ERROR_PARTIAL_INPUT")]
-    PartialInput,
-    #[doc(alias = "G_CONVERT_ERROR_BAD_URI")]
-    BadUri,
-    #[doc(alias = "G_CONVERT_ERROR_NOT_ABSOLUTE_PATH")]
-    NotAbsolutePath,
-    #[doc(alias = "G_CONVERT_ERROR_NO_MEMORY")]
-    NoMemory,
-    #[doc(alias = "G_CONVERT_ERROR_EMBEDDED_NUL")]
-    EmbeddedNul,
-    #[doc(hidden)]
-    __Unknown(i32),
-}
-
-impl fmt::Display for ConvertError {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(
-            f,
-            "ConvertError::{}",
-            match *self {
-                Self::NoConversion => "NoConversion",
-                Self::IllegalSequence => "IllegalSequence",
-                Self::Failed => "Failed",
-                Self::PartialInput => "PartialInput",
-                Self::BadUri => "BadUri",
-                Self::NotAbsolutePath => "NotAbsolutePath",
-                Self::NoMemory => "NoMemory",
-                Self::EmbeddedNul => "EmbeddedNul",
-                _ => "Unknown",
-            }
-        )
-    }
-}
-
-#[doc(hidden)]
-impl IntoGlib for ConvertError {
-    type GlibType = ffi::GConvertError;
-
-    #[inline]
-    fn into_glib(self) -> ffi::GConvertError {
-        match self {
-            Self::NoConversion => ffi::G_CONVERT_ERROR_NO_CONVERSION,
-            Self::IllegalSequence => ffi::G_CONVERT_ERROR_ILLEGAL_SEQUENCE,
-            Self::Failed => ffi::G_CONVERT_ERROR_FAILED,
-            Self::PartialInput => ffi::G_CONVERT_ERROR_PARTIAL_INPUT,
-            Self::BadUri => ffi::G_CONVERT_ERROR_BAD_URI,
-            Self::NotAbsolutePath => ffi::G_CONVERT_ERROR_NOT_ABSOLUTE_PATH,
-            Self::NoMemory => ffi::G_CONVERT_ERROR_NO_MEMORY,
-            Self::EmbeddedNul => ffi::G_CONVERT_ERROR_EMBEDDED_NUL,
-            Self::__Unknown(value) => value,
-        }
-    }
-}
-
-#[doc(hidden)]
-impl FromGlib<ffi::GConvertError> for ConvertError {
-    #[inline]
-    unsafe fn from_glib(value: ffi::GConvertError) -> Self {
-        match value {
-            ffi::G_CONVERT_ERROR_NO_CONVERSION => Self::NoConversion,
-            ffi::G_CONVERT_ERROR_ILLEGAL_SEQUENCE => Self::IllegalSequence,
-            ffi::G_CONVERT_ERROR_FAILED => Self::Failed,
-            ffi::G_CONVERT_ERROR_PARTIAL_INPUT => Self::PartialInput,
-            ffi::G_CONVERT_ERROR_BAD_URI => Self::BadUri,
-            ffi::G_CONVERT_ERROR_NOT_ABSOLUTE_PATH => Self::NotAbsolutePath,
-            ffi::G_CONVERT_ERROR_NO_MEMORY => Self::NoMemory,
-            ffi::G_CONVERT_ERROR_EMBEDDED_NUL => Self::EmbeddedNul,
-            value => Self::__Unknown(value),
-        }
-    }
-}
-
-impl crate::error::ErrorDomain for ConvertError {
-    #[inline]
-    fn domain() -> crate::Quark {
-        unsafe { from_glib(ffi::g_convert_error_quark()) }
-    }
-
-    #[inline]
-    fn code(self) -> i32 {
-        self.into_glib()
-    }
-
-    #[inline]
-    #[allow(clippy::match_single_binding)]
-    fn from(code: i32) -> Option<Self> {
-        match unsafe { from_glib(code) } {
-            Self::__Unknown(_) => Some(Self::Failed),
-            value => Some(value),
         }
     }
 }
@@ -328,7 +230,6 @@ impl fmt::Display for DateWeekday {
 impl IntoGlib for DateWeekday {
     type GlibType = ffi::GDateWeekday;
 
-    #[inline]
     fn into_glib(self) -> ffi::GDateWeekday {
         match self {
             Self::BadWeekday => ffi::G_DATE_BAD_WEEKDAY,
@@ -346,7 +247,6 @@ impl IntoGlib for DateWeekday {
 
 #[doc(hidden)]
 impl FromGlib<ffi::GDateWeekday> for DateWeekday {
-    #[inline]
     unsafe fn from_glib(value: ffi::GDateWeekday) -> Self {
         match value {
             ffi::G_DATE_BAD_WEEKDAY => Self::BadWeekday,
@@ -358,192 +258,6 @@ impl FromGlib<ffi::GDateWeekday> for DateWeekday {
             ffi::G_DATE_SATURDAY => Self::Saturday,
             ffi::G_DATE_SUNDAY => Self::Sunday,
             value => Self::__Unknown(value),
-        }
-    }
-}
-
-#[derive(Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Clone, Copy)]
-#[non_exhaustive]
-#[doc(alias = "GFileError")]
-pub enum FileError {
-    #[doc(alias = "G_FILE_ERROR_EXIST")]
-    Exist,
-    #[doc(alias = "G_FILE_ERROR_ISDIR")]
-    Isdir,
-    #[doc(alias = "G_FILE_ERROR_ACCES")]
-    Acces,
-    #[doc(alias = "G_FILE_ERROR_NAMETOOLONG")]
-    Nametoolong,
-    #[doc(alias = "G_FILE_ERROR_NOENT")]
-    Noent,
-    #[doc(alias = "G_FILE_ERROR_NOTDIR")]
-    Notdir,
-    #[doc(alias = "G_FILE_ERROR_NXIO")]
-    Nxio,
-    #[doc(alias = "G_FILE_ERROR_NODEV")]
-    Nodev,
-    #[doc(alias = "G_FILE_ERROR_ROFS")]
-    Rofs,
-    #[doc(alias = "G_FILE_ERROR_TXTBSY")]
-    Txtbsy,
-    #[doc(alias = "G_FILE_ERROR_FAULT")]
-    Fault,
-    #[doc(alias = "G_FILE_ERROR_LOOP")]
-    Loop,
-    #[doc(alias = "G_FILE_ERROR_NOSPC")]
-    Nospc,
-    #[doc(alias = "G_FILE_ERROR_NOMEM")]
-    Nomem,
-    #[doc(alias = "G_FILE_ERROR_MFILE")]
-    Mfile,
-    #[doc(alias = "G_FILE_ERROR_NFILE")]
-    Nfile,
-    #[doc(alias = "G_FILE_ERROR_BADF")]
-    Badf,
-    #[doc(alias = "G_FILE_ERROR_INVAL")]
-    Inval,
-    #[doc(alias = "G_FILE_ERROR_PIPE")]
-    Pipe,
-    #[doc(alias = "G_FILE_ERROR_AGAIN")]
-    Again,
-    #[doc(alias = "G_FILE_ERROR_INTR")]
-    Intr,
-    #[doc(alias = "G_FILE_ERROR_IO")]
-    Io,
-    #[doc(alias = "G_FILE_ERROR_PERM")]
-    Perm,
-    #[doc(alias = "G_FILE_ERROR_NOSYS")]
-    Nosys,
-    #[doc(alias = "G_FILE_ERROR_FAILED")]
-    Failed,
-    #[doc(hidden)]
-    __Unknown(i32),
-}
-
-impl fmt::Display for FileError {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(
-            f,
-            "FileError::{}",
-            match *self {
-                Self::Exist => "Exist",
-                Self::Isdir => "Isdir",
-                Self::Acces => "Acces",
-                Self::Nametoolong => "Nametoolong",
-                Self::Noent => "Noent",
-                Self::Notdir => "Notdir",
-                Self::Nxio => "Nxio",
-                Self::Nodev => "Nodev",
-                Self::Rofs => "Rofs",
-                Self::Txtbsy => "Txtbsy",
-                Self::Fault => "Fault",
-                Self::Loop => "Loop",
-                Self::Nospc => "Nospc",
-                Self::Nomem => "Nomem",
-                Self::Mfile => "Mfile",
-                Self::Nfile => "Nfile",
-                Self::Badf => "Badf",
-                Self::Inval => "Inval",
-                Self::Pipe => "Pipe",
-                Self::Again => "Again",
-                Self::Intr => "Intr",
-                Self::Io => "Io",
-                Self::Perm => "Perm",
-                Self::Nosys => "Nosys",
-                Self::Failed => "Failed",
-                _ => "Unknown",
-            }
-        )
-    }
-}
-
-#[doc(hidden)]
-impl IntoGlib for FileError {
-    type GlibType = ffi::GFileError;
-
-    fn into_glib(self) -> ffi::GFileError {
-        match self {
-            Self::Exist => ffi::G_FILE_ERROR_EXIST,
-            Self::Isdir => ffi::G_FILE_ERROR_ISDIR,
-            Self::Acces => ffi::G_FILE_ERROR_ACCES,
-            Self::Nametoolong => ffi::G_FILE_ERROR_NAMETOOLONG,
-            Self::Noent => ffi::G_FILE_ERROR_NOENT,
-            Self::Notdir => ffi::G_FILE_ERROR_NOTDIR,
-            Self::Nxio => ffi::G_FILE_ERROR_NXIO,
-            Self::Nodev => ffi::G_FILE_ERROR_NODEV,
-            Self::Rofs => ffi::G_FILE_ERROR_ROFS,
-            Self::Txtbsy => ffi::G_FILE_ERROR_TXTBSY,
-            Self::Fault => ffi::G_FILE_ERROR_FAULT,
-            Self::Loop => ffi::G_FILE_ERROR_LOOP,
-            Self::Nospc => ffi::G_FILE_ERROR_NOSPC,
-            Self::Nomem => ffi::G_FILE_ERROR_NOMEM,
-            Self::Mfile => ffi::G_FILE_ERROR_MFILE,
-            Self::Nfile => ffi::G_FILE_ERROR_NFILE,
-            Self::Badf => ffi::G_FILE_ERROR_BADF,
-            Self::Inval => ffi::G_FILE_ERROR_INVAL,
-            Self::Pipe => ffi::G_FILE_ERROR_PIPE,
-            Self::Again => ffi::G_FILE_ERROR_AGAIN,
-            Self::Intr => ffi::G_FILE_ERROR_INTR,
-            Self::Io => ffi::G_FILE_ERROR_IO,
-            Self::Perm => ffi::G_FILE_ERROR_PERM,
-            Self::Nosys => ffi::G_FILE_ERROR_NOSYS,
-            Self::Failed => ffi::G_FILE_ERROR_FAILED,
-            Self::__Unknown(value) => value,
-        }
-    }
-}
-
-#[doc(hidden)]
-impl FromGlib<ffi::GFileError> for FileError {
-    unsafe fn from_glib(value: ffi::GFileError) -> Self {
-        match value {
-            ffi::G_FILE_ERROR_EXIST => Self::Exist,
-            ffi::G_FILE_ERROR_ISDIR => Self::Isdir,
-            ffi::G_FILE_ERROR_ACCES => Self::Acces,
-            ffi::G_FILE_ERROR_NAMETOOLONG => Self::Nametoolong,
-            ffi::G_FILE_ERROR_NOENT => Self::Noent,
-            ffi::G_FILE_ERROR_NOTDIR => Self::Notdir,
-            ffi::G_FILE_ERROR_NXIO => Self::Nxio,
-            ffi::G_FILE_ERROR_NODEV => Self::Nodev,
-            ffi::G_FILE_ERROR_ROFS => Self::Rofs,
-            ffi::G_FILE_ERROR_TXTBSY => Self::Txtbsy,
-            ffi::G_FILE_ERROR_FAULT => Self::Fault,
-            ffi::G_FILE_ERROR_LOOP => Self::Loop,
-            ffi::G_FILE_ERROR_NOSPC => Self::Nospc,
-            ffi::G_FILE_ERROR_NOMEM => Self::Nomem,
-            ffi::G_FILE_ERROR_MFILE => Self::Mfile,
-            ffi::G_FILE_ERROR_NFILE => Self::Nfile,
-            ffi::G_FILE_ERROR_BADF => Self::Badf,
-            ffi::G_FILE_ERROR_INVAL => Self::Inval,
-            ffi::G_FILE_ERROR_PIPE => Self::Pipe,
-            ffi::G_FILE_ERROR_AGAIN => Self::Again,
-            ffi::G_FILE_ERROR_INTR => Self::Intr,
-            ffi::G_FILE_ERROR_IO => Self::Io,
-            ffi::G_FILE_ERROR_PERM => Self::Perm,
-            ffi::G_FILE_ERROR_NOSYS => Self::Nosys,
-            ffi::G_FILE_ERROR_FAILED => Self::Failed,
-            value => Self::__Unknown(value),
-        }
-    }
-}
-
-impl crate::error::ErrorDomain for FileError {
-    #[inline]
-    fn domain() -> crate::Quark {
-        unsafe { from_glib(ffi::g_file_error_quark()) }
-    }
-
-    #[inline]
-    fn code(self) -> i32 {
-        self.into_glib()
-    }
-
-    #[inline]
-    #[allow(clippy::match_single_binding)]
-    fn from(code: i32) -> Option<Self> {
-        match unsafe { from_glib(code) } {
-            Self::__Unknown(_) => Some(Self::Failed),
-            value => Some(value),
         }
     }
 }
@@ -590,7 +304,6 @@ impl fmt::Display for KeyFileError {
 impl IntoGlib for KeyFileError {
     type GlibType = ffi::GKeyFileError;
 
-    #[inline]
     fn into_glib(self) -> ffi::GKeyFileError {
         match self {
             Self::UnknownEncoding => ffi::G_KEY_FILE_ERROR_UNKNOWN_ENCODING,
@@ -606,7 +319,6 @@ impl IntoGlib for KeyFileError {
 
 #[doc(hidden)]
 impl FromGlib<ffi::GKeyFileError> for KeyFileError {
-    #[inline]
     unsafe fn from_glib(value: ffi::GKeyFileError) -> Self {
         match value {
             ffi::G_KEY_FILE_ERROR_UNKNOWN_ENCODING => Self::UnknownEncoding,
@@ -620,26 +332,30 @@ impl FromGlib<ffi::GKeyFileError> for KeyFileError {
     }
 }
 
-impl crate::error::ErrorDomain for KeyFileError {
-    #[inline]
-    fn domain() -> crate::Quark {
+impl ErrorDomain for KeyFileError {
+    fn domain() -> Quark {
         unsafe { from_glib(ffi::g_key_file_error_quark()) }
     }
 
-    #[inline]
     fn code(self) -> i32 {
         self.into_glib()
     }
 
-    #[inline]
-    #[allow(clippy::match_single_binding)]
     fn from(code: i32) -> Option<Self> {
-        match unsafe { from_glib(code) } {
-            value => Some(value),
+        match code {
+            ffi::G_KEY_FILE_ERROR_UNKNOWN_ENCODING => Some(Self::UnknownEncoding),
+            ffi::G_KEY_FILE_ERROR_PARSE => Some(Self::Parse),
+            ffi::G_KEY_FILE_ERROR_NOT_FOUND => Some(Self::NotFound),
+            ffi::G_KEY_FILE_ERROR_KEY_NOT_FOUND => Some(Self::KeyNotFound),
+            ffi::G_KEY_FILE_ERROR_GROUP_NOT_FOUND => Some(Self::GroupNotFound),
+            ffi::G_KEY_FILE_ERROR_INVALID_VALUE => Some(Self::InvalidValue),
+            value => Some(Self::__Unknown(value)),
         }
     }
 }
 
+#[cfg(any(feature = "v2_50", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v2_50")))]
 #[derive(Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Clone, Copy)]
 #[non_exhaustive]
 #[doc(alias = "GLogWriterOutput")]
@@ -652,6 +368,8 @@ pub enum LogWriterOutput {
     __Unknown(i32),
 }
 
+#[cfg(any(feature = "v2_50", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v2_50")))]
 impl fmt::Display for LogWriterOutput {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(
@@ -666,11 +384,12 @@ impl fmt::Display for LogWriterOutput {
     }
 }
 
+#[cfg(any(feature = "v2_50", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v2_50")))]
 #[doc(hidden)]
 impl IntoGlib for LogWriterOutput {
     type GlibType = ffi::GLogWriterOutput;
 
-    #[inline]
     fn into_glib(self) -> ffi::GLogWriterOutput {
         match self {
             Self::Handled => ffi::G_LOG_WRITER_HANDLED,
@@ -680,172 +399,14 @@ impl IntoGlib for LogWriterOutput {
     }
 }
 
+#[cfg(any(feature = "v2_50", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v2_50")))]
 #[doc(hidden)]
 impl FromGlib<ffi::GLogWriterOutput> for LogWriterOutput {
-    #[inline]
     unsafe fn from_glib(value: ffi::GLogWriterOutput) -> Self {
         match value {
             ffi::G_LOG_WRITER_HANDLED => Self::Handled,
             ffi::G_LOG_WRITER_UNHANDLED => Self::Unhandled,
-            value => Self::__Unknown(value),
-        }
-    }
-}
-
-#[derive(Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Clone, Copy)]
-#[non_exhaustive]
-#[doc(alias = "GMarkupError")]
-pub enum MarkupError {
-    #[doc(alias = "G_MARKUP_ERROR_BAD_UTF8")]
-    BadUtf8,
-    #[doc(alias = "G_MARKUP_ERROR_EMPTY")]
-    Empty,
-    #[doc(alias = "G_MARKUP_ERROR_PARSE")]
-    Parse,
-    #[doc(alias = "G_MARKUP_ERROR_UNKNOWN_ELEMENT")]
-    UnknownElement,
-    #[doc(alias = "G_MARKUP_ERROR_UNKNOWN_ATTRIBUTE")]
-    UnknownAttribute,
-    #[doc(alias = "G_MARKUP_ERROR_INVALID_CONTENT")]
-    InvalidContent,
-    #[doc(alias = "G_MARKUP_ERROR_MISSING_ATTRIBUTE")]
-    MissingAttribute,
-    #[doc(hidden)]
-    __Unknown(i32),
-}
-
-impl fmt::Display for MarkupError {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(
-            f,
-            "MarkupError::{}",
-            match *self {
-                Self::BadUtf8 => "BadUtf8",
-                Self::Empty => "Empty",
-                Self::Parse => "Parse",
-                Self::UnknownElement => "UnknownElement",
-                Self::UnknownAttribute => "UnknownAttribute",
-                Self::InvalidContent => "InvalidContent",
-                Self::MissingAttribute => "MissingAttribute",
-                _ => "Unknown",
-            }
-        )
-    }
-}
-
-#[doc(hidden)]
-impl IntoGlib for MarkupError {
-    type GlibType = ffi::GMarkupError;
-
-    #[inline]
-    fn into_glib(self) -> ffi::GMarkupError {
-        match self {
-            Self::BadUtf8 => ffi::G_MARKUP_ERROR_BAD_UTF8,
-            Self::Empty => ffi::G_MARKUP_ERROR_EMPTY,
-            Self::Parse => ffi::G_MARKUP_ERROR_PARSE,
-            Self::UnknownElement => ffi::G_MARKUP_ERROR_UNKNOWN_ELEMENT,
-            Self::UnknownAttribute => ffi::G_MARKUP_ERROR_UNKNOWN_ATTRIBUTE,
-            Self::InvalidContent => ffi::G_MARKUP_ERROR_INVALID_CONTENT,
-            Self::MissingAttribute => ffi::G_MARKUP_ERROR_MISSING_ATTRIBUTE,
-            Self::__Unknown(value) => value,
-        }
-    }
-}
-
-#[doc(hidden)]
-impl FromGlib<ffi::GMarkupError> for MarkupError {
-    #[inline]
-    unsafe fn from_glib(value: ffi::GMarkupError) -> Self {
-        match value {
-            ffi::G_MARKUP_ERROR_BAD_UTF8 => Self::BadUtf8,
-            ffi::G_MARKUP_ERROR_EMPTY => Self::Empty,
-            ffi::G_MARKUP_ERROR_PARSE => Self::Parse,
-            ffi::G_MARKUP_ERROR_UNKNOWN_ELEMENT => Self::UnknownElement,
-            ffi::G_MARKUP_ERROR_UNKNOWN_ATTRIBUTE => Self::UnknownAttribute,
-            ffi::G_MARKUP_ERROR_INVALID_CONTENT => Self::InvalidContent,
-            ffi::G_MARKUP_ERROR_MISSING_ATTRIBUTE => Self::MissingAttribute,
-            value => Self::__Unknown(value),
-        }
-    }
-}
-
-impl crate::error::ErrorDomain for MarkupError {
-    #[inline]
-    fn domain() -> crate::Quark {
-        unsafe { from_glib(ffi::g_markup_error_quark()) }
-    }
-
-    #[inline]
-    fn code(self) -> i32 {
-        self.into_glib()
-    }
-
-    #[inline]
-    #[allow(clippy::match_single_binding)]
-    fn from(code: i32) -> Option<Self> {
-        match unsafe { from_glib(code) } {
-            value => Some(value),
-        }
-    }
-}
-
-#[derive(Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Clone, Copy)]
-#[non_exhaustive]
-#[doc(alias = "GNormalizeMode")]
-pub enum NormalizeMode {
-    #[doc(alias = "G_NORMALIZE_DEFAULT")]
-    Default,
-    #[doc(alias = "G_NORMALIZE_DEFAULT_COMPOSE")]
-    DefaultCompose,
-    #[doc(alias = "G_NORMALIZE_ALL")]
-    All,
-    #[doc(alias = "G_NORMALIZE_ALL_COMPOSE")]
-    AllCompose,
-    #[doc(hidden)]
-    __Unknown(i32),
-}
-
-impl fmt::Display for NormalizeMode {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(
-            f,
-            "NormalizeMode::{}",
-            match *self {
-                Self::Default => "Default",
-                Self::DefaultCompose => "DefaultCompose",
-                Self::All => "All",
-                Self::AllCompose => "AllCompose",
-                _ => "Unknown",
-            }
-        )
-    }
-}
-
-#[doc(hidden)]
-impl IntoGlib for NormalizeMode {
-    type GlibType = ffi::GNormalizeMode;
-
-    #[inline]
-    fn into_glib(self) -> ffi::GNormalizeMode {
-        match self {
-            Self::Default => ffi::G_NORMALIZE_DEFAULT,
-            Self::DefaultCompose => ffi::G_NORMALIZE_DEFAULT_COMPOSE,
-            Self::All => ffi::G_NORMALIZE_ALL,
-            Self::AllCompose => ffi::G_NORMALIZE_ALL_COMPOSE,
-            Self::__Unknown(value) => value,
-        }
-    }
-}
-
-#[doc(hidden)]
-impl FromGlib<ffi::GNormalizeMode> for NormalizeMode {
-    #[inline]
-    unsafe fn from_glib(value: ffi::GNormalizeMode) -> Self {
-        match value {
-            ffi::G_NORMALIZE_DEFAULT => Self::Default,
-            ffi::G_NORMALIZE_DEFAULT_COMPOSE => Self::DefaultCompose,
-            ffi::G_NORMALIZE_ALL => Self::All,
-            ffi::G_NORMALIZE_ALL_COMPOSE => Self::AllCompose,
             value => Self::__Unknown(value),
         }
     }
@@ -902,7 +463,6 @@ impl fmt::Display for OptionArg {
 impl IntoGlib for OptionArg {
     type GlibType = ffi::GOptionArg;
 
-    #[inline]
     fn into_glib(self) -> ffi::GOptionArg {
         match self {
             Self::None => ffi::G_OPTION_ARG_NONE,
@@ -921,7 +481,6 @@ impl IntoGlib for OptionArg {
 
 #[doc(hidden)]
 impl FromGlib<ffi::GOptionArg> for OptionArg {
-    #[inline]
     unsafe fn from_glib(value: ffi::GOptionArg) -> Self {
         match value {
             ffi::G_OPTION_ARG_NONE => Self::None,
@@ -971,7 +530,6 @@ impl fmt::Display for SeekType {
 impl IntoGlib for SeekType {
     type GlibType = ffi::GSeekType;
 
-    #[inline]
     fn into_glib(self) -> ffi::GSeekType {
         match self {
             Self::Cur => ffi::G_SEEK_CUR,
@@ -984,7 +542,6 @@ impl IntoGlib for SeekType {
 
 #[doc(hidden)]
 impl FromGlib<ffi::GSeekType> for SeekType {
-    #[inline]
     unsafe fn from_glib(value: ffi::GSeekType) -> Self {
         match value {
             ffi::G_SEEK_CUR => Self::Cur,
@@ -1028,7 +585,6 @@ impl fmt::Display for TimeType {
 impl IntoGlib for TimeType {
     type GlibType = ffi::GTimeType;
 
-    #[inline]
     fn into_glib(self) -> ffi::GTimeType {
         match self {
             Self::Standard => ffi::G_TIME_TYPE_STANDARD,
@@ -1041,267 +597,11 @@ impl IntoGlib for TimeType {
 
 #[doc(hidden)]
 impl FromGlib<ffi::GTimeType> for TimeType {
-    #[inline]
     unsafe fn from_glib(value: ffi::GTimeType) -> Self {
         match value {
             ffi::G_TIME_TYPE_STANDARD => Self::Standard,
             ffi::G_TIME_TYPE_DAYLIGHT => Self::Daylight,
             ffi::G_TIME_TYPE_UNIVERSAL => Self::Universal,
-            value => Self::__Unknown(value),
-        }
-    }
-}
-
-#[derive(Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Clone, Copy)]
-#[non_exhaustive]
-#[doc(alias = "GUnicodeBreakType")]
-pub enum UnicodeBreakType {
-    #[doc(alias = "G_UNICODE_BREAK_MANDATORY")]
-    Mandatory,
-    #[doc(alias = "G_UNICODE_BREAK_CARRIAGE_RETURN")]
-    CarriageReturn,
-    #[doc(alias = "G_UNICODE_BREAK_LINE_FEED")]
-    LineFeed,
-    #[doc(alias = "G_UNICODE_BREAK_COMBINING_MARK")]
-    CombiningMark,
-    #[doc(alias = "G_UNICODE_BREAK_SURROGATE")]
-    Surrogate,
-    #[doc(alias = "G_UNICODE_BREAK_ZERO_WIDTH_SPACE")]
-    ZeroWidthSpace,
-    #[doc(alias = "G_UNICODE_BREAK_INSEPARABLE")]
-    Inseparable,
-    #[doc(alias = "G_UNICODE_BREAK_NON_BREAKING_GLUE")]
-    NonBreakingGlue,
-    #[doc(alias = "G_UNICODE_BREAK_CONTINGENT")]
-    Contingent,
-    #[doc(alias = "G_UNICODE_BREAK_SPACE")]
-    Space,
-    #[doc(alias = "G_UNICODE_BREAK_AFTER")]
-    After,
-    #[doc(alias = "G_UNICODE_BREAK_BEFORE")]
-    Before,
-    #[doc(alias = "G_UNICODE_BREAK_BEFORE_AND_AFTER")]
-    BeforeAndAfter,
-    #[doc(alias = "G_UNICODE_BREAK_HYPHEN")]
-    Hyphen,
-    #[doc(alias = "G_UNICODE_BREAK_NON_STARTER")]
-    NonStarter,
-    #[doc(alias = "G_UNICODE_BREAK_OPEN_PUNCTUATION")]
-    OpenPunctuation,
-    #[doc(alias = "G_UNICODE_BREAK_CLOSE_PUNCTUATION")]
-    ClosePunctuation,
-    #[doc(alias = "G_UNICODE_BREAK_QUOTATION")]
-    Quotation,
-    #[doc(alias = "G_UNICODE_BREAK_EXCLAMATION")]
-    Exclamation,
-    #[doc(alias = "G_UNICODE_BREAK_IDEOGRAPHIC")]
-    Ideographic,
-    #[doc(alias = "G_UNICODE_BREAK_NUMERIC")]
-    Numeric,
-    #[doc(alias = "G_UNICODE_BREAK_INFIX_SEPARATOR")]
-    InfixSeparator,
-    #[doc(alias = "G_UNICODE_BREAK_SYMBOL")]
-    Symbol,
-    #[doc(alias = "G_UNICODE_BREAK_ALPHABETIC")]
-    Alphabetic,
-    #[doc(alias = "G_UNICODE_BREAK_PREFIX")]
-    Prefix,
-    #[doc(alias = "G_UNICODE_BREAK_POSTFIX")]
-    Postfix,
-    #[doc(alias = "G_UNICODE_BREAK_COMPLEX_CONTEXT")]
-    ComplexContext,
-    #[doc(alias = "G_UNICODE_BREAK_AMBIGUOUS")]
-    Ambiguous,
-    #[doc(alias = "G_UNICODE_BREAK_UNKNOWN")]
-    Unknown,
-    #[doc(alias = "G_UNICODE_BREAK_NEXT_LINE")]
-    NextLine,
-    #[doc(alias = "G_UNICODE_BREAK_WORD_JOINER")]
-    WordJoiner,
-    #[doc(alias = "G_UNICODE_BREAK_HANGUL_L_JAMO")]
-    HangulLJamo,
-    #[doc(alias = "G_UNICODE_BREAK_HANGUL_V_JAMO")]
-    HangulVJamo,
-    #[doc(alias = "G_UNICODE_BREAK_HANGUL_T_JAMO")]
-    HangulTJamo,
-    #[doc(alias = "G_UNICODE_BREAK_HANGUL_LV_SYLLABLE")]
-    HangulLvSyllable,
-    #[doc(alias = "G_UNICODE_BREAK_HANGUL_LVT_SYLLABLE")]
-    HangulLvtSyllable,
-    #[doc(alias = "G_UNICODE_BREAK_CLOSE_PARENTHESIS")]
-    CloseParenthesis,
-    #[doc(alias = "G_UNICODE_BREAK_CONDITIONAL_JAPANESE_STARTER")]
-    ConditionalJapaneseStarter,
-    #[doc(alias = "G_UNICODE_BREAK_HEBREW_LETTER")]
-    HebrewLetter,
-    #[doc(alias = "G_UNICODE_BREAK_REGIONAL_INDICATOR")]
-    RegionalIndicator,
-    #[doc(alias = "G_UNICODE_BREAK_EMOJI_BASE")]
-    EmojiBase,
-    #[doc(alias = "G_UNICODE_BREAK_EMOJI_MODIFIER")]
-    EmojiModifier,
-    #[doc(alias = "G_UNICODE_BREAK_ZERO_WIDTH_JOINER")]
-    ZeroWidthJoiner,
-    #[doc(hidden)]
-    __Unknown(i32),
-}
-
-impl fmt::Display for UnicodeBreakType {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(
-            f,
-            "UnicodeBreakType::{}",
-            match *self {
-                Self::Mandatory => "Mandatory",
-                Self::CarriageReturn => "CarriageReturn",
-                Self::LineFeed => "LineFeed",
-                Self::CombiningMark => "CombiningMark",
-                Self::Surrogate => "Surrogate",
-                Self::ZeroWidthSpace => "ZeroWidthSpace",
-                Self::Inseparable => "Inseparable",
-                Self::NonBreakingGlue => "NonBreakingGlue",
-                Self::Contingent => "Contingent",
-                Self::Space => "Space",
-                Self::After => "After",
-                Self::Before => "Before",
-                Self::BeforeAndAfter => "BeforeAndAfter",
-                Self::Hyphen => "Hyphen",
-                Self::NonStarter => "NonStarter",
-                Self::OpenPunctuation => "OpenPunctuation",
-                Self::ClosePunctuation => "ClosePunctuation",
-                Self::Quotation => "Quotation",
-                Self::Exclamation => "Exclamation",
-                Self::Ideographic => "Ideographic",
-                Self::Numeric => "Numeric",
-                Self::InfixSeparator => "InfixSeparator",
-                Self::Symbol => "Symbol",
-                Self::Alphabetic => "Alphabetic",
-                Self::Prefix => "Prefix",
-                Self::Postfix => "Postfix",
-                Self::ComplexContext => "ComplexContext",
-                Self::Ambiguous => "Ambiguous",
-                Self::Unknown => "Unknown",
-                Self::NextLine => "NextLine",
-                Self::WordJoiner => "WordJoiner",
-                Self::HangulLJamo => "HangulLJamo",
-                Self::HangulVJamo => "HangulVJamo",
-                Self::HangulTJamo => "HangulTJamo",
-                Self::HangulLvSyllable => "HangulLvSyllable",
-                Self::HangulLvtSyllable => "HangulLvtSyllable",
-                Self::CloseParenthesis => "CloseParenthesis",
-                Self::ConditionalJapaneseStarter => "ConditionalJapaneseStarter",
-                Self::HebrewLetter => "HebrewLetter",
-                Self::RegionalIndicator => "RegionalIndicator",
-                Self::EmojiBase => "EmojiBase",
-                Self::EmojiModifier => "EmojiModifier",
-                Self::ZeroWidthJoiner => "ZeroWidthJoiner",
-                _ => "Unknown",
-            }
-        )
-    }
-}
-
-#[doc(hidden)]
-impl IntoGlib for UnicodeBreakType {
-    type GlibType = ffi::GUnicodeBreakType;
-
-    fn into_glib(self) -> ffi::GUnicodeBreakType {
-        match self {
-            Self::Mandatory => ffi::G_UNICODE_BREAK_MANDATORY,
-            Self::CarriageReturn => ffi::G_UNICODE_BREAK_CARRIAGE_RETURN,
-            Self::LineFeed => ffi::G_UNICODE_BREAK_LINE_FEED,
-            Self::CombiningMark => ffi::G_UNICODE_BREAK_COMBINING_MARK,
-            Self::Surrogate => ffi::G_UNICODE_BREAK_SURROGATE,
-            Self::ZeroWidthSpace => ffi::G_UNICODE_BREAK_ZERO_WIDTH_SPACE,
-            Self::Inseparable => ffi::G_UNICODE_BREAK_INSEPARABLE,
-            Self::NonBreakingGlue => ffi::G_UNICODE_BREAK_NON_BREAKING_GLUE,
-            Self::Contingent => ffi::G_UNICODE_BREAK_CONTINGENT,
-            Self::Space => ffi::G_UNICODE_BREAK_SPACE,
-            Self::After => ffi::G_UNICODE_BREAK_AFTER,
-            Self::Before => ffi::G_UNICODE_BREAK_BEFORE,
-            Self::BeforeAndAfter => ffi::G_UNICODE_BREAK_BEFORE_AND_AFTER,
-            Self::Hyphen => ffi::G_UNICODE_BREAK_HYPHEN,
-            Self::NonStarter => ffi::G_UNICODE_BREAK_NON_STARTER,
-            Self::OpenPunctuation => ffi::G_UNICODE_BREAK_OPEN_PUNCTUATION,
-            Self::ClosePunctuation => ffi::G_UNICODE_BREAK_CLOSE_PUNCTUATION,
-            Self::Quotation => ffi::G_UNICODE_BREAK_QUOTATION,
-            Self::Exclamation => ffi::G_UNICODE_BREAK_EXCLAMATION,
-            Self::Ideographic => ffi::G_UNICODE_BREAK_IDEOGRAPHIC,
-            Self::Numeric => ffi::G_UNICODE_BREAK_NUMERIC,
-            Self::InfixSeparator => ffi::G_UNICODE_BREAK_INFIX_SEPARATOR,
-            Self::Symbol => ffi::G_UNICODE_BREAK_SYMBOL,
-            Self::Alphabetic => ffi::G_UNICODE_BREAK_ALPHABETIC,
-            Self::Prefix => ffi::G_UNICODE_BREAK_PREFIX,
-            Self::Postfix => ffi::G_UNICODE_BREAK_POSTFIX,
-            Self::ComplexContext => ffi::G_UNICODE_BREAK_COMPLEX_CONTEXT,
-            Self::Ambiguous => ffi::G_UNICODE_BREAK_AMBIGUOUS,
-            Self::Unknown => ffi::G_UNICODE_BREAK_UNKNOWN,
-            Self::NextLine => ffi::G_UNICODE_BREAK_NEXT_LINE,
-            Self::WordJoiner => ffi::G_UNICODE_BREAK_WORD_JOINER,
-            Self::HangulLJamo => ffi::G_UNICODE_BREAK_HANGUL_L_JAMO,
-            Self::HangulVJamo => ffi::G_UNICODE_BREAK_HANGUL_V_JAMO,
-            Self::HangulTJamo => ffi::G_UNICODE_BREAK_HANGUL_T_JAMO,
-            Self::HangulLvSyllable => ffi::G_UNICODE_BREAK_HANGUL_LV_SYLLABLE,
-            Self::HangulLvtSyllable => ffi::G_UNICODE_BREAK_HANGUL_LVT_SYLLABLE,
-            Self::CloseParenthesis => ffi::G_UNICODE_BREAK_CLOSE_PARENTHESIS,
-            Self::ConditionalJapaneseStarter => ffi::G_UNICODE_BREAK_CONDITIONAL_JAPANESE_STARTER,
-            Self::HebrewLetter => ffi::G_UNICODE_BREAK_HEBREW_LETTER,
-            Self::RegionalIndicator => ffi::G_UNICODE_BREAK_REGIONAL_INDICATOR,
-            Self::EmojiBase => ffi::G_UNICODE_BREAK_EMOJI_BASE,
-            Self::EmojiModifier => ffi::G_UNICODE_BREAK_EMOJI_MODIFIER,
-            Self::ZeroWidthJoiner => ffi::G_UNICODE_BREAK_ZERO_WIDTH_JOINER,
-            Self::__Unknown(value) => value,
-        }
-    }
-}
-
-#[doc(hidden)]
-impl FromGlib<ffi::GUnicodeBreakType> for UnicodeBreakType {
-    unsafe fn from_glib(value: ffi::GUnicodeBreakType) -> Self {
-        match value {
-            ffi::G_UNICODE_BREAK_MANDATORY => Self::Mandatory,
-            ffi::G_UNICODE_BREAK_CARRIAGE_RETURN => Self::CarriageReturn,
-            ffi::G_UNICODE_BREAK_LINE_FEED => Self::LineFeed,
-            ffi::G_UNICODE_BREAK_COMBINING_MARK => Self::CombiningMark,
-            ffi::G_UNICODE_BREAK_SURROGATE => Self::Surrogate,
-            ffi::G_UNICODE_BREAK_ZERO_WIDTH_SPACE => Self::ZeroWidthSpace,
-            ffi::G_UNICODE_BREAK_INSEPARABLE => Self::Inseparable,
-            ffi::G_UNICODE_BREAK_NON_BREAKING_GLUE => Self::NonBreakingGlue,
-            ffi::G_UNICODE_BREAK_CONTINGENT => Self::Contingent,
-            ffi::G_UNICODE_BREAK_SPACE => Self::Space,
-            ffi::G_UNICODE_BREAK_AFTER => Self::After,
-            ffi::G_UNICODE_BREAK_BEFORE => Self::Before,
-            ffi::G_UNICODE_BREAK_BEFORE_AND_AFTER => Self::BeforeAndAfter,
-            ffi::G_UNICODE_BREAK_HYPHEN => Self::Hyphen,
-            ffi::G_UNICODE_BREAK_NON_STARTER => Self::NonStarter,
-            ffi::G_UNICODE_BREAK_OPEN_PUNCTUATION => Self::OpenPunctuation,
-            ffi::G_UNICODE_BREAK_CLOSE_PUNCTUATION => Self::ClosePunctuation,
-            ffi::G_UNICODE_BREAK_QUOTATION => Self::Quotation,
-            ffi::G_UNICODE_BREAK_EXCLAMATION => Self::Exclamation,
-            ffi::G_UNICODE_BREAK_IDEOGRAPHIC => Self::Ideographic,
-            ffi::G_UNICODE_BREAK_NUMERIC => Self::Numeric,
-            ffi::G_UNICODE_BREAK_INFIX_SEPARATOR => Self::InfixSeparator,
-            ffi::G_UNICODE_BREAK_SYMBOL => Self::Symbol,
-            ffi::G_UNICODE_BREAK_ALPHABETIC => Self::Alphabetic,
-            ffi::G_UNICODE_BREAK_PREFIX => Self::Prefix,
-            ffi::G_UNICODE_BREAK_POSTFIX => Self::Postfix,
-            ffi::G_UNICODE_BREAK_COMPLEX_CONTEXT => Self::ComplexContext,
-            ffi::G_UNICODE_BREAK_AMBIGUOUS => Self::Ambiguous,
-            ffi::G_UNICODE_BREAK_UNKNOWN => Self::Unknown,
-            ffi::G_UNICODE_BREAK_NEXT_LINE => Self::NextLine,
-            ffi::G_UNICODE_BREAK_WORD_JOINER => Self::WordJoiner,
-            ffi::G_UNICODE_BREAK_HANGUL_L_JAMO => Self::HangulLJamo,
-            ffi::G_UNICODE_BREAK_HANGUL_V_JAMO => Self::HangulVJamo,
-            ffi::G_UNICODE_BREAK_HANGUL_T_JAMO => Self::HangulTJamo,
-            ffi::G_UNICODE_BREAK_HANGUL_LV_SYLLABLE => Self::HangulLvSyllable,
-            ffi::G_UNICODE_BREAK_HANGUL_LVT_SYLLABLE => Self::HangulLvtSyllable,
-            ffi::G_UNICODE_BREAK_CLOSE_PARENTHESIS => Self::CloseParenthesis,
-            ffi::G_UNICODE_BREAK_CONDITIONAL_JAPANESE_STARTER => Self::ConditionalJapaneseStarter,
-            ffi::G_UNICODE_BREAK_HEBREW_LETTER => Self::HebrewLetter,
-            ffi::G_UNICODE_BREAK_REGIONAL_INDICATOR => Self::RegionalIndicator,
-            ffi::G_UNICODE_BREAK_EMOJI_BASE => Self::EmojiBase,
-            ffi::G_UNICODE_BREAK_EMOJI_MODIFIER => Self::EmojiModifier,
-            ffi::G_UNICODE_BREAK_ZERO_WIDTH_JOINER => Self::ZeroWidthJoiner,
             value => Self::__Unknown(value),
         }
     }
@@ -1627,38 +927,30 @@ pub enum UnicodeScript {
     KhitanSmallScript,
     #[doc(alias = "G_UNICODE_SCRIPT_YEZIDI")]
     Yezidi,
-    #[cfg(feature = "v2_72")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "v2_72")))]
+    #[cfg(any(feature = "v2_72", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v2_72")))]
     #[doc(alias = "G_UNICODE_SCRIPT_CYPRO_MINOAN")]
     CyproMinoan,
-    #[cfg(feature = "v2_72")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "v2_72")))]
+    #[cfg(any(feature = "v2_72", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v2_72")))]
     #[doc(alias = "G_UNICODE_SCRIPT_OLD_UYGHUR")]
     OldUyghur,
-    #[cfg(feature = "v2_72")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "v2_72")))]
+    #[cfg(any(feature = "v2_72", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v2_72")))]
     #[doc(alias = "G_UNICODE_SCRIPT_TANGSA")]
     Tangsa,
-    #[cfg(feature = "v2_72")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "v2_72")))]
+    #[cfg(any(feature = "v2_72", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v2_72")))]
     #[doc(alias = "G_UNICODE_SCRIPT_TOTO")]
     Toto,
-    #[cfg(feature = "v2_72")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "v2_72")))]
+    #[cfg(any(feature = "v2_72", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v2_72")))]
     #[doc(alias = "G_UNICODE_SCRIPT_VITHKUQI")]
     Vithkuqi,
-    #[cfg(feature = "v2_72")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "v2_72")))]
+    #[cfg(any(feature = "v2_72", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v2_72")))]
     #[doc(alias = "G_UNICODE_SCRIPT_MATH")]
     Math,
-    #[cfg(feature = "v2_74")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "v2_74")))]
-    #[doc(alias = "G_UNICODE_SCRIPT_KAWI")]
-    Kawi,
-    #[cfg(feature = "v2_74")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "v2_74")))]
-    #[doc(alias = "G_UNICODE_SCRIPT_NAG_MUNDARI")]
-    NagMundari,
     #[doc(hidden)]
     __Unknown(i32),
 }
@@ -1827,22 +1119,18 @@ impl fmt::Display for UnicodeScript {
                 Self::DivesAkuru => "DivesAkuru",
                 Self::KhitanSmallScript => "KhitanSmallScript",
                 Self::Yezidi => "Yezidi",
-                #[cfg(feature = "v2_72")]
+                #[cfg(any(feature = "v2_72", feature = "dox"))]
                 Self::CyproMinoan => "CyproMinoan",
-                #[cfg(feature = "v2_72")]
+                #[cfg(any(feature = "v2_72", feature = "dox"))]
                 Self::OldUyghur => "OldUyghur",
-                #[cfg(feature = "v2_72")]
+                #[cfg(any(feature = "v2_72", feature = "dox"))]
                 Self::Tangsa => "Tangsa",
-                #[cfg(feature = "v2_72")]
+                #[cfg(any(feature = "v2_72", feature = "dox"))]
                 Self::Toto => "Toto",
-                #[cfg(feature = "v2_72")]
+                #[cfg(any(feature = "v2_72", feature = "dox"))]
                 Self::Vithkuqi => "Vithkuqi",
-                #[cfg(feature = "v2_72")]
+                #[cfg(any(feature = "v2_72", feature = "dox"))]
                 Self::Math => "Math",
-                #[cfg(feature = "v2_74")]
-                Self::Kawi => "Kawi",
-                #[cfg(feature = "v2_74")]
-                Self::NagMundari => "NagMundari",
                 _ => "Unknown",
             }
         )
@@ -2013,22 +1301,18 @@ impl IntoGlib for UnicodeScript {
             Self::DivesAkuru => ffi::G_UNICODE_SCRIPT_DIVES_AKURU,
             Self::KhitanSmallScript => ffi::G_UNICODE_SCRIPT_KHITAN_SMALL_SCRIPT,
             Self::Yezidi => ffi::G_UNICODE_SCRIPT_YEZIDI,
-            #[cfg(feature = "v2_72")]
+            #[cfg(any(feature = "v2_72", feature = "dox"))]
             Self::CyproMinoan => ffi::G_UNICODE_SCRIPT_CYPRO_MINOAN,
-            #[cfg(feature = "v2_72")]
+            #[cfg(any(feature = "v2_72", feature = "dox"))]
             Self::OldUyghur => ffi::G_UNICODE_SCRIPT_OLD_UYGHUR,
-            #[cfg(feature = "v2_72")]
+            #[cfg(any(feature = "v2_72", feature = "dox"))]
             Self::Tangsa => ffi::G_UNICODE_SCRIPT_TANGSA,
-            #[cfg(feature = "v2_72")]
+            #[cfg(any(feature = "v2_72", feature = "dox"))]
             Self::Toto => ffi::G_UNICODE_SCRIPT_TOTO,
-            #[cfg(feature = "v2_72")]
+            #[cfg(any(feature = "v2_72", feature = "dox"))]
             Self::Vithkuqi => ffi::G_UNICODE_SCRIPT_VITHKUQI,
-            #[cfg(feature = "v2_72")]
+            #[cfg(any(feature = "v2_72", feature = "dox"))]
             Self::Math => ffi::G_UNICODE_SCRIPT_MATH,
-            #[cfg(feature = "v2_74")]
-            Self::Kawi => ffi::G_UNICODE_SCRIPT_KAWI,
-            #[cfg(feature = "v2_74")]
-            Self::NagMundari => ffi::G_UNICODE_SCRIPT_NAG_MUNDARI,
             Self::__Unknown(value) => value,
         }
     }
@@ -2196,219 +1480,25 @@ impl FromGlib<ffi::GUnicodeScript> for UnicodeScript {
             ffi::G_UNICODE_SCRIPT_DIVES_AKURU => Self::DivesAkuru,
             ffi::G_UNICODE_SCRIPT_KHITAN_SMALL_SCRIPT => Self::KhitanSmallScript,
             ffi::G_UNICODE_SCRIPT_YEZIDI => Self::Yezidi,
-            #[cfg(feature = "v2_72")]
+            #[cfg(any(feature = "v2_72", feature = "dox"))]
             ffi::G_UNICODE_SCRIPT_CYPRO_MINOAN => Self::CyproMinoan,
-            #[cfg(feature = "v2_72")]
+            #[cfg(any(feature = "v2_72", feature = "dox"))]
             ffi::G_UNICODE_SCRIPT_OLD_UYGHUR => Self::OldUyghur,
-            #[cfg(feature = "v2_72")]
+            #[cfg(any(feature = "v2_72", feature = "dox"))]
             ffi::G_UNICODE_SCRIPT_TANGSA => Self::Tangsa,
-            #[cfg(feature = "v2_72")]
+            #[cfg(any(feature = "v2_72", feature = "dox"))]
             ffi::G_UNICODE_SCRIPT_TOTO => Self::Toto,
-            #[cfg(feature = "v2_72")]
+            #[cfg(any(feature = "v2_72", feature = "dox"))]
             ffi::G_UNICODE_SCRIPT_VITHKUQI => Self::Vithkuqi,
-            #[cfg(feature = "v2_72")]
+            #[cfg(any(feature = "v2_72", feature = "dox"))]
             ffi::G_UNICODE_SCRIPT_MATH => Self::Math,
-            #[cfg(feature = "v2_74")]
-            ffi::G_UNICODE_SCRIPT_KAWI => Self::Kawi,
-            #[cfg(feature = "v2_74")]
-            ffi::G_UNICODE_SCRIPT_NAG_MUNDARI => Self::NagMundari,
             value => Self::__Unknown(value),
         }
     }
 }
 
-#[derive(Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Clone, Copy)]
-#[non_exhaustive]
-#[doc(alias = "GUnicodeType")]
-pub enum UnicodeType {
-    #[doc(alias = "G_UNICODE_CONTROL")]
-    Control,
-    #[doc(alias = "G_UNICODE_FORMAT")]
-    Format,
-    #[doc(alias = "G_UNICODE_UNASSIGNED")]
-    Unassigned,
-    #[doc(alias = "G_UNICODE_PRIVATE_USE")]
-    PrivateUse,
-    #[doc(alias = "G_UNICODE_SURROGATE")]
-    Surrogate,
-    #[doc(alias = "G_UNICODE_LOWERCASE_LETTER")]
-    LowercaseLetter,
-    #[doc(alias = "G_UNICODE_MODIFIER_LETTER")]
-    ModifierLetter,
-    #[doc(alias = "G_UNICODE_OTHER_LETTER")]
-    OtherLetter,
-    #[doc(alias = "G_UNICODE_TITLECASE_LETTER")]
-    TitlecaseLetter,
-    #[doc(alias = "G_UNICODE_UPPERCASE_LETTER")]
-    UppercaseLetter,
-    #[doc(alias = "G_UNICODE_SPACING_MARK")]
-    SpacingMark,
-    #[doc(alias = "G_UNICODE_ENCLOSING_MARK")]
-    EnclosingMark,
-    #[doc(alias = "G_UNICODE_NON_SPACING_MARK")]
-    NonSpacingMark,
-    #[doc(alias = "G_UNICODE_DECIMAL_NUMBER")]
-    DecimalNumber,
-    #[doc(alias = "G_UNICODE_LETTER_NUMBER")]
-    LetterNumber,
-    #[doc(alias = "G_UNICODE_OTHER_NUMBER")]
-    OtherNumber,
-    #[doc(alias = "G_UNICODE_CONNECT_PUNCTUATION")]
-    ConnectPunctuation,
-    #[doc(alias = "G_UNICODE_DASH_PUNCTUATION")]
-    DashPunctuation,
-    #[doc(alias = "G_UNICODE_CLOSE_PUNCTUATION")]
-    ClosePunctuation,
-    #[doc(alias = "G_UNICODE_FINAL_PUNCTUATION")]
-    FinalPunctuation,
-    #[doc(alias = "G_UNICODE_INITIAL_PUNCTUATION")]
-    InitialPunctuation,
-    #[doc(alias = "G_UNICODE_OTHER_PUNCTUATION")]
-    OtherPunctuation,
-    #[doc(alias = "G_UNICODE_OPEN_PUNCTUATION")]
-    OpenPunctuation,
-    #[doc(alias = "G_UNICODE_CURRENCY_SYMBOL")]
-    CurrencySymbol,
-    #[doc(alias = "G_UNICODE_MODIFIER_SYMBOL")]
-    ModifierSymbol,
-    #[doc(alias = "G_UNICODE_MATH_SYMBOL")]
-    MathSymbol,
-    #[doc(alias = "G_UNICODE_OTHER_SYMBOL")]
-    OtherSymbol,
-    #[doc(alias = "G_UNICODE_LINE_SEPARATOR")]
-    LineSeparator,
-    #[doc(alias = "G_UNICODE_PARAGRAPH_SEPARATOR")]
-    ParagraphSeparator,
-    #[doc(alias = "G_UNICODE_SPACE_SEPARATOR")]
-    SpaceSeparator,
-    #[doc(hidden)]
-    __Unknown(i32),
-}
-
-impl fmt::Display for UnicodeType {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(
-            f,
-            "UnicodeType::{}",
-            match *self {
-                Self::Control => "Control",
-                Self::Format => "Format",
-                Self::Unassigned => "Unassigned",
-                Self::PrivateUse => "PrivateUse",
-                Self::Surrogate => "Surrogate",
-                Self::LowercaseLetter => "LowercaseLetter",
-                Self::ModifierLetter => "ModifierLetter",
-                Self::OtherLetter => "OtherLetter",
-                Self::TitlecaseLetter => "TitlecaseLetter",
-                Self::UppercaseLetter => "UppercaseLetter",
-                Self::SpacingMark => "SpacingMark",
-                Self::EnclosingMark => "EnclosingMark",
-                Self::NonSpacingMark => "NonSpacingMark",
-                Self::DecimalNumber => "DecimalNumber",
-                Self::LetterNumber => "LetterNumber",
-                Self::OtherNumber => "OtherNumber",
-                Self::ConnectPunctuation => "ConnectPunctuation",
-                Self::DashPunctuation => "DashPunctuation",
-                Self::ClosePunctuation => "ClosePunctuation",
-                Self::FinalPunctuation => "FinalPunctuation",
-                Self::InitialPunctuation => "InitialPunctuation",
-                Self::OtherPunctuation => "OtherPunctuation",
-                Self::OpenPunctuation => "OpenPunctuation",
-                Self::CurrencySymbol => "CurrencySymbol",
-                Self::ModifierSymbol => "ModifierSymbol",
-                Self::MathSymbol => "MathSymbol",
-                Self::OtherSymbol => "OtherSymbol",
-                Self::LineSeparator => "LineSeparator",
-                Self::ParagraphSeparator => "ParagraphSeparator",
-                Self::SpaceSeparator => "SpaceSeparator",
-                _ => "Unknown",
-            }
-        )
-    }
-}
-
-#[doc(hidden)]
-impl IntoGlib for UnicodeType {
-    type GlibType = ffi::GUnicodeType;
-
-    fn into_glib(self) -> ffi::GUnicodeType {
-        match self {
-            Self::Control => ffi::G_UNICODE_CONTROL,
-            Self::Format => ffi::G_UNICODE_FORMAT,
-            Self::Unassigned => ffi::G_UNICODE_UNASSIGNED,
-            Self::PrivateUse => ffi::G_UNICODE_PRIVATE_USE,
-            Self::Surrogate => ffi::G_UNICODE_SURROGATE,
-            Self::LowercaseLetter => ffi::G_UNICODE_LOWERCASE_LETTER,
-            Self::ModifierLetter => ffi::G_UNICODE_MODIFIER_LETTER,
-            Self::OtherLetter => ffi::G_UNICODE_OTHER_LETTER,
-            Self::TitlecaseLetter => ffi::G_UNICODE_TITLECASE_LETTER,
-            Self::UppercaseLetter => ffi::G_UNICODE_UPPERCASE_LETTER,
-            Self::SpacingMark => ffi::G_UNICODE_SPACING_MARK,
-            Self::EnclosingMark => ffi::G_UNICODE_ENCLOSING_MARK,
-            Self::NonSpacingMark => ffi::G_UNICODE_NON_SPACING_MARK,
-            Self::DecimalNumber => ffi::G_UNICODE_DECIMAL_NUMBER,
-            Self::LetterNumber => ffi::G_UNICODE_LETTER_NUMBER,
-            Self::OtherNumber => ffi::G_UNICODE_OTHER_NUMBER,
-            Self::ConnectPunctuation => ffi::G_UNICODE_CONNECT_PUNCTUATION,
-            Self::DashPunctuation => ffi::G_UNICODE_DASH_PUNCTUATION,
-            Self::ClosePunctuation => ffi::G_UNICODE_CLOSE_PUNCTUATION,
-            Self::FinalPunctuation => ffi::G_UNICODE_FINAL_PUNCTUATION,
-            Self::InitialPunctuation => ffi::G_UNICODE_INITIAL_PUNCTUATION,
-            Self::OtherPunctuation => ffi::G_UNICODE_OTHER_PUNCTUATION,
-            Self::OpenPunctuation => ffi::G_UNICODE_OPEN_PUNCTUATION,
-            Self::CurrencySymbol => ffi::G_UNICODE_CURRENCY_SYMBOL,
-            Self::ModifierSymbol => ffi::G_UNICODE_MODIFIER_SYMBOL,
-            Self::MathSymbol => ffi::G_UNICODE_MATH_SYMBOL,
-            Self::OtherSymbol => ffi::G_UNICODE_OTHER_SYMBOL,
-            Self::LineSeparator => ffi::G_UNICODE_LINE_SEPARATOR,
-            Self::ParagraphSeparator => ffi::G_UNICODE_PARAGRAPH_SEPARATOR,
-            Self::SpaceSeparator => ffi::G_UNICODE_SPACE_SEPARATOR,
-            Self::__Unknown(value) => value,
-        }
-    }
-}
-
-#[doc(hidden)]
-impl FromGlib<ffi::GUnicodeType> for UnicodeType {
-    unsafe fn from_glib(value: ffi::GUnicodeType) -> Self {
-        match value {
-            ffi::G_UNICODE_CONTROL => Self::Control,
-            ffi::G_UNICODE_FORMAT => Self::Format,
-            ffi::G_UNICODE_UNASSIGNED => Self::Unassigned,
-            ffi::G_UNICODE_PRIVATE_USE => Self::PrivateUse,
-            ffi::G_UNICODE_SURROGATE => Self::Surrogate,
-            ffi::G_UNICODE_LOWERCASE_LETTER => Self::LowercaseLetter,
-            ffi::G_UNICODE_MODIFIER_LETTER => Self::ModifierLetter,
-            ffi::G_UNICODE_OTHER_LETTER => Self::OtherLetter,
-            ffi::G_UNICODE_TITLECASE_LETTER => Self::TitlecaseLetter,
-            ffi::G_UNICODE_UPPERCASE_LETTER => Self::UppercaseLetter,
-            ffi::G_UNICODE_SPACING_MARK => Self::SpacingMark,
-            ffi::G_UNICODE_ENCLOSING_MARK => Self::EnclosingMark,
-            ffi::G_UNICODE_NON_SPACING_MARK => Self::NonSpacingMark,
-            ffi::G_UNICODE_DECIMAL_NUMBER => Self::DecimalNumber,
-            ffi::G_UNICODE_LETTER_NUMBER => Self::LetterNumber,
-            ffi::G_UNICODE_OTHER_NUMBER => Self::OtherNumber,
-            ffi::G_UNICODE_CONNECT_PUNCTUATION => Self::ConnectPunctuation,
-            ffi::G_UNICODE_DASH_PUNCTUATION => Self::DashPunctuation,
-            ffi::G_UNICODE_CLOSE_PUNCTUATION => Self::ClosePunctuation,
-            ffi::G_UNICODE_FINAL_PUNCTUATION => Self::FinalPunctuation,
-            ffi::G_UNICODE_INITIAL_PUNCTUATION => Self::InitialPunctuation,
-            ffi::G_UNICODE_OTHER_PUNCTUATION => Self::OtherPunctuation,
-            ffi::G_UNICODE_OPEN_PUNCTUATION => Self::OpenPunctuation,
-            ffi::G_UNICODE_CURRENCY_SYMBOL => Self::CurrencySymbol,
-            ffi::G_UNICODE_MODIFIER_SYMBOL => Self::ModifierSymbol,
-            ffi::G_UNICODE_MATH_SYMBOL => Self::MathSymbol,
-            ffi::G_UNICODE_OTHER_SYMBOL => Self::OtherSymbol,
-            ffi::G_UNICODE_LINE_SEPARATOR => Self::LineSeparator,
-            ffi::G_UNICODE_PARAGRAPH_SEPARATOR => Self::ParagraphSeparator,
-            ffi::G_UNICODE_SPACE_SEPARATOR => Self::SpaceSeparator,
-            value => Self::__Unknown(value),
-        }
-    }
-}
-
-#[cfg(feature = "v2_66")]
-#[cfg_attr(docsrs, doc(cfg(feature = "v2_66")))]
+#[cfg(any(feature = "v2_66", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v2_66")))]
 #[derive(Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Clone, Copy)]
 #[non_exhaustive]
 #[doc(alias = "GUriError")]
@@ -2437,8 +1527,8 @@ pub enum UriError {
     __Unknown(i32),
 }
 
-#[cfg(feature = "v2_66")]
-#[cfg_attr(docsrs, doc(cfg(feature = "v2_66")))]
+#[cfg(any(feature = "v2_66", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v2_66")))]
 impl fmt::Display for UriError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(
@@ -2461,13 +1551,12 @@ impl fmt::Display for UriError {
     }
 }
 
-#[cfg(feature = "v2_66")]
-#[cfg_attr(docsrs, doc(cfg(feature = "v2_66")))]
+#[cfg(any(feature = "v2_66", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v2_66")))]
 #[doc(hidden)]
 impl IntoGlib for UriError {
     type GlibType = ffi::GUriError;
 
-    #[inline]
     fn into_glib(self) -> ffi::GUriError {
         match self {
             Self::Failed => ffi::G_URI_ERROR_FAILED,
@@ -2485,11 +1574,10 @@ impl IntoGlib for UriError {
     }
 }
 
-#[cfg(feature = "v2_66")]
-#[cfg_attr(docsrs, doc(cfg(feature = "v2_66")))]
+#[cfg(any(feature = "v2_66", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v2_66")))]
 #[doc(hidden)]
 impl FromGlib<ffi::GUriError> for UriError {
-    #[inline]
     unsafe fn from_glib(value: ffi::GUriError) -> Self {
         match value {
             ffi::G_URI_ERROR_FAILED => Self::Failed,
@@ -2507,25 +1595,30 @@ impl FromGlib<ffi::GUriError> for UriError {
     }
 }
 
-#[cfg(feature = "v2_66")]
-#[cfg_attr(docsrs, doc(cfg(feature = "v2_66")))]
-impl crate::error::ErrorDomain for UriError {
-    #[inline]
-    fn domain() -> crate::Quark {
+#[cfg(any(feature = "v2_66", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v2_66")))]
+impl ErrorDomain for UriError {
+    fn domain() -> Quark {
         unsafe { from_glib(ffi::g_uri_error_quark()) }
     }
 
-    #[inline]
     fn code(self) -> i32 {
         self.into_glib()
     }
 
-    #[inline]
-    #[allow(clippy::match_single_binding)]
     fn from(code: i32) -> Option<Self> {
-        match unsafe { from_glib(code) } {
-            Self::__Unknown(_) => Some(Self::Failed),
-            value => Some(value),
+        match code {
+            ffi::G_URI_ERROR_FAILED => Some(Self::Failed),
+            ffi::G_URI_ERROR_BAD_SCHEME => Some(Self::BadScheme),
+            ffi::G_URI_ERROR_BAD_USER => Some(Self::BadUser),
+            ffi::G_URI_ERROR_BAD_PASSWORD => Some(Self::BadPassword),
+            ffi::G_URI_ERROR_BAD_AUTH_PARAMS => Some(Self::BadAuthParams),
+            ffi::G_URI_ERROR_BAD_HOST => Some(Self::BadHost),
+            ffi::G_URI_ERROR_BAD_PORT => Some(Self::BadPort),
+            ffi::G_URI_ERROR_BAD_PATH => Some(Self::BadPath),
+            ffi::G_URI_ERROR_BAD_QUERY => Some(Self::BadQuery),
+            ffi::G_URI_ERROR_BAD_FRAGMENT => Some(Self::BadFragment),
+            _ => Some(Self::Failed),
         }
     }
 }

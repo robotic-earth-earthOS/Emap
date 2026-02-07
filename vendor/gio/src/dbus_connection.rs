@@ -1,13 +1,16 @@
 // Take a look at the license at the top of the repository in the LICENSE file.
 
-use std::{boxed::Box as Box_, num::NonZeroU32};
-
-use glib::{prelude::*, translate::*};
-
-use crate::{
-    ActionGroup, DBusConnection, DBusInterfaceInfo, DBusMessage, DBusMethodInvocation,
-    DBusSignalFlags, MenuModel,
-};
+use crate::ActionGroup;
+use crate::DBusConnection;
+use crate::DBusInterfaceInfo;
+use crate::DBusMessage;
+use crate::DBusMethodInvocation;
+use crate::DBusSignalFlags;
+use crate::MenuModel;
+use glib::object::IsA;
+use glib::translate::*;
+use std::boxed::Box as Box_;
+use std::num::NonZeroU32;
 
 #[derive(Debug, Eq, PartialEq)]
 pub struct RegistrationId(NonZeroU32);
@@ -44,6 +47,7 @@ impl DBusConnection {
             + Sync
             + 'static,
     {
+        use glib::ToValue;
         unsafe {
             let mut error = std::ptr::null_mut();
             let id = ffi::g_dbus_connection_register_object_with_closures(
@@ -207,7 +211,7 @@ impl DBusConnection {
             let incoming = from_glib(incoming);
             let callback: &P = &*(user_data as *mut _);
             let res = (*callback)(&connection, &message, incoming);
-            res.into_glib_ptr()
+            res.to_glib_full()
         }
         let filter_function = Some(filter_function_func::<P> as _);
         unsafe extern "C" fn user_data_free_func_func<
@@ -238,7 +242,6 @@ impl DBusConnection {
     }
 
     #[doc(alias = "g_dbus_connection_signal_subscribe")]
-    #[allow(clippy::too_many_arguments)]
     pub fn signal_subscribe<
         P: Fn(&DBusConnection, &str, &str, &str, &str, &glib::Variant) + 'static,
     >(

@@ -12,122 +12,129 @@ use crate::Widget;
 use crate::WidgetPath;
 
 pub trait ContainerImpl: ContainerImplExt + WidgetImpl {
-    fn add(&self, widget: &Widget) {
-        self.parent_add(widget)
+    fn add(&self, container: &Self::Type, widget: &Widget) {
+        self.parent_add(container, widget)
     }
 
-    fn remove(&self, widget: &Widget) {
-        self.parent_remove(widget)
+    fn remove(&self, container: &Self::Type, widget: &Widget) {
+        self.parent_remove(container, widget)
     }
 
-    fn check_resize(&self) {
-        self.parent_check_resize()
+    fn check_resize(&self, container: &Self::Type) {
+        self.parent_check_resize(container)
     }
 
-    fn set_focus_child(&self, widget: Option<&Widget>) {
-        self.parent_set_focus_child(widget)
+    fn set_focus_child(&self, container: &Self::Type, widget: Option<&Widget>) {
+        self.parent_set_focus_child(container, widget)
     }
 
-    fn child_type(&self) -> glib::Type {
-        self.parent_child_type()
+    fn child_type(&self, container: &Self::Type) -> glib::Type {
+        self.parent_child_type(container)
     }
 
     #[doc(alias = "get_path_for_child")]
-    fn path_for_child(&self, widget: &Widget) -> WidgetPath {
-        self.parent_path_for_child(widget)
+    fn path_for_child(&self, container: &Self::Type, widget: &Widget) -> WidgetPath {
+        self.parent_path_for_child(container, widget)
     }
 
-    fn forall(&self, include_internals: bool, callback: &Callback) {
-        self.parent_forall(include_internals, callback);
+    fn forall(&self, container: &Self::Type, include_internals: bool, callback: &Callback) {
+        self.parent_forall(container, include_internals, callback);
     }
 }
 
-mod sealed {
-    pub trait Sealed {}
-    impl<T: super::ContainerImpl> Sealed for T {}
+pub trait ContainerImplExt: ObjectSubclass {
+    fn parent_add(&self, container: &Self::Type, widget: &Widget);
+    fn parent_remove(&self, container: &Self::Type, widget: &Widget);
+    fn parent_check_resize(&self, container: &Self::Type);
+    fn parent_set_focus_child(&self, container: &Self::Type, widget: Option<&Widget>);
+    fn parent_child_type(&self, container: &Self::Type) -> glib::Type;
+    fn parent_path_for_child(&self, container: &Self::Type, widget: &Widget) -> WidgetPath;
+    fn parent_forall(&self, container: &Self::Type, include_internals: bool, callback: &Callback);
 }
 
-pub trait ContainerImplExt: ObjectSubclass + sealed::Sealed {
-    fn parent_add(&self, widget: &Widget) {
+impl<T: ContainerImpl> ContainerImplExt for T {
+    fn parent_add(&self, container: &Self::Type, widget: &Widget) {
         unsafe {
-            let data = Self::type_data();
+            let data = T::type_data();
             let parent_class = data.as_ref().parent_class() as *mut ffi::GtkContainerClass;
             if let Some(f) = (*parent_class).add {
                 f(
-                    self.obj().unsafe_cast_ref::<Container>().to_glib_none().0,
+                    container.unsafe_cast_ref::<Container>().to_glib_none().0,
                     widget.to_glib_none().0,
                 )
             }
         }
     }
-    fn parent_remove(&self, widget: &Widget) {
+
+    fn parent_remove(&self, container: &Self::Type, widget: &Widget) {
         unsafe {
-            let data = Self::type_data();
+            let data = T::type_data();
             let parent_class = data.as_ref().parent_class() as *mut ffi::GtkContainerClass;
             if let Some(f) = (*parent_class).remove {
                 f(
-                    self.obj().unsafe_cast_ref::<Container>().to_glib_none().0,
+                    container.unsafe_cast_ref::<Container>().to_glib_none().0,
                     widget.to_glib_none().0,
                 )
             }
         }
     }
-    fn parent_check_resize(&self) {
+
+    fn parent_check_resize(&self, container: &Self::Type) {
         unsafe {
-            let data = Self::type_data();
+            let data = T::type_data();
             let parent_class = data.as_ref().parent_class() as *mut ffi::GtkContainerClass;
             if let Some(f) = (*parent_class).check_resize {
-                f(self.obj().unsafe_cast_ref::<Container>().to_glib_none().0)
+                f(container.unsafe_cast_ref::<Container>().to_glib_none().0)
             }
         }
     }
-    fn parent_set_focus_child(&self, widget: Option<&Widget>) {
+
+    fn parent_set_focus_child(&self, container: &Self::Type, widget: Option<&Widget>) {
         unsafe {
-            let data = Self::type_data();
+            let data = T::type_data();
             let parent_class = data.as_ref().parent_class() as *mut ffi::GtkContainerClass;
             if let Some(f) = (*parent_class).set_focus_child {
                 f(
-                    self.obj().unsafe_cast_ref::<Container>().to_glib_none().0,
+                    container.unsafe_cast_ref::<Container>().to_glib_none().0,
                     widget.to_glib_none().0,
                 )
             }
         }
     }
-    fn parent_child_type(&self) -> glib::Type {
+
+    fn parent_child_type(&self, container: &Self::Type) -> glib::Type {
         unsafe {
-            let data = Self::type_data();
+            let data = T::type_data();
             let parent_class = data.as_ref().parent_class() as *mut ffi::GtkContainerClass;
             if let Some(f) = (*parent_class).child_type {
-                from_glib(f(self
-                    .obj()
-                    .unsafe_cast_ref::<Container>()
-                    .to_glib_none()
-                    .0))
+                from_glib(f(container.unsafe_cast_ref::<Container>().to_glib_none().0))
             } else {
                 glib::Type::UNIT
             }
         }
     }
-    fn parent_path_for_child(&self, widget: &Widget) -> WidgetPath {
+
+    fn parent_path_for_child(&self, container: &Self::Type, widget: &Widget) -> WidgetPath {
         unsafe {
-            let data = Self::type_data();
+            let data = T::type_data();
             let parent_class = data.as_ref().parent_class() as *mut ffi::GtkContainerClass;
             let f = (*parent_class)
                 .get_path_for_child
                 .expect("No parent class impl for \"get_path_for_child\"");
             from_glib_none(f(
-                self.obj().unsafe_cast_ref::<Container>().to_glib_none().0,
+                container.unsafe_cast_ref::<Container>().to_glib_none().0,
                 widget.to_glib_none().0,
             ))
         }
     }
-    fn parent_forall(&self, include_internals: bool, callback: &Callback) {
+
+    fn parent_forall(&self, container: &Self::Type, include_internals: bool, callback: &Callback) {
         unsafe {
-            let data = Self::type_data();
+            let data = T::type_data();
             let parent_class = data.as_ref().parent_class() as *mut ffi::GtkContainerClass;
             if let Some(f) = (*parent_class).forall {
                 f(
-                    self.obj().unsafe_cast_ref::<Container>().to_glib_none().0,
+                    container.unsafe_cast_ref::<Container>().to_glib_none().0,
                     include_internals.into_glib(),
                     callback.callback,
                     callback.user_data,
@@ -136,8 +143,6 @@ pub trait ContainerImplExt: ObjectSubclass + sealed::Sealed {
         }
     }
 }
-
-impl<T: ContainerImpl> ContainerImplExt for T {}
 
 unsafe impl<T: ContainerImpl> IsSubclassable<T> for Container {
     fn class_init(class: &mut ::glib::Class<Self>) {
@@ -164,9 +169,10 @@ unsafe extern "C" fn container_add<T: ContainerImpl>(
 ) {
     let instance = &*(ptr as *mut T::Instance);
     let imp = instance.imp();
+    let wrap: Borrowed<Container> = from_glib_borrow(ptr);
     let widget: Borrowed<Widget> = from_glib_borrow(wdgtptr);
 
-    imp.add(&widget)
+    imp.add(wrap.unsafe_cast_ref(), &widget)
 }
 
 unsafe extern "C" fn container_remove<T: ContainerImpl>(
@@ -175,16 +181,18 @@ unsafe extern "C" fn container_remove<T: ContainerImpl>(
 ) {
     let instance = &*(ptr as *mut T::Instance);
     let imp = instance.imp();
+    let wrap: Borrowed<Container> = from_glib_borrow(ptr);
     let widget: Borrowed<Widget> = from_glib_borrow(wdgtptr);
 
-    imp.remove(&widget)
+    imp.remove(wrap.unsafe_cast_ref(), &widget)
 }
 
 unsafe extern "C" fn container_check_resize<T: ContainerImpl>(ptr: *mut ffi::GtkContainer) {
     let instance = &*(ptr as *mut T::Instance);
     let imp = instance.imp();
+    let wrap: Borrowed<Container> = from_glib_borrow(ptr);
 
-    imp.check_resize()
+    imp.check_resize(wrap.unsafe_cast_ref())
 }
 
 unsafe extern "C" fn container_set_focus_child<T: ContainerImpl>(
@@ -193,9 +201,10 @@ unsafe extern "C" fn container_set_focus_child<T: ContainerImpl>(
 ) {
     let instance = &*(ptr as *mut T::Instance);
     let imp = instance.imp();
+    let wrap: Borrowed<Container> = from_glib_borrow(ptr);
     let widget: Borrowed<Option<Widget>> = from_glib_borrow(wdgtptr);
 
-    imp.set_focus_child(widget.as_ref().as_ref())
+    imp.set_focus_child(wrap.unsafe_cast_ref(), widget.as_ref().as_ref())
 }
 
 unsafe extern "C" fn container_child_type<T: ContainerImpl>(
@@ -203,8 +212,9 @@ unsafe extern "C" fn container_child_type<T: ContainerImpl>(
 ) -> glib::ffi::GType {
     let instance = &*(ptr as *mut T::Instance);
     let imp = instance.imp();
+    let wrap: Borrowed<Container> = from_glib_borrow(ptr);
 
-    imp.child_type().into_glib()
+    imp.child_type(wrap.unsafe_cast_ref()).into_glib()
 }
 
 unsafe extern "C" fn container_get_path_for_child<T: ContainerImpl>(
@@ -213,9 +223,12 @@ unsafe extern "C" fn container_get_path_for_child<T: ContainerImpl>(
 ) -> *mut ffi::GtkWidgetPath {
     let instance = &*(ptr as *mut T::Instance);
     let imp = instance.imp();
+    let wrap: Borrowed<Container> = from_glib_borrow(ptr);
     let widget: Borrowed<Widget> = from_glib_borrow(wdgtptr);
 
-    imp.path_for_child(&widget).to_glib_none().0
+    imp.path_for_child(wrap.unsafe_cast_ref(), &widget)
+        .to_glib_none()
+        .0
 }
 
 unsafe extern "C" fn container_forall<T: ObjectSubclass>(
@@ -228,12 +241,17 @@ unsafe extern "C" fn container_forall<T: ObjectSubclass>(
 {
     let instance = &*(ptr as *mut T::Instance);
     let imp = instance.imp();
+    let wrap: Borrowed<Container> = from_glib_borrow(ptr);
     let callback = Callback {
         callback,
         user_data,
     };
 
-    imp.forall(from_glib(include_internals), &callback)
+    imp.forall(
+        wrap.unsafe_cast_ref(),
+        from_glib(include_internals),
+        &callback,
+    )
 }
 
 #[derive(Debug)]

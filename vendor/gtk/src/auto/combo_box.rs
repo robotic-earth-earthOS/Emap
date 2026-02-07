@@ -2,16 +2,30 @@
 // from gir-files (https://github.com/gtk-rs/gir-files)
 // DO NOT EDIT
 
-use crate::{
-    Align, Bin, Buildable, CellArea, CellEditable, CellLayout, Container, ResizeMode, ScrollType,
-    SensitivityType, TreeIter, TreeModel, Widget,
-};
-use glib::{
-    prelude::*,
-    signal::{connect_raw, SignalHandlerId},
-    translate::*,
-};
-use std::{boxed::Box as Box_, fmt, mem::transmute};
+use crate::Align;
+use crate::Bin;
+use crate::Buildable;
+use crate::CellArea;
+use crate::CellEditable;
+use crate::CellLayout;
+use crate::Container;
+use crate::ResizeMode;
+use crate::ScrollType;
+use crate::SensitivityType;
+use crate::TreeIter;
+use crate::TreeModel;
+use crate::Widget;
+use glib::object::Cast;
+use glib::object::IsA;
+use glib::object::ObjectExt;
+use glib::signal::connect_raw;
+use glib::signal::SignalHandlerId;
+use glib::translate::*;
+use glib::StaticType;
+use glib::ToValue;
+use std::boxed::Box as Box_;
+use std::fmt;
+use std::mem::transmute;
 
 glib::wrapper! {
     #[doc(alias = "GtkComboBox")]
@@ -91,7 +105,7 @@ impl ComboBox {
     ///
     /// This method returns an instance of [`ComboBoxBuilder`](crate::builders::ComboBoxBuilder) which can be used to create [`ComboBox`] objects.
     pub fn builder() -> ComboBoxBuilder {
-        ComboBoxBuilder::new()
+        ComboBoxBuilder::default()
     }
 }
 
@@ -101,344 +115,660 @@ impl Default for ComboBox {
     }
 }
 
+#[derive(Clone, Default)]
 // rustdoc-stripper-ignore-next
 /// A [builder-pattern] type to construct [`ComboBox`] objects.
 ///
 /// [builder-pattern]: https://doc.rust-lang.org/1.0.0/style/ownership/builders.html
 #[must_use = "The builder must be built to be used"]
 pub struct ComboBoxBuilder {
-    builder: glib::object::ObjectBuilder<'static, ComboBox>,
+    active: Option<i32>,
+    active_id: Option<String>,
+    button_sensitivity: Option<SensitivityType>,
+    cell_area: Option<CellArea>,
+    column_span_column: Option<i32>,
+    entry_text_column: Option<i32>,
+    has_entry: Option<bool>,
+    has_frame: Option<bool>,
+    id_column: Option<i32>,
+    model: Option<TreeModel>,
+    popup_fixed_width: Option<bool>,
+    row_span_column: Option<i32>,
+    wrap_width: Option<i32>,
+    border_width: Option<u32>,
+    child: Option<Widget>,
+    resize_mode: Option<ResizeMode>,
+    app_paintable: Option<bool>,
+    can_default: Option<bool>,
+    can_focus: Option<bool>,
+    events: Option<gdk::EventMask>,
+    expand: Option<bool>,
+    #[cfg(any(feature = "v3_20", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
+    focus_on_click: Option<bool>,
+    halign: Option<Align>,
+    has_default: Option<bool>,
+    has_focus: Option<bool>,
+    has_tooltip: Option<bool>,
+    height_request: Option<i32>,
+    hexpand: Option<bool>,
+    hexpand_set: Option<bool>,
+    is_focus: Option<bool>,
+    margin: Option<i32>,
+    margin_bottom: Option<i32>,
+    margin_end: Option<i32>,
+    margin_start: Option<i32>,
+    margin_top: Option<i32>,
+    name: Option<String>,
+    no_show_all: Option<bool>,
+    opacity: Option<f64>,
+    parent: Option<Container>,
+    receives_default: Option<bool>,
+    sensitive: Option<bool>,
+    tooltip_markup: Option<String>,
+    tooltip_text: Option<String>,
+    valign: Option<Align>,
+    vexpand: Option<bool>,
+    vexpand_set: Option<bool>,
+    visible: Option<bool>,
+    width_request: Option<i32>,
+    editing_canceled: Option<bool>,
 }
 
 impl ComboBoxBuilder {
-    fn new() -> Self {
-        Self {
-            builder: glib::object::Object::builder(),
-        }
-    }
-
-    pub fn active(self, active: i32) -> Self {
-        Self {
-            builder: self.builder.property("active", active),
-        }
-    }
-
-    pub fn active_id(self, active_id: impl Into<glib::GString>) -> Self {
-        Self {
-            builder: self.builder.property("active-id", active_id.into()),
-        }
-    }
-
-    pub fn button_sensitivity(self, button_sensitivity: SensitivityType) -> Self {
-        Self {
-            builder: self
-                .builder
-                .property("button-sensitivity", button_sensitivity),
-        }
-    }
-
-    pub fn cell_area(self, cell_area: &impl IsA<CellArea>) -> Self {
-        Self {
-            builder: self
-                .builder
-                .property("cell-area", cell_area.clone().upcast()),
-        }
-    }
-
-    pub fn column_span_column(self, column_span_column: i32) -> Self {
-        Self {
-            builder: self
-                .builder
-                .property("column-span-column", column_span_column),
-        }
-    }
-
-    pub fn entry_text_column(self, entry_text_column: i32) -> Self {
-        Self {
-            builder: self
-                .builder
-                .property("entry-text-column", entry_text_column),
-        }
-    }
-
-    pub fn has_entry(self, has_entry: bool) -> Self {
-        Self {
-            builder: self.builder.property("has-entry", has_entry),
-        }
-    }
-
-    pub fn has_frame(self, has_frame: bool) -> Self {
-        Self {
-            builder: self.builder.property("has-frame", has_frame),
-        }
-    }
-
-    pub fn id_column(self, id_column: i32) -> Self {
-        Self {
-            builder: self.builder.property("id-column", id_column),
-        }
-    }
-
-    pub fn model(self, model: &impl IsA<TreeModel>) -> Self {
-        Self {
-            builder: self.builder.property("model", model.clone().upcast()),
-        }
-    }
-
-    pub fn popup_fixed_width(self, popup_fixed_width: bool) -> Self {
-        Self {
-            builder: self
-                .builder
-                .property("popup-fixed-width", popup_fixed_width),
-        }
-    }
-
-    pub fn row_span_column(self, row_span_column: i32) -> Self {
-        Self {
-            builder: self.builder.property("row-span-column", row_span_column),
-        }
-    }
-
-    pub fn wrap_width(self, wrap_width: i32) -> Self {
-        Self {
-            builder: self.builder.property("wrap-width", wrap_width),
-        }
-    }
-
-    pub fn border_width(self, border_width: u32) -> Self {
-        Self {
-            builder: self.builder.property("border-width", border_width),
-        }
-    }
-
-    pub fn child(self, child: &impl IsA<Widget>) -> Self {
-        Self {
-            builder: self.builder.property("child", child.clone().upcast()),
-        }
-    }
-
-    pub fn resize_mode(self, resize_mode: ResizeMode) -> Self {
-        Self {
-            builder: self.builder.property("resize-mode", resize_mode),
-        }
-    }
-
-    pub fn app_paintable(self, app_paintable: bool) -> Self {
-        Self {
-            builder: self.builder.property("app-paintable", app_paintable),
-        }
-    }
-
-    pub fn can_default(self, can_default: bool) -> Self {
-        Self {
-            builder: self.builder.property("can-default", can_default),
-        }
-    }
-
-    pub fn can_focus(self, can_focus: bool) -> Self {
-        Self {
-            builder: self.builder.property("can-focus", can_focus),
-        }
-    }
-
-    pub fn events(self, events: gdk::EventMask) -> Self {
-        Self {
-            builder: self.builder.property("events", events),
-        }
-    }
-
-    pub fn expand(self, expand: bool) -> Self {
-        Self {
-            builder: self.builder.property("expand", expand),
-        }
-    }
-
-    pub fn focus_on_click(self, focus_on_click: bool) -> Self {
-        Self {
-            builder: self.builder.property("focus-on-click", focus_on_click),
-        }
-    }
-
-    pub fn halign(self, halign: Align) -> Self {
-        Self {
-            builder: self.builder.property("halign", halign),
-        }
-    }
-
-    pub fn has_default(self, has_default: bool) -> Self {
-        Self {
-            builder: self.builder.property("has-default", has_default),
-        }
-    }
-
-    pub fn has_focus(self, has_focus: bool) -> Self {
-        Self {
-            builder: self.builder.property("has-focus", has_focus),
-        }
-    }
-
-    pub fn has_tooltip(self, has_tooltip: bool) -> Self {
-        Self {
-            builder: self.builder.property("has-tooltip", has_tooltip),
-        }
-    }
-
-    pub fn height_request(self, height_request: i32) -> Self {
-        Self {
-            builder: self.builder.property("height-request", height_request),
-        }
-    }
-
-    pub fn hexpand(self, hexpand: bool) -> Self {
-        Self {
-            builder: self.builder.property("hexpand", hexpand),
-        }
-    }
-
-    pub fn hexpand_set(self, hexpand_set: bool) -> Self {
-        Self {
-            builder: self.builder.property("hexpand-set", hexpand_set),
-        }
-    }
-
-    pub fn is_focus(self, is_focus: bool) -> Self {
-        Self {
-            builder: self.builder.property("is-focus", is_focus),
-        }
-    }
-
-    pub fn margin(self, margin: i32) -> Self {
-        Self {
-            builder: self.builder.property("margin", margin),
-        }
-    }
-
-    pub fn margin_bottom(self, margin_bottom: i32) -> Self {
-        Self {
-            builder: self.builder.property("margin-bottom", margin_bottom),
-        }
-    }
-
-    pub fn margin_end(self, margin_end: i32) -> Self {
-        Self {
-            builder: self.builder.property("margin-end", margin_end),
-        }
-    }
-
-    pub fn margin_start(self, margin_start: i32) -> Self {
-        Self {
-            builder: self.builder.property("margin-start", margin_start),
-        }
-    }
-
-    pub fn margin_top(self, margin_top: i32) -> Self {
-        Self {
-            builder: self.builder.property("margin-top", margin_top),
-        }
-    }
-
-    pub fn name(self, name: impl Into<glib::GString>) -> Self {
-        Self {
-            builder: self.builder.property("name", name.into()),
-        }
-    }
-
-    pub fn no_show_all(self, no_show_all: bool) -> Self {
-        Self {
-            builder: self.builder.property("no-show-all", no_show_all),
-        }
-    }
-
-    pub fn opacity(self, opacity: f64) -> Self {
-        Self {
-            builder: self.builder.property("opacity", opacity),
-        }
-    }
-
-    pub fn parent(self, parent: &impl IsA<Container>) -> Self {
-        Self {
-            builder: self.builder.property("parent", parent.clone().upcast()),
-        }
-    }
-
-    pub fn receives_default(self, receives_default: bool) -> Self {
-        Self {
-            builder: self.builder.property("receives-default", receives_default),
-        }
-    }
-
-    pub fn sensitive(self, sensitive: bool) -> Self {
-        Self {
-            builder: self.builder.property("sensitive", sensitive),
-        }
-    }
-
-    pub fn tooltip_markup(self, tooltip_markup: impl Into<glib::GString>) -> Self {
-        Self {
-            builder: self
-                .builder
-                .property("tooltip-markup", tooltip_markup.into()),
-        }
-    }
-
-    pub fn tooltip_text(self, tooltip_text: impl Into<glib::GString>) -> Self {
-        Self {
-            builder: self.builder.property("tooltip-text", tooltip_text.into()),
-        }
-    }
-
-    pub fn valign(self, valign: Align) -> Self {
-        Self {
-            builder: self.builder.property("valign", valign),
-        }
-    }
-
-    pub fn vexpand(self, vexpand: bool) -> Self {
-        Self {
-            builder: self.builder.property("vexpand", vexpand),
-        }
-    }
-
-    pub fn vexpand_set(self, vexpand_set: bool) -> Self {
-        Self {
-            builder: self.builder.property("vexpand-set", vexpand_set),
-        }
-    }
-
-    pub fn visible(self, visible: bool) -> Self {
-        Self {
-            builder: self.builder.property("visible", visible),
-        }
-    }
-
-    pub fn width_request(self, width_request: i32) -> Self {
-        Self {
-            builder: self.builder.property("width-request", width_request),
-        }
-    }
-
-    pub fn editing_canceled(self, editing_canceled: bool) -> Self {
-        Self {
-            builder: self.builder.property("editing-canceled", editing_canceled),
-        }
+    // rustdoc-stripper-ignore-next
+    /// Create a new [`ComboBoxBuilder`].
+    pub fn new() -> Self {
+        Self::default()
     }
 
     // rustdoc-stripper-ignore-next
     /// Build the [`ComboBox`].
     #[must_use = "Building the object from the builder is usually expensive and is not expected to have side effects"]
     pub fn build(self) -> ComboBox {
-        self.builder.build()
+        let mut properties: Vec<(&str, &dyn ToValue)> = vec![];
+        if let Some(ref active) = self.active {
+            properties.push(("active", active));
+        }
+        if let Some(ref active_id) = self.active_id {
+            properties.push(("active-id", active_id));
+        }
+        if let Some(ref button_sensitivity) = self.button_sensitivity {
+            properties.push(("button-sensitivity", button_sensitivity));
+        }
+        if let Some(ref cell_area) = self.cell_area {
+            properties.push(("cell-area", cell_area));
+        }
+        if let Some(ref column_span_column) = self.column_span_column {
+            properties.push(("column-span-column", column_span_column));
+        }
+        if let Some(ref entry_text_column) = self.entry_text_column {
+            properties.push(("entry-text-column", entry_text_column));
+        }
+        if let Some(ref has_entry) = self.has_entry {
+            properties.push(("has-entry", has_entry));
+        }
+        if let Some(ref has_frame) = self.has_frame {
+            properties.push(("has-frame", has_frame));
+        }
+        if let Some(ref id_column) = self.id_column {
+            properties.push(("id-column", id_column));
+        }
+        if let Some(ref model) = self.model {
+            properties.push(("model", model));
+        }
+        if let Some(ref popup_fixed_width) = self.popup_fixed_width {
+            properties.push(("popup-fixed-width", popup_fixed_width));
+        }
+        if let Some(ref row_span_column) = self.row_span_column {
+            properties.push(("row-span-column", row_span_column));
+        }
+        if let Some(ref wrap_width) = self.wrap_width {
+            properties.push(("wrap-width", wrap_width));
+        }
+        if let Some(ref border_width) = self.border_width {
+            properties.push(("border-width", border_width));
+        }
+        if let Some(ref child) = self.child {
+            properties.push(("child", child));
+        }
+        if let Some(ref resize_mode) = self.resize_mode {
+            properties.push(("resize-mode", resize_mode));
+        }
+        if let Some(ref app_paintable) = self.app_paintable {
+            properties.push(("app-paintable", app_paintable));
+        }
+        if let Some(ref can_default) = self.can_default {
+            properties.push(("can-default", can_default));
+        }
+        if let Some(ref can_focus) = self.can_focus {
+            properties.push(("can-focus", can_focus));
+        }
+        if let Some(ref events) = self.events {
+            properties.push(("events", events));
+        }
+        if let Some(ref expand) = self.expand {
+            properties.push(("expand", expand));
+        }
+        #[cfg(any(feature = "v3_20", feature = "dox"))]
+        if let Some(ref focus_on_click) = self.focus_on_click {
+            properties.push(("focus-on-click", focus_on_click));
+        }
+        if let Some(ref halign) = self.halign {
+            properties.push(("halign", halign));
+        }
+        if let Some(ref has_default) = self.has_default {
+            properties.push(("has-default", has_default));
+        }
+        if let Some(ref has_focus) = self.has_focus {
+            properties.push(("has-focus", has_focus));
+        }
+        if let Some(ref has_tooltip) = self.has_tooltip {
+            properties.push(("has-tooltip", has_tooltip));
+        }
+        if let Some(ref height_request) = self.height_request {
+            properties.push(("height-request", height_request));
+        }
+        if let Some(ref hexpand) = self.hexpand {
+            properties.push(("hexpand", hexpand));
+        }
+        if let Some(ref hexpand_set) = self.hexpand_set {
+            properties.push(("hexpand-set", hexpand_set));
+        }
+        if let Some(ref is_focus) = self.is_focus {
+            properties.push(("is-focus", is_focus));
+        }
+        if let Some(ref margin) = self.margin {
+            properties.push(("margin", margin));
+        }
+        if let Some(ref margin_bottom) = self.margin_bottom {
+            properties.push(("margin-bottom", margin_bottom));
+        }
+        if let Some(ref margin_end) = self.margin_end {
+            properties.push(("margin-end", margin_end));
+        }
+        if let Some(ref margin_start) = self.margin_start {
+            properties.push(("margin-start", margin_start));
+        }
+        if let Some(ref margin_top) = self.margin_top {
+            properties.push(("margin-top", margin_top));
+        }
+        if let Some(ref name) = self.name {
+            properties.push(("name", name));
+        }
+        if let Some(ref no_show_all) = self.no_show_all {
+            properties.push(("no-show-all", no_show_all));
+        }
+        if let Some(ref opacity) = self.opacity {
+            properties.push(("opacity", opacity));
+        }
+        if let Some(ref parent) = self.parent {
+            properties.push(("parent", parent));
+        }
+        if let Some(ref receives_default) = self.receives_default {
+            properties.push(("receives-default", receives_default));
+        }
+        if let Some(ref sensitive) = self.sensitive {
+            properties.push(("sensitive", sensitive));
+        }
+        if let Some(ref tooltip_markup) = self.tooltip_markup {
+            properties.push(("tooltip-markup", tooltip_markup));
+        }
+        if let Some(ref tooltip_text) = self.tooltip_text {
+            properties.push(("tooltip-text", tooltip_text));
+        }
+        if let Some(ref valign) = self.valign {
+            properties.push(("valign", valign));
+        }
+        if let Some(ref vexpand) = self.vexpand {
+            properties.push(("vexpand", vexpand));
+        }
+        if let Some(ref vexpand_set) = self.vexpand_set {
+            properties.push(("vexpand-set", vexpand_set));
+        }
+        if let Some(ref visible) = self.visible {
+            properties.push(("visible", visible));
+        }
+        if let Some(ref width_request) = self.width_request {
+            properties.push(("width-request", width_request));
+        }
+        if let Some(ref editing_canceled) = self.editing_canceled {
+            properties.push(("editing-canceled", editing_canceled));
+        }
+        glib::Object::new::<ComboBox>(&properties)
+            .expect("Failed to create an instance of ComboBox")
+    }
+
+    pub fn active(mut self, active: i32) -> Self {
+        self.active = Some(active);
+        self
+    }
+
+    pub fn active_id(mut self, active_id: &str) -> Self {
+        self.active_id = Some(active_id.to_string());
+        self
+    }
+
+    pub fn button_sensitivity(mut self, button_sensitivity: SensitivityType) -> Self {
+        self.button_sensitivity = Some(button_sensitivity);
+        self
+    }
+
+    pub fn cell_area(mut self, cell_area: &impl IsA<CellArea>) -> Self {
+        self.cell_area = Some(cell_area.clone().upcast());
+        self
+    }
+
+    pub fn column_span_column(mut self, column_span_column: i32) -> Self {
+        self.column_span_column = Some(column_span_column);
+        self
+    }
+
+    pub fn entry_text_column(mut self, entry_text_column: i32) -> Self {
+        self.entry_text_column = Some(entry_text_column);
+        self
+    }
+
+    pub fn has_entry(mut self, has_entry: bool) -> Self {
+        self.has_entry = Some(has_entry);
+        self
+    }
+
+    pub fn has_frame(mut self, has_frame: bool) -> Self {
+        self.has_frame = Some(has_frame);
+        self
+    }
+
+    pub fn id_column(mut self, id_column: i32) -> Self {
+        self.id_column = Some(id_column);
+        self
+    }
+
+    pub fn model(mut self, model: &impl IsA<TreeModel>) -> Self {
+        self.model = Some(model.clone().upcast());
+        self
+    }
+
+    pub fn popup_fixed_width(mut self, popup_fixed_width: bool) -> Self {
+        self.popup_fixed_width = Some(popup_fixed_width);
+        self
+    }
+
+    pub fn row_span_column(mut self, row_span_column: i32) -> Self {
+        self.row_span_column = Some(row_span_column);
+        self
+    }
+
+    pub fn wrap_width(mut self, wrap_width: i32) -> Self {
+        self.wrap_width = Some(wrap_width);
+        self
+    }
+
+    pub fn border_width(mut self, border_width: u32) -> Self {
+        self.border_width = Some(border_width);
+        self
+    }
+
+    pub fn child(mut self, child: &impl IsA<Widget>) -> Self {
+        self.child = Some(child.clone().upcast());
+        self
+    }
+
+    pub fn resize_mode(mut self, resize_mode: ResizeMode) -> Self {
+        self.resize_mode = Some(resize_mode);
+        self
+    }
+
+    pub fn app_paintable(mut self, app_paintable: bool) -> Self {
+        self.app_paintable = Some(app_paintable);
+        self
+    }
+
+    pub fn can_default(mut self, can_default: bool) -> Self {
+        self.can_default = Some(can_default);
+        self
+    }
+
+    pub fn can_focus(mut self, can_focus: bool) -> Self {
+        self.can_focus = Some(can_focus);
+        self
+    }
+
+    pub fn events(mut self, events: gdk::EventMask) -> Self {
+        self.events = Some(events);
+        self
+    }
+
+    pub fn expand(mut self, expand: bool) -> Self {
+        self.expand = Some(expand);
+        self
+    }
+
+    #[cfg(any(feature = "v3_20", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
+    pub fn focus_on_click(mut self, focus_on_click: bool) -> Self {
+        self.focus_on_click = Some(focus_on_click);
+        self
+    }
+
+    pub fn halign(mut self, halign: Align) -> Self {
+        self.halign = Some(halign);
+        self
+    }
+
+    pub fn has_default(mut self, has_default: bool) -> Self {
+        self.has_default = Some(has_default);
+        self
+    }
+
+    pub fn has_focus(mut self, has_focus: bool) -> Self {
+        self.has_focus = Some(has_focus);
+        self
+    }
+
+    pub fn has_tooltip(mut self, has_tooltip: bool) -> Self {
+        self.has_tooltip = Some(has_tooltip);
+        self
+    }
+
+    pub fn height_request(mut self, height_request: i32) -> Self {
+        self.height_request = Some(height_request);
+        self
+    }
+
+    pub fn hexpand(mut self, hexpand: bool) -> Self {
+        self.hexpand = Some(hexpand);
+        self
+    }
+
+    pub fn hexpand_set(mut self, hexpand_set: bool) -> Self {
+        self.hexpand_set = Some(hexpand_set);
+        self
+    }
+
+    pub fn is_focus(mut self, is_focus: bool) -> Self {
+        self.is_focus = Some(is_focus);
+        self
+    }
+
+    pub fn margin(mut self, margin: i32) -> Self {
+        self.margin = Some(margin);
+        self
+    }
+
+    pub fn margin_bottom(mut self, margin_bottom: i32) -> Self {
+        self.margin_bottom = Some(margin_bottom);
+        self
+    }
+
+    pub fn margin_end(mut self, margin_end: i32) -> Self {
+        self.margin_end = Some(margin_end);
+        self
+    }
+
+    pub fn margin_start(mut self, margin_start: i32) -> Self {
+        self.margin_start = Some(margin_start);
+        self
+    }
+
+    pub fn margin_top(mut self, margin_top: i32) -> Self {
+        self.margin_top = Some(margin_top);
+        self
+    }
+
+    pub fn name(mut self, name: &str) -> Self {
+        self.name = Some(name.to_string());
+        self
+    }
+
+    pub fn no_show_all(mut self, no_show_all: bool) -> Self {
+        self.no_show_all = Some(no_show_all);
+        self
+    }
+
+    pub fn opacity(mut self, opacity: f64) -> Self {
+        self.opacity = Some(opacity);
+        self
+    }
+
+    pub fn parent(mut self, parent: &impl IsA<Container>) -> Self {
+        self.parent = Some(parent.clone().upcast());
+        self
+    }
+
+    pub fn receives_default(mut self, receives_default: bool) -> Self {
+        self.receives_default = Some(receives_default);
+        self
+    }
+
+    pub fn sensitive(mut self, sensitive: bool) -> Self {
+        self.sensitive = Some(sensitive);
+        self
+    }
+
+    pub fn tooltip_markup(mut self, tooltip_markup: &str) -> Self {
+        self.tooltip_markup = Some(tooltip_markup.to_string());
+        self
+    }
+
+    pub fn tooltip_text(mut self, tooltip_text: &str) -> Self {
+        self.tooltip_text = Some(tooltip_text.to_string());
+        self
+    }
+
+    pub fn valign(mut self, valign: Align) -> Self {
+        self.valign = Some(valign);
+        self
+    }
+
+    pub fn vexpand(mut self, vexpand: bool) -> Self {
+        self.vexpand = Some(vexpand);
+        self
+    }
+
+    pub fn vexpand_set(mut self, vexpand_set: bool) -> Self {
+        self.vexpand_set = Some(vexpand_set);
+        self
+    }
+
+    pub fn visible(mut self, visible: bool) -> Self {
+        self.visible = Some(visible);
+        self
+    }
+
+    pub fn width_request(mut self, width_request: i32) -> Self {
+        self.width_request = Some(width_request);
+        self
+    }
+
+    pub fn editing_canceled(mut self, editing_canceled: bool) -> Self {
+        self.editing_canceled = Some(editing_canceled);
+        self
     }
 }
 
-mod sealed {
-    pub trait Sealed {}
-    impl<T: super::IsA<super::ComboBox>> Sealed for T {}
-}
-
-pub trait ComboBoxExt: IsA<ComboBox> + sealed::Sealed + 'static {
+pub trait ComboBoxExt: 'static {
     #[doc(alias = "gtk_combo_box_get_active_id")]
     #[doc(alias = "get_active_id")]
+    fn active_id(&self) -> Option<glib::GString>;
+
+    #[doc(alias = "gtk_combo_box_get_active_iter")]
+    #[doc(alias = "get_active_iter")]
+    fn active_iter(&self) -> Option<TreeIter>;
+
+    #[doc(alias = "gtk_combo_box_get_button_sensitivity")]
+    #[doc(alias = "get_button_sensitivity")]
+    fn button_sensitivity(&self) -> SensitivityType;
+
+    #[doc(alias = "gtk_combo_box_get_column_span_column")]
+    #[doc(alias = "get_column_span_column")]
+    fn column_span_column(&self) -> i32;
+
+    #[doc(alias = "gtk_combo_box_get_entry_text_column")]
+    #[doc(alias = "get_entry_text_column")]
+    fn entry_text_column(&self) -> i32;
+
+    #[cfg_attr(feature = "v3_20", deprecated = "Since 3.20")]
+    #[cfg(any(not(feature = "v3_20"), feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(not(feature = "v3_20"))))]
+    #[doc(alias = "gtk_combo_box_get_focus_on_click")]
+    #[doc(alias = "get_focus_on_click")]
+    fn gets_focus_on_click(&self) -> bool;
+
+    #[doc(alias = "gtk_combo_box_get_has_entry")]
+    #[doc(alias = "get_has_entry")]
+    fn has_entry(&self) -> bool;
+
+    #[doc(alias = "gtk_combo_box_get_id_column")]
+    #[doc(alias = "get_id_column")]
+    fn id_column(&self) -> i32;
+
+    #[doc(alias = "gtk_combo_box_get_model")]
+    #[doc(alias = "get_model")]
+    fn model(&self) -> Option<TreeModel>;
+
+    #[doc(alias = "gtk_combo_box_get_popup_accessible")]
+    #[doc(alias = "get_popup_accessible")]
+    fn popup_accessible(&self) -> Option<atk::Object>;
+
+    #[doc(alias = "gtk_combo_box_get_popup_fixed_width")]
+    #[doc(alias = "get_popup_fixed_width")]
+    fn is_popup_fixed_width(&self) -> bool;
+
+    //#[doc(alias = "gtk_combo_box_get_row_separator_func")]
+    //#[doc(alias = "get_row_separator_func")]
+    //fn row_separator_func(&self) -> Option<Box_<dyn Fn(&TreeModel, &TreeIter) -> bool + 'static>>;
+
+    #[doc(alias = "gtk_combo_box_get_row_span_column")]
+    #[doc(alias = "get_row_span_column")]
+    fn row_span_column(&self) -> i32;
+
+    #[doc(alias = "gtk_combo_box_get_wrap_width")]
+    #[doc(alias = "get_wrap_width")]
+    fn wrap_width(&self) -> i32;
+
+    #[doc(alias = "gtk_combo_box_popdown")]
+    fn popdown(&self);
+
+    #[doc(alias = "gtk_combo_box_popup")]
+    fn popup(&self);
+
+    #[doc(alias = "gtk_combo_box_popup_for_device")]
+    fn popup_for_device(&self, device: &gdk::Device);
+
+    #[doc(alias = "gtk_combo_box_set_active_id")]
+    fn set_active_id(&self, active_id: Option<&str>) -> bool;
+
+    #[doc(alias = "gtk_combo_box_set_active_iter")]
+    fn set_active_iter(&self, iter: Option<&TreeIter>);
+
+    #[doc(alias = "gtk_combo_box_set_button_sensitivity")]
+    fn set_button_sensitivity(&self, sensitivity: SensitivityType);
+
+    #[doc(alias = "gtk_combo_box_set_column_span_column")]
+    fn set_column_span_column(&self, column_span: i32);
+
+    #[doc(alias = "gtk_combo_box_set_entry_text_column")]
+    fn set_entry_text_column(&self, text_column: i32);
+
+    #[cfg_attr(feature = "v3_20", deprecated = "Since 3.20")]
+    #[cfg(any(not(feature = "v3_20"), feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(not(feature = "v3_20"))))]
+    #[doc(alias = "gtk_combo_box_set_focus_on_click")]
+    fn set_focus_on_click(&self, focus_on_click: bool);
+
+    #[doc(alias = "gtk_combo_box_set_id_column")]
+    fn set_id_column(&self, id_column: i32);
+
+    #[doc(alias = "gtk_combo_box_set_model")]
+    fn set_model(&self, model: Option<&impl IsA<TreeModel>>);
+
+    #[doc(alias = "gtk_combo_box_set_popup_fixed_width")]
+    fn set_popup_fixed_width(&self, fixed: bool);
+
+    #[doc(alias = "gtk_combo_box_set_row_separator_func")]
+    fn set_row_separator_func<P: Fn(&TreeModel, &TreeIter) -> bool + 'static>(&self, func: P);
+
+    #[doc(alias = "gtk_combo_box_set_row_span_column")]
+    fn set_row_span_column(&self, row_span: i32);
+
+    #[doc(alias = "gtk_combo_box_set_wrap_width")]
+    fn set_wrap_width(&self, width: i32);
+
+    #[doc(alias = "cell-area")]
+    fn cell_area(&self) -> Option<CellArea>;
+
+    #[doc(alias = "has-frame")]
+    fn has_frame(&self) -> bool;
+
+    #[doc(alias = "has-frame")]
+    fn set_has_frame(&self, has_frame: bool);
+
+    #[doc(alias = "popup-shown")]
+    fn is_popup_shown(&self) -> bool;
+
+    #[doc(alias = "changed")]
+    fn connect_changed<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "format-entry-text")]
+    fn connect_format_entry_text<F: Fn(&Self, &str) -> String + 'static>(
+        &self,
+        f: F,
+    ) -> SignalHandlerId;
+
+    #[doc(alias = "move-active")]
+    fn connect_move_active<F: Fn(&Self, ScrollType) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    fn emit_move_active(&self, scroll_type: ScrollType);
+
+    #[doc(alias = "popdown")]
+    fn connect_popdown<F: Fn(&Self) -> bool + 'static>(&self, f: F) -> SignalHandlerId;
+
+    fn emit_popdown(&self) -> bool;
+
+    #[doc(alias = "popup")]
+    fn connect_popup<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    fn emit_popup(&self);
+
+    #[doc(alias = "active")]
+    fn connect_active_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "active-id")]
+    fn connect_active_id_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "button-sensitivity")]
+    fn connect_button_sensitivity_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "column-span-column")]
+    fn connect_column_span_column_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "entry-text-column")]
+    fn connect_entry_text_column_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "has-frame")]
+    fn connect_has_frame_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "id-column")]
+    fn connect_id_column_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "model")]
+    fn connect_model_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "popup-fixed-width")]
+    fn connect_popup_fixed_width_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "popup-shown")]
+    fn connect_popup_shown_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "row-span-column")]
+    fn connect_row_span_column_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "wrap-width")]
+    fn connect_wrap_width_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+}
+
+impl<O: IsA<ComboBox>> ComboBoxExt for O {
     fn active_id(&self) -> Option<glib::GString> {
         unsafe {
             from_glib_none(ffi::gtk_combo_box_get_active_id(
@@ -447,8 +777,6 @@ pub trait ComboBoxExt: IsA<ComboBox> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_combo_box_get_active_iter")]
-    #[doc(alias = "get_active_iter")]
     fn active_iter(&self) -> Option<TreeIter> {
         unsafe {
             let mut iter = TreeIter::uninitialized();
@@ -464,8 +792,6 @@ pub trait ComboBoxExt: IsA<ComboBox> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_combo_box_get_button_sensitivity")]
-    #[doc(alias = "get_button_sensitivity")]
     fn button_sensitivity(&self) -> SensitivityType {
         unsafe {
             from_glib(ffi::gtk_combo_box_get_button_sensitivity(
@@ -474,20 +800,24 @@ pub trait ComboBoxExt: IsA<ComboBox> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_combo_box_get_column_span_column")]
-    #[doc(alias = "get_column_span_column")]
     fn column_span_column(&self) -> i32 {
         unsafe { ffi::gtk_combo_box_get_column_span_column(self.as_ref().to_glib_none().0) }
     }
 
-    #[doc(alias = "gtk_combo_box_get_entry_text_column")]
-    #[doc(alias = "get_entry_text_column")]
     fn entry_text_column(&self) -> i32 {
         unsafe { ffi::gtk_combo_box_get_entry_text_column(self.as_ref().to_glib_none().0) }
     }
 
-    #[doc(alias = "gtk_combo_box_get_has_entry")]
-    #[doc(alias = "get_has_entry")]
+    #[cfg(any(not(feature = "v3_20"), feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(not(feature = "v3_20"))))]
+    fn gets_focus_on_click(&self) -> bool {
+        unsafe {
+            from_glib(ffi::gtk_combo_box_get_focus_on_click(
+                self.as_ref().to_glib_none().0,
+            ))
+        }
+    }
+
     fn has_entry(&self) -> bool {
         unsafe {
             from_glib(ffi::gtk_combo_box_get_has_entry(
@@ -496,20 +826,14 @@ pub trait ComboBoxExt: IsA<ComboBox> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_combo_box_get_id_column")]
-    #[doc(alias = "get_id_column")]
     fn id_column(&self) -> i32 {
         unsafe { ffi::gtk_combo_box_get_id_column(self.as_ref().to_glib_none().0) }
     }
 
-    #[doc(alias = "gtk_combo_box_get_model")]
-    #[doc(alias = "get_model")]
     fn model(&self) -> Option<TreeModel> {
         unsafe { from_glib_none(ffi::gtk_combo_box_get_model(self.as_ref().to_glib_none().0)) }
     }
 
-    #[doc(alias = "gtk_combo_box_get_popup_accessible")]
-    #[doc(alias = "get_popup_accessible")]
     fn popup_accessible(&self) -> Option<atk::Object> {
         unsafe {
             from_glib_none(ffi::gtk_combo_box_get_popup_accessible(
@@ -518,8 +842,6 @@ pub trait ComboBoxExt: IsA<ComboBox> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_combo_box_get_popup_fixed_width")]
-    #[doc(alias = "get_popup_fixed_width")]
     fn is_popup_fixed_width(&self) -> bool {
         unsafe {
             from_glib(ffi::gtk_combo_box_get_popup_fixed_width(
@@ -528,39 +850,30 @@ pub trait ComboBoxExt: IsA<ComboBox> + sealed::Sealed + 'static {
         }
     }
 
-    //#[doc(alias = "gtk_combo_box_get_row_separator_func")]
-    //#[doc(alias = "get_row_separator_func")]
     //fn row_separator_func(&self) -> Option<Box_<dyn Fn(&TreeModel, &TreeIter) -> bool + 'static>> {
     //    unsafe { TODO: call ffi:gtk_combo_box_get_row_separator_func() }
     //}
 
-    #[doc(alias = "gtk_combo_box_get_row_span_column")]
-    #[doc(alias = "get_row_span_column")]
     fn row_span_column(&self) -> i32 {
         unsafe { ffi::gtk_combo_box_get_row_span_column(self.as_ref().to_glib_none().0) }
     }
 
-    #[doc(alias = "gtk_combo_box_get_wrap_width")]
-    #[doc(alias = "get_wrap_width")]
     fn wrap_width(&self) -> i32 {
         unsafe { ffi::gtk_combo_box_get_wrap_width(self.as_ref().to_glib_none().0) }
     }
 
-    #[doc(alias = "gtk_combo_box_popdown")]
     fn popdown(&self) {
         unsafe {
             ffi::gtk_combo_box_popdown(self.as_ref().to_glib_none().0);
         }
     }
 
-    #[doc(alias = "gtk_combo_box_popup")]
     fn popup(&self) {
         unsafe {
             ffi::gtk_combo_box_popup(self.as_ref().to_glib_none().0);
         }
     }
 
-    #[doc(alias = "gtk_combo_box_popup_for_device")]
     fn popup_for_device(&self, device: &gdk::Device) {
         unsafe {
             ffi::gtk_combo_box_popup_for_device(
@@ -570,7 +883,6 @@ pub trait ComboBoxExt: IsA<ComboBox> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_combo_box_set_active_id")]
     fn set_active_id(&self, active_id: Option<&str>) -> bool {
         unsafe {
             from_glib(ffi::gtk_combo_box_set_active_id(
@@ -580,7 +892,6 @@ pub trait ComboBoxExt: IsA<ComboBox> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_combo_box_set_active_iter")]
     fn set_active_iter(&self, iter: Option<&TreeIter>) {
         unsafe {
             ffi::gtk_combo_box_set_active_iter(
@@ -590,7 +901,6 @@ pub trait ComboBoxExt: IsA<ComboBox> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_combo_box_set_button_sensitivity")]
     fn set_button_sensitivity(&self, sensitivity: SensitivityType) {
         unsafe {
             ffi::gtk_combo_box_set_button_sensitivity(
@@ -600,28 +910,35 @@ pub trait ComboBoxExt: IsA<ComboBox> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_combo_box_set_column_span_column")]
     fn set_column_span_column(&self, column_span: i32) {
         unsafe {
             ffi::gtk_combo_box_set_column_span_column(self.as_ref().to_glib_none().0, column_span);
         }
     }
 
-    #[doc(alias = "gtk_combo_box_set_entry_text_column")]
     fn set_entry_text_column(&self, text_column: i32) {
         unsafe {
             ffi::gtk_combo_box_set_entry_text_column(self.as_ref().to_glib_none().0, text_column);
         }
     }
 
-    #[doc(alias = "gtk_combo_box_set_id_column")]
+    #[cfg(any(not(feature = "v3_20"), feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(not(feature = "v3_20"))))]
+    fn set_focus_on_click(&self, focus_on_click: bool) {
+        unsafe {
+            ffi::gtk_combo_box_set_focus_on_click(
+                self.as_ref().to_glib_none().0,
+                focus_on_click.into_glib(),
+            );
+        }
+    }
+
     fn set_id_column(&self, id_column: i32) {
         unsafe {
             ffi::gtk_combo_box_set_id_column(self.as_ref().to_glib_none().0, id_column);
         }
     }
 
-    #[doc(alias = "gtk_combo_box_set_model")]
     fn set_model(&self, model: Option<&impl IsA<TreeModel>>) {
         unsafe {
             ffi::gtk_combo_box_set_model(
@@ -631,7 +948,6 @@ pub trait ComboBoxExt: IsA<ComboBox> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_combo_box_set_popup_fixed_width")]
     fn set_popup_fixed_width(&self, fixed: bool) {
         unsafe {
             ffi::gtk_combo_box_set_popup_fixed_width(
@@ -641,7 +957,6 @@ pub trait ComboBoxExt: IsA<ComboBox> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_combo_box_set_row_separator_func")]
     fn set_row_separator_func<P: Fn(&TreeModel, &TreeIter) -> bool + 'static>(&self, func: P) {
         let func_data: Box_<P> = Box_::new(func);
         unsafe extern "C" fn func_func<P: Fn(&TreeModel, &TreeIter) -> bool + 'static>(
@@ -652,7 +967,8 @@ pub trait ComboBoxExt: IsA<ComboBox> + sealed::Sealed + 'static {
             let model = from_glib_borrow(model);
             let iter = from_glib_borrow(iter);
             let callback: &P = &*(data as *mut _);
-            (*callback)(&model, &iter).into_glib()
+            let res = (*callback)(&model, &iter);
+            res.into_glib()
         }
         let func = Some(func_func::<P> as _);
         unsafe extern "C" fn destroy_func<P: Fn(&TreeModel, &TreeIter) -> bool + 'static>(
@@ -672,41 +988,34 @@ pub trait ComboBoxExt: IsA<ComboBox> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_combo_box_set_row_span_column")]
     fn set_row_span_column(&self, row_span: i32) {
         unsafe {
             ffi::gtk_combo_box_set_row_span_column(self.as_ref().to_glib_none().0, row_span);
         }
     }
 
-    #[doc(alias = "gtk_combo_box_set_wrap_width")]
     fn set_wrap_width(&self, width: i32) {
         unsafe {
             ffi::gtk_combo_box_set_wrap_width(self.as_ref().to_glib_none().0, width);
         }
     }
 
-    #[doc(alias = "cell-area")]
     fn cell_area(&self) -> Option<CellArea> {
-        ObjectExt::property(self.as_ref(), "cell-area")
+        glib::ObjectExt::property(self.as_ref(), "cell-area")
     }
 
-    #[doc(alias = "has-frame")]
     fn has_frame(&self) -> bool {
-        ObjectExt::property(self.as_ref(), "has-frame")
+        glib::ObjectExt::property(self.as_ref(), "has-frame")
     }
 
-    #[doc(alias = "has-frame")]
     fn set_has_frame(&self, has_frame: bool) {
-        ObjectExt::set_property(self.as_ref(), "has-frame", has_frame)
+        glib::ObjectExt::set_property(self.as_ref(), "has-frame", &has_frame)
     }
 
-    #[doc(alias = "popup-shown")]
     fn is_popup_shown(&self) -> bool {
-        ObjectExt::property(self.as_ref(), "popup-shown")
+        glib::ObjectExt::property(self.as_ref(), "popup-shown")
     }
 
-    #[doc(alias = "changed")]
     fn connect_changed<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn changed_trampoline<P: IsA<ComboBox>, F: Fn(&P) + 'static>(
             this: *mut ffi::GtkComboBox,
@@ -728,7 +1037,6 @@ pub trait ComboBoxExt: IsA<ComboBox> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "format-entry-text")]
     fn connect_format_entry_text<F: Fn(&Self, &str) -> String + 'static>(
         &self,
         f: F,
@@ -761,7 +1069,6 @@ pub trait ComboBoxExt: IsA<ComboBox> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "move-active")]
     fn connect_move_active<F: Fn(&Self, ScrollType) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn move_active_trampoline<
             P: IsA<ComboBox>,
@@ -794,7 +1101,6 @@ pub trait ComboBoxExt: IsA<ComboBox> + sealed::Sealed + 'static {
         self.emit_by_name::<()>("move-active", &[&scroll_type]);
     }
 
-    #[doc(alias = "popdown")]
     fn connect_popdown<F: Fn(&Self) -> bool + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn popdown_trampoline<P: IsA<ComboBox>, F: Fn(&P) -> bool + 'static>(
             this: *mut ffi::GtkComboBox,
@@ -820,7 +1126,6 @@ pub trait ComboBoxExt: IsA<ComboBox> + sealed::Sealed + 'static {
         self.emit_by_name("popdown", &[])
     }
 
-    #[doc(alias = "popup")]
     fn connect_popup<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn popup_trampoline<P: IsA<ComboBox>, F: Fn(&P) + 'static>(
             this: *mut ffi::GtkComboBox,
@@ -846,7 +1151,6 @@ pub trait ComboBoxExt: IsA<ComboBox> + sealed::Sealed + 'static {
         self.emit_by_name::<()>("popup", &[]);
     }
 
-    #[doc(alias = "active")]
     fn connect_active_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_active_trampoline<P: IsA<ComboBox>, F: Fn(&P) + 'static>(
             this: *mut ffi::GtkComboBox,
@@ -869,7 +1173,6 @@ pub trait ComboBoxExt: IsA<ComboBox> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "active-id")]
     fn connect_active_id_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_active_id_trampoline<P: IsA<ComboBox>, F: Fn(&P) + 'static>(
             this: *mut ffi::GtkComboBox,
@@ -892,7 +1195,6 @@ pub trait ComboBoxExt: IsA<ComboBox> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "button-sensitivity")]
     fn connect_button_sensitivity_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_button_sensitivity_trampoline<
             P: IsA<ComboBox>,
@@ -918,7 +1220,6 @@ pub trait ComboBoxExt: IsA<ComboBox> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "column-span-column")]
     fn connect_column_span_column_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_column_span_column_trampoline<
             P: IsA<ComboBox>,
@@ -944,7 +1245,6 @@ pub trait ComboBoxExt: IsA<ComboBox> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "entry-text-column")]
     fn connect_entry_text_column_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_entry_text_column_trampoline<
             P: IsA<ComboBox>,
@@ -970,7 +1270,6 @@ pub trait ComboBoxExt: IsA<ComboBox> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "has-frame")]
     fn connect_has_frame_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_has_frame_trampoline<P: IsA<ComboBox>, F: Fn(&P) + 'static>(
             this: *mut ffi::GtkComboBox,
@@ -993,7 +1292,6 @@ pub trait ComboBoxExt: IsA<ComboBox> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "id-column")]
     fn connect_id_column_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_id_column_trampoline<P: IsA<ComboBox>, F: Fn(&P) + 'static>(
             this: *mut ffi::GtkComboBox,
@@ -1016,7 +1314,6 @@ pub trait ComboBoxExt: IsA<ComboBox> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "model")]
     fn connect_model_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_model_trampoline<P: IsA<ComboBox>, F: Fn(&P) + 'static>(
             this: *mut ffi::GtkComboBox,
@@ -1039,7 +1336,6 @@ pub trait ComboBoxExt: IsA<ComboBox> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "popup-fixed-width")]
     fn connect_popup_fixed_width_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_popup_fixed_width_trampoline<
             P: IsA<ComboBox>,
@@ -1065,7 +1361,6 @@ pub trait ComboBoxExt: IsA<ComboBox> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "popup-shown")]
     fn connect_popup_shown_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_popup_shown_trampoline<
             P: IsA<ComboBox>,
@@ -1091,7 +1386,6 @@ pub trait ComboBoxExt: IsA<ComboBox> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "row-span-column")]
     fn connect_row_span_column_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_row_span_column_trampoline<
             P: IsA<ComboBox>,
@@ -1117,7 +1411,6 @@ pub trait ComboBoxExt: IsA<ComboBox> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "wrap-width")]
     fn connect_wrap_width_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_wrap_width_trampoline<P: IsA<ComboBox>, F: Fn(&P) + 'static>(
             this: *mut ffi::GtkComboBox,
@@ -1140,8 +1433,6 @@ pub trait ComboBoxExt: IsA<ComboBox> + sealed::Sealed + 'static {
         }
     }
 }
-
-impl<O: IsA<ComboBox>> ComboBoxExt for O {}
 
 impl fmt::Display for ComboBox {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {

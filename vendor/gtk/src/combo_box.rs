@@ -4,13 +4,16 @@ use crate::ComboBox;
 use glib::object::IsA;
 use glib::translate::*;
 
-mod sealed {
-    pub trait Sealed {}
-    impl<T: glib::IsA<crate::ComboBox>> Sealed for T {}
+pub trait ComboBoxExtManual: 'static {
+    #[doc(alias = "gtk_combo_box_set_active")]
+    fn set_active(&self, index_: Option<u32>);
+
+    #[doc(alias = "gtk_combo_box_get_active")]
+    #[doc(alias = "get_active")]
+    fn active(&self) -> Option<u32>;
 }
 
-pub trait ComboBoxExtManual: IsA<ComboBox> + sealed::Sealed + 'static {
-    #[doc(alias = "gtk_combo_box_set_active")]
+impl<O: IsA<ComboBox>> ComboBoxExtManual for O {
     fn set_active(&self, index_: Option<u32>) {
         let index_ = match index_ {
             Some(i) => i as _,
@@ -21,8 +24,6 @@ pub trait ComboBoxExtManual: IsA<ComboBox> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_combo_box_get_active")]
-    #[doc(alias = "get_active")]
     fn active(&self) -> Option<u32> {
         match unsafe { ffi::gtk_combo_box_get_active(self.as_ref().to_glib_none().0) } {
             -1 => None,
@@ -30,5 +31,3 @@ pub trait ComboBoxExtManual: IsA<ComboBox> + sealed::Sealed + 'static {
         }
     }
 }
-
-impl<O: IsA<ComboBox>> ComboBoxExtManual for O {}

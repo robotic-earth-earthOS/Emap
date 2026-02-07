@@ -12,48 +12,53 @@ use crate::Window;
 pub trait GtkApplicationImpl:
     GtkApplicationImplExt + gio::subclass::prelude::ApplicationImpl
 {
-    fn window_added(&self, window: &Window) {
-        self.parent_window_added(window)
+    fn window_added(&self, application: &Self::Type, window: &Window) {
+        self.parent_window_added(application, window)
     }
 
-    fn window_removed(&self, window: &Window) {
-        self.parent_window_removed(window)
+    fn window_removed(&self, application: &Self::Type, window: &Window) {
+        self.parent_window_removed(application, window)
     }
 }
 
-mod sealed {
-    pub trait Sealed {}
-    impl<T: super::GtkApplicationImpl> Sealed for T {}
+pub trait GtkApplicationImplExt: ObjectSubclass {
+    fn parent_window_added(&self, application: &Self::Type, window: &Window);
+    fn parent_window_removed(&self, application: &Self::Type, window: &Window);
 }
 
-pub trait GtkApplicationImplExt: ObjectSubclass + sealed::Sealed {
-    fn parent_window_added(&self, window: &Window) {
+impl<T: GtkApplicationImpl> GtkApplicationImplExt for T {
+    fn parent_window_added(&self, application: &Self::Type, window: &Window) {
         unsafe {
-            let data = Self::type_data();
+            let data = T::type_data();
             let parent_class = data.as_ref().parent_class() as *mut ffi::GtkApplicationClass;
             if let Some(f) = (*parent_class).window_added {
                 f(
-                    self.obj().unsafe_cast_ref::<Application>().to_glib_none().0,
+                    application
+                        .unsafe_cast_ref::<Application>()
+                        .to_glib_none()
+                        .0,
                     window.to_glib_none().0,
                 )
             }
         }
     }
-    fn parent_window_removed(&self, window: &Window) {
+
+    fn parent_window_removed(&self, application: &Self::Type, window: &Window) {
         unsafe {
-            let data = Self::type_data();
+            let data = T::type_data();
             let parent_class = data.as_ref().parent_class() as *mut ffi::GtkApplicationClass;
             if let Some(f) = (*parent_class).window_removed {
                 f(
-                    self.obj().unsafe_cast_ref::<Application>().to_glib_none().0,
+                    application
+                        .unsafe_cast_ref::<Application>()
+                        .to_glib_none()
+                        .0,
                     window.to_glib_none().0,
                 )
             }
         }
     }
 }
-
-impl<T: GtkApplicationImpl> GtkApplicationImplExt for T {}
 
 unsafe impl<T: GtkApplicationImpl> IsSubclassable<T> for Application {
     fn class_init(class: &mut ::glib::Class<Self>) {
@@ -108,8 +113,9 @@ unsafe extern "C" fn application_window_added<T: GtkApplicationImpl>(
 ) {
     let instance = &*(ptr as *mut T::Instance);
     let imp = instance.imp();
+    let wrap: Borrowed<Application> = from_glib_borrow(ptr);
 
-    imp.window_added(&from_glib_borrow(wptr))
+    imp.window_added(wrap.unsafe_cast_ref(), &from_glib_borrow(wptr))
 }
 unsafe extern "C" fn application_window_removed<T: GtkApplicationImpl>(
     ptr: *mut ffi::GtkApplication,
@@ -117,6 +123,7 @@ unsafe extern "C" fn application_window_removed<T: GtkApplicationImpl>(
 ) {
     let instance = &*(ptr as *mut T::Instance);
     let imp = instance.imp();
+    let wrap: Borrowed<Application> = from_glib_borrow(ptr);
 
-    imp.window_removed(&from_glib_borrow(wptr))
+    imp.window_removed(wrap.unsafe_cast_ref(), &from_glib_borrow(wptr))
 }

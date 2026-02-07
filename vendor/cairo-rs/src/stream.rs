@@ -1,18 +1,16 @@
 // Take a look at the license at the top of the repository in the LICENSE file.
 
-use std::{
-    any::Any,
-    cell::{Cell, RefCell},
-    io,
-    panic::AssertUnwindSafe,
-    ptr,
-    rc::Rc,
-};
-
+use crate::error::Error;
+use crate::{Surface, UserDataKey};
 use ffi::cairo_status_t;
-use libc::{c_double, c_uchar, c_uint, c_void};
 
-use crate::{Error, Surface, UserDataKey};
+use libc::{c_double, c_uchar, c_uint, c_void};
+use std::any::Any;
+use std::cell::{Cell, RefCell};
+use std::io;
+use std::panic::AssertUnwindSafe;
+use std::ptr;
+use std::rc::Rc;
 
 macro_rules! for_stream_constructors {
     ($constructor_ffi: ident) => {
@@ -103,7 +101,7 @@ impl Surface {
     ///
     /// This calls [`Surface::finish`], to make sure pending writes are done.
     ///
-    /// This is relevant for surfaces created for example with [`crate::PdfSurface::for_stream`].
+    /// This is relevant for surfaces created for example with [`PdfSurface::for_stream`].
     ///
     /// Use [`Box::downcast`] to recover the concrete stream type.
     ///
@@ -224,7 +222,7 @@ extern "C" fn write_callback<W: io::Write + 'static>(
         {
             // Safety: `write_callback<W>` was instantiated in `Surface::_for_stream`
             // with a W parameter consistent with the box that was unsized to `Box<dyn Any>`.
-            let stream = unsafe { AnyExt::downcast_mut_unchecked::<W>(&mut **stream) };
+            let stream = unsafe { stream.downcast_mut_unchecked::<W>() };
             // Safety: this is the callback contract from cairo’s API
             let data = unsafe {
                 if data.is_null() || length == 0 {

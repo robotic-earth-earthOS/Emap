@@ -26,13 +26,26 @@ impl ListStore {
     }
 }
 
-mod sealed {
-    pub trait Sealed {}
-    impl<T: glib::IsA<crate::ListStore>> Sealed for T {}
+pub trait GtkListStoreExtManual: 'static {
+    #[doc(alias = "gtk_list_store_insert_with_valuesv")]
+    fn insert_with_values(
+        &self,
+        position: Option<u32>,
+        columns_and_values: &[(u32, &dyn ToValue)],
+    ) -> TreeIter;
+
+    #[doc(alias = "gtk_list_store_reorder")]
+    fn reorder(&self, new_order: &[u32]);
+
+    #[doc(alias = "gtk_list_store_set")]
+    #[doc(alias = "gtk_list_store_set_valuesv")]
+    fn set(&self, iter: &TreeIter, columns_and_values: &[(u32, &dyn ToValue)]);
+
+    #[doc(alias = "gtk_list_store_set_value")]
+    fn set_value(&self, iter: &TreeIter, column: u32, value: &Value);
 }
 
-pub trait GtkListStoreExtManual: IsA<ListStore> + sealed::Sealed + 'static {
-    #[doc(alias = "gtk_list_store_insert_with_valuesv")]
+impl<O: IsA<ListStore>> GtkListStoreExtManual for O {
     fn insert_with_values(
         &self,
         position: Option<u32>,
@@ -56,8 +69,9 @@ pub trait GtkListStoreExtManual: IsA<ListStore> + sealed::Sealed + 'static {
             for (column, value) in columns_and_values {
                 assert!(
                     *column < n_columns,
-                    "got column {} which is higher than the number of columns {n_columns}",
+                    "got column {} which is higher than the number of columns {}",
                     *column,
+                    n_columns
                 );
                 let type_ = from_glib(ffi::gtk_tree_model_get_column_type(
                     self.as_ref().upcast_ref::<TreeModel>().to_glib_none().0,
@@ -65,8 +79,9 @@ pub trait GtkListStoreExtManual: IsA<ListStore> + sealed::Sealed + 'static {
                 ));
                 assert!(
                     Value::type_transformable(value.value_type(), type_),
-                    "column {} is of type {type_} but found value of type {}",
+                    "column {} is of type {} but found value of type {}",
                     *column,
+                    type_,
                     value.value_type()
                 );
             }
@@ -93,7 +108,6 @@ pub trait GtkListStoreExtManual: IsA<ListStore> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_list_store_reorder")]
     fn reorder(&self, new_order: &[u32]) {
         unsafe {
             let count = ffi::gtk_tree_model_iter_n_children(
@@ -103,7 +117,8 @@ pub trait GtkListStoreExtManual: IsA<ListStore> + sealed::Sealed + 'static {
             let safe_count = count as usize == new_order.len();
             debug_assert!(
                 safe_count,
-                "Incorrect `new_order` slice length. Expected `{count}`, found `{}`.",
+                "Incorrect `new_order` slice length. Expected `{}`, found `{}`.",
+                count,
                 new_order.len()
             );
             let safe_values = new_order.iter().max().map_or(true, |&max| {
@@ -113,8 +128,9 @@ pub trait GtkListStoreExtManual: IsA<ListStore> + sealed::Sealed + 'static {
             debug_assert!(
                 safe_values,
                 "Some `new_order` slice values are out of range. Maximum safe value: \
-                 `{}`. The slice contents: `{new_order:?}`",
+                 `{}`. The slice contents: `{:?}`",
                 count - 1,
+                new_order
             );
             if safe_count && safe_values {
                 ffi::gtk_list_store_reorder(
@@ -125,8 +141,6 @@ pub trait GtkListStoreExtManual: IsA<ListStore> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_list_store_set")]
-    #[doc(alias = "gtk_list_store_set_valuesv")]
     fn set(&self, iter: &TreeIter, columns_and_values: &[(u32, &dyn ToValue)]) {
         unsafe {
             let n_columns = ffi::gtk_tree_model_get_n_columns(
@@ -134,14 +148,16 @@ pub trait GtkListStoreExtManual: IsA<ListStore> + sealed::Sealed + 'static {
             ) as u32;
             assert!(
                 columns_and_values.len() <= n_columns as usize,
-                "got values for {} columns but only {n_columns} columns exist",
+                "got values for {} columns but only {} columns exist",
                 columns_and_values.len(),
+                n_columns
             );
             for (column, value) in columns_and_values {
                 assert!(
                     *column < n_columns,
-                    "got column {} which is higher than the number of columns {n_columns}",
+                    "got column {} which is higher than the number of columns {}",
                     *column,
+                    n_columns
                 );
                 let type_ = from_glib(ffi::gtk_tree_model_get_column_type(
                     self.as_ref().upcast_ref::<TreeModel>().to_glib_none().0,
@@ -149,8 +165,9 @@ pub trait GtkListStoreExtManual: IsA<ListStore> + sealed::Sealed + 'static {
                 ));
                 assert!(
                     Value::type_transformable(value.value_type(), type_),
-                    "column {} is of type {type_} but found value of type {}",
+                    "column {} is of type {} but found value of type {}",
                     *column,
+                    type_,
                     value.value_type()
                 );
             }
@@ -174,7 +191,6 @@ pub trait GtkListStoreExtManual: IsA<ListStore> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_list_store_set_value")]
     fn set_value(&self, iter: &TreeIter, column: u32, value: &Value) {
         unsafe {
             let columns = ffi::gtk_tree_model_get_n_columns(
@@ -182,7 +198,9 @@ pub trait GtkListStoreExtManual: IsA<ListStore> + sealed::Sealed + 'static {
             ) as u32;
             assert!(
                 column < columns,
-                "got column {column} which is higher than the number of columns {columns}",
+                "got column {} which is higher than the number of columns {}",
+                column,
+                columns
             );
 
             let type_ = from_glib(ffi::gtk_tree_model_get_column_type(
@@ -191,7 +209,9 @@ pub trait GtkListStoreExtManual: IsA<ListStore> + sealed::Sealed + 'static {
             ));
             assert!(
                 Value::type_transformable(value.type_(), type_),
-                "column {column} is of type {type_} but found value of type {}",
+                "column {} is of type {} but found value of type {}",
+                column,
+                type_,
                 value.type_()
             );
 
@@ -204,5 +224,3 @@ pub trait GtkListStoreExtManual: IsA<ListStore> + sealed::Sealed + 'static {
         }
     }
 }
-
-impl<O: IsA<ListStore>> GtkListStoreExtManual for O {}

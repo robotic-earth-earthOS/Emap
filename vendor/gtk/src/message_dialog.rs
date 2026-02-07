@@ -37,13 +37,15 @@ impl MessageDialog {
     }
 }
 
-mod sealed {
-    pub trait Sealed {}
-    impl<T: glib::IsA<crate::MessageDialog>> Sealed for T {}
+pub trait MessageDialogExt: 'static {
+    #[doc(alias = "gtk_message_dialog_format_secondary_markup")]
+    fn set_secondary_markup(&self, message: Option<&str>);
+
+    #[doc(alias = "gtk_message_dialog_format_secondary_text")]
+    fn set_secondary_text(&self, message: Option<&str>);
 }
 
-pub trait MessageDialogExt: IsA<MessageDialog> + sealed::Sealed + 'static {
-    #[doc(alias = "gtk_message_dialog_format_secondary_markup")]
+impl<O: IsA<MessageDialog>> MessageDialogExt for O {
     fn set_secondary_markup(&self, message: Option<&str>) {
         match message {
             Some(m) => unsafe {
@@ -64,7 +66,6 @@ pub trait MessageDialogExt: IsA<MessageDialog> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_message_dialog_format_secondary_text")]
     fn set_secondary_text(&self, message: Option<&str>) {
         match message {
             Some(m) => unsafe {
@@ -85,5 +86,3 @@ pub trait MessageDialogExt: IsA<MessageDialog> + sealed::Sealed + 'static {
         }
     }
 }
-
-impl<O: IsA<MessageDialog>> MessageDialogExt for O {}

@@ -9,45 +9,44 @@ use crate::Entry;
 use crate::Widget;
 
 pub trait EntryImpl: EntryImplExt + WidgetImpl {
-    fn populate_popup(&self, popup: &Widget) {
-        self.parent_populate_popup(popup)
+    fn populate_popup(&self, entry: &Self::Type, popup: &Widget) {
+        self.parent_populate_popup(entry, popup)
     }
 
-    fn activate(&self) {
-        self.parent_activate()
+    fn activate(&self, entry: &Self::Type) {
+        self.parent_activate(entry)
     }
 }
 
-mod sealed {
-    pub trait Sealed {}
-    impl<T: super::EntryImpl> Sealed for T {}
+pub trait EntryImplExt: ObjectSubclass {
+    fn parent_populate_popup(&self, entry: &Self::Type, popup: &Widget);
+    fn parent_activate(&self, entry: &Self::Type);
 }
 
-pub trait EntryImplExt: ObjectSubclass + sealed::Sealed {
-    fn parent_populate_popup(&self, popup: &Widget) {
+impl<T: EntryImpl> EntryImplExt for T {
+    fn parent_populate_popup(&self, entry: &Self::Type, popup: &Widget) {
         unsafe {
-            let data = Self::type_data();
+            let data = T::type_data();
             let parent_class = data.as_ref().parent_class() as *mut ffi::GtkEntryClass;
             if let Some(f) = (*parent_class).populate_popup {
                 f(
-                    self.obj().unsafe_cast_ref::<Entry>().to_glib_none().0,
+                    entry.unsafe_cast_ref::<Entry>().to_glib_none().0,
                     popup.to_glib_none().0,
                 )
             }
         }
     }
-    fn parent_activate(&self) {
+
+    fn parent_activate(&self, entry: &Self::Type) {
         unsafe {
-            let data = Self::type_data();
+            let data = T::type_data();
             let parent_class = data.as_ref().parent_class() as *mut ffi::GtkEntryClass;
             if let Some(f) = (*parent_class).activate {
-                f(self.obj().unsafe_cast_ref::<Entry>().to_glib_none().0)
+                f(entry.unsafe_cast_ref::<Entry>().to_glib_none().0)
             }
         }
     }
 }
-
-impl<T: EntryImpl> EntryImplExt for T {}
 
 unsafe impl<T: EntryImpl> IsSubclassable<T> for Entry {
     fn class_init(class: &mut glib::Class<Self>) {
@@ -69,14 +68,16 @@ unsafe extern "C" fn entry_populate_popup<T: EntryImpl>(
 ) {
     let instance = &*(ptr as *mut T::Instance);
     let imp = instance.imp();
+    let wrap: Borrowed<Entry> = from_glib_borrow(ptr);
     let popup: Borrowed<Widget> = from_glib_borrow(popupptr);
 
-    imp.populate_popup(&popup)
+    imp.populate_popup(wrap.unsafe_cast_ref(), &popup)
 }
 
 unsafe extern "C" fn entry_activate<T: EntryImpl>(ptr: *mut ffi::GtkEntry) {
     let instance = &*(ptr as *mut T::Instance);
     let imp = instance.imp();
+    let wrap: Borrowed<Entry> = from_glib_borrow(ptr);
 
-    imp.activate()
+    imp.activate(wrap.unsafe_cast_ref())
 }

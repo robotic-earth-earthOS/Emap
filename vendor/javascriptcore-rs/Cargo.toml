@@ -10,47 +10,28 @@
 # See Cargo.toml.orig for the original contents.
 
 [package]
-edition = "2021"
+edition = "2018"
 name = "javascriptcore-rs"
-version = "1.1.2"
+version = "0.16.0"
 description = "Rust bindings for the javacriptcore library"
-readme = "README.md"
-keywords = [
-    "javascript",
-    "gtk-rs",
-    "gnome",
-]
+keywords = ["javascript", "gtk-rs", "gnome"]
 license = "MIT"
 repository = "https://github.com/tauri-apps/javascriptcore-rs"
-
 [package.metadata.docs.rs]
-all-features = true
-rustc-args = [
-    "--cfg",
-    "docsrs",
-]
-rustdoc-args = [
-    "--cfg",
-    "docsrs",
-]
+features = ["dox"]
 
 [lib]
 name = "javascriptcore"
-
 [dependencies.bitflags]
 version = "^1.0"
 
 [dependencies.ffi]
-version = "1.1"
+version = "0.4"
 package = "javascriptcore-rs-sys"
 
 [dependencies.glib]
-version = "^0.18.0"
+version = "^0.15.0"
 
 [features]
-default = ["v2_38"]
+dox = ["ffi/dox"]
 v2_28 = ["ffi/v2_28"]
-v2_38 = [
-    "ffi/v2_38",
-    "v2_28",
-]

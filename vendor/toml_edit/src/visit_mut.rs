@@ -45,8 +45,6 @@
 //! 2 decimal points.
 //!
 //! ```
-//! # #[cfg(feature = "parse")] {
-//! # #[cfg(feature = "display")] {
 //! # use toml_edit::*;
 //! use toml_edit::visit_mut::*;
 //!
@@ -72,7 +70,7 @@
 //! table = { apple = 4.5 }
 //! "#;
 //!
-//! let mut document: DocumentMut = input.parse().unwrap();
+//! let mut document: Document = input.parse().unwrap();
 //! let mut visitor = FloatToString;
 //! visitor.visit_document_mut(&mut document);
 //!
@@ -82,15 +80,13 @@
 //! "#;
 //!
 //! assert_eq!(format!("{}", document), output);
-//! # }
-//! # }
 //! ```
 //!
 //! For a more complex example where the visitor has internal state, see `examples/visit.rs`
-//! [on GitHub](https://github.com/toml-rs/toml/blob/main/crates/toml_edit/examples/visit.rs).
+//! [on GitHub](https://github.com/ordian/toml_edit/blob/master/examples/visit.rs).
 
 use crate::{
-    Array, ArrayOfTables, Datetime, DocumentMut, Formatted, InlineTable, Item, KeyMut, Table,
+    Array, ArrayOfTables, Datetime, Document, Formatted, InlineTable, Item, KeyMut, Table,
     TableLike, Value,
 };
 
@@ -98,7 +94,7 @@ use crate::{
 ///
 /// See the [module documentation](self) for details.
 pub trait VisitMut {
-    fn visit_document_mut(&mut self, node: &mut DocumentMut) {
+    fn visit_document_mut(&mut self, node: &mut Document) {
         visit_document_mut(self, node);
     }
 
@@ -111,7 +107,7 @@ pub trait VisitMut {
     }
 
     fn visit_inline_table_mut(&mut self, node: &mut InlineTable) {
-        visit_inline_table_mut(self, node);
+        visit_inline_table_mut(self, node)
     }
 
     /// [`visit_table_mut`](Self::visit_table_mut) and
@@ -137,7 +133,7 @@ pub trait VisitMut {
     }
 
     fn visit_boolean_mut(&mut self, node: &mut Formatted<bool>) {
-        visit_boolean_mut(self, node);
+        visit_boolean_mut(self, node)
     }
 
     fn visit_datetime_mut(&mut self, node: &mut Formatted<Datetime>) {
@@ -145,19 +141,19 @@ pub trait VisitMut {
     }
 
     fn visit_float_mut(&mut self, node: &mut Formatted<f64>) {
-        visit_float_mut(self, node);
+        visit_float_mut(self, node)
     }
 
     fn visit_integer_mut(&mut self, node: &mut Formatted<i64>) {
-        visit_integer_mut(self, node);
+        visit_integer_mut(self, node)
     }
 
     fn visit_string_mut(&mut self, node: &mut Formatted<String>) {
-        visit_string_mut(self, node);
+        visit_string_mut(self, node)
     }
 }
 
-pub fn visit_document_mut<V>(v: &mut V, node: &mut DocumentMut)
+pub fn visit_document_mut<V>(v: &mut V, node: &mut Document)
 where
     V: VisitMut + ?Sized,
 {
@@ -203,7 +199,7 @@ pub fn visit_table_like_kv_mut<V>(v: &mut V, _key: KeyMut<'_>, node: &mut Item)
 where
     V: VisitMut + ?Sized,
 {
-    v.visit_item_mut(node);
+    v.visit_item_mut(node)
 }
 
 pub fn visit_array_mut<V>(v: &mut V, node: &mut Array)

@@ -2,13 +2,16 @@
 // from gir-files (https://github.com/gtk-rs/gir-files)
 // DO NOT EDIT
 
-use crate::{Device, Display};
-use glib::{
-    prelude::*,
-    signal::{connect_raw, SignalHandlerId},
-    translate::*,
-};
-use std::{boxed::Box as Box_, fmt, mem::transmute};
+use crate::Device;
+use crate::DeviceType;
+use crate::Display;
+use glib::object::ObjectType as ObjectType_;
+use glib::signal::connect_raw;
+use glib::signal::SignalHandlerId;
+use glib::translate::*;
+use std::boxed::Box as Box_;
+use std::fmt;
+use std::mem::transmute;
 
 glib::wrapper! {
     #[doc(alias = "GdkDeviceManager")]
@@ -20,10 +23,32 @@ glib::wrapper! {
 }
 
 impl DeviceManager {
+    #[cfg_attr(feature = "v3_20", deprecated = "Since 3.20")]
+    #[doc(alias = "gdk_device_manager_get_client_pointer")]
+    #[doc(alias = "get_client_pointer")]
+    pub fn client_pointer(&self) -> Option<Device> {
+        unsafe {
+            from_glib_none(ffi::gdk_device_manager_get_client_pointer(
+                self.to_glib_none().0,
+            ))
+        }
+    }
+
     #[doc(alias = "gdk_device_manager_get_display")]
     #[doc(alias = "get_display")]
     pub fn display(&self) -> Option<Display> {
         unsafe { from_glib_none(ffi::gdk_device_manager_get_display(self.to_glib_none().0)) }
+    }
+
+    #[cfg_attr(feature = "v3_20", deprecated = "Since 3.20")]
+    #[doc(alias = "gdk_device_manager_list_devices")]
+    pub fn list_devices(&self, type_: DeviceType) -> Vec<Device> {
+        unsafe {
+            FromGlibPtrContainer::from_glib_container(ffi::gdk_device_manager_list_devices(
+                self.to_glib_none().0,
+                type_.into_glib(),
+            ))
+        }
     }
 
     #[doc(alias = "device-added")]

@@ -2,16 +2,28 @@
 // from gir-files (https://github.com/gtk-rs/gir-files)
 // DO NOT EDIT
 
-use crate::{
-    Adjustment, Align, Buildable, Container, FlowBoxChild, MovementStep, Orientable, Orientation,
-    ResizeMode, SelectionMode, Widget,
-};
-use glib::{
-    prelude::*,
-    signal::{connect_raw, SignalHandlerId},
-    translate::*,
-};
-use std::{boxed::Box as Box_, fmt, mem::transmute};
+use crate::Adjustment;
+use crate::Align;
+use crate::Buildable;
+use crate::Container;
+use crate::FlowBoxChild;
+use crate::MovementStep;
+use crate::Orientable;
+use crate::Orientation;
+use crate::ResizeMode;
+use crate::SelectionMode;
+use crate::Widget;
+use glib::object::Cast;
+use glib::object::IsA;
+use glib::object::ObjectExt;
+use glib::signal::connect_raw;
+use glib::signal::SignalHandlerId;
+use glib::translate::*;
+use glib::StaticType;
+use glib::ToValue;
+use std::boxed::Box as Box_;
+use std::fmt;
+use std::mem::transmute;
 
 glib::wrapper! {
     #[doc(alias = "GtkFlowBox")]
@@ -36,7 +48,7 @@ impl FlowBox {
     ///
     /// This method returns an instance of [`FlowBoxBuilder`](crate::builders::FlowBoxBuilder) which can be used to create [`FlowBox`] objects.
     pub fn builder() -> FlowBoxBuilder {
-        FlowBoxBuilder::new()
+        FlowBoxBuilder::default()
     }
 }
 
@@ -46,303 +58,598 @@ impl Default for FlowBox {
     }
 }
 
+#[derive(Clone, Default)]
 // rustdoc-stripper-ignore-next
 /// A [builder-pattern] type to construct [`FlowBox`] objects.
 ///
 /// [builder-pattern]: https://doc.rust-lang.org/1.0.0/style/ownership/builders.html
 #[must_use = "The builder must be built to be used"]
 pub struct FlowBoxBuilder {
-    builder: glib::object::ObjectBuilder<'static, FlowBox>,
+    activate_on_single_click: Option<bool>,
+    column_spacing: Option<u32>,
+    homogeneous: Option<bool>,
+    max_children_per_line: Option<u32>,
+    min_children_per_line: Option<u32>,
+    row_spacing: Option<u32>,
+    selection_mode: Option<SelectionMode>,
+    border_width: Option<u32>,
+    child: Option<Widget>,
+    resize_mode: Option<ResizeMode>,
+    app_paintable: Option<bool>,
+    can_default: Option<bool>,
+    can_focus: Option<bool>,
+    events: Option<gdk::EventMask>,
+    expand: Option<bool>,
+    #[cfg(any(feature = "v3_20", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
+    focus_on_click: Option<bool>,
+    halign: Option<Align>,
+    has_default: Option<bool>,
+    has_focus: Option<bool>,
+    has_tooltip: Option<bool>,
+    height_request: Option<i32>,
+    hexpand: Option<bool>,
+    hexpand_set: Option<bool>,
+    is_focus: Option<bool>,
+    margin: Option<i32>,
+    margin_bottom: Option<i32>,
+    margin_end: Option<i32>,
+    margin_start: Option<i32>,
+    margin_top: Option<i32>,
+    name: Option<String>,
+    no_show_all: Option<bool>,
+    opacity: Option<f64>,
+    parent: Option<Container>,
+    receives_default: Option<bool>,
+    sensitive: Option<bool>,
+    tooltip_markup: Option<String>,
+    tooltip_text: Option<String>,
+    valign: Option<Align>,
+    vexpand: Option<bool>,
+    vexpand_set: Option<bool>,
+    visible: Option<bool>,
+    width_request: Option<i32>,
+    orientation: Option<Orientation>,
 }
 
 impl FlowBoxBuilder {
-    fn new() -> Self {
-        Self {
-            builder: glib::object::Object::builder(),
-        }
-    }
-
-    pub fn activate_on_single_click(self, activate_on_single_click: bool) -> Self {
-        Self {
-            builder: self
-                .builder
-                .property("activate-on-single-click", activate_on_single_click),
-        }
-    }
-
-    pub fn column_spacing(self, column_spacing: u32) -> Self {
-        Self {
-            builder: self.builder.property("column-spacing", column_spacing),
-        }
-    }
-
-    pub fn homogeneous(self, homogeneous: bool) -> Self {
-        Self {
-            builder: self.builder.property("homogeneous", homogeneous),
-        }
-    }
-
-    pub fn max_children_per_line(self, max_children_per_line: u32) -> Self {
-        Self {
-            builder: self
-                .builder
-                .property("max-children-per-line", max_children_per_line),
-        }
-    }
-
-    pub fn min_children_per_line(self, min_children_per_line: u32) -> Self {
-        Self {
-            builder: self
-                .builder
-                .property("min-children-per-line", min_children_per_line),
-        }
-    }
-
-    pub fn row_spacing(self, row_spacing: u32) -> Self {
-        Self {
-            builder: self.builder.property("row-spacing", row_spacing),
-        }
-    }
-
-    pub fn selection_mode(self, selection_mode: SelectionMode) -> Self {
-        Self {
-            builder: self.builder.property("selection-mode", selection_mode),
-        }
-    }
-
-    pub fn border_width(self, border_width: u32) -> Self {
-        Self {
-            builder: self.builder.property("border-width", border_width),
-        }
-    }
-
-    pub fn child(self, child: &impl IsA<Widget>) -> Self {
-        Self {
-            builder: self.builder.property("child", child.clone().upcast()),
-        }
-    }
-
-    pub fn resize_mode(self, resize_mode: ResizeMode) -> Self {
-        Self {
-            builder: self.builder.property("resize-mode", resize_mode),
-        }
-    }
-
-    pub fn app_paintable(self, app_paintable: bool) -> Self {
-        Self {
-            builder: self.builder.property("app-paintable", app_paintable),
-        }
-    }
-
-    pub fn can_default(self, can_default: bool) -> Self {
-        Self {
-            builder: self.builder.property("can-default", can_default),
-        }
-    }
-
-    pub fn can_focus(self, can_focus: bool) -> Self {
-        Self {
-            builder: self.builder.property("can-focus", can_focus),
-        }
-    }
-
-    pub fn events(self, events: gdk::EventMask) -> Self {
-        Self {
-            builder: self.builder.property("events", events),
-        }
-    }
-
-    pub fn expand(self, expand: bool) -> Self {
-        Self {
-            builder: self.builder.property("expand", expand),
-        }
-    }
-
-    pub fn focus_on_click(self, focus_on_click: bool) -> Self {
-        Self {
-            builder: self.builder.property("focus-on-click", focus_on_click),
-        }
-    }
-
-    pub fn halign(self, halign: Align) -> Self {
-        Self {
-            builder: self.builder.property("halign", halign),
-        }
-    }
-
-    pub fn has_default(self, has_default: bool) -> Self {
-        Self {
-            builder: self.builder.property("has-default", has_default),
-        }
-    }
-
-    pub fn has_focus(self, has_focus: bool) -> Self {
-        Self {
-            builder: self.builder.property("has-focus", has_focus),
-        }
-    }
-
-    pub fn has_tooltip(self, has_tooltip: bool) -> Self {
-        Self {
-            builder: self.builder.property("has-tooltip", has_tooltip),
-        }
-    }
-
-    pub fn height_request(self, height_request: i32) -> Self {
-        Self {
-            builder: self.builder.property("height-request", height_request),
-        }
-    }
-
-    pub fn hexpand(self, hexpand: bool) -> Self {
-        Self {
-            builder: self.builder.property("hexpand", hexpand),
-        }
-    }
-
-    pub fn hexpand_set(self, hexpand_set: bool) -> Self {
-        Self {
-            builder: self.builder.property("hexpand-set", hexpand_set),
-        }
-    }
-
-    pub fn is_focus(self, is_focus: bool) -> Self {
-        Self {
-            builder: self.builder.property("is-focus", is_focus),
-        }
-    }
-
-    pub fn margin(self, margin: i32) -> Self {
-        Self {
-            builder: self.builder.property("margin", margin),
-        }
-    }
-
-    pub fn margin_bottom(self, margin_bottom: i32) -> Self {
-        Self {
-            builder: self.builder.property("margin-bottom", margin_bottom),
-        }
-    }
-
-    pub fn margin_end(self, margin_end: i32) -> Self {
-        Self {
-            builder: self.builder.property("margin-end", margin_end),
-        }
-    }
-
-    pub fn margin_start(self, margin_start: i32) -> Self {
-        Self {
-            builder: self.builder.property("margin-start", margin_start),
-        }
-    }
-
-    pub fn margin_top(self, margin_top: i32) -> Self {
-        Self {
-            builder: self.builder.property("margin-top", margin_top),
-        }
-    }
-
-    pub fn name(self, name: impl Into<glib::GString>) -> Self {
-        Self {
-            builder: self.builder.property("name", name.into()),
-        }
-    }
-
-    pub fn no_show_all(self, no_show_all: bool) -> Self {
-        Self {
-            builder: self.builder.property("no-show-all", no_show_all),
-        }
-    }
-
-    pub fn opacity(self, opacity: f64) -> Self {
-        Self {
-            builder: self.builder.property("opacity", opacity),
-        }
-    }
-
-    pub fn parent(self, parent: &impl IsA<Container>) -> Self {
-        Self {
-            builder: self.builder.property("parent", parent.clone().upcast()),
-        }
-    }
-
-    pub fn receives_default(self, receives_default: bool) -> Self {
-        Self {
-            builder: self.builder.property("receives-default", receives_default),
-        }
-    }
-
-    pub fn sensitive(self, sensitive: bool) -> Self {
-        Self {
-            builder: self.builder.property("sensitive", sensitive),
-        }
-    }
-
-    pub fn tooltip_markup(self, tooltip_markup: impl Into<glib::GString>) -> Self {
-        Self {
-            builder: self
-                .builder
-                .property("tooltip-markup", tooltip_markup.into()),
-        }
-    }
-
-    pub fn tooltip_text(self, tooltip_text: impl Into<glib::GString>) -> Self {
-        Self {
-            builder: self.builder.property("tooltip-text", tooltip_text.into()),
-        }
-    }
-
-    pub fn valign(self, valign: Align) -> Self {
-        Self {
-            builder: self.builder.property("valign", valign),
-        }
-    }
-
-    pub fn vexpand(self, vexpand: bool) -> Self {
-        Self {
-            builder: self.builder.property("vexpand", vexpand),
-        }
-    }
-
-    pub fn vexpand_set(self, vexpand_set: bool) -> Self {
-        Self {
-            builder: self.builder.property("vexpand-set", vexpand_set),
-        }
-    }
-
-    pub fn visible(self, visible: bool) -> Self {
-        Self {
-            builder: self.builder.property("visible", visible),
-        }
-    }
-
-    pub fn width_request(self, width_request: i32) -> Self {
-        Self {
-            builder: self.builder.property("width-request", width_request),
-        }
-    }
-
-    pub fn orientation(self, orientation: Orientation) -> Self {
-        Self {
-            builder: self.builder.property("orientation", orientation),
-        }
+    // rustdoc-stripper-ignore-next
+    /// Create a new [`FlowBoxBuilder`].
+    pub fn new() -> Self {
+        Self::default()
     }
 
     // rustdoc-stripper-ignore-next
     /// Build the [`FlowBox`].
     #[must_use = "Building the object from the builder is usually expensive and is not expected to have side effects"]
     pub fn build(self) -> FlowBox {
-        self.builder.build()
+        let mut properties: Vec<(&str, &dyn ToValue)> = vec![];
+        if let Some(ref activate_on_single_click) = self.activate_on_single_click {
+            properties.push(("activate-on-single-click", activate_on_single_click));
+        }
+        if let Some(ref column_spacing) = self.column_spacing {
+            properties.push(("column-spacing", column_spacing));
+        }
+        if let Some(ref homogeneous) = self.homogeneous {
+            properties.push(("homogeneous", homogeneous));
+        }
+        if let Some(ref max_children_per_line) = self.max_children_per_line {
+            properties.push(("max-children-per-line", max_children_per_line));
+        }
+        if let Some(ref min_children_per_line) = self.min_children_per_line {
+            properties.push(("min-children-per-line", min_children_per_line));
+        }
+        if let Some(ref row_spacing) = self.row_spacing {
+            properties.push(("row-spacing", row_spacing));
+        }
+        if let Some(ref selection_mode) = self.selection_mode {
+            properties.push(("selection-mode", selection_mode));
+        }
+        if let Some(ref border_width) = self.border_width {
+            properties.push(("border-width", border_width));
+        }
+        if let Some(ref child) = self.child {
+            properties.push(("child", child));
+        }
+        if let Some(ref resize_mode) = self.resize_mode {
+            properties.push(("resize-mode", resize_mode));
+        }
+        if let Some(ref app_paintable) = self.app_paintable {
+            properties.push(("app-paintable", app_paintable));
+        }
+        if let Some(ref can_default) = self.can_default {
+            properties.push(("can-default", can_default));
+        }
+        if let Some(ref can_focus) = self.can_focus {
+            properties.push(("can-focus", can_focus));
+        }
+        if let Some(ref events) = self.events {
+            properties.push(("events", events));
+        }
+        if let Some(ref expand) = self.expand {
+            properties.push(("expand", expand));
+        }
+        #[cfg(any(feature = "v3_20", feature = "dox"))]
+        if let Some(ref focus_on_click) = self.focus_on_click {
+            properties.push(("focus-on-click", focus_on_click));
+        }
+        if let Some(ref halign) = self.halign {
+            properties.push(("halign", halign));
+        }
+        if let Some(ref has_default) = self.has_default {
+            properties.push(("has-default", has_default));
+        }
+        if let Some(ref has_focus) = self.has_focus {
+            properties.push(("has-focus", has_focus));
+        }
+        if let Some(ref has_tooltip) = self.has_tooltip {
+            properties.push(("has-tooltip", has_tooltip));
+        }
+        if let Some(ref height_request) = self.height_request {
+            properties.push(("height-request", height_request));
+        }
+        if let Some(ref hexpand) = self.hexpand {
+            properties.push(("hexpand", hexpand));
+        }
+        if let Some(ref hexpand_set) = self.hexpand_set {
+            properties.push(("hexpand-set", hexpand_set));
+        }
+        if let Some(ref is_focus) = self.is_focus {
+            properties.push(("is-focus", is_focus));
+        }
+        if let Some(ref margin) = self.margin {
+            properties.push(("margin", margin));
+        }
+        if let Some(ref margin_bottom) = self.margin_bottom {
+            properties.push(("margin-bottom", margin_bottom));
+        }
+        if let Some(ref margin_end) = self.margin_end {
+            properties.push(("margin-end", margin_end));
+        }
+        if let Some(ref margin_start) = self.margin_start {
+            properties.push(("margin-start", margin_start));
+        }
+        if let Some(ref margin_top) = self.margin_top {
+            properties.push(("margin-top", margin_top));
+        }
+        if let Some(ref name) = self.name {
+            properties.push(("name", name));
+        }
+        if let Some(ref no_show_all) = self.no_show_all {
+            properties.push(("no-show-all", no_show_all));
+        }
+        if let Some(ref opacity) = self.opacity {
+            properties.push(("opacity", opacity));
+        }
+        if let Some(ref parent) = self.parent {
+            properties.push(("parent", parent));
+        }
+        if let Some(ref receives_default) = self.receives_default {
+            properties.push(("receives-default", receives_default));
+        }
+        if let Some(ref sensitive) = self.sensitive {
+            properties.push(("sensitive", sensitive));
+        }
+        if let Some(ref tooltip_markup) = self.tooltip_markup {
+            properties.push(("tooltip-markup", tooltip_markup));
+        }
+        if let Some(ref tooltip_text) = self.tooltip_text {
+            properties.push(("tooltip-text", tooltip_text));
+        }
+        if let Some(ref valign) = self.valign {
+            properties.push(("valign", valign));
+        }
+        if let Some(ref vexpand) = self.vexpand {
+            properties.push(("vexpand", vexpand));
+        }
+        if let Some(ref vexpand_set) = self.vexpand_set {
+            properties.push(("vexpand-set", vexpand_set));
+        }
+        if let Some(ref visible) = self.visible {
+            properties.push(("visible", visible));
+        }
+        if let Some(ref width_request) = self.width_request {
+            properties.push(("width-request", width_request));
+        }
+        if let Some(ref orientation) = self.orientation {
+            properties.push(("orientation", orientation));
+        }
+        glib::Object::new::<FlowBox>(&properties).expect("Failed to create an instance of FlowBox")
+    }
+
+    pub fn activate_on_single_click(mut self, activate_on_single_click: bool) -> Self {
+        self.activate_on_single_click = Some(activate_on_single_click);
+        self
+    }
+
+    pub fn column_spacing(mut self, column_spacing: u32) -> Self {
+        self.column_spacing = Some(column_spacing);
+        self
+    }
+
+    pub fn homogeneous(mut self, homogeneous: bool) -> Self {
+        self.homogeneous = Some(homogeneous);
+        self
+    }
+
+    pub fn max_children_per_line(mut self, max_children_per_line: u32) -> Self {
+        self.max_children_per_line = Some(max_children_per_line);
+        self
+    }
+
+    pub fn min_children_per_line(mut self, min_children_per_line: u32) -> Self {
+        self.min_children_per_line = Some(min_children_per_line);
+        self
+    }
+
+    pub fn row_spacing(mut self, row_spacing: u32) -> Self {
+        self.row_spacing = Some(row_spacing);
+        self
+    }
+
+    pub fn selection_mode(mut self, selection_mode: SelectionMode) -> Self {
+        self.selection_mode = Some(selection_mode);
+        self
+    }
+
+    pub fn border_width(mut self, border_width: u32) -> Self {
+        self.border_width = Some(border_width);
+        self
+    }
+
+    pub fn child(mut self, child: &impl IsA<Widget>) -> Self {
+        self.child = Some(child.clone().upcast());
+        self
+    }
+
+    pub fn resize_mode(mut self, resize_mode: ResizeMode) -> Self {
+        self.resize_mode = Some(resize_mode);
+        self
+    }
+
+    pub fn app_paintable(mut self, app_paintable: bool) -> Self {
+        self.app_paintable = Some(app_paintable);
+        self
+    }
+
+    pub fn can_default(mut self, can_default: bool) -> Self {
+        self.can_default = Some(can_default);
+        self
+    }
+
+    pub fn can_focus(mut self, can_focus: bool) -> Self {
+        self.can_focus = Some(can_focus);
+        self
+    }
+
+    pub fn events(mut self, events: gdk::EventMask) -> Self {
+        self.events = Some(events);
+        self
+    }
+
+    pub fn expand(mut self, expand: bool) -> Self {
+        self.expand = Some(expand);
+        self
+    }
+
+    #[cfg(any(feature = "v3_20", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
+    pub fn focus_on_click(mut self, focus_on_click: bool) -> Self {
+        self.focus_on_click = Some(focus_on_click);
+        self
+    }
+
+    pub fn halign(mut self, halign: Align) -> Self {
+        self.halign = Some(halign);
+        self
+    }
+
+    pub fn has_default(mut self, has_default: bool) -> Self {
+        self.has_default = Some(has_default);
+        self
+    }
+
+    pub fn has_focus(mut self, has_focus: bool) -> Self {
+        self.has_focus = Some(has_focus);
+        self
+    }
+
+    pub fn has_tooltip(mut self, has_tooltip: bool) -> Self {
+        self.has_tooltip = Some(has_tooltip);
+        self
+    }
+
+    pub fn height_request(mut self, height_request: i32) -> Self {
+        self.height_request = Some(height_request);
+        self
+    }
+
+    pub fn hexpand(mut self, hexpand: bool) -> Self {
+        self.hexpand = Some(hexpand);
+        self
+    }
+
+    pub fn hexpand_set(mut self, hexpand_set: bool) -> Self {
+        self.hexpand_set = Some(hexpand_set);
+        self
+    }
+
+    pub fn is_focus(mut self, is_focus: bool) -> Self {
+        self.is_focus = Some(is_focus);
+        self
+    }
+
+    pub fn margin(mut self, margin: i32) -> Self {
+        self.margin = Some(margin);
+        self
+    }
+
+    pub fn margin_bottom(mut self, margin_bottom: i32) -> Self {
+        self.margin_bottom = Some(margin_bottom);
+        self
+    }
+
+    pub fn margin_end(mut self, margin_end: i32) -> Self {
+        self.margin_end = Some(margin_end);
+        self
+    }
+
+    pub fn margin_start(mut self, margin_start: i32) -> Self {
+        self.margin_start = Some(margin_start);
+        self
+    }
+
+    pub fn margin_top(mut self, margin_top: i32) -> Self {
+        self.margin_top = Some(margin_top);
+        self
+    }
+
+    pub fn name(mut self, name: &str) -> Self {
+        self.name = Some(name.to_string());
+        self
+    }
+
+    pub fn no_show_all(mut self, no_show_all: bool) -> Self {
+        self.no_show_all = Some(no_show_all);
+        self
+    }
+
+    pub fn opacity(mut self, opacity: f64) -> Self {
+        self.opacity = Some(opacity);
+        self
+    }
+
+    pub fn parent(mut self, parent: &impl IsA<Container>) -> Self {
+        self.parent = Some(parent.clone().upcast());
+        self
+    }
+
+    pub fn receives_default(mut self, receives_default: bool) -> Self {
+        self.receives_default = Some(receives_default);
+        self
+    }
+
+    pub fn sensitive(mut self, sensitive: bool) -> Self {
+        self.sensitive = Some(sensitive);
+        self
+    }
+
+    pub fn tooltip_markup(mut self, tooltip_markup: &str) -> Self {
+        self.tooltip_markup = Some(tooltip_markup.to_string());
+        self
+    }
+
+    pub fn tooltip_text(mut self, tooltip_text: &str) -> Self {
+        self.tooltip_text = Some(tooltip_text.to_string());
+        self
+    }
+
+    pub fn valign(mut self, valign: Align) -> Self {
+        self.valign = Some(valign);
+        self
+    }
+
+    pub fn vexpand(mut self, vexpand: bool) -> Self {
+        self.vexpand = Some(vexpand);
+        self
+    }
+
+    pub fn vexpand_set(mut self, vexpand_set: bool) -> Self {
+        self.vexpand_set = Some(vexpand_set);
+        self
+    }
+
+    pub fn visible(mut self, visible: bool) -> Self {
+        self.visible = Some(visible);
+        self
+    }
+
+    pub fn width_request(mut self, width_request: i32) -> Self {
+        self.width_request = Some(width_request);
+        self
+    }
+
+    pub fn orientation(mut self, orientation: Orientation) -> Self {
+        self.orientation = Some(orientation);
+        self
     }
 }
 
-mod sealed {
-    pub trait Sealed {}
-    impl<T: super::IsA<super::FlowBox>> Sealed for T {}
+pub trait FlowBoxExt: 'static {
+    #[doc(alias = "gtk_flow_box_bind_model")]
+    fn bind_model<P: Fn(&glib::Object) -> Widget + 'static>(
+        &self,
+        model: Option<&impl IsA<gio::ListModel>>,
+        create_widget_func: P,
+    );
+
+    #[doc(alias = "gtk_flow_box_get_activate_on_single_click")]
+    #[doc(alias = "get_activate_on_single_click")]
+    fn activates_on_single_click(&self) -> bool;
+
+    #[doc(alias = "gtk_flow_box_get_child_at_index")]
+    #[doc(alias = "get_child_at_index")]
+    fn child_at_index(&self, idx: i32) -> Option<FlowBoxChild>;
+
+    #[cfg(any(feature = "v3_22_6", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22_6")))]
+    #[doc(alias = "gtk_flow_box_get_child_at_pos")]
+    #[doc(alias = "get_child_at_pos")]
+    fn child_at_pos(&self, x: i32, y: i32) -> Option<FlowBoxChild>;
+
+    #[doc(alias = "gtk_flow_box_get_column_spacing")]
+    #[doc(alias = "get_column_spacing")]
+    fn column_spacing(&self) -> u32;
+
+    #[doc(alias = "gtk_flow_box_get_homogeneous")]
+    #[doc(alias = "get_homogeneous")]
+    fn is_homogeneous(&self) -> bool;
+
+    #[doc(alias = "gtk_flow_box_get_max_children_per_line")]
+    #[doc(alias = "get_max_children_per_line")]
+    fn max_children_per_line(&self) -> u32;
+
+    #[doc(alias = "gtk_flow_box_get_min_children_per_line")]
+    #[doc(alias = "get_min_children_per_line")]
+    fn min_children_per_line(&self) -> u32;
+
+    #[doc(alias = "gtk_flow_box_get_row_spacing")]
+    #[doc(alias = "get_row_spacing")]
+    fn row_spacing(&self) -> u32;
+
+    #[doc(alias = "gtk_flow_box_get_selected_children")]
+    #[doc(alias = "get_selected_children")]
+    fn selected_children(&self) -> Vec<FlowBoxChild>;
+
+    #[doc(alias = "gtk_flow_box_get_selection_mode")]
+    #[doc(alias = "get_selection_mode")]
+    fn selection_mode(&self) -> SelectionMode;
+
+    #[doc(alias = "gtk_flow_box_insert")]
+    fn insert(&self, widget: &impl IsA<Widget>, position: i32);
+
+    #[doc(alias = "gtk_flow_box_invalidate_filter")]
+    fn invalidate_filter(&self);
+
+    #[doc(alias = "gtk_flow_box_invalidate_sort")]
+    fn invalidate_sort(&self);
+
+    #[doc(alias = "gtk_flow_box_select_all")]
+    fn select_all(&self);
+
+    #[doc(alias = "gtk_flow_box_select_child")]
+    fn select_child(&self, child: &impl IsA<FlowBoxChild>);
+
+    #[doc(alias = "gtk_flow_box_selected_foreach")]
+    fn selected_foreach<P: FnMut(&FlowBox, &FlowBoxChild)>(&self, func: P);
+
+    #[doc(alias = "gtk_flow_box_set_activate_on_single_click")]
+    fn set_activate_on_single_click(&self, single: bool);
+
+    #[doc(alias = "gtk_flow_box_set_column_spacing")]
+    fn set_column_spacing(&self, spacing: u32);
+
+    #[doc(alias = "gtk_flow_box_set_filter_func")]
+    fn set_filter_func(&self, filter_func: Option<Box_<dyn Fn(&FlowBoxChild) -> bool + 'static>>);
+
+    #[doc(alias = "gtk_flow_box_set_hadjustment")]
+    fn set_hadjustment(&self, adjustment: &impl IsA<Adjustment>);
+
+    #[doc(alias = "gtk_flow_box_set_homogeneous")]
+    fn set_homogeneous(&self, homogeneous: bool);
+
+    #[doc(alias = "gtk_flow_box_set_max_children_per_line")]
+    fn set_max_children_per_line(&self, n_children: u32);
+
+    #[doc(alias = "gtk_flow_box_set_min_children_per_line")]
+    fn set_min_children_per_line(&self, n_children: u32);
+
+    #[doc(alias = "gtk_flow_box_set_row_spacing")]
+    fn set_row_spacing(&self, spacing: u32);
+
+    #[doc(alias = "gtk_flow_box_set_selection_mode")]
+    fn set_selection_mode(&self, mode: SelectionMode);
+
+    #[doc(alias = "gtk_flow_box_set_sort_func")]
+    fn set_sort_func(
+        &self,
+        sort_func: Option<Box_<dyn Fn(&FlowBoxChild, &FlowBoxChild) -> i32 + 'static>>,
+    );
+
+    #[doc(alias = "gtk_flow_box_set_vadjustment")]
+    fn set_vadjustment(&self, adjustment: &impl IsA<Adjustment>);
+
+    #[doc(alias = "gtk_flow_box_unselect_all")]
+    fn unselect_all(&self);
+
+    #[doc(alias = "gtk_flow_box_unselect_child")]
+    fn unselect_child(&self, child: &impl IsA<FlowBoxChild>);
+
+    #[doc(alias = "activate-cursor-child")]
+    fn connect_activate_cursor_child<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    fn emit_activate_cursor_child(&self);
+
+    #[doc(alias = "child-activated")]
+    fn connect_child_activated<F: Fn(&Self, &FlowBoxChild) + 'static>(
+        &self,
+        f: F,
+    ) -> SignalHandlerId;
+
+    #[doc(alias = "move-cursor")]
+    fn connect_move_cursor<F: Fn(&Self, MovementStep, i32) -> bool + 'static>(
+        &self,
+        f: F,
+    ) -> SignalHandlerId;
+
+    fn emit_move_cursor(&self, step: MovementStep, count: i32) -> bool;
+
+    #[doc(alias = "select-all")]
+    fn connect_select_all<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    fn emit_select_all(&self);
+
+    #[doc(alias = "selected-children-changed")]
+    fn connect_selected_children_changed<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "toggle-cursor-child")]
+    fn connect_toggle_cursor_child<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    fn emit_toggle_cursor_child(&self);
+
+    #[doc(alias = "unselect-all")]
+    fn connect_unselect_all<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    fn emit_unselect_all(&self);
+
+    #[doc(alias = "activate-on-single-click")]
+    fn connect_activate_on_single_click_notify<F: Fn(&Self) + 'static>(
+        &self,
+        f: F,
+    ) -> SignalHandlerId;
+
+    #[doc(alias = "column-spacing")]
+    fn connect_column_spacing_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "homogeneous")]
+    fn connect_homogeneous_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "max-children-per-line")]
+    fn connect_max_children_per_line_notify<F: Fn(&Self) + 'static>(&self, f: F)
+        -> SignalHandlerId;
+
+    #[doc(alias = "min-children-per-line")]
+    fn connect_min_children_per_line_notify<F: Fn(&Self) + 'static>(&self, f: F)
+        -> SignalHandlerId;
+
+    #[doc(alias = "row-spacing")]
+    fn connect_row_spacing_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "selection-mode")]
+    fn connect_selection_mode_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
 }
 
-pub trait FlowBoxExt: IsA<FlowBox> + sealed::Sealed + 'static {
-    #[doc(alias = "gtk_flow_box_bind_model")]
+impl<O: IsA<FlowBox>> FlowBoxExt for O {
     fn bind_model<P: Fn(&glib::Object) -> Widget + 'static>(
         &self,
         model: Option<&impl IsA<gio::ListModel>>,
@@ -355,7 +662,8 @@ pub trait FlowBoxExt: IsA<FlowBox> + sealed::Sealed + 'static {
         ) -> *mut ffi::GtkWidget {
             let item = from_glib_borrow(item);
             let callback: &P = &*(user_data as *mut _);
-            (*callback)(&item).to_glib_full()
+            let res = (*callback)(&item);
+            res.to_glib_full()
         }
         let create_widget_func = Some(create_widget_func_func::<P> as _);
         unsafe extern "C" fn user_data_free_func_func<P: Fn(&glib::Object) -> Widget + 'static>(
@@ -376,8 +684,6 @@ pub trait FlowBoxExt: IsA<FlowBox> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_flow_box_get_activate_on_single_click")]
-    #[doc(alias = "get_activate_on_single_click")]
     fn activates_on_single_click(&self) -> bool {
         unsafe {
             from_glib(ffi::gtk_flow_box_get_activate_on_single_click(
@@ -386,8 +692,6 @@ pub trait FlowBoxExt: IsA<FlowBox> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_flow_box_get_child_at_index")]
-    #[doc(alias = "get_child_at_index")]
     fn child_at_index(&self, idx: i32) -> Option<FlowBoxChild> {
         unsafe {
             from_glib_none(ffi::gtk_flow_box_get_child_at_index(
@@ -397,8 +701,8 @@ pub trait FlowBoxExt: IsA<FlowBox> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_flow_box_get_child_at_pos")]
-    #[doc(alias = "get_child_at_pos")]
+    #[cfg(any(feature = "v3_22_6", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22_6")))]
     fn child_at_pos(&self, x: i32, y: i32) -> Option<FlowBoxChild> {
         unsafe {
             from_glib_none(ffi::gtk_flow_box_get_child_at_pos(
@@ -409,14 +713,10 @@ pub trait FlowBoxExt: IsA<FlowBox> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_flow_box_get_column_spacing")]
-    #[doc(alias = "get_column_spacing")]
     fn column_spacing(&self) -> u32 {
         unsafe { ffi::gtk_flow_box_get_column_spacing(self.as_ref().to_glib_none().0) }
     }
 
-    #[doc(alias = "gtk_flow_box_get_homogeneous")]
-    #[doc(alias = "get_homogeneous")]
     fn is_homogeneous(&self) -> bool {
         unsafe {
             from_glib(ffi::gtk_flow_box_get_homogeneous(
@@ -425,26 +725,18 @@ pub trait FlowBoxExt: IsA<FlowBox> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_flow_box_get_max_children_per_line")]
-    #[doc(alias = "get_max_children_per_line")]
     fn max_children_per_line(&self) -> u32 {
         unsafe { ffi::gtk_flow_box_get_max_children_per_line(self.as_ref().to_glib_none().0) }
     }
 
-    #[doc(alias = "gtk_flow_box_get_min_children_per_line")]
-    #[doc(alias = "get_min_children_per_line")]
     fn min_children_per_line(&self) -> u32 {
         unsafe { ffi::gtk_flow_box_get_min_children_per_line(self.as_ref().to_glib_none().0) }
     }
 
-    #[doc(alias = "gtk_flow_box_get_row_spacing")]
-    #[doc(alias = "get_row_spacing")]
     fn row_spacing(&self) -> u32 {
         unsafe { ffi::gtk_flow_box_get_row_spacing(self.as_ref().to_glib_none().0) }
     }
 
-    #[doc(alias = "gtk_flow_box_get_selected_children")]
-    #[doc(alias = "get_selected_children")]
     fn selected_children(&self) -> Vec<FlowBoxChild> {
         unsafe {
             FromGlibPtrContainer::from_glib_container(ffi::gtk_flow_box_get_selected_children(
@@ -453,8 +745,6 @@ pub trait FlowBoxExt: IsA<FlowBox> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_flow_box_get_selection_mode")]
-    #[doc(alias = "get_selection_mode")]
     fn selection_mode(&self) -> SelectionMode {
         unsafe {
             from_glib(ffi::gtk_flow_box_get_selection_mode(
@@ -463,7 +753,6 @@ pub trait FlowBoxExt: IsA<FlowBox> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_flow_box_insert")]
     fn insert(&self, widget: &impl IsA<Widget>, position: i32) {
         unsafe {
             ffi::gtk_flow_box_insert(
@@ -474,28 +763,24 @@ pub trait FlowBoxExt: IsA<FlowBox> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_flow_box_invalidate_filter")]
     fn invalidate_filter(&self) {
         unsafe {
             ffi::gtk_flow_box_invalidate_filter(self.as_ref().to_glib_none().0);
         }
     }
 
-    #[doc(alias = "gtk_flow_box_invalidate_sort")]
     fn invalidate_sort(&self) {
         unsafe {
             ffi::gtk_flow_box_invalidate_sort(self.as_ref().to_glib_none().0);
         }
     }
 
-    #[doc(alias = "gtk_flow_box_select_all")]
     fn select_all(&self) {
         unsafe {
             ffi::gtk_flow_box_select_all(self.as_ref().to_glib_none().0);
         }
     }
 
-    #[doc(alias = "gtk_flow_box_select_child")]
     fn select_child(&self, child: &impl IsA<FlowBoxChild>) {
         unsafe {
             ffi::gtk_flow_box_select_child(
@@ -505,7 +790,6 @@ pub trait FlowBoxExt: IsA<FlowBox> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_flow_box_selected_foreach")]
     fn selected_foreach<P: FnMut(&FlowBox, &FlowBoxChild)>(&self, func: P) {
         let func_data: P = func;
         unsafe extern "C" fn func_func<P: FnMut(&FlowBox, &FlowBoxChild)>(
@@ -516,7 +800,7 @@ pub trait FlowBoxExt: IsA<FlowBox> + sealed::Sealed + 'static {
             let box_ = from_glib_borrow(box_);
             let child = from_glib_borrow(child);
             let callback: *mut P = user_data as *const _ as usize as *mut P;
-            (*callback)(&box_, &child)
+            (*callback)(&box_, &child);
         }
         let func = Some(func_func::<P> as _);
         let super_callback0: &P = &func_data;
@@ -529,7 +813,6 @@ pub trait FlowBoxExt: IsA<FlowBox> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_flow_box_set_activate_on_single_click")]
     fn set_activate_on_single_click(&self, single: bool) {
         unsafe {
             ffi::gtk_flow_box_set_activate_on_single_click(
@@ -539,14 +822,12 @@ pub trait FlowBoxExt: IsA<FlowBox> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_flow_box_set_column_spacing")]
     fn set_column_spacing(&self, spacing: u32) {
         unsafe {
             ffi::gtk_flow_box_set_column_spacing(self.as_ref().to_glib_none().0, spacing);
         }
     }
 
-    #[doc(alias = "gtk_flow_box_set_filter_func")]
     fn set_filter_func(&self, filter_func: Option<Box_<dyn Fn(&FlowBoxChild) -> bool + 'static>>) {
         let filter_func_data: Box_<Option<Box_<dyn Fn(&FlowBoxChild) -> bool + 'static>>> =
             Box_::new(filter_func);
@@ -557,12 +838,12 @@ pub trait FlowBoxExt: IsA<FlowBox> + sealed::Sealed + 'static {
             let child = from_glib_borrow(child);
             let callback: &Option<Box_<dyn Fn(&FlowBoxChild) -> bool + 'static>> =
                 &*(user_data as *mut _);
-            if let Some(ref callback) = *callback {
+            let res = if let Some(ref callback) = *callback {
                 callback(&child)
             } else {
                 panic!("cannot get closure...")
-            }
-            .into_glib()
+            };
+            res.into_glib()
         }
         let filter_func = if filter_func_data.is_some() {
             Some(filter_func_func as _)
@@ -586,7 +867,6 @@ pub trait FlowBoxExt: IsA<FlowBox> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_flow_box_set_hadjustment")]
     fn set_hadjustment(&self, adjustment: &impl IsA<Adjustment>) {
         unsafe {
             ffi::gtk_flow_box_set_hadjustment(
@@ -596,7 +876,6 @@ pub trait FlowBoxExt: IsA<FlowBox> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_flow_box_set_homogeneous")]
     fn set_homogeneous(&self, homogeneous: bool) {
         unsafe {
             ffi::gtk_flow_box_set_homogeneous(
@@ -606,35 +885,30 @@ pub trait FlowBoxExt: IsA<FlowBox> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_flow_box_set_max_children_per_line")]
     fn set_max_children_per_line(&self, n_children: u32) {
         unsafe {
             ffi::gtk_flow_box_set_max_children_per_line(self.as_ref().to_glib_none().0, n_children);
         }
     }
 
-    #[doc(alias = "gtk_flow_box_set_min_children_per_line")]
     fn set_min_children_per_line(&self, n_children: u32) {
         unsafe {
             ffi::gtk_flow_box_set_min_children_per_line(self.as_ref().to_glib_none().0, n_children);
         }
     }
 
-    #[doc(alias = "gtk_flow_box_set_row_spacing")]
     fn set_row_spacing(&self, spacing: u32) {
         unsafe {
             ffi::gtk_flow_box_set_row_spacing(self.as_ref().to_glib_none().0, spacing);
         }
     }
 
-    #[doc(alias = "gtk_flow_box_set_selection_mode")]
     fn set_selection_mode(&self, mode: SelectionMode) {
         unsafe {
             ffi::gtk_flow_box_set_selection_mode(self.as_ref().to_glib_none().0, mode.into_glib());
         }
     }
 
-    #[doc(alias = "gtk_flow_box_set_sort_func")]
     fn set_sort_func(
         &self,
         sort_func: Option<Box_<dyn Fn(&FlowBoxChild, &FlowBoxChild) -> i32 + 'static>>,
@@ -651,11 +925,12 @@ pub trait FlowBoxExt: IsA<FlowBox> + sealed::Sealed + 'static {
             let child2 = from_glib_borrow(child2);
             let callback: &Option<Box_<dyn Fn(&FlowBoxChild, &FlowBoxChild) -> i32 + 'static>> =
                 &*(user_data as *mut _);
-            if let Some(ref callback) = *callback {
+            let res = if let Some(ref callback) = *callback {
                 callback(&child1, &child2)
             } else {
                 panic!("cannot get closure...")
-            }
+            };
+            res
         }
         let sort_func = if sort_func_data.is_some() {
             Some(sort_func_func as _)
@@ -681,7 +956,6 @@ pub trait FlowBoxExt: IsA<FlowBox> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_flow_box_set_vadjustment")]
     fn set_vadjustment(&self, adjustment: &impl IsA<Adjustment>) {
         unsafe {
             ffi::gtk_flow_box_set_vadjustment(
@@ -691,14 +965,12 @@ pub trait FlowBoxExt: IsA<FlowBox> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_flow_box_unselect_all")]
     fn unselect_all(&self) {
         unsafe {
             ffi::gtk_flow_box_unselect_all(self.as_ref().to_glib_none().0);
         }
     }
 
-    #[doc(alias = "gtk_flow_box_unselect_child")]
     fn unselect_child(&self, child: &impl IsA<FlowBoxChild>) {
         unsafe {
             ffi::gtk_flow_box_unselect_child(
@@ -708,7 +980,6 @@ pub trait FlowBoxExt: IsA<FlowBox> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "activate-cursor-child")]
     fn connect_activate_cursor_child<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn activate_cursor_child_trampoline<
             P: IsA<FlowBox>,
@@ -737,7 +1008,6 @@ pub trait FlowBoxExt: IsA<FlowBox> + sealed::Sealed + 'static {
         self.emit_by_name::<()>("activate-cursor-child", &[]);
     }
 
-    #[doc(alias = "child-activated")]
     fn connect_child_activated<F: Fn(&Self, &FlowBoxChild) + 'static>(
         &self,
         f: F,
@@ -769,7 +1039,6 @@ pub trait FlowBoxExt: IsA<FlowBox> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "move-cursor")]
     fn connect_move_cursor<F: Fn(&Self, MovementStep, i32) -> bool + 'static>(
         &self,
         f: F,
@@ -808,7 +1077,6 @@ pub trait FlowBoxExt: IsA<FlowBox> + sealed::Sealed + 'static {
         self.emit_by_name("move-cursor", &[&step, &count])
     }
 
-    #[doc(alias = "select-all")]
     fn connect_select_all<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn select_all_trampoline<P: IsA<FlowBox>, F: Fn(&P) + 'static>(
             this: *mut ffi::GtkFlowBox,
@@ -834,7 +1102,6 @@ pub trait FlowBoxExt: IsA<FlowBox> + sealed::Sealed + 'static {
         self.emit_by_name::<()>("select-all", &[]);
     }
 
-    #[doc(alias = "selected-children-changed")]
     fn connect_selected_children_changed<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn selected_children_changed_trampoline<
             P: IsA<FlowBox>,
@@ -859,7 +1126,6 @@ pub trait FlowBoxExt: IsA<FlowBox> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "toggle-cursor-child")]
     fn connect_toggle_cursor_child<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn toggle_cursor_child_trampoline<
             P: IsA<FlowBox>,
@@ -888,7 +1154,6 @@ pub trait FlowBoxExt: IsA<FlowBox> + sealed::Sealed + 'static {
         self.emit_by_name::<()>("toggle-cursor-child", &[]);
     }
 
-    #[doc(alias = "unselect-all")]
     fn connect_unselect_all<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn unselect_all_trampoline<P: IsA<FlowBox>, F: Fn(&P) + 'static>(
             this: *mut ffi::GtkFlowBox,
@@ -914,7 +1179,6 @@ pub trait FlowBoxExt: IsA<FlowBox> + sealed::Sealed + 'static {
         self.emit_by_name::<()>("unselect-all", &[]);
     }
 
-    #[doc(alias = "activate-on-single-click")]
     fn connect_activate_on_single_click_notify<F: Fn(&Self) + 'static>(
         &self,
         f: F,
@@ -943,7 +1207,6 @@ pub trait FlowBoxExt: IsA<FlowBox> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "column-spacing")]
     fn connect_column_spacing_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_column_spacing_trampoline<
             P: IsA<FlowBox>,
@@ -969,7 +1232,6 @@ pub trait FlowBoxExt: IsA<FlowBox> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "homogeneous")]
     fn connect_homogeneous_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_homogeneous_trampoline<P: IsA<FlowBox>, F: Fn(&P) + 'static>(
             this: *mut ffi::GtkFlowBox,
@@ -992,7 +1254,6 @@ pub trait FlowBoxExt: IsA<FlowBox> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "max-children-per-line")]
     fn connect_max_children_per_line_notify<F: Fn(&Self) + 'static>(
         &self,
         f: F,
@@ -1021,7 +1282,6 @@ pub trait FlowBoxExt: IsA<FlowBox> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "min-children-per-line")]
     fn connect_min_children_per_line_notify<F: Fn(&Self) + 'static>(
         &self,
         f: F,
@@ -1050,7 +1310,6 @@ pub trait FlowBoxExt: IsA<FlowBox> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "row-spacing")]
     fn connect_row_spacing_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_row_spacing_trampoline<P: IsA<FlowBox>, F: Fn(&P) + 'static>(
             this: *mut ffi::GtkFlowBox,
@@ -1073,7 +1332,6 @@ pub trait FlowBoxExt: IsA<FlowBox> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "selection-mode")]
     fn connect_selection_mode_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_selection_mode_trampoline<
             P: IsA<FlowBox>,
@@ -1099,8 +1357,6 @@ pub trait FlowBoxExt: IsA<FlowBox> + sealed::Sealed + 'static {
         }
     }
 }
-
-impl<O: IsA<FlowBox>> FlowBoxExt for O {}
 
 impl fmt::Display for FlowBox {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {

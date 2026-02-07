@@ -1,12 +1,10 @@
 // Take a look at the license at the top of the repository in the LICENSE file.
 
-use std::{
-    any::Any,
-    cell::{Ref, RefMut},
-};
-
 use crate as glib;
-use crate::{subclass::prelude::*, Object};
+use crate::subclass::prelude::*;
+use crate::{object_subclass, wrapper, Object};
+use std::any::Any;
+use std::cell::{Ref, RefCell, RefMut};
 
 #[derive(thiserror::Error, Debug)]
 pub enum BorrowError {
@@ -24,17 +22,13 @@ pub enum BorrowMutError {
 }
 
 mod imp {
-    use std::{any::Any, cell::RefCell};
-
-    use crate as glib;
-    use crate::subclass::prelude::*;
+    use super::*;
 
     #[derive(Debug)]
     pub struct BoxedAnyObject {
         pub value: RefCell<Box<dyn Any>>,
     }
-
-    #[glib::object_subclass]
+    #[object_subclass]
     impl ObjectSubclass for BoxedAnyObject {
         const NAME: &'static str = "BoxedAnyObject";
         type Type = super::BoxedAnyObject;
@@ -49,7 +43,7 @@ mod imp {
     impl ObjectImpl for BoxedAnyObject {}
 }
 
-glib::wrapper! {
+wrapper! {
     // rustdoc-stripper-ignore-next
     /// This is a subclass of `glib::object::Object` capable of storing any Rust type.
     /// It let's you insert a Rust type anywhere a `glib::object::Object` is needed.
@@ -80,8 +74,8 @@ glib::wrapper! {
     /// use gio::ListStore;
     ///
     /// // The boxed data can be stored as a `glib::object::Object`
-    /// let list = ListStore::new::<BoxedAnyObject>();
-    /// list.append(&boxed);
+    /// let list = ListStore::new(BoxedAnyObject::static_type());
+    /// list.append(boxed.upcast());
     /// ```
     pub struct BoxedAnyObject(ObjectSubclass<imp::BoxedAnyObject>);
 }
@@ -90,7 +84,7 @@ impl BoxedAnyObject {
     // rustdoc-stripper-ignore-next
     /// Creates a new `BoxedAnyObject` containing `value`
     pub fn new<T: 'static>(value: T) -> Self {
-        let obj: Self = Object::new();
+        let obj: Self = Object::new(&[]).expect("Failed to create BoxedAnyObject");
         obj.replace(value);
         obj
     }

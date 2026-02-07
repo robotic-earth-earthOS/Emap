@@ -8,7 +8,7 @@ Cairo __1.14__ is the lowest supported version for the underlying library.
 
 ## Minimum supported Rust version
 
-Currently, the minimum supported Rust version is `1.70.0`.
+Currently, the minimum supported Rust version is `1.56.0`.
 
 ## Default-on features
 
@@ -31,6 +31,10 @@ Currently, the minimum supported Rust version is `1.70.0`.
  * [Rust API - Development](https://gtk-rs.org/gtk-rs-core/git/docs/cairo)
  * [C API](https://www.cairographics.org/documentation/)
 
+## Documentation features
+
+ * **dox** - Used to keep system dependent items in documentation
+
 ## X Window features
 
  * **xcb** - X Window System rendering using the XCB library
@@ -39,10 +43,6 @@ Currently, the minimum supported Rust version is `1.70.0`.
 ## Windows API features
 
  * **win32-surface** - Microsoft Windows surface support
-
-## Documentation rustdoc attributes
-
- * **docsrs** - Used to keep system dependent items in documentation
 
 ## Using
 

@@ -1,10 +1,11 @@
 // Take a look at the license at the top of the repository in the LICENSE file.
 
-use std::{cmp, mem};
-
-use glib::{translate::*, GString};
-
-use crate::{Icon, UnixMountEntry};
+use crate::Icon;
+use crate::UnixMountEntry;
+use glib::translate::*;
+use glib::GString;
+use std::cmp;
+use std::mem;
 
 impl UnixMountEntry {
     #[doc(alias = "g_unix_mount_at")]
@@ -23,6 +24,8 @@ impl UnixMountEntry {
         }
     }
 
+    #[cfg(any(feature = "v2_52", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v2_52")))]
     #[doc(alias = "g_unix_mount_for")]
     #[doc(alias = "new_for")]
     pub fn for_file_path<P: AsRef<std::path::Path>>(file_path: P) -> (Option<UnixMountEntry>, u64) {
@@ -89,8 +92,8 @@ impl UnixMountEntry {
         }
     }
 
-    #[cfg(feature = "v2_58")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "v2_58")))]
+    #[cfg(any(feature = "v2_58", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v2_58")))]
     #[doc(alias = "g_unix_mount_get_options")]
     #[doc(alias = "get_options")]
     pub fn options(&self) -> Option<GString> {
@@ -101,8 +104,8 @@ impl UnixMountEntry {
         }
     }
 
-    #[cfg(feature = "v2_60")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "v2_60")))]
+    #[cfg(any(feature = "v2_60", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v2_60")))]
     #[doc(alias = "g_unix_mount_get_root_path")]
     #[doc(alias = "get_root_path")]
     pub fn root_path(&self) -> Option<std::path::PathBuf> {
@@ -194,7 +197,7 @@ impl Eq for UnixMountEntry {}
 impl PartialOrd for UnixMountEntry {
     #[inline]
     fn partial_cmp(&self, other: &Self) -> Option<cmp::Ordering> {
-        Some(self.cmp(other))
+        self.compare(other).partial_cmp(&0)
     }
 }
 

@@ -55,20 +55,10 @@ macro_rules! user_data_methods {
             // neither of them touches the reference count.
             let ptr: *const T = std::rc::Rc::into_raw(value);
             let ptr = ptr as *mut T as *mut libc::c_void;
-            let status = crate::utils::status_to_result(unsafe {
+            let status = unsafe {
                 $ffi_set_user_data(self.to_raw_none(), &key.ffi, ptr, Some(destructor::<T>))
-            });
-
-            if status.is_err() {
-                // Safety:
-                //
-                // On errors the user data is leaked by cairo and needs to be freed here.
-                unsafe {
-                    destructor::<T>(ptr);
-                }
-            }
-
-            status
+            };
+            crate::utils::status_to_result(status)
         }
 
         /// Return the user data previously attached to `self` with the given `key`, if any.

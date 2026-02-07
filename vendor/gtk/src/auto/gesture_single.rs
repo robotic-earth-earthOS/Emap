@@ -2,13 +2,16 @@
 // from gir-files (https://github.com/gtk-rs/gir-files)
 // DO NOT EDIT
 
-use crate::{EventController, Gesture};
-use glib::{
-    prelude::*,
-    signal::{connect_raw, SignalHandlerId},
-    translate::*,
-};
-use std::{boxed::Box as Box_, fmt, mem::transmute};
+use crate::EventController;
+use crate::Gesture;
+use glib::object::Cast;
+use glib::object::IsA;
+use glib::signal::connect_raw;
+use glib::signal::SignalHandlerId;
+use glib::translate::*;
+use std::boxed::Box as Box_;
+use std::fmt;
+use std::mem::transmute;
 
 glib::wrapper! {
     #[doc(alias = "GtkGestureSingle")]
@@ -23,26 +26,55 @@ impl GestureSingle {
     pub const NONE: Option<&'static GestureSingle> = None;
 }
 
-mod sealed {
-    pub trait Sealed {}
-    impl<T: super::IsA<super::GestureSingle>> Sealed for T {}
-}
-
-pub trait GestureSingleExt: IsA<GestureSingle> + sealed::Sealed + 'static {
+pub trait GestureSingleExt: 'static {
     #[doc(alias = "gtk_gesture_single_get_button")]
     #[doc(alias = "get_button")]
+    fn button(&self) -> u32;
+
+    #[doc(alias = "gtk_gesture_single_get_current_button")]
+    #[doc(alias = "get_current_button")]
+    fn current_button(&self) -> u32;
+
+    #[doc(alias = "gtk_gesture_single_get_current_sequence")]
+    #[doc(alias = "get_current_sequence")]
+    fn current_sequence(&self) -> Option<gdk::EventSequence>;
+
+    #[doc(alias = "gtk_gesture_single_get_exclusive")]
+    #[doc(alias = "get_exclusive")]
+    fn is_exclusive(&self) -> bool;
+
+    #[doc(alias = "gtk_gesture_single_get_touch_only")]
+    #[doc(alias = "get_touch_only")]
+    fn is_touch_only(&self) -> bool;
+
+    #[doc(alias = "gtk_gesture_single_set_button")]
+    fn set_button(&self, button: u32);
+
+    #[doc(alias = "gtk_gesture_single_set_exclusive")]
+    fn set_exclusive(&self, exclusive: bool);
+
+    #[doc(alias = "gtk_gesture_single_set_touch_only")]
+    fn set_touch_only(&self, touch_only: bool);
+
+    #[doc(alias = "button")]
+    fn connect_button_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "exclusive")]
+    fn connect_exclusive_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "touch-only")]
+    fn connect_touch_only_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+}
+
+impl<O: IsA<GestureSingle>> GestureSingleExt for O {
     fn button(&self) -> u32 {
         unsafe { ffi::gtk_gesture_single_get_button(self.as_ref().to_glib_none().0) }
     }
 
-    #[doc(alias = "gtk_gesture_single_get_current_button")]
-    #[doc(alias = "get_current_button")]
     fn current_button(&self) -> u32 {
         unsafe { ffi::gtk_gesture_single_get_current_button(self.as_ref().to_glib_none().0) }
     }
 
-    #[doc(alias = "gtk_gesture_single_get_current_sequence")]
-    #[doc(alias = "get_current_sequence")]
     fn current_sequence(&self) -> Option<gdk::EventSequence> {
         unsafe {
             from_glib_full(ffi::gtk_gesture_single_get_current_sequence(
@@ -51,8 +83,6 @@ pub trait GestureSingleExt: IsA<GestureSingle> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_gesture_single_get_exclusive")]
-    #[doc(alias = "get_exclusive")]
     fn is_exclusive(&self) -> bool {
         unsafe {
             from_glib(ffi::gtk_gesture_single_get_exclusive(
@@ -61,8 +91,6 @@ pub trait GestureSingleExt: IsA<GestureSingle> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_gesture_single_get_touch_only")]
-    #[doc(alias = "get_touch_only")]
     fn is_touch_only(&self) -> bool {
         unsafe {
             from_glib(ffi::gtk_gesture_single_get_touch_only(
@@ -71,14 +99,12 @@ pub trait GestureSingleExt: IsA<GestureSingle> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_gesture_single_set_button")]
     fn set_button(&self, button: u32) {
         unsafe {
             ffi::gtk_gesture_single_set_button(self.as_ref().to_glib_none().0, button);
         }
     }
 
-    #[doc(alias = "gtk_gesture_single_set_exclusive")]
     fn set_exclusive(&self, exclusive: bool) {
         unsafe {
             ffi::gtk_gesture_single_set_exclusive(
@@ -88,7 +114,6 @@ pub trait GestureSingleExt: IsA<GestureSingle> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_gesture_single_set_touch_only")]
     fn set_touch_only(&self, touch_only: bool) {
         unsafe {
             ffi::gtk_gesture_single_set_touch_only(
@@ -98,7 +123,6 @@ pub trait GestureSingleExt: IsA<GestureSingle> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "button")]
     fn connect_button_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_button_trampoline<
             P: IsA<GestureSingle>,
@@ -124,7 +148,6 @@ pub trait GestureSingleExt: IsA<GestureSingle> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "exclusive")]
     fn connect_exclusive_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_exclusive_trampoline<
             P: IsA<GestureSingle>,
@@ -150,7 +173,6 @@ pub trait GestureSingleExt: IsA<GestureSingle> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "touch-only")]
     fn connect_touch_only_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_touch_only_trampoline<
             P: IsA<GestureSingle>,
@@ -176,8 +198,6 @@ pub trait GestureSingleExt: IsA<GestureSingle> + sealed::Sealed + 'static {
         }
     }
 }
-
-impl<O: IsA<GestureSingle>> GestureSingleExt for O {}
 
 impl fmt::Display for GestureSingle {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {

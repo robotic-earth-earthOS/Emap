@@ -4,14 +4,17 @@ use crate::Table;
 use glib::object::IsA;
 use glib::translate::*;
 
-mod sealed {
-    pub trait Sealed {}
-    impl<T: glib::IsA<crate::Table>> Sealed for T {}
-}
-
-pub trait TableExtManual: IsA<Table> + sealed::Sealed + 'static {
+pub trait TableExtManual: 'static {
     #[doc(alias = "atk_table_get_selected_columns")]
     #[doc(alias = "get_selected_columns")]
+    fn selected_columns(&self) -> Vec<i32>;
+
+    #[doc(alias = "atk_table_get_selected_rows")]
+    #[doc(alias = "get_selected_rows")]
+    fn selected_rows(&self) -> Vec<i32>;
+}
+
+impl<O: IsA<Table>> TableExtManual for O {
     fn selected_columns(&self) -> Vec<i32> {
         unsafe {
             let mut selected = ::std::ptr::null_mut();
@@ -25,8 +28,6 @@ pub trait TableExtManual: IsA<Table> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "atk_table_get_selected_rows")]
-    #[doc(alias = "get_selected_rows")]
     fn selected_rows(&self) -> Vec<i32> {
         unsafe {
             let mut selected = ::std::ptr::null_mut();
@@ -40,5 +41,3 @@ pub trait TableExtManual: IsA<Table> + sealed::Sealed + 'static {
         }
     }
 }
-
-impl<O: IsA<Table>> TableExtManual for O {}

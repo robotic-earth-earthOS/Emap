@@ -17,13 +17,19 @@ fn has_widget<O: IsA<Fixed>, T: IsA<Widget>>(c: &O, item: &T) -> bool {
     }
 }
 
-mod sealed {
-    pub trait Sealed {}
-    impl<T: glib::IsA<crate::Fixed>> Sealed for T {}
+pub trait FixedExtManual: 'static {
+    #[doc(alias = "get_child_x")]
+    fn child_x<T: IsA<Widget>>(&self, item: &T) -> i32;
+
+    fn set_child_x<T: IsA<Widget>>(&self, item: &T, x: i32);
+
+    #[doc(alias = "get_child_y")]
+    fn child_y<T: IsA<Widget>>(&self, item: &T) -> i32;
+
+    fn set_child_y<T: IsA<Widget>>(&self, item: &T, y: i32);
 }
 
-pub trait FixedExtManual: IsA<Fixed> + sealed::Sealed + 'static {
-    #[doc(alias = "get_child_x")]
+impl<O: IsA<Fixed>> FixedExtManual for O {
     fn child_x<T: IsA<Widget>>(&self, item: &T) -> i32 {
         assert!(
             has_widget(self, item),
@@ -58,7 +64,6 @@ pub trait FixedExtManual: IsA<Fixed> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "get_child_y")]
     fn child_y<T: IsA<Widget>>(&self, item: &T) -> i32 {
         assert!(
             has_widget(self, item),
@@ -93,5 +98,3 @@ pub trait FixedExtManual: IsA<Fixed> + sealed::Sealed + 'static {
         }
     }
 }
-
-impl<O: IsA<Fixed>> FixedExtManual for O {}

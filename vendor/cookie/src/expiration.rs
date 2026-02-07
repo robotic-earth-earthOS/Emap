@@ -1,8 +1,9 @@
 use time::OffsetDateTime;
 
-/// A cookie's expiration: either a date-time or session.
+/// A cookie's expiration: either session or a date-time.
 ///
-/// An `Expiration` is constructible with `Expiration::from()` via any of:
+/// An `Expiration` is constructible via `Expiration::from()` with an
+/// `Option<OffsetDateTime>` or an `OffsetDateTime`:
 ///
 ///   * `None` -> `Expiration::Session`
 ///   * `Some(OffsetDateTime)` -> `Expiration::DateTime`

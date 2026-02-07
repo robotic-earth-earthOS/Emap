@@ -1,10 +1,12 @@
 // Take a look at the license at the top of the repository in the LICENSE file.
 
+use crate::prelude::*;
+use crate::InetAddress;
+use crate::SocketFamily;
+use glib::object::IsA;
+use glib::translate::*;
+
 use std::net::{IpAddr, Ipv4Addr, Ipv6Addr};
-
-use glib::{prelude::*, translate::*};
-
-use crate::{prelude::*, InetAddress, SocketFamily};
 
 #[derive(Debug)]
 pub enum InetAddressBytes<'a> {
@@ -13,7 +15,6 @@ pub enum InetAddressBytes<'a> {
 }
 
 impl<'a> InetAddressBytes<'a> {
-    #[inline]
     fn deref(&self) -> &[u8] {
         use self::InetAddressBytes::*;
 
@@ -42,16 +43,15 @@ impl InetAddress {
     }
 }
 
-mod sealed {
-    pub trait Sealed {}
-    impl<T: super::IsA<super::InetAddress>> Sealed for T {}
+pub trait InetAddressExtManual {
+    #[doc(alias = "g_inet_address_to_bytes")]
+    fn to_bytes(&self) -> Option<InetAddressBytes<'_>>;
 }
 
-pub trait InetAddressExtManual: sealed::Sealed + IsA<InetAddress> + 'static {
+impl<O: IsA<InetAddress>> InetAddressExtManual for O {
     // rustdoc-stripper-ignore-next
     /// Returns `None` in case the address has a native size different than 4 and 16.
     #[doc(alias = "g_inet_address_to_bytes")]
-    #[inline]
     fn to_bytes(&self) -> Option<InetAddressBytes<'_>> {
         let size = self.native_size();
         unsafe {
@@ -66,8 +66,6 @@ pub trait InetAddressExtManual: sealed::Sealed + IsA<InetAddress> + 'static {
         }
     }
 }
-
-impl<O: IsA<InetAddress>> InetAddressExtManual for O {}
 
 impl From<IpAddr> for InetAddress {
     fn from(addr: IpAddr) -> Self {

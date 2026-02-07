@@ -2,9 +2,16 @@
 // from gir-files (https://github.com/gtk-rs/gir-files)
 // DO NOT EDIT
 
-use crate::{Colorspace, InterpType, PixbufFormat, PixbufRotation};
-use glib::{prelude::*, translate::*};
-use std::{fmt, ptr};
+use crate::Colorspace;
+use crate::InterpType;
+use crate::PixbufFormat;
+use crate::PixbufRotation;
+use glib::object::IsA;
+use glib::object::ObjectType as ObjectType_;
+use glib::translate::*;
+use glib::StaticType;
+use std::fmt;
+use std::ptr;
 
 glib::wrapper! {
     #[doc(alias = "GdkPixbuf")]
@@ -64,68 +71,6 @@ impl Pixbuf {
     //pub fn from_data(data: &[u8], colorspace: Colorspace, has_alpha: bool, bits_per_sample: i32, width: i32, height: i32, rowstride: i32, destroy_fn: Option<Box_<dyn FnOnce(&Vec<u8>) + 'static>>) -> Pixbuf {
     //    unsafe { TODO: call ffi:gdk_pixbuf_new_from_data() }
     //}
-
-    #[doc(alias = "gdk_pixbuf_new_from_file")]
-    #[doc(alias = "new_from_file")]
-    pub fn from_file(filename: impl AsRef<std::path::Path>) -> Result<Pixbuf, glib::Error> {
-        unsafe {
-            let mut error = ptr::null_mut();
-            let ret = ffi::gdk_pixbuf_new_from_file(filename.as_ref().to_glib_none().0, &mut error);
-            if error.is_null() {
-                Ok(from_glib_full(ret))
-            } else {
-                Err(from_glib_full(error))
-            }
-        }
-    }
-
-    #[doc(alias = "gdk_pixbuf_new_from_file_at_scale")]
-    #[doc(alias = "new_from_file_at_scale")]
-    pub fn from_file_at_scale(
-        filename: impl AsRef<std::path::Path>,
-        width: i32,
-        height: i32,
-        preserve_aspect_ratio: bool,
-    ) -> Result<Pixbuf, glib::Error> {
-        unsafe {
-            let mut error = ptr::null_mut();
-            let ret = ffi::gdk_pixbuf_new_from_file_at_scale(
-                filename.as_ref().to_glib_none().0,
-                width,
-                height,
-                preserve_aspect_ratio.into_glib(),
-                &mut error,
-            );
-            if error.is_null() {
-                Ok(from_glib_full(ret))
-            } else {
-                Err(from_glib_full(error))
-            }
-        }
-    }
-
-    #[doc(alias = "gdk_pixbuf_new_from_file_at_size")]
-    #[doc(alias = "new_from_file_at_size")]
-    pub fn from_file_at_size(
-        filename: impl AsRef<std::path::Path>,
-        width: i32,
-        height: i32,
-    ) -> Result<Pixbuf, glib::Error> {
-        unsafe {
-            let mut error = ptr::null_mut();
-            let ret = ffi::gdk_pixbuf_new_from_file_at_size(
-                filename.as_ref().to_glib_none().0,
-                width,
-                height,
-                &mut error,
-            );
-            if error.is_null() {
-                Ok(from_glib_full(ret))
-            } else {
-                Err(from_glib_full(error))
-            }
-        }
-    }
 
     #[doc(alias = "gdk_pixbuf_new_from_resource")]
     #[doc(alias = "new_from_resource")]
@@ -216,30 +161,21 @@ impl Pixbuf {
 
     #[doc(alias = "gdk_pixbuf_new_from_xpm_data")]
     #[doc(alias = "new_from_xpm_data")]
-    pub fn from_xpm_data(data: &[&str]) -> Result<Pixbuf, glib::BoolError> {
-        unsafe {
-            Option::<_>::from_glib_full(ffi::gdk_pixbuf_new_from_xpm_data(data.to_glib_none().0))
-                .ok_or_else(|| glib::bool_error!("Invalid XPM data"))
-        }
+    pub fn from_xpm_data(data: &[&str]) -> Pixbuf {
+        unsafe { from_glib_full(ffi::gdk_pixbuf_new_from_xpm_data(data.to_glib_none().0)) }
     }
 
     #[doc(alias = "gdk_pixbuf_add_alpha")]
-    pub fn add_alpha(
-        &self,
-        substitute_color: bool,
-        r: u8,
-        g: u8,
-        b: u8,
-    ) -> Result<Pixbuf, glib::BoolError> {
+    #[must_use]
+    pub fn add_alpha(&self, substitute_color: bool, r: u8, g: u8, b: u8) -> Option<Pixbuf> {
         unsafe {
-            Option::<_>::from_glib_full(ffi::gdk_pixbuf_add_alpha(
+            from_glib_full(ffi::gdk_pixbuf_add_alpha(
                 self.to_glib_none().0,
                 substitute_color.into_glib(),
                 r,
                 g,
                 b,
             ))
-            .ok_or_else(|| glib::bool_error!("Failed to add alpha channel"))
         }
     }
 
@@ -386,6 +322,8 @@ impl Pixbuf {
         }
     }
 
+    #[cfg(any(feature = "v2_36", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v2_36")))]
     #[doc(alias = "gdk_pixbuf_copy_options")]
     pub fn copy_options(&self, dest_pixbuf: &Pixbuf) -> bool {
         unsafe {
@@ -481,7 +419,7 @@ impl Pixbuf {
 
     #[doc(alias = "gdk_pixbuf_new_subpixbuf")]
     #[must_use]
-    pub fn new_subpixbuf(&self, src_x: i32, src_y: i32, width: i32, height: i32) -> Pixbuf {
+    pub fn new_subpixbuf(&self, src_x: i32, src_y: i32, width: i32, height: i32) -> Option<Pixbuf> {
         unsafe {
             from_glib_full(ffi::gdk_pixbuf_new_subpixbuf(
                 self.to_glib_none().0,
@@ -494,10 +432,12 @@ impl Pixbuf {
     }
 
     #[doc(alias = "gdk_pixbuf_read_pixel_bytes")]
-    pub fn read_pixel_bytes(&self) -> glib::Bytes {
+    pub fn read_pixel_bytes(&self) -> Option<glib::Bytes> {
         unsafe { from_glib_full(ffi::gdk_pixbuf_read_pixel_bytes(self.to_glib_none().0)) }
     }
 
+    #[cfg(any(feature = "v2_36", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v2_36")))]
     #[doc(alias = "gdk_pixbuf_remove_option")]
     pub fn remove_option(&self, key: &str) -> bool {
         unsafe {
@@ -532,17 +472,17 @@ impl Pixbuf {
     }
 
     //#[doc(alias = "gdk_pixbuf_save")]
-    //pub fn save(&self, filename: impl AsRef<std::path::Path>, type_: &str, error: Option<&mut glib::Error>, : /*Unknown conversion*//*Unimplemented*/Basic: VarArgs) -> bool {
+    //pub fn save(&self, filename: impl AsRef<std::path::Path>, type_: &str, error: Option<&mut glib::Error>, : /*Unknown conversion*//*Unimplemented*/Fundamental: VarArgs) -> bool {
     //    unsafe { TODO: call ffi:gdk_pixbuf_save() }
     //}
 
     //#[doc(alias = "gdk_pixbuf_save_to_buffer")]
-    //pub fn save_to_buffer(&self, type_: &str, error: Option<&mut glib::Error>, : /*Unknown conversion*//*Unimplemented*/Basic: VarArgs) -> Option<Vec<u8>> {
+    //pub fn save_to_buffer(&self, type_: &str, error: Option<&mut glib::Error>, : /*Unknown conversion*//*Unimplemented*/Fundamental: VarArgs) -> Option<Vec<u8>> {
     //    unsafe { TODO: call ffi:gdk_pixbuf_save_to_buffer() }
     //}
 
     //#[doc(alias = "gdk_pixbuf_save_to_callback")]
-    //pub fn save_to_callback<P: FnMut(&Vec<u8>, usize, &glib::Error) -> bool>(&self, save_func: P, type_: &str, error: Option<&mut glib::Error>, : /*Unknown conversion*//*Unimplemented*/Basic: VarArgs) -> bool {
+    //pub fn save_to_callback<P: FnMut(&Vec<u8>, usize, &glib::Error) -> bool>(&self, save_func: P, type_: &str, error: Option<&mut glib::Error>, : /*Unknown conversion*//*Unimplemented*/Fundamental: VarArgs) -> bool {
     //    unsafe { TODO: call ffi:gdk_pixbuf_save_to_callback() }
     //}
 
@@ -552,17 +492,17 @@ impl Pixbuf {
     //}
 
     //#[doc(alias = "gdk_pixbuf_save_to_stream")]
-    //pub fn save_to_stream(&self, stream: &impl IsA<gio::OutputStream>, type_: &str, cancellable: Option<&impl IsA<gio::Cancellable>>, error: Option<&mut glib::Error>, : /*Unknown conversion*//*Unimplemented*/Basic: VarArgs) -> bool {
+    //pub fn save_to_stream(&self, stream: &impl IsA<gio::OutputStream>, type_: &str, cancellable: Option<&impl IsA<gio::Cancellable>>, error: Option<&mut glib::Error>, : /*Unknown conversion*//*Unimplemented*/Fundamental: VarArgs) -> bool {
     //    unsafe { TODO: call ffi:gdk_pixbuf_save_to_stream() }
     //}
 
     //#[doc(alias = "gdk_pixbuf_save_to_stream_async")]
-    //pub fn save_to_stream_async<P: FnOnce(Result<(), glib::Error>) + 'static>(&self, stream: &impl IsA<gio::OutputStream>, type_: &str, cancellable: Option<&impl IsA<gio::Cancellable>>, callback: P, : /*Unknown conversion*//*Unimplemented*/Basic: VarArgs) {
+    //pub fn save_to_stream_async<P: FnOnce(Result<(), glib::Error>) + 'static>(&self, stream: &impl IsA<gio::OutputStream>, type_: &str, cancellable: Option<&impl IsA<gio::Cancellable>>, callback: P, : /*Unknown conversion*//*Unimplemented*/Fundamental: VarArgs) {
     //    unsafe { TODO: call ffi:gdk_pixbuf_save_to_stream_async() }
     //}
 
     //
-    //pub fn save_to_stream_future(&self, stream: &(impl IsA<gio::OutputStream> + Clone + 'static), type_: &str, : /*Unknown conversion*//*Unimplemented*/Basic: VarArgs) -> Pin<Box_<dyn std::future::Future<Output = Result<(), glib::Error>> + 'static>> {
+    //pub fn save_to_stream_future(&self, stream: &(impl IsA<gio::OutputStream> + Clone + 'static), type_: &str, : /*Unknown conversion*//*Unimplemented*/Fundamental: VarArgs) -> Pin<Box_<dyn std::future::Future<Output = Result<(), glib::Error>> + 'static>> {
 
     //let stream = stream.clone();
     //let type_ = String::from(type_);
@@ -641,9 +581,11 @@ impl Pixbuf {
 
     #[doc(alias = "pixel-bytes")]
     pub fn pixel_bytes(&self) -> Option<glib::Bytes> {
-        ObjectExt::property(self, "pixel-bytes")
+        glib::ObjectExt::property(self, "pixel-bytes")
     }
 
+    #[cfg(any(feature = "v2_36_8", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v2_36_8")))]
     #[doc(alias = "gdk_pixbuf_calculate_rowstride")]
     pub fn calculate_rowstride(
         colorspace: Colorspace,
@@ -669,14 +611,14 @@ impl Pixbuf {
         unsafe { FromGlibPtrContainer::from_glib_container(ffi::gdk_pixbuf_get_formats()) }
     }
 
-    #[cfg(feature = "v2_40")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "v2_40")))]
+    #[cfg(any(feature = "v2_40", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v2_40")))]
     #[doc(alias = "gdk_pixbuf_init_modules")]
     pub fn init_modules(path: &str) -> Result<(), glib::Error> {
         unsafe {
             let mut error = ptr::null_mut();
             let is_ok = ffi::gdk_pixbuf_init_modules(path.to_glib_none().0, &mut error);
-            debug_assert_eq!(is_ok == glib::ffi::GFALSE, !error.is_null());
+            assert_eq!(is_ok == glib::ffi::GFALSE, !error.is_null());
             if error.is_null() {
                 Ok(())
             } else {

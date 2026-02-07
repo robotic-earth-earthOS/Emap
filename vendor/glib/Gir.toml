@@ -2,7 +2,7 @@
 girs_directories = ["../gir-files"]
 library = "GLib"
 version = "2.0"
-min_cfg_version = "2.56"
+min_cfg_version = "2.48"
 target_path = "."
 work_mode = "normal"
 single_version_file = true
@@ -10,28 +10,24 @@ deprecate_by_min_version = true
 trust_return_value_nullability = true
 
 generate = [
-    "GLib.ConvertError",
     "GLib.DateDay",
     "GLib.DateMonth",
     "GLib.DateWeekday",
     "GLib.DateYear",
-    "GLib.FileError",
     "GLib.FileSetContentsFlags",
+    "GLib.FormatSizeFlags",
     "GLib.IOCondition",
     "GLib.KeyFileError",
     "GLib.KeyFileFlags",
     "GLib.LogLevelFlags",
     "GLib.LogWriterOutput",
     "GLib.MainContextFlags",
-    "GLib.MarkupError",
-    "GLib.NormalizeMode",
     "GLib.OptionArg",
     "GLib.OptionFlags",
     "GLib.SeekType",
     "GLib.SpawnFlags",
     "GLib.Time",
     "GLib.TimeType",
-    "GLib.UnicodeType",
     "GLib.UriError",
     "GLib.UriFlags",
     "GLib.UriHideFlags",
@@ -53,13 +49,13 @@ manual = [
 name = "GLib.*"
 status = "generate"
     [[object.function]]
-    pattern = "(assertion_message_cmpint|assert_warning|assertion_message|assertion_message_cmpnum|assertion_message_cmpstr|warn_message|return_if_fail_warning)"
+    pattern = "(assert_warning|assertion_message|assertion_message_cmpnum|assertion_message_cmpstr|warn_message|return_if_fail_warning)"
     ignore = true # Not useful assertions functions
     [[object.function]]
     pattern = "(set_print_handler|set_printerr_handler|vasprintf|vfprintf|vprintf|vsnprintf|vsprintf|stpcpy|sprintf|snprintf|printf|printf_string_upper_bound|printerr|prefix_error|print|fprintf)"
     ignore = true # Not useful string functions
     [[object.function]]
-    pattern = "(malloc|malloc0|malloc0_n|malloc_n|memdup|memdup2|realloc|realloc_n|try_malloc||try_malloc0|try_malloc0_n|try_malloc_n|try_realloc|try_realloc_n|free|aligned_alloc|aligned_alloc0|aligned_free|free_sized|aligned_free_sized)"
+    pattern = "(malloc|malloc0|malloc0_n|malloc_n|memdup|memdup2|realloc|realloc_n|try_malloc||try_malloc0|try_malloc0_n|try_malloc_n|try_realloc|try_realloc_n|free|aligned_alloc|aligned_alloc0|aligned_free)"
     ignore = true # Not useful allocations functions
     [[object.function]]
     pattern = "(slice_get_config|slice_get_config_state|slice_set_config|slice_alloc|slice_alloc0|slice_copy|slice_free1|slice_free_chain_with_offset)"
@@ -95,14 +91,8 @@ status = "generate"
     pattern = "(idle_remove_by_data|qsort_with_data)"
     ignore = true # Unsafe functions
     [[object.function]]
-    pattern = "iconv"
-    doc_struct_name = "IConv"
-    manual = true
-    [[object.function]]
-    pattern = "convert_with_iconv"
-    doc_struct_name = "IConv"
-    manual = true
-    rename = "convert"
+    pattern = "(iconv|convert_with_iconv)"
+    ignore = true # not usable
     [[object.function]]
     pattern = "pointer_.*"
     ignore = true # Not usable, uses raw pointers
@@ -114,7 +104,7 @@ status = "generate"
     ignore = true # use the ones from the std
     [[object.function]]
     pattern = "(markup_collect_attributes|markup_printf_escaped|markup_vprintf_escaped)"
-    ignore = true # varargs functions are unbindable
+    ignore = true # they are supposed to be used with MarkupParser, which doesn't have safe bindings
     [[object.function]]
     pattern = "io_.*"
     ignore = true # they are supposed to be used with IOChannel, which doesn't have safe bindings
@@ -132,7 +122,8 @@ status = "generate"
     ignore = true # Deprecated
     [[object.function]]
     name = "get_filename_charsets"
-    manual = true
+    #string
+    ignore = true
     [[object.function]]
     pattern = "str.+v"
     #string
@@ -188,46 +179,60 @@ status = "generate"
     #Pid
     ignore = true
     [[object.function]]
+    name = "get_current_dir"
+    #manual
+    ignore = true
+    [[object.function]]
     pattern = "[gs]et_prgname"
     #manual pathbuf
     ignore = true
     [[object.function]]
+    name = "filename_from_utf8"
+    #not in 64bit lib for Windows
+    ignore = true
+    [[object.function]]
     name = "get_user_name"
-        [object.function.return]
-        string_type = "os_string"
+    #manual pathbuf is_windows_utf8
+    manual = true
     [[object.function]]
-    name = "get_real_name"
-        [object.function.return]
-        string_type = "os_string"
-    [[object.function]]
-    pattern = "setenv"
-        [[object.function.parameter]]
-        name = "variable"
-        string_type = "os_string"
-        [[object.function.parameter]]
-        name = "value"
-        string_type = "os_string"
-        [object.function.return]
-        bool_return_is_error = "Failed to set environment variable"
-    [[object.function]]
-    pattern = "getenv"
-        [[object.function.parameter]]
-        name = "variable"
-        string_type = "os_string"
-        [object.function.return]
-        string_type = "os_string"
+    pattern = "[gs]etenv"
+    #manual is_windows_utf8
+    manual = true
     [[object.function]]
     name = "unsetenv"
-        [[object.function.parameter]]
-        name = "variable"
-        string_type = "os_string"
+    #manual is_windows_utf8
+    manual = true
     [[object.function]]
     name = "file_get_contents"
-    # Use glib::Slice<u8> as return value
+    #manual is_windows_utf8
+    manual = true
+    [[object.function]]
+    name = "filename_to_uri"
+    #manual is_windows_utf8
+    manual = true
+    [[object.function]]
+    name = "filename_from_uri"
+    #manual is_windows_utf8
+    manual = true
+    [[object.function]]
+    name = "find_program_in_path"
+    #manual is_windows_utf8
+    manual = true
+    [[object.function]]
+    name = "get_home_dir"
+    #manual is_windows_utf8
+    manual = true
+    [[object.function]]
+    name = "get_real_name"
+    #manual pathbuf? is_windows_utf8
+    manual = true
+    [[object.function]]
+    name = "get_tmp_dir"
+    #manual is_windows_utf8
     manual = true
     [[object.function]]
     name = "mkstemp"
-    # modifies the string passed in
+    #manual is_windows_utf8 and also modifies the string passed in
     manual = true
     [[object.function]]
     name = "mkstemp_full"
@@ -256,7 +261,8 @@ status = "generate"
     manual = true
     [[object.function]]
     name = "convert_with_fallback"
-    manual = true
+    #out param not in .gir
+    ignore = true
     [[object.function]]
     name = "unicode_canonical_decomposition"
     #out param not in .gir
@@ -267,19 +273,20 @@ status = "generate"
     ignore = true
     [[object.function]]
     name = "convert"
-    manual = true
-    [[object.function]]
-    name = "filename_from_utf8"
-    manual = true
+    #unusable
+    ignore = true
     [[object.function]]
     name = "filename_to_utf8"
-    manual = true
+    #unusable
+    ignore = true
     [[object.function]]
     name = "locale_from_utf8"
-    manual = true
+    #unusable
+    ignore = true
     [[object.function]]
     name = "locale_to_utf8"
-    manual = true
+    #unusable
+    ignore = true
     [[object.function]]
     name = "child_watch_source_new"
     # Need manual bindings to be useful
@@ -376,15 +383,11 @@ status = "generate"
     # Pid conversion issue
     name = "child_watch_add_full"
     ignore = true
-    # idle_* and timeout_* are manually implemented
     [[object.function]]
     name = "idle_add"
     ignore = true
     [[object.function]]
     name = "idle_add_full"
-    ignore = true
-    [[object.function]]
-    name = "idle_add_once"
     ignore = true
     [[object.function]]
     name = "timeout_add"
@@ -393,17 +396,11 @@ status = "generate"
     name = "timeout_add_full"
     ignore = true
     [[object.function]]
-    name = "timeout_add_once"
-    ignore = true
-    [[object.function]]
     name = "timeout_add_seconds"
     ignore = true
     [[object.function]]
     name = "timeout_add_seconds_full"
     ignore = true
-    [[object.function]]
-    name = "timeout_add_seconds_once"
-    ignore = true # we have a manual impl already
     [[object.function]]
     name = "unix_signal_add"
     ignore = true
@@ -514,9 +511,6 @@ status = "generate"
     name = "variant_get_gtype"
     # get_type() function that should be used in StaticType impl instead
     ignore = true
-    [[object.function]]
-    pattern = "unichar_((break_)?type|get_(script|mirror_char)|combining_class|is(mark|graph|punct|title|defined|wide(_cjk)?|zerowidth)|totitle|(fully_)?decompose|compose)"
-    manual = true # defined as extension methods on char
 
 [[object]]
 name = "GLib.Checksum"
@@ -568,25 +562,6 @@ status = "generate"
 visibility = "crate"
 
 [[object]]
-name = "GLib.FormatSizeFlags"
-status = "generate"
-    [[object.member]]
-    name = "only_value"
-    version = "2.74"
-    [[object.member]]
-    name = "only_unit"
-    version = "2.74"
-
-[[object]]
-name = "GLib.IConv"
-status = "manual"
-concurrency = "send"
-    [[object.function]]
-    name = "open"
-    rename = "new"
-    constructor = true
-
-[[object]]
 name = "GLib.KeyFile"
 status = "generate"
     [[object.function]]
@@ -618,14 +593,6 @@ status = "generate"
     name = "set_integer_list"
     #wrong array type
     ignore = true
-    [[object.function]]
-    name = "get_groups"
-    #return slice of str pointers
-    manual = true
-    [[object.function]]
-    name = "get_keys"
-    #return slice of str pointers
-    manual = true
     [[object.function]]
     name = "get_boolean"
     #boolean return value needs to be returned
@@ -707,13 +674,6 @@ status = "generate"
 concurrency = "send+sync"
 
 [[object]]
-name = "GLib.MarkupParseContext"
-status = "generate"
-    [[object.function]]
-    name = "get_user_data"
-    ignore = true # unsafe pointer
-
-[[object]]
 name = "GLib.Source"
 status = "generate"
 concurrency = "send+sync"
@@ -773,13 +733,6 @@ concurrency = "send+sync"
     [[object.function]]
     name = "adjust_time"
     # in-out parameter
-    manual = true
-
-[[object]]
-name = "GLib.UnicodeBreakType"
-status = "generate"
-    [[object.member]]
-    name = "close_paranthesis"
     ignore = true
 
 [[object]]
@@ -803,12 +756,6 @@ status = "generate"
     [[object.member]]
     name = "math"
     version = "2.72"
-    [[object.member]]
-    name = "kawi"
-    version = "2.74"
-    [[object.member]]
-    name = "nag_mundari"
-    version = "2.74"
 
 [[object]]
 name = "GLib.Uri"

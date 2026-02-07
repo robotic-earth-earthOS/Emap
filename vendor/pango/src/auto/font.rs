@@ -2,17 +2,24 @@
 // from gir-files (https://github.com/gtk-rs/gir-files)
 // DO NOT EDIT
 
-#[cfg(feature = "v1_50")]
-#[cfg_attr(docsrs, doc(cfg(feature = "v1_50")))]
+#[cfg(any(feature = "v1_50", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v1_50")))]
 use crate::Context;
-#[cfg(feature = "v1_46")]
-#[cfg_attr(docsrs, doc(cfg(feature = "v1_46")))]
+use crate::Coverage;
+use crate::FontDescription;
+#[cfg(any(feature = "v1_46", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v1_46")))]
 use crate::FontFace;
-use crate::{Coverage, FontDescription, FontMap, FontMetrics, Glyph, Language, Rectangle};
-use glib::{prelude::*, translate::*};
+use crate::FontMap;
+use crate::FontMetrics;
+use crate::Glyph;
+use crate::Language;
+use crate::Rectangle;
+use glib::object::IsA;
+use glib::translate::*;
 use std::fmt;
-#[cfg(feature = "v1_50")]
-#[cfg_attr(docsrs, doc(cfg(feature = "v1_50")))]
+#[cfg(any(feature = "v1_50", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v1_50")))]
 use std::ptr;
 
 glib::wrapper! {
@@ -27,8 +34,8 @@ glib::wrapper! {
 impl Font {
     pub const NONE: Option<&'static Font> = None;
 
-    #[cfg(feature = "v1_50")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "v1_50")))]
+    #[cfg(any(feature = "v1_50", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v1_50")))]
     #[doc(alias = "pango_font_deserialize")]
     pub fn deserialize(
         context: &Context,
@@ -50,19 +57,64 @@ impl Font {
     }
 }
 
-mod sealed {
-    pub trait Sealed {}
-    impl<T: super::IsA<super::Font>> Sealed for T {}
+pub trait FontExt: 'static {
+    #[doc(alias = "pango_font_describe")]
+    fn describe(&self) -> Option<FontDescription>;
+
+    #[doc(alias = "pango_font_describe_with_absolute_size")]
+    fn describe_with_absolute_size(&self) -> Option<FontDescription>;
+
+    #[doc(alias = "pango_font_get_coverage")]
+    #[doc(alias = "get_coverage")]
+    fn coverage(&self, language: &Language) -> Option<Coverage>;
+
+    #[cfg(any(feature = "v1_46", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v1_46")))]
+    #[doc(alias = "pango_font_get_face")]
+    #[doc(alias = "get_face")]
+    fn face(&self) -> Option<FontFace>;
+
+    //#[cfg(any(feature = "v1_44", feature = "dox"))]
+    //#[cfg_attr(feature = "dox", doc(cfg(feature = "v1_44")))]
+    //#[doc(alias = "pango_font_get_features")]
+    //#[doc(alias = "get_features")]
+    //fn features(&self, features: /*Unimplemented*/&mut Fundamental: Pointer, num_features: &mut u32) -> u32;
+
+    #[doc(alias = "pango_font_get_font_map")]
+    #[doc(alias = "get_font_map")]
+    fn font_map(&self) -> Option<FontMap>;
+
+    #[doc(alias = "pango_font_get_glyph_extents")]
+    #[doc(alias = "get_glyph_extents")]
+    fn glyph_extents(&self, glyph: Glyph) -> (Rectangle, Rectangle);
+
+    //#[cfg(any(feature = "v1_44", feature = "dox"))]
+    //#[cfg_attr(feature = "dox", doc(cfg(feature = "v1_44")))]
+    //#[doc(alias = "pango_font_get_hb_font")]
+    //#[doc(alias = "get_hb_font")]
+    //fn hb_font(&self) -> /*Ignored*/Option<harf_buzz::font_t>;
+
+    #[doc(alias = "pango_font_get_metrics")]
+    #[doc(alias = "get_metrics")]
+    fn metrics(&self, language: Option<&Language>) -> Option<FontMetrics>;
+
+    #[cfg(any(feature = "v1_44", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v1_44")))]
+    #[doc(alias = "pango_font_has_char")]
+    fn has_char(&self, wc: char) -> bool;
+
+    #[cfg(any(feature = "v1_50", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v1_50")))]
+    #[doc(alias = "pango_font_serialize")]
+    fn serialize(&self) -> glib::Bytes;
 }
 
-pub trait FontExt: IsA<Font> + sealed::Sealed + 'static {
-    #[doc(alias = "pango_font_describe")]
-    fn describe(&self) -> FontDescription {
+impl<O: IsA<Font>> FontExt for O {
+    fn describe(&self) -> Option<FontDescription> {
         unsafe { from_glib_full(ffi::pango_font_describe(self.as_ref().to_glib_none().0)) }
     }
 
-    #[doc(alias = "pango_font_describe_with_absolute_size")]
-    fn describe_with_absolute_size(&self) -> FontDescription {
+    fn describe_with_absolute_size(&self) -> Option<FontDescription> {
         unsafe {
             from_glib_full(ffi::pango_font_describe_with_absolute_size(
                 self.as_ref().to_glib_none().0,
@@ -70,9 +122,7 @@ pub trait FontExt: IsA<Font> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "pango_font_get_coverage")]
-    #[doc(alias = "get_coverage")]
-    fn coverage(&self, language: &Language) -> Coverage {
+    fn coverage(&self, language: &Language) -> Option<Coverage> {
         unsafe {
             from_glib_full(ffi::pango_font_get_coverage(
                 self.as_ref().to_glib_none().0,
@@ -81,30 +131,22 @@ pub trait FontExt: IsA<Font> + sealed::Sealed + 'static {
         }
     }
 
-    #[cfg(feature = "v1_46")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "v1_46")))]
-    #[doc(alias = "pango_font_get_face")]
-    #[doc(alias = "get_face")]
-    fn face(&self) -> FontFace {
+    #[cfg(any(feature = "v1_46", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v1_46")))]
+    fn face(&self) -> Option<FontFace> {
         unsafe { from_glib_none(ffi::pango_font_get_face(self.as_ref().to_glib_none().0)) }
     }
 
-    //#[cfg(feature = "v1_44")]
-    //#[cfg_attr(docsrs, doc(cfg(feature = "v1_44")))]
-    //#[doc(alias = "pango_font_get_features")]
-    //#[doc(alias = "get_features")]
-    //fn features(&self, features: /*Unimplemented*/&mut Basic: Pointer, len: u32, num_features: &mut u32) {
+    //#[cfg(any(feature = "v1_44", feature = "dox"))]
+    //#[cfg_attr(feature = "dox", doc(cfg(feature = "v1_44")))]
+    //fn features(&self, features: /*Unimplemented*/&mut Fundamental: Pointer, num_features: &mut u32) -> u32 {
     //    unsafe { TODO: call ffi:pango_font_get_features() }
     //}
 
-    #[doc(alias = "pango_font_get_font_map")]
-    #[doc(alias = "get_font_map")]
     fn font_map(&self) -> Option<FontMap> {
         unsafe { from_glib_none(ffi::pango_font_get_font_map(self.as_ref().to_glib_none().0)) }
     }
 
-    #[doc(alias = "pango_font_get_glyph_extents")]
-    #[doc(alias = "get_glyph_extents")]
     fn glyph_extents(&self, glyph: Glyph) -> (Rectangle, Rectangle) {
         unsafe {
             let mut ink_rect = Rectangle::uninitialized();
@@ -119,17 +161,13 @@ pub trait FontExt: IsA<Font> + sealed::Sealed + 'static {
         }
     }
 
-    //#[cfg(feature = "v1_44")]
-    //#[cfg_attr(docsrs, doc(cfg(feature = "v1_44")))]
-    //#[doc(alias = "pango_font_get_hb_font")]
-    //#[doc(alias = "get_hb_font")]
+    //#[cfg(any(feature = "v1_44", feature = "dox"))]
+    //#[cfg_attr(feature = "dox", doc(cfg(feature = "v1_44")))]
     //fn hb_font(&self) -> /*Ignored*/Option<harf_buzz::font_t> {
     //    unsafe { TODO: call ffi:pango_font_get_hb_font() }
     //}
 
-    #[doc(alias = "pango_font_get_metrics")]
-    #[doc(alias = "get_metrics")]
-    fn metrics(&self, language: Option<&Language>) -> FontMetrics {
+    fn metrics(&self, language: Option<&Language>) -> Option<FontMetrics> {
         unsafe {
             from_glib_full(ffi::pango_font_get_metrics(
                 self.as_ref().to_glib_none().0,
@@ -138,9 +176,8 @@ pub trait FontExt: IsA<Font> + sealed::Sealed + 'static {
         }
     }
 
-    #[cfg(feature = "v1_44")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "v1_44")))]
-    #[doc(alias = "pango_font_has_char")]
+    #[cfg(any(feature = "v1_44", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v1_44")))]
     fn has_char(&self, wc: char) -> bool {
         unsafe {
             from_glib(ffi::pango_font_has_char(
@@ -150,15 +187,12 @@ pub trait FontExt: IsA<Font> + sealed::Sealed + 'static {
         }
     }
 
-    #[cfg(feature = "v1_50")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "v1_50")))]
-    #[doc(alias = "pango_font_serialize")]
+    #[cfg(any(feature = "v1_50", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v1_50")))]
     fn serialize(&self) -> glib::Bytes {
         unsafe { from_glib_full(ffi::pango_font_serialize(self.as_ref().to_glib_none().0)) }
     }
 }
-
-impl<O: IsA<Font>> FontExt for O {}
 
 impl fmt::Display for Font {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {

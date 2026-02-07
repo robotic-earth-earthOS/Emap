@@ -1,8 +1,11 @@
 // Take a look at the license at the top of the repository in the LICENSE file.
 
-use std::{borrow::Cow, default::Default};
+use std::borrow::Cow;
+use std::default::Default;
 
-use crate::{translate::*, variant::*, variant_type::*};
+use crate::translate::*;
+use crate::variant::*;
+use crate::variant_type::*;
 
 wrapper! {
     // rustdoc-stripper-ignore-next
@@ -127,12 +130,12 @@ impl VariantDict {
     /// instance already, you should use the [`insert_value()`](#method.insert_value)
     /// method instead.
     #[doc(alias = "g_variant_dict_insert_value")]
-    pub fn insert(&self, key: &str, value: impl Into<Variant>) {
+    pub fn insert<T: ToVariant>(&self, key: &str, value: &T) {
         unsafe {
             ffi::g_variant_dict_insert_value(
                 self.to_glib_none().0,
                 key.to_glib_none().0,
-                value.into().to_glib_none().0,
+                value.to_variant().to_glib_none().0,
             )
         }
     }
@@ -212,13 +215,6 @@ impl ToVariant for VariantDict {
     }
 }
 
-impl From<VariantDict> for Variant {
-    #[inline]
-    fn from(d: VariantDict) -> Self {
-        unsafe { d.end_unsafe() }
-    }
-}
-
 impl FromVariant for VariantDict {
     fn from_variant(variant: &Variant) -> Option<Self> {
         if variant.type_() == VariantDict::static_variant_type() {
@@ -284,7 +280,7 @@ mod test {
     fn create_populate_remove() {
         let dict = VariantDict::default();
         let empty_var = dict.to_variant();
-        dict.insert("one", 1u64);
+        dict.insert("one", &1u64);
         assert!(dict.remove("one"));
         assert!(!dict.remove("one"));
         let var2 = dict.to_variant();

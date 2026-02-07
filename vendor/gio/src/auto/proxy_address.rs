@@ -2,8 +2,13 @@
 // from gir-files (https://github.com/gtk-rs/gir-files)
 // DO NOT EDIT
 
-use crate::{InetAddress, InetSocketAddress, SocketAddress, SocketConnectable};
-use glib::{prelude::*, translate::*};
+use crate::InetAddress;
+use crate::InetSocketAddress;
+use crate::SocketAddress;
+use crate::SocketConnectable;
+use glib::object::Cast;
+use glib::object::IsA;
+use glib::translate::*;
 use std::fmt;
 
 glib::wrapper! {
@@ -46,14 +51,37 @@ impl ProxyAddress {
 unsafe impl Send for ProxyAddress {}
 unsafe impl Sync for ProxyAddress {}
 
-mod sealed {
-    pub trait Sealed {}
-    impl<T: super::IsA<super::ProxyAddress>> Sealed for T {}
-}
-
-pub trait ProxyAddressExt: IsA<ProxyAddress> + sealed::Sealed + 'static {
+pub trait ProxyAddressExt: 'static {
     #[doc(alias = "g_proxy_address_get_destination_hostname")]
     #[doc(alias = "get_destination_hostname")]
+    fn destination_hostname(&self) -> glib::GString;
+
+    #[doc(alias = "g_proxy_address_get_destination_port")]
+    #[doc(alias = "get_destination_port")]
+    fn destination_port(&self) -> u16;
+
+    #[doc(alias = "g_proxy_address_get_destination_protocol")]
+    #[doc(alias = "get_destination_protocol")]
+    fn destination_protocol(&self) -> glib::GString;
+
+    #[doc(alias = "g_proxy_address_get_password")]
+    #[doc(alias = "get_password")]
+    fn password(&self) -> Option<glib::GString>;
+
+    #[doc(alias = "g_proxy_address_get_protocol")]
+    #[doc(alias = "get_protocol")]
+    fn protocol(&self) -> glib::GString;
+
+    #[doc(alias = "g_proxy_address_get_uri")]
+    #[doc(alias = "get_uri")]
+    fn uri(&self) -> Option<glib::GString>;
+
+    #[doc(alias = "g_proxy_address_get_username")]
+    #[doc(alias = "get_username")]
+    fn username(&self) -> Option<glib::GString>;
+}
+
+impl<O: IsA<ProxyAddress>> ProxyAddressExt for O {
     fn destination_hostname(&self) -> glib::GString {
         unsafe {
             from_glib_none(ffi::g_proxy_address_get_destination_hostname(
@@ -62,14 +90,10 @@ pub trait ProxyAddressExt: IsA<ProxyAddress> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_proxy_address_get_destination_port")]
-    #[doc(alias = "get_destination_port")]
     fn destination_port(&self) -> u16 {
         unsafe { ffi::g_proxy_address_get_destination_port(self.as_ref().to_glib_none().0) }
     }
 
-    #[doc(alias = "g_proxy_address_get_destination_protocol")]
-    #[doc(alias = "get_destination_protocol")]
     fn destination_protocol(&self) -> glib::GString {
         unsafe {
             from_glib_none(ffi::g_proxy_address_get_destination_protocol(
@@ -78,8 +102,6 @@ pub trait ProxyAddressExt: IsA<ProxyAddress> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_proxy_address_get_password")]
-    #[doc(alias = "get_password")]
     fn password(&self) -> Option<glib::GString> {
         unsafe {
             from_glib_none(ffi::g_proxy_address_get_password(
@@ -88,8 +110,6 @@ pub trait ProxyAddressExt: IsA<ProxyAddress> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_proxy_address_get_protocol")]
-    #[doc(alias = "get_protocol")]
     fn protocol(&self) -> glib::GString {
         unsafe {
             from_glib_none(ffi::g_proxy_address_get_protocol(
@@ -98,14 +118,10 @@ pub trait ProxyAddressExt: IsA<ProxyAddress> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_proxy_address_get_uri")]
-    #[doc(alias = "get_uri")]
     fn uri(&self) -> Option<glib::GString> {
         unsafe { from_glib_none(ffi::g_proxy_address_get_uri(self.as_ref().to_glib_none().0)) }
     }
 
-    #[doc(alias = "g_proxy_address_get_username")]
-    #[doc(alias = "get_username")]
     fn username(&self) -> Option<glib::GString> {
         unsafe {
             from_glib_none(ffi::g_proxy_address_get_username(
@@ -114,8 +130,6 @@ pub trait ProxyAddressExt: IsA<ProxyAddress> + sealed::Sealed + 'static {
         }
     }
 }
-
-impl<O: IsA<ProxyAddress>> ProxyAddressExt for O {}
 
 impl fmt::Display for ProxyAddress {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {

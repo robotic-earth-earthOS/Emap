@@ -2,13 +2,16 @@
 // from gir-files (https://github.com/gtk-rs/gir-files)
 // DO NOT EDIT
 
-use crate::{PageSetup, PrintContext};
-use glib::{
-    prelude::*,
-    signal::{connect_raw, SignalHandlerId},
-    translate::*,
-};
-use std::{boxed::Box as Box_, fmt, mem::transmute};
+use crate::PageSetup;
+use crate::PrintContext;
+use glib::object::Cast;
+use glib::object::IsA;
+use glib::signal::connect_raw;
+use glib::signal::SignalHandlerId;
+use glib::translate::*;
+use std::boxed::Box as Box_;
+use std::fmt;
+use std::mem::transmute;
 
 glib::wrapper! {
     #[doc(alias = "GtkPrintOperationPreview")]
@@ -23,20 +26,33 @@ impl PrintOperationPreview {
     pub const NONE: Option<&'static PrintOperationPreview> = None;
 }
 
-mod sealed {
-    pub trait Sealed {}
-    impl<T: super::IsA<super::PrintOperationPreview>> Sealed for T {}
+pub trait PrintOperationPreviewExt: 'static {
+    #[doc(alias = "gtk_print_operation_preview_end_preview")]
+    fn end_preview(&self);
+
+    #[doc(alias = "gtk_print_operation_preview_is_selected")]
+    fn is_selected(&self, page_nr: i32) -> bool;
+
+    #[doc(alias = "gtk_print_operation_preview_render_page")]
+    fn render_page(&self, page_nr: i32);
+
+    #[doc(alias = "got-page-size")]
+    fn connect_got_page_size<F: Fn(&Self, &PrintContext, &PageSetup) + 'static>(
+        &self,
+        f: F,
+    ) -> SignalHandlerId;
+
+    #[doc(alias = "ready")]
+    fn connect_ready<F: Fn(&Self, &PrintContext) + 'static>(&self, f: F) -> SignalHandlerId;
 }
 
-pub trait PrintOperationPreviewExt: IsA<PrintOperationPreview> + sealed::Sealed + 'static {
-    #[doc(alias = "gtk_print_operation_preview_end_preview")]
+impl<O: IsA<PrintOperationPreview>> PrintOperationPreviewExt for O {
     fn end_preview(&self) {
         unsafe {
             ffi::gtk_print_operation_preview_end_preview(self.as_ref().to_glib_none().0);
         }
     }
 
-    #[doc(alias = "gtk_print_operation_preview_is_selected")]
     fn is_selected(&self, page_nr: i32) -> bool {
         unsafe {
             from_glib(ffi::gtk_print_operation_preview_is_selected(
@@ -46,14 +62,12 @@ pub trait PrintOperationPreviewExt: IsA<PrintOperationPreview> + sealed::Sealed 
         }
     }
 
-    #[doc(alias = "gtk_print_operation_preview_render_page")]
     fn render_page(&self, page_nr: i32) {
         unsafe {
             ffi::gtk_print_operation_preview_render_page(self.as_ref().to_glib_none().0, page_nr);
         }
     }
 
-    #[doc(alias = "got-page-size")]
     fn connect_got_page_size<F: Fn(&Self, &PrintContext, &PageSetup) + 'static>(
         &self,
         f: F,
@@ -87,7 +101,6 @@ pub trait PrintOperationPreviewExt: IsA<PrintOperationPreview> + sealed::Sealed 
         }
     }
 
-    #[doc(alias = "ready")]
     fn connect_ready<F: Fn(&Self, &PrintContext) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn ready_trampoline<
             P: IsA<PrintOperationPreview>,
@@ -116,8 +129,6 @@ pub trait PrintOperationPreviewExt: IsA<PrintOperationPreview> + sealed::Sealed 
         }
     }
 }
-
-impl<O: IsA<PrintOperationPreview>> PrintOperationPreviewExt for O {}
 
 impl fmt::Display for PrintOperationPreview {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {

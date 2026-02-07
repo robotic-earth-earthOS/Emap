@@ -4,7 +4,7 @@
 [options]
 girs_directories = ["gir-files"]
 library = "WebKit2"
-version = "4.1"
+version = "4.0"
 work_mode = "normal"
 target_path = "."
 generate_safety_asserts = true
@@ -30,7 +30,6 @@ generate = [
     "WebKit2.CookieAcceptPolicy",
     "WebKit2.CookieManager",
     "WebKit2.CookiePersistentStorage",
-    "WebKit2.Credential",
     "WebKit2.CredentialPersistence",
     "WebKit2.DeviceInfoPermissionRequest",
     "WebKit2.DownloadError",
@@ -50,7 +49,6 @@ generate = [
     "WebKit2.InsecureContentEvent",
     "WebKit2.InstallMissingMediaPluginsPermissionRequest",
     "WebKit2.JavascriptError",
-    "WebKit2.JavascriptResult",
     "WebKit2.LoadEvent",
     "WebKit2.MediaCaptureState",
     "WebKit2.MediaKeySystemPermissionRequest",
@@ -97,6 +95,7 @@ generate = [
     "WebKit2.WebViewBase",
     "WebKit2.WebsiteDataAccessPermissionRequest",
     "WebKit2.WebsiteDataTypes",
+
 ]
 
 manual = [
@@ -124,6 +123,7 @@ manual = [
     "GLib.TimeSpan",
     "GLib.Variant",
     "GObject.Object",
+    "Gtk.Action",
     "Gtk.Buildable",
     "Gtk.Container",
     "Gtk.FileFilter",
@@ -133,7 +133,8 @@ manual = [
     "Gtk.Window",
     "Soup.Cookie",
     "Soup.MessageHeaders",
-    "JavaScriptCore.Value",
+    "WebKit2.Credential",
+    "WebKit2.JavascriptResult",
 ]
 
 

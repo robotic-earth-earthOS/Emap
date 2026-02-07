@@ -7,51 +7,50 @@ use glib::Cast;
 
 use super::container::ContainerImpl;
 
+use crate::Inhibit;
 use crate::Socket;
 
 pub trait SocketImpl: SocketImplExt + ContainerImpl {
-    fn plug_added(&self) {
-        self.parent_plug_added()
+    fn plug_added(&self, socket: &Self::Type) {
+        self.parent_plug_added(socket)
     }
 
-    fn plug_removed(&self) -> glib::Propagation {
-        self.parent_plug_removed()
+    fn plug_removed(&self, socket: &Self::Type) -> Inhibit {
+        self.parent_plug_removed(socket)
     }
 }
 
-mod sealed {
-    pub trait Sealed {}
-    impl<T: super::SocketImpl> Sealed for T {}
+pub trait SocketImplExt: ObjectSubclass {
+    fn parent_plug_added(&self, socket: &Self::Type);
+    fn parent_plug_removed(&self, socket: &Self::Type) -> Inhibit;
 }
 
-pub trait SocketImplExt: ObjectSubclass + sealed::Sealed {
-    fn parent_plug_added(&self) {
+impl<T: SocketImpl> SocketImplExt for T {
+    fn parent_plug_added(&self, socket: &Self::Type) {
         unsafe {
-            let data = Self::type_data();
+            let data = T::type_data();
             let parent_class = data.as_ref().parent_class() as *mut ffi::GtkSocketClass;
             if let Some(f) = (*parent_class).plug_added {
-                f(self.obj().unsafe_cast_ref::<Socket>().to_glib_none().0)
+                f(socket.unsafe_cast_ref::<Socket>().to_glib_none().0)
             }
         }
     }
-    fn parent_plug_removed(&self) -> glib::Propagation {
+
+    fn parent_plug_removed(&self, socket: &Self::Type) -> Inhibit {
         unsafe {
-            let data = Self::type_data();
+            let data = T::type_data();
             let parent_class = data.as_ref().parent_class() as *mut ffi::GtkSocketClass;
             if let Some(f) = (*parent_class).plug_removed {
-                glib::Propagation::from_glib(f(self
-                    .obj()
+                Inhibit(from_glib(f(socket
                     .unsafe_cast_ref::<Socket>()
                     .to_glib_none()
-                    .0))
+                    .0)))
             } else {
-                glib::Propagation::Proceed
+                Inhibit(false)
             }
         }
     }
 }
-
-impl<T: SocketImpl> SocketImplExt for T {}
 
 unsafe impl<T: SocketImpl> IsSubclassable<T> for Socket {
     fn class_init(class: &mut ::glib::Class<Self>) {
@@ -70,8 +69,9 @@ unsafe impl<T: SocketImpl> IsSubclassable<T> for Socket {
 unsafe extern "C" fn socket_plug_added<T: SocketImpl>(ptr: *mut ffi::GtkSocket) {
     let instance = &*(ptr as *mut T::Instance);
     let imp = instance.imp();
+    let wrap: Borrowed<Socket> = from_glib_borrow(ptr);
 
-    imp.plug_added()
+    imp.plug_added(wrap.unsafe_cast_ref())
 }
 
 unsafe extern "C" fn socket_plug_removed<T: SocketImpl>(
@@ -79,6 +79,7 @@ unsafe extern "C" fn socket_plug_removed<T: SocketImpl>(
 ) -> glib::ffi::gboolean {
     let instance = &*(ptr as *mut T::Instance);
     let imp = instance.imp();
+    let wrap: Borrowed<Socket> = from_glib_borrow(ptr);
 
-    imp.plug_removed().into_glib()
+    imp.plug_removed(wrap.unsafe_cast_ref()).into_glib()
 }

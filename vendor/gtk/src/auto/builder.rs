@@ -3,12 +3,15 @@
 // DO NOT EDIT
 
 use crate::Application;
-use glib::{
-    prelude::*,
-    signal::{connect_raw, SignalHandlerId},
-    translate::*,
-};
-use std::{boxed::Box as Box_, fmt, mem::transmute, ptr};
+use glib::object::Cast;
+use glib::object::IsA;
+use glib::signal::connect_raw;
+use glib::signal::SignalHandlerId;
+use glib::translate::*;
+use std::boxed::Box as Box_;
+use std::fmt;
+use std::mem::transmute;
+use std::ptr;
 
 glib::wrapper! {
     #[doc(alias = "GtkBuilder")]
@@ -43,7 +46,7 @@ impl Builder {
     #[doc(alias = "new_from_string")]
     pub fn from_string(string: &str) -> Builder {
         assert_initialized_main_thread!();
-        let length = string.len() as _;
+        let length = string.len() as isize;
         unsafe {
             from_glib_full(ffi::gtk_builder_new_from_string(
                 string.to_glib_none().0,
@@ -59,28 +62,75 @@ impl Default for Builder {
     }
 }
 
-mod sealed {
-    pub trait Sealed {}
-    impl<T: super::IsA<super::Builder>> Sealed for T {}
+pub trait BuilderExt: 'static {
+    //#[doc(alias = "gtk_builder_add_callback_symbol")]
+    //fn add_callback_symbol<P: FnOnce() + 'static>(&self, callback_name: &str, callback_symbol: P);
+
+    //#[doc(alias = "gtk_builder_add_callback_symbols")]
+    //fn add_callback_symbols<P: FnOnce() + 'static>(&self, first_callback_name: &str, first_callback_symbol: P, : /*Unknown conversion*//*Unimplemented*/Fundamental: VarArgs);
+
+    //#[doc(alias = "gtk_builder_connect_signals")]
+    //fn connect_signals(&self, user_data: /*Unimplemented*/Option<Fundamental: Pointer>);
+
+    #[doc(alias = "gtk_builder_expose_object")]
+    fn expose_object(&self, name: &str, object: &impl IsA<glib::Object>);
+
+    #[doc(alias = "gtk_builder_get_application")]
+    #[doc(alias = "get_application")]
+    fn application(&self) -> Option<Application>;
+
+    #[doc(alias = "gtk_builder_get_objects")]
+    #[doc(alias = "get_objects")]
+    fn objects(&self) -> Vec<glib::Object>;
+
+    #[doc(alias = "gtk_builder_get_translation_domain")]
+    #[doc(alias = "get_translation_domain")]
+    fn translation_domain(&self) -> Option<glib::GString>;
+
+    #[doc(alias = "gtk_builder_get_type_from_name")]
+    #[doc(alias = "get_type_from_name")]
+    fn type_from_name(&self, type_name: &str) -> glib::types::Type;
+
+    //#[doc(alias = "gtk_builder_lookup_callback_symbol")]
+    //fn lookup_callback_symbol(&self, callback_name: &str) -> Option<Box_<dyn Fn() + 'static>>;
+
+    #[doc(alias = "gtk_builder_set_application")]
+    fn set_application(&self, application: &impl IsA<Application>);
+
+    #[doc(alias = "gtk_builder_set_translation_domain")]
+    fn set_translation_domain(&self, domain: Option<&str>);
+
+    #[doc(alias = "gtk_builder_value_from_string")]
+    fn value_from_string(
+        &self,
+        pspec: impl AsRef<glib::ParamSpec>,
+        string: &str,
+    ) -> Result<glib::Value, glib::Error>;
+
+    #[doc(alias = "gtk_builder_value_from_string_type")]
+    fn value_from_string_type(
+        &self,
+        type_: glib::types::Type,
+        string: &str,
+    ) -> Result<glib::Value, glib::Error>;
+
+    #[doc(alias = "translation-domain")]
+    fn connect_translation_domain_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
 }
 
-pub trait BuilderExt: IsA<Builder> + sealed::Sealed + 'static {
-    //#[doc(alias = "gtk_builder_add_callback_symbol")]
+impl<O: IsA<Builder>> BuilderExt for O {
     //fn add_callback_symbol<P: FnOnce() + 'static>(&self, callback_name: &str, callback_symbol: P) {
     //    unsafe { TODO: call ffi:gtk_builder_add_callback_symbol() }
     //}
 
-    //#[doc(alias = "gtk_builder_add_callback_symbols")]
-    //fn add_callback_symbols<P: FnOnce() + 'static>(&self, first_callback_name: &str, first_callback_symbol: P, : /*Unknown conversion*//*Unimplemented*/Basic: VarArgs) {
+    //fn add_callback_symbols<P: FnOnce() + 'static>(&self, first_callback_name: &str, first_callback_symbol: P, : /*Unknown conversion*//*Unimplemented*/Fundamental: VarArgs) {
     //    unsafe { TODO: call ffi:gtk_builder_add_callback_symbols() }
     //}
 
-    //#[doc(alias = "gtk_builder_connect_signals")]
-    //fn connect_signals(&self, user_data: /*Unimplemented*/Option<Basic: Pointer>) {
+    //fn connect_signals(&self, user_data: /*Unimplemented*/Option<Fundamental: Pointer>) {
     //    unsafe { TODO: call ffi:gtk_builder_connect_signals() }
     //}
 
-    #[doc(alias = "gtk_builder_expose_object")]
     fn expose_object(&self, name: &str, object: &impl IsA<glib::Object>) {
         unsafe {
             ffi::gtk_builder_expose_object(
@@ -91,8 +141,6 @@ pub trait BuilderExt: IsA<Builder> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_builder_get_application")]
-    #[doc(alias = "get_application")]
     fn application(&self) -> Option<Application> {
         unsafe {
             from_glib_none(ffi::gtk_builder_get_application(
@@ -101,8 +149,6 @@ pub trait BuilderExt: IsA<Builder> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_builder_get_objects")]
-    #[doc(alias = "get_objects")]
     fn objects(&self) -> Vec<glib::Object> {
         unsafe {
             FromGlibPtrContainer::from_glib_container(ffi::gtk_builder_get_objects(
@@ -111,8 +157,6 @@ pub trait BuilderExt: IsA<Builder> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_builder_get_translation_domain")]
-    #[doc(alias = "get_translation_domain")]
     fn translation_domain(&self) -> Option<glib::GString> {
         unsafe {
             from_glib_none(ffi::gtk_builder_get_translation_domain(
@@ -121,8 +165,6 @@ pub trait BuilderExt: IsA<Builder> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_builder_get_type_from_name")]
-    #[doc(alias = "get_type_from_name")]
     fn type_from_name(&self, type_name: &str) -> glib::types::Type {
         unsafe {
             from_glib(ffi::gtk_builder_get_type_from_name(
@@ -132,12 +174,10 @@ pub trait BuilderExt: IsA<Builder> + sealed::Sealed + 'static {
         }
     }
 
-    //#[doc(alias = "gtk_builder_lookup_callback_symbol")]
     //fn lookup_callback_symbol(&self, callback_name: &str) -> Option<Box_<dyn Fn() + 'static>> {
     //    unsafe { TODO: call ffi:gtk_builder_lookup_callback_symbol() }
     //}
 
-    #[doc(alias = "gtk_builder_set_application")]
     fn set_application(&self, application: &impl IsA<Application>) {
         unsafe {
             ffi::gtk_builder_set_application(
@@ -147,7 +187,6 @@ pub trait BuilderExt: IsA<Builder> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_builder_set_translation_domain")]
     fn set_translation_domain(&self, domain: Option<&str>) {
         unsafe {
             ffi::gtk_builder_set_translation_domain(
@@ -157,7 +196,6 @@ pub trait BuilderExt: IsA<Builder> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_builder_value_from_string")]
     fn value_from_string(
         &self,
         pspec: impl AsRef<glib::ParamSpec>,
@@ -173,7 +211,7 @@ pub trait BuilderExt: IsA<Builder> + sealed::Sealed + 'static {
                 value.to_glib_none_mut().0,
                 &mut error,
             );
-            debug_assert_eq!(is_ok == glib::ffi::GFALSE, !error.is_null());
+            assert_eq!(is_ok == glib::ffi::GFALSE, !error.is_null());
             if error.is_null() {
                 Ok(value)
             } else {
@@ -182,7 +220,6 @@ pub trait BuilderExt: IsA<Builder> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_builder_value_from_string_type")]
     fn value_from_string_type(
         &self,
         type_: glib::types::Type,
@@ -198,7 +235,7 @@ pub trait BuilderExt: IsA<Builder> + sealed::Sealed + 'static {
                 value.to_glib_none_mut().0,
                 &mut error,
             );
-            debug_assert_eq!(is_ok == glib::ffi::GFALSE, !error.is_null());
+            assert_eq!(is_ok == glib::ffi::GFALSE, !error.is_null());
             if error.is_null() {
                 Ok(value)
             } else {
@@ -207,7 +244,6 @@ pub trait BuilderExt: IsA<Builder> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "translation-domain")]
     fn connect_translation_domain_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_translation_domain_trampoline<
             P: IsA<Builder>,
@@ -233,8 +269,6 @@ pub trait BuilderExt: IsA<Builder> + sealed::Sealed + 'static {
         }
     }
 }
-
-impl<O: IsA<Builder>> BuilderExt for O {}
 
 impl fmt::Display for Builder {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {

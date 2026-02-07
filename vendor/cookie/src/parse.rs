@@ -64,6 +64,23 @@ impl Error for ParseError {
     }
 }
 
+fn indexes_of(needle: &str, haystack: &str) -> Option<(usize, usize)> {
+    let haystack_start = haystack.as_ptr() as usize;
+    let needle_start = needle.as_ptr() as usize;
+
+    if needle_start < haystack_start {
+        return None;
+    }
+
+    if (needle_start + needle.len()) > (haystack_start + haystack.len()) {
+        return None;
+    }
+
+    let start = needle_start - haystack_start;
+    let end = start + needle.len();
+    Some((start, end))
+}
+
 #[cfg(feature = "percent-encode")]
 fn name_val_decoded(
     name: &str,
@@ -89,6 +106,17 @@ fn name_val_decoded(
     unreachable!("This function should never be called with 'percent-encode' disabled!")
 }
 
+fn trim_quotes(s: &str) -> &str {
+    if s.len() < 2 {
+        return s;
+    }
+
+    match (s.chars().next(), s.chars().last()) {
+        (Some('"'), Some('"')) => &s[1..(s.len() - 1)],
+        _ => s
+    }
+}
+
 // This function does the real parsing but _does not_ set the `cookie_string` in
 // the returned cookie object. This only exists so that the borrow to `s` is
 // returned at the end of the call, allowing the `cookie_string` field to be
@@ -99,7 +127,10 @@ fn parse_inner<'c>(s: &str, decode: bool) -> Result<Cookie<'c>, ParseError> {
     // Determine the name = val.
     let key_value = attributes.next().expect("first str::split().next() returns Some");
     let (name, value) = match key_value.find('=') {
-        Some(i) => (key_value[..i].trim(), key_value[(i + 1)..].trim()),
+        Some(i) => {
+            let (key, value) = (key_value[..i].trim(), key_value[(i + 1)..].trim());
+            (key, trim_quotes(value).trim())
+        },
         None => return Err(ParseError::MissingPair)
     };
 
@@ -109,8 +140,10 @@ fn parse_inner<'c>(s: &str, decode: bool) -> Result<Cookie<'c>, ParseError> {
 
     // If there is nothing to decode, or we're not decoding, use indexes.
     let indexed_names = |s, name, value| {
-        let name = CookieStr::indexed(name, s).expect("name sub");
-        let value = CookieStr::indexed(value, s).expect("value sub");
+        let name_indexes = indexes_of(name, s).expect("name sub");
+        let value_indexes = indexes_of(value, s).expect("value sub");
+        let name = CookieStr::Indexed(name_indexes.0, name_indexes.1);
+        let value = CookieStr::Indexed(value_indexes.0, value_indexes.1);
         (name, value)
     };
 
@@ -134,8 +167,7 @@ fn parse_inner<'c>(s: &str, decode: bool) -> Result<Cookie<'c>, ParseError> {
         path: None,
         secure: None,
         http_only: None,
-        same_site: None,
-        partitioned: None,
+        same_site: None
     };
 
     for attr in attributes {
@@ -167,12 +199,18 @@ fn parse_inner<'c>(s: &str, decode: bool) -> Result<Cookie<'c>, ParseError> {
                         .unwrap_or_else(|_| Duration::seconds(i64::max_value())))
                 }
             },
-            ("domain", Some(d)) if !d.is_empty() => {
-                cookie.domain = Some(CookieStr::indexed(d, s).expect("domain sub"));
-            },
+            ("domain", Some(mut domain)) if !domain.is_empty() => {
+                if domain.starts_with('.') {
+                    domain = &domain[1..];
+                }
+
+                let (i, j) = indexes_of(domain, s).expect("domain sub");
+                cookie.domain = Some(CookieStr::Indexed(i, j));
+            }
             ("path", Some(v)) => {
-                cookie.path = Some(CookieStr::indexed(v, s).expect("path sub"));
-            },
+                let (i, j) = indexes_of(v, s).expect("path sub");
+                cookie.path = Some(CookieStr::Indexed(i, j));
+            }
             ("samesite", Some(v)) => {
                 if v.eq_ignore_ascii_case("strict") {
                     cookie.same_site = Some(SameSite::Strict);
@@ -188,7 +226,6 @@ fn parse_inner<'c>(s: &str, decode: bool) -> Result<Cookie<'c>, ParseError> {
                     // http://httpwg.org/http-extensions/draft-ietf-httpbis-cookie-same-site.html.
                 }
             }
-            ("partitioned", _) => cookie.partitioned = Some(true),
             ("expires", Some(v)) => {
                 let tm = parse_date(v, &FMT1)
                     .or_else(|_| parse_date(v, &FMT2))
@@ -267,21 +304,30 @@ mod tests {
 
     #[test]
     fn parse_same_site() {
-        let expected = Cookie::build(("foo", "bar")).same_site(SameSite::Lax);
+        let expected = Cookie::build("foo", "bar")
+            .same_site(SameSite::Lax)
+            .finish();
+
         assert_eq_parse!("foo=bar; SameSite=Lax", expected);
         assert_eq_parse!("foo=bar; SameSite=lax", expected);
         assert_eq_parse!("foo=bar; SameSite=LAX", expected);
         assert_eq_parse!("foo=bar; samesite=Lax", expected);
         assert_eq_parse!("foo=bar; SAMESITE=Lax", expected);
 
-        let expected = Cookie::build(("foo", "bar")).same_site(SameSite::Strict);
+        let expected = Cookie::build("foo", "bar")
+            .same_site(SameSite::Strict)
+            .finish();
+
         assert_eq_parse!("foo=bar; SameSite=Strict", expected);
         assert_eq_parse!("foo=bar; SameSITE=Strict", expected);
         assert_eq_parse!("foo=bar; SameSite=strict", expected);
         assert_eq_parse!("foo=bar; SameSite=STrICT", expected);
         assert_eq_parse!("foo=bar; SameSite=STRICT", expected);
 
-        let expected = Cookie::build(("foo", "bar")).same_site(SameSite::None);
+        let expected = Cookie::build("foo", "bar")
+            .same_site(SameSite::None)
+            .finish();
+
         assert_eq_parse!("foo=bar; SameSite=None", expected);
         assert_eq_parse!("foo=bar; SameSITE=none", expected);
         assert_eq_parse!("foo=bar; SameSite=NOne", expected);
@@ -295,41 +341,36 @@ mod tests {
         assert!(Cookie::parse(" =bar").is_err());
         assert!(Cookie::parse("foo=").is_ok());
 
-        let expected = Cookie::new("foo", "bar=baz");
+        let expected = Cookie::build("foo", "bar=baz").finish();
         assert_eq_parse!("foo=bar=baz", expected);
 
-        let expected = Cookie::new("foo", "\"\"bar\"\"");
+        let expected = Cookie::build("foo", "\"bar\"").finish();
         assert_eq_parse!("foo=\"\"bar\"\"", expected);
 
-        let expected = Cookie::new("foo", "\"bar");
+        let expected = Cookie::build("foo", "\"bar").finish();
         assert_eq_parse!("foo=  \"bar", expected);
         assert_eq_parse!("foo=\"bar  ", expected);
-        assert_ne_parse!("foo=\"\"bar\"", expected);
-        assert_ne_parse!("foo=\"\"bar  \"", expected);
-        assert_ne_parse!("foo=\"\"bar  \"  ", expected);
+        assert_eq_parse!("foo=\"\"bar\"", expected);
+        assert_eq_parse!("foo=\"\"bar  \"", expected);
+        assert_eq_parse!("foo=\"\"bar  \"  ", expected);
 
-        let expected = Cookie::new("foo", "bar\"");
+        let expected = Cookie::build("foo", "bar\"").finish();
         assert_eq_parse!("foo=bar\"", expected);
-        assert_ne_parse!("foo=\"bar\"\"", expected);
-        assert_ne_parse!("foo=\"  bar\"\"", expected);
-        assert_ne_parse!("foo=\"  bar\"  \"  ", expected);
+        assert_eq_parse!("foo=\"bar\"\"", expected);
+        assert_eq_parse!("foo=\"  bar\"\"", expected);
+        assert_eq_parse!("foo=\"  bar\"  \"  ", expected);
 
-        let expected = Cookie::build(("foo", "bar")).partitioned(true).build();
-        assert_eq_parse!("foo=bar; partitioned", expected);
-        assert_eq_parse!("foo=bar; Partitioned", expected);
-        assert_eq_parse!("foo=bar; PARTITIONED", expected);
-
-        let mut expected = Cookie::new("foo", "bar");
+        let mut expected = Cookie::build("foo", "bar").finish();
         assert_eq_parse!("foo=bar", expected);
         assert_eq_parse!("foo = bar", expected);
+        assert_eq_parse!("foo=\"bar\"", expected);
         assert_eq_parse!(" foo=bar ", expected);
+        assert_eq_parse!(" foo=\"bar   \" ", expected);
         assert_eq_parse!(" foo=bar ;Domain=", expected);
         assert_eq_parse!(" foo=bar ;Domain= ", expected);
         assert_eq_parse!(" foo=bar ;Ignored", expected);
-        assert_ne_parse!("foo=\"bar\"", expected);
-        assert_ne_parse!(" foo=\"bar   \" ", expected);
 
-        let mut unexpected = Cookie::build(("foo", "bar")).http_only(false).build();
+        let mut unexpected = Cookie::build("foo", "bar").http_only(false).finish();
         assert_ne_parse!(" foo=bar ;HttpOnly", unexpected);
         assert_ne_parse!(" foo=bar; httponly", unexpected);
 
@@ -401,12 +442,6 @@ mod tests {
         assert_eq_parse!(" foo=bar ;HttpOnly; Secure; Max-Age=4; Path=/foo; \
             Domain=FOO.COM", expected);
 
-        expected.set_domain(".foo.com");
-        assert_eq_parse!(" foo=bar ;HttpOnly; Secure; Max-Age=4; Path=/foo; \
-            Domain=.foo.com", expected);
-        assert_eq_parse!(" foo=bar ;HttpOnly; Secure; Max-Age=4; Path=/foo; \
-            Domain=.FOO.COM", expected);
-
         unexpected.set_path("/foo");
         unexpected.set_domain("bar.com");
         assert_ne_parse!(" foo=bar ;HttpOnly; Secure; Max-Age=4; Path=/foo; \
@@ -464,9 +499,9 @@ mod tests {
 
     #[test]
     fn parse_very_large_max_ages() {
-        let mut expected = Cookie::build(("foo", "bar"))
+        let mut expected = Cookie::build("foo", "bar")
             .max_age(Duration::seconds(i64::max_value()))
-            .build();
+            .finish();
 
         let string = format!("foo=bar; Max-Age={}", 1u128 << 100);
         assert_eq_parse!(&string, expected);
@@ -506,9 +541,9 @@ mod tests {
     #[test]
     fn do_not_panic_on_large_max_ages() {
         let max_seconds = Duration::MAX.whole_seconds();
-        let expected = Cookie::build(("foo", "bar"))
-            .max_age(Duration::seconds(max_seconds));
-
+        let expected = Cookie::build("foo", "bar")
+            .max_age(Duration::seconds(max_seconds))
+            .finish();
         let too_many_seconds = (max_seconds as u64) + 1;
         assert_eq_parse!(format!(" foo=bar; Max-Age={:?}", too_many_seconds), expected);
     }

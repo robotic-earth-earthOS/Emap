@@ -3,12 +3,14 @@
 // DO NOT EDIT
 
 use crate::Object;
-use glib::{
-    prelude::*,
-    signal::{connect_raw, SignalHandlerId},
-    translate::*,
-};
-use std::{boxed::Box as Box_, fmt, mem::transmute};
+use glib::object::Cast;
+use glib::object::IsA;
+use glib::signal::connect_raw;
+use glib::signal::SignalHandlerId;
+use glib::translate::*;
+use std::boxed::Box as Box_;
+use std::fmt;
+use std::mem::transmute;
 
 glib::wrapper! {
     #[doc(alias = "AtkTable")]
@@ -23,13 +25,124 @@ impl Table {
     pub const NONE: Option<&'static Table> = None;
 }
 
-mod sealed {
-    pub trait Sealed {}
-    impl<T: super::IsA<super::Table>> Sealed for T {}
+pub trait TableExt: 'static {
+    #[doc(alias = "atk_table_add_column_selection")]
+    fn add_column_selection(&self, column: i32) -> bool;
+
+    #[doc(alias = "atk_table_add_row_selection")]
+    fn add_row_selection(&self, row: i32) -> bool;
+
+    #[doc(alias = "atk_table_get_caption")]
+    #[doc(alias = "get_caption")]
+    fn caption(&self) -> Option<Object>;
+
+    #[doc(alias = "atk_table_get_column_at_index")]
+    #[doc(alias = "get_column_at_index")]
+    fn column_at_index(&self, index_: i32) -> i32;
+
+    #[doc(alias = "atk_table_get_column_description")]
+    #[doc(alias = "get_column_description")]
+    fn column_description(&self, column: i32) -> Option<glib::GString>;
+
+    #[doc(alias = "atk_table_get_column_extent_at")]
+    #[doc(alias = "get_column_extent_at")]
+    fn column_extent_at(&self, row: i32, column: i32) -> i32;
+
+    #[doc(alias = "atk_table_get_column_header")]
+    #[doc(alias = "get_column_header")]
+    fn column_header(&self, column: i32) -> Option<Object>;
+
+    #[doc(alias = "atk_table_get_index_at")]
+    #[doc(alias = "get_index_at")]
+    fn index_at(&self, row: i32, column: i32) -> i32;
+
+    #[doc(alias = "atk_table_get_n_columns")]
+    #[doc(alias = "get_n_columns")]
+    fn n_columns(&self) -> i32;
+
+    #[doc(alias = "atk_table_get_n_rows")]
+    #[doc(alias = "get_n_rows")]
+    fn n_rows(&self) -> i32;
+
+    #[doc(alias = "atk_table_get_row_at_index")]
+    #[doc(alias = "get_row_at_index")]
+    fn row_at_index(&self, index_: i32) -> i32;
+
+    #[doc(alias = "atk_table_get_row_description")]
+    #[doc(alias = "get_row_description")]
+    fn row_description(&self, row: i32) -> Option<glib::GString>;
+
+    #[doc(alias = "atk_table_get_row_extent_at")]
+    #[doc(alias = "get_row_extent_at")]
+    fn row_extent_at(&self, row: i32, column: i32) -> i32;
+
+    #[doc(alias = "atk_table_get_row_header")]
+    #[doc(alias = "get_row_header")]
+    fn row_header(&self, row: i32) -> Option<Object>;
+
+    #[doc(alias = "atk_table_get_summary")]
+    #[doc(alias = "get_summary")]
+    fn summary(&self) -> Option<Object>;
+
+    #[doc(alias = "atk_table_is_column_selected")]
+    fn is_column_selected(&self, column: i32) -> bool;
+
+    #[doc(alias = "atk_table_is_row_selected")]
+    fn is_row_selected(&self, row: i32) -> bool;
+
+    #[doc(alias = "atk_table_is_selected")]
+    fn is_selected(&self, row: i32, column: i32) -> bool;
+
+    #[doc(alias = "atk_table_ref_at")]
+    fn ref_at(&self, row: i32, column: i32) -> Option<Object>;
+
+    #[doc(alias = "atk_table_remove_column_selection")]
+    fn remove_column_selection(&self, column: i32) -> bool;
+
+    #[doc(alias = "atk_table_remove_row_selection")]
+    fn remove_row_selection(&self, row: i32) -> bool;
+
+    #[doc(alias = "atk_table_set_caption")]
+    fn set_caption(&self, caption: &impl IsA<Object>);
+
+    #[doc(alias = "atk_table_set_column_description")]
+    fn set_column_description(&self, column: i32, description: &str);
+
+    #[doc(alias = "atk_table_set_column_header")]
+    fn set_column_header(&self, column: i32, header: &impl IsA<Object>);
+
+    #[doc(alias = "atk_table_set_row_description")]
+    fn set_row_description(&self, row: i32, description: &str);
+
+    #[doc(alias = "atk_table_set_row_header")]
+    fn set_row_header(&self, row: i32, header: &impl IsA<Object>);
+
+    #[doc(alias = "atk_table_set_summary")]
+    fn set_summary(&self, accessible: &impl IsA<Object>);
+
+    #[doc(alias = "column-deleted")]
+    fn connect_column_deleted<F: Fn(&Self, i32, i32) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "column-inserted")]
+    fn connect_column_inserted<F: Fn(&Self, i32, i32) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "column-reordered")]
+    fn connect_column_reordered<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "model-changed")]
+    fn connect_model_changed<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "row-deleted")]
+    fn connect_row_deleted<F: Fn(&Self, i32, i32) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "row-inserted")]
+    fn connect_row_inserted<F: Fn(&Self, i32, i32) + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "row-reordered")]
+    fn connect_row_reordered<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
 }
 
-pub trait TableExt: IsA<Table> + sealed::Sealed + 'static {
-    #[doc(alias = "atk_table_add_column_selection")]
+impl<O: IsA<Table>> TableExt for O {
     fn add_column_selection(&self, column: i32) -> bool {
         unsafe {
             from_glib(ffi::atk_table_add_column_selection(
@@ -39,7 +152,6 @@ pub trait TableExt: IsA<Table> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "atk_table_add_row_selection")]
     fn add_row_selection(&self, row: i32) -> bool {
         unsafe {
             from_glib(ffi::atk_table_add_row_selection(
@@ -49,20 +161,14 @@ pub trait TableExt: IsA<Table> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "atk_table_get_caption")]
-    #[doc(alias = "get_caption")]
     fn caption(&self) -> Option<Object> {
         unsafe { from_glib_none(ffi::atk_table_get_caption(self.as_ref().to_glib_none().0)) }
     }
 
-    #[doc(alias = "atk_table_get_column_at_index")]
-    #[doc(alias = "get_column_at_index")]
     fn column_at_index(&self, index_: i32) -> i32 {
         unsafe { ffi::atk_table_get_column_at_index(self.as_ref().to_glib_none().0, index_) }
     }
 
-    #[doc(alias = "atk_table_get_column_description")]
-    #[doc(alias = "get_column_description")]
     fn column_description(&self, column: i32) -> Option<glib::GString> {
         unsafe {
             from_glib_none(ffi::atk_table_get_column_description(
@@ -72,14 +178,10 @@ pub trait TableExt: IsA<Table> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "atk_table_get_column_extent_at")]
-    #[doc(alias = "get_column_extent_at")]
     fn column_extent_at(&self, row: i32, column: i32) -> i32 {
         unsafe { ffi::atk_table_get_column_extent_at(self.as_ref().to_glib_none().0, row, column) }
     }
 
-    #[doc(alias = "atk_table_get_column_header")]
-    #[doc(alias = "get_column_header")]
     fn column_header(&self, column: i32) -> Option<Object> {
         unsafe {
             from_glib_none(ffi::atk_table_get_column_header(
@@ -89,32 +191,22 @@ pub trait TableExt: IsA<Table> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "atk_table_get_index_at")]
-    #[doc(alias = "get_index_at")]
     fn index_at(&self, row: i32, column: i32) -> i32 {
         unsafe { ffi::atk_table_get_index_at(self.as_ref().to_glib_none().0, row, column) }
     }
 
-    #[doc(alias = "atk_table_get_n_columns")]
-    #[doc(alias = "get_n_columns")]
     fn n_columns(&self) -> i32 {
         unsafe { ffi::atk_table_get_n_columns(self.as_ref().to_glib_none().0) }
     }
 
-    #[doc(alias = "atk_table_get_n_rows")]
-    #[doc(alias = "get_n_rows")]
     fn n_rows(&self) -> i32 {
         unsafe { ffi::atk_table_get_n_rows(self.as_ref().to_glib_none().0) }
     }
 
-    #[doc(alias = "atk_table_get_row_at_index")]
-    #[doc(alias = "get_row_at_index")]
     fn row_at_index(&self, index_: i32) -> i32 {
         unsafe { ffi::atk_table_get_row_at_index(self.as_ref().to_glib_none().0, index_) }
     }
 
-    #[doc(alias = "atk_table_get_row_description")]
-    #[doc(alias = "get_row_description")]
     fn row_description(&self, row: i32) -> Option<glib::GString> {
         unsafe {
             from_glib_none(ffi::atk_table_get_row_description(
@@ -124,14 +216,10 @@ pub trait TableExt: IsA<Table> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "atk_table_get_row_extent_at")]
-    #[doc(alias = "get_row_extent_at")]
     fn row_extent_at(&self, row: i32, column: i32) -> i32 {
         unsafe { ffi::atk_table_get_row_extent_at(self.as_ref().to_glib_none().0, row, column) }
     }
 
-    #[doc(alias = "atk_table_get_row_header")]
-    #[doc(alias = "get_row_header")]
     fn row_header(&self, row: i32) -> Option<Object> {
         unsafe {
             from_glib_none(ffi::atk_table_get_row_header(
@@ -141,13 +229,10 @@ pub trait TableExt: IsA<Table> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "atk_table_get_summary")]
-    #[doc(alias = "get_summary")]
     fn summary(&self) -> Option<Object> {
         unsafe { from_glib_full(ffi::atk_table_get_summary(self.as_ref().to_glib_none().0)) }
     }
 
-    #[doc(alias = "atk_table_is_column_selected")]
     fn is_column_selected(&self, column: i32) -> bool {
         unsafe {
             from_glib(ffi::atk_table_is_column_selected(
@@ -157,7 +242,6 @@ pub trait TableExt: IsA<Table> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "atk_table_is_row_selected")]
     fn is_row_selected(&self, row: i32) -> bool {
         unsafe {
             from_glib(ffi::atk_table_is_row_selected(
@@ -167,7 +251,6 @@ pub trait TableExt: IsA<Table> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "atk_table_is_selected")]
     fn is_selected(&self, row: i32, column: i32) -> bool {
         unsafe {
             from_glib(ffi::atk_table_is_selected(
@@ -178,7 +261,6 @@ pub trait TableExt: IsA<Table> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "atk_table_ref_at")]
     fn ref_at(&self, row: i32, column: i32) -> Option<Object> {
         unsafe {
             from_glib_full(ffi::atk_table_ref_at(
@@ -189,7 +271,6 @@ pub trait TableExt: IsA<Table> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "atk_table_remove_column_selection")]
     fn remove_column_selection(&self, column: i32) -> bool {
         unsafe {
             from_glib(ffi::atk_table_remove_column_selection(
@@ -199,7 +280,6 @@ pub trait TableExt: IsA<Table> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "atk_table_remove_row_selection")]
     fn remove_row_selection(&self, row: i32) -> bool {
         unsafe {
             from_glib(ffi::atk_table_remove_row_selection(
@@ -209,7 +289,6 @@ pub trait TableExt: IsA<Table> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "atk_table_set_caption")]
     fn set_caption(&self, caption: &impl IsA<Object>) {
         unsafe {
             ffi::atk_table_set_caption(
@@ -219,7 +298,6 @@ pub trait TableExt: IsA<Table> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "atk_table_set_column_description")]
     fn set_column_description(&self, column: i32, description: &str) {
         unsafe {
             ffi::atk_table_set_column_description(
@@ -230,7 +308,6 @@ pub trait TableExt: IsA<Table> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "atk_table_set_column_header")]
     fn set_column_header(&self, column: i32, header: &impl IsA<Object>) {
         unsafe {
             ffi::atk_table_set_column_header(
@@ -241,7 +318,6 @@ pub trait TableExt: IsA<Table> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "atk_table_set_row_description")]
     fn set_row_description(&self, row: i32, description: &str) {
         unsafe {
             ffi::atk_table_set_row_description(
@@ -252,7 +328,6 @@ pub trait TableExt: IsA<Table> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "atk_table_set_row_header")]
     fn set_row_header(&self, row: i32, header: &impl IsA<Object>) {
         unsafe {
             ffi::atk_table_set_row_header(
@@ -263,7 +338,6 @@ pub trait TableExt: IsA<Table> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "atk_table_set_summary")]
     fn set_summary(&self, accessible: &impl IsA<Object>) {
         unsafe {
             ffi::atk_table_set_summary(
@@ -273,7 +347,6 @@ pub trait TableExt: IsA<Table> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "column-deleted")]
     fn connect_column_deleted<F: Fn(&Self, i32, i32) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn column_deleted_trampoline<
             P: IsA<Table>,
@@ -300,7 +373,6 @@ pub trait TableExt: IsA<Table> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "column-inserted")]
     fn connect_column_inserted<F: Fn(&Self, i32, i32) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn column_inserted_trampoline<
             P: IsA<Table>,
@@ -327,7 +399,6 @@ pub trait TableExt: IsA<Table> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "column-reordered")]
     fn connect_column_reordered<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn column_reordered_trampoline<P: IsA<Table>, F: Fn(&P) + 'static>(
             this: *mut ffi::AtkTable,
@@ -349,7 +420,6 @@ pub trait TableExt: IsA<Table> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "model-changed")]
     fn connect_model_changed<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn model_changed_trampoline<P: IsA<Table>, F: Fn(&P) + 'static>(
             this: *mut ffi::AtkTable,
@@ -371,7 +441,6 @@ pub trait TableExt: IsA<Table> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "row-deleted")]
     fn connect_row_deleted<F: Fn(&Self, i32, i32) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn row_deleted_trampoline<
             P: IsA<Table>,
@@ -398,7 +467,6 @@ pub trait TableExt: IsA<Table> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "row-inserted")]
     fn connect_row_inserted<F: Fn(&Self, i32, i32) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn row_inserted_trampoline<
             P: IsA<Table>,
@@ -425,7 +493,6 @@ pub trait TableExt: IsA<Table> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "row-reordered")]
     fn connect_row_reordered<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn row_reordered_trampoline<P: IsA<Table>, F: Fn(&P) + 'static>(
             this: *mut ffi::AtkTable,
@@ -447,8 +514,6 @@ pub trait TableExt: IsA<Table> + sealed::Sealed + 'static {
         }
     }
 }
-
-impl<O: IsA<Table>> TableExt for O {}
 
 impl fmt::Display for Table {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {

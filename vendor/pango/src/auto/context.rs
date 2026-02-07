@@ -2,12 +2,22 @@
 // from gir-files (https://github.com/gtk-rs/gir-files)
 // DO NOT EDIT
 
-use crate::{
-    Direction, Font, FontDescription, FontFamily, FontMap, FontMetrics, Fontset, Gravity,
-    GravityHint, Language, Matrix,
-};
-use glib::{prelude::*, translate::*};
-use std::{fmt, mem, ptr};
+use crate::Direction;
+use crate::Font;
+use crate::FontDescription;
+use crate::FontFamily;
+use crate::FontMap;
+use crate::FontMetrics;
+use crate::Fontset;
+use crate::Gravity;
+use crate::GravityHint;
+use crate::Language;
+use crate::Matrix;
+use glib::object::IsA;
+use glib::translate::*;
+use std::fmt;
+use std::mem;
+use std::ptr;
 
 glib::wrapper! {
     #[doc(alias = "PangoContext")]
@@ -74,7 +84,7 @@ impl Context {
     #[doc(alias = "pango_context_get_language")]
     #[doc(alias = "get_language")]
     pub fn language(&self) -> Option<Language> {
-        unsafe { from_glib_none(ffi::pango_context_get_language(self.to_glib_none().0)) }
+        unsafe { from_glib_full(ffi::pango_context_get_language(self.to_glib_none().0)) }
     }
 
     #[doc(alias = "pango_context_get_matrix")]
@@ -89,7 +99,7 @@ impl Context {
         &self,
         desc: Option<&FontDescription>,
         language: Option<&Language>,
-    ) -> FontMetrics {
+    ) -> Option<FontMetrics> {
         unsafe {
             from_glib_full(ffi::pango_context_get_metrics(
                 self.to_glib_none().0,
@@ -99,8 +109,8 @@ impl Context {
         }
     }
 
-    #[cfg(feature = "v1_44")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "v1_44")))]
+    #[cfg(any(feature = "v1_44", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v1_44")))]
     #[doc(alias = "pango_context_get_round_glyph_positions")]
     #[doc(alias = "get_round_glyph_positions")]
     pub fn is_round_glyph_positions(&self) -> bool {
@@ -127,7 +137,7 @@ impl Context {
                 &mut families,
                 n_families.as_mut_ptr(),
             );
-            FromGlibContainer::from_glib_container_num(families, n_families.assume_init() as _)
+            FromGlibContainer::from_glib_container_num(families, n_families.assume_init() as usize)
         }
     }
 
@@ -167,18 +177,18 @@ impl Context {
     }
 
     #[doc(alias = "pango_context_set_font_description")]
-    pub fn set_font_description(&self, desc: Option<&FontDescription>) {
+    pub fn set_font_description(&self, desc: &FontDescription) {
         unsafe {
             ffi::pango_context_set_font_description(self.to_glib_none().0, desc.to_glib_none().0);
         }
     }
 
     #[doc(alias = "pango_context_set_font_map")]
-    pub fn set_font_map(&self, font_map: Option<&impl IsA<FontMap>>) {
+    pub fn set_font_map(&self, font_map: &impl IsA<FontMap>) {
         unsafe {
             ffi::pango_context_set_font_map(
                 self.to_glib_none().0,
-                font_map.map(|p| p.as_ref()).to_glib_none().0,
+                font_map.as_ref().to_glib_none().0,
             );
         }
     }
@@ -191,7 +201,7 @@ impl Context {
     }
 
     #[doc(alias = "pango_context_set_language")]
-    pub fn set_language(&self, language: Option<&Language>) {
+    pub fn set_language(&self, language: &Language) {
         unsafe {
             ffi::pango_context_set_language(
                 self.to_glib_none().0,
@@ -207,8 +217,8 @@ impl Context {
         }
     }
 
-    #[cfg(feature = "v1_44")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "v1_44")))]
+    #[cfg(any(feature = "v1_44", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v1_44")))]
     #[doc(alias = "pango_context_set_round_glyph_positions")]
     pub fn set_round_glyph_positions(&self, round_positions: bool) {
         unsafe {

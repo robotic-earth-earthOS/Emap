@@ -2,13 +2,32 @@
 // from gir-files (https://github.com/tauri-apps/gir-files)
 // DO NOT EDIT
 
-use crate::{ApplicationInfo, WebView};
-use glib::{
-  prelude::*,
-  signal::{connect_raw, SignalHandlerId},
-  translate::*,
-};
+#[cfg(any(feature = "v2_18", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v2_18")))]
+use crate::ApplicationInfo;
+#[cfg(any(feature = "v2_18", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v2_18")))]
+use crate::WebView;
+use glib::object::Cast;
+use glib::object::IsA;
+#[cfg(any(feature = "v2_18", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v2_18")))]
+use glib::signal::connect_raw;
+#[cfg(any(feature = "v2_18", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v2_18")))]
+use glib::signal::SignalHandlerId;
+#[cfg(any(feature = "v2_18", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v2_18")))]
+use glib::translate::*;
+use glib::StaticType;
+use glib::ToValue;
+#[cfg(any(feature = "v2_18", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v2_18")))]
 use std::boxed::Box as Box_;
+use std::fmt;
+#[cfg(any(feature = "v2_18", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v2_18")))]
+use std::mem::transmute;
 
 glib::wrapper! {
     #[doc(alias = "WebKitAutomationSession")]
@@ -27,50 +46,81 @@ impl AutomationSession {
   ///
   /// This method returns an instance of [`AutomationSessionBuilder`](crate::builders::AutomationSessionBuilder) which can be used to create [`AutomationSession`] objects.
   pub fn builder() -> AutomationSessionBuilder {
-    AutomationSessionBuilder::new()
+    AutomationSessionBuilder::default()
   }
 }
 
+#[derive(Clone, Default)]
 // rustdoc-stripper-ignore-next
 /// A [builder-pattern] type to construct [`AutomationSession`] objects.
 ///
 /// [builder-pattern]: https://doc.rust-lang.org/1.0.0/style/ownership/builders.html
 #[must_use = "The builder must be built to be used"]
 pub struct AutomationSessionBuilder {
-  builder: glib::object::ObjectBuilder<'static, AutomationSession>,
+  #[cfg(any(feature = "v2_18", feature = "dox"))]
+  #[cfg_attr(feature = "dox", doc(cfg(feature = "v2_18")))]
+  id: Option<String>,
 }
 
 impl AutomationSessionBuilder {
-  fn new() -> Self {
-    Self {
-      builder: glib::object::Object::builder(),
-    }
-  }
-
-  #[cfg(feature = "v2_18")]
-  #[cfg_attr(docsrs, doc(cfg(feature = "v2_18")))]
-  pub fn id(self, id: impl Into<glib::GString>) -> Self {
-    Self {
-      builder: self.builder.property("id", id.into()),
-    }
+  // rustdoc-stripper-ignore-next
+  /// Create a new [`AutomationSessionBuilder`].
+  pub fn new() -> Self {
+    Self::default()
   }
 
   // rustdoc-stripper-ignore-next
   /// Build the [`AutomationSession`].
   #[must_use = "Building the object from the builder is usually expensive and is not expected to have side effects"]
   pub fn build(self) -> AutomationSession {
-    self.builder.build()
+    let mut properties: Vec<(&str, &dyn ToValue)> = vec![];
+    #[cfg(any(feature = "v2_18", feature = "dox"))]
+    if let Some(ref id) = self.id {
+      properties.push(("id", id));
+    }
+    glib::Object::new::<AutomationSession>(&properties)
+      .expect("Failed to create an instance of AutomationSession")
+  }
+
+  #[cfg(any(feature = "v2_18", feature = "dox"))]
+  #[cfg_attr(feature = "dox", doc(cfg(feature = "v2_18")))]
+  pub fn id(mut self, id: &str) -> Self {
+    self.id = Some(id.to_string());
+    self
   }
 }
 
-mod sealed {
-  pub trait Sealed {}
-  impl<T: super::IsA<super::AutomationSession>> Sealed for T {}
-}
-
-pub trait AutomationSessionExt: IsA<AutomationSession> + sealed::Sealed + 'static {
+pub trait AutomationSessionExt: 'static {
+  #[cfg(any(feature = "v2_18", feature = "dox"))]
+  #[cfg_attr(feature = "dox", doc(cfg(feature = "v2_18")))]
   #[doc(alias = "webkit_automation_session_get_application_info")]
   #[doc(alias = "get_application_info")]
+  fn application_info(&self) -> Option<ApplicationInfo>;
+
+  #[cfg(any(feature = "v2_18", feature = "dox"))]
+  #[cfg_attr(feature = "dox", doc(cfg(feature = "v2_18")))]
+  #[doc(alias = "webkit_automation_session_get_id")]
+  #[doc(alias = "get_id")]
+  fn id(&self) -> Option<glib::GString>;
+
+  #[cfg(any(feature = "v2_18", feature = "dox"))]
+  #[cfg_attr(feature = "dox", doc(cfg(feature = "v2_18")))]
+  #[doc(alias = "webkit_automation_session_set_application_info")]
+  fn set_application_info(&self, info: &ApplicationInfo);
+
+  #[cfg(any(feature = "v2_18", feature = "dox"))]
+  #[cfg_attr(feature = "dox", doc(cfg(feature = "v2_18")))]
+  #[doc(alias = "create-web-view")]
+  fn connect_create_web_view<F: Fn(&Self) -> WebView + 'static>(
+    &self,
+    detail: Option<&str>,
+    f: F,
+  ) -> SignalHandlerId;
+}
+
+impl<O: IsA<AutomationSession>> AutomationSessionExt for O {
+  #[cfg(any(feature = "v2_18", feature = "dox"))]
+  #[cfg_attr(feature = "dox", doc(cfg(feature = "v2_18")))]
   fn application_info(&self) -> Option<ApplicationInfo> {
     unsafe {
       from_glib_none(ffi::webkit_automation_session_get_application_info(
@@ -79,8 +129,8 @@ pub trait AutomationSessionExt: IsA<AutomationSession> + sealed::Sealed + 'stati
     }
   }
 
-  #[doc(alias = "webkit_automation_session_get_id")]
-  #[doc(alias = "get_id")]
+  #[cfg(any(feature = "v2_18", feature = "dox"))]
+  #[cfg_attr(feature = "dox", doc(cfg(feature = "v2_18")))]
   fn id(&self) -> Option<glib::GString> {
     unsafe {
       from_glib_none(ffi::webkit_automation_session_get_id(
@@ -89,7 +139,8 @@ pub trait AutomationSessionExt: IsA<AutomationSession> + sealed::Sealed + 'stati
     }
   }
 
-  #[doc(alias = "webkit_automation_session_set_application_info")]
+  #[cfg(any(feature = "v2_18", feature = "dox"))]
+  #[cfg_attr(feature = "dox", doc(cfg(feature = "v2_18")))]
   fn set_application_info(&self, info: &ApplicationInfo) {
     unsafe {
       ffi::webkit_automation_session_set_application_info(
@@ -99,9 +150,8 @@ pub trait AutomationSessionExt: IsA<AutomationSession> + sealed::Sealed + 'stati
     }
   }
 
-  #[cfg(feature = "v2_18")]
-  #[cfg_attr(docsrs, doc(cfg(feature = "v2_18")))]
-  #[doc(alias = "create-web-view")]
+  #[cfg(any(feature = "v2_18", feature = "dox"))]
+  #[cfg_attr(feature = "dox", doc(cfg(feature = "v2_18")))]
   fn connect_create_web_view<F: Fn(&Self) -> WebView + 'static>(
     &self,
     detail: Option<&str>,
@@ -121,14 +171,14 @@ pub trait AutomationSessionExt: IsA<AutomationSession> + sealed::Sealed + 'stati
     }
     unsafe {
       let f: Box_<F> = Box_::new(f);
-      let detailed_signal_name = detail.map(|name| format!("create-web-view::{name}\0"));
+      let detailed_signal_name = detail.map(|name| format!("create-web-view::{}\0", name));
       let signal_name: &[u8] = detailed_signal_name
         .as_ref()
         .map_or(&b"create-web-view\0"[..], |n| n.as_bytes());
       connect_raw(
         self.as_ptr() as *mut _,
         signal_name.as_ptr() as *const _,
-        Some(std::mem::transmute::<_, unsafe extern "C" fn()>(
+        Some(transmute::<_, unsafe extern "C" fn()>(
           create_web_view_trampoline::<Self, F> as *const (),
         )),
         Box_::into_raw(f),
@@ -137,4 +187,8 @@ pub trait AutomationSessionExt: IsA<AutomationSession> + sealed::Sealed + 'stati
   }
 }
 
-impl<O: IsA<AutomationSession>> AutomationSessionExt for O {}
+impl fmt::Display for AutomationSession {
+  fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    f.write_str("AutomationSession")
+  }
+}

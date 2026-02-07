@@ -164,8 +164,7 @@ impl<J: BorrowMut<CookieJar>> PrivateJar<J> {
     /// assert_ne!(jar.get("name").unwrap().value(), "value");
     /// assert_eq!(jar.private(&key).get("name").unwrap().value(), "value");
     /// ```
-    pub fn add<C: Into<Cookie<'static>>>(&mut self, cookie: C) {
-        let mut cookie = cookie.into();
+    pub fn add(&mut self, mut cookie: Cookie<'static>) {
         self.encrypt_cookie(&mut cookie);
         self.parent.borrow_mut().add(cookie);
     }
@@ -192,8 +191,7 @@ impl<J: BorrowMut<CookieJar>> PrivateJar<J> {
     /// assert_eq!(jar.iter().count(), 1);
     /// assert_eq!(jar.delta().count(), 0);
     /// ```
-    pub fn add_original<C: Into<Cookie<'static>>>(&mut self, cookie: C) {
-        let mut cookie = cookie.into();
+    pub fn add_original(&mut self, mut cookie: Cookie<'static>) {
         self.encrypt_cookie(&mut cookie);
         self.parent.borrow_mut().add_original(cookie);
     }
@@ -215,13 +213,13 @@ impl<J: BorrowMut<CookieJar>> PrivateJar<J> {
     /// let mut jar = CookieJar::new();
     /// let mut private_jar = jar.private_mut(&key);
     ///
-    /// private_jar.add(("name", "value"));
+    /// private_jar.add(Cookie::new("name", "value"));
     /// assert!(private_jar.get("name").is_some());
     ///
-    /// private_jar.remove("name");
+    /// private_jar.remove(Cookie::named("name"));
     /// assert!(private_jar.get("name").is_none());
     /// ```
-    pub fn remove<C: Into<Cookie<'static>>>(&mut self, cookie: C) {
+    pub fn remove(&mut self, cookie: Cookie<'static>) {
         self.parent.borrow_mut().remove(cookie);
     }
 }

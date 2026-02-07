@@ -1,40 +1,34 @@
 // Take a look at the license at the top of the repository in the LICENSE file.
 
-use std::{
-    any::Any, cell::Cell, marker::PhantomData, mem, num::NonZeroU32, panic, pin::Pin, ptr, thread,
-};
-
-use futures_channel::oneshot;
-use futures_core::{
-    future::Future,
-    task::{Context, Poll, RawWaker, RawWakerVTable, Waker},
-};
+use crate::thread_guard::ThreadGuard;
+use crate::translate::*;
+use futures_core::future::Future;
+use futures_core::task::{Context, Poll, RawWaker, RawWakerVTable, Waker};
 use futures_task::{FutureObj, LocalFutureObj, LocalSpawn, Spawn, SpawnError};
-use futures_util::FutureExt;
+use std::mem;
+use std::pin::{self, Pin};
+use std::ptr;
 
-use crate::{
-    thread_guard::ThreadGuard, translate::*, MainContext, MainLoop, Priority, Source, SourceId,
-};
+use crate::MainContext;
+use crate::MainLoop;
+use crate::Priority;
+use crate::Source;
+use crate::SourceId;
 
 // Wrapper around Send Futures and non-Send Futures that will panic
 // if the non-Send Future is polled/dropped from a different thread
 // than where this was created.
 enum FutureWrapper {
-    Send(FutureObj<'static, Box<dyn Any + Send + 'static>>),
-    NonSend(ThreadGuard<LocalFutureObj<'static, Box<dyn Any + 'static>>>),
+    Send(FutureObj<'static, ()>),
+    NonSend(ThreadGuard<LocalFutureObj<'static, ()>>),
 }
 
-unsafe impl Send for FutureWrapper {}
-unsafe impl Sync for FutureWrapper {}
-
 impl Future for FutureWrapper {
-    type Output = Box<dyn Any + 'static>;
+    type Output = ();
 
-    fn poll(self: Pin<&mut Self>, ctx: &mut Context<'_>) -> Poll<Self::Output> {
+    fn poll(self: pin::Pin<&mut Self>, ctx: &mut Context) -> Poll<()> {
         match self.get_mut() {
-            FutureWrapper::Send(fut) => {
-                Pin::new(fut).poll(ctx).map(|b| b as Box<dyn Any + 'static>)
-            }
+            FutureWrapper::Send(fut) => Pin::new(fut).poll(ctx),
             FutureWrapper::NonSend(fut) => Pin::new(fut.get_mut()).poll(ctx),
         }
     }
@@ -52,7 +46,6 @@ struct TaskSource {
     source: ffi::GSource,
     future: FutureWrapper,
     waker: Waker,
-    return_tx: Option<oneshot::Sender<thread::Result<Box<dyn Any + 'static>>>>,
 }
 
 #[repr(C)]
@@ -66,8 +59,8 @@ impl TaskSource {
         callback: ffi::GSourceFunc,
         _user_data: ffi::gpointer,
     ) -> ffi::gboolean {
-        let source = &mut *(source as *mut Self);
-        debug_assert!(callback.is_none());
+        let source = &mut *(source as *mut TaskSource);
+        assert!(callback.is_none());
 
         // Poll the TaskSource and ensure we're never called again if the
         // contained Future resolved now.
@@ -79,7 +72,7 @@ impl TaskSource {
     }
 
     unsafe extern "C" fn finalize(source: *mut ffi::GSource) {
-        let source = source as *mut Self;
+        let source = source as *mut TaskSource;
 
         // This will panic if the future was a local future and is dropped from a different thread
         // than where it was created so try to drop it from the main context if we're on another
@@ -95,7 +88,8 @@ impl TaskSource {
                 ptr::drop_in_place(&mut (*source).future);
             }
             FutureWrapper::NonSend(ref mut future) => {
-                let context = ffi::g_source_get_context(source as *mut ffi::GSource);
+                let context =
+                    ffi::g_source_get_context(source as *mut TaskSource as *mut ffi::GSource);
                 if !context.is_null() {
                     let future = ptr::read(future);
                     let context = MainContext::from_glib_none(context);
@@ -164,11 +158,7 @@ unsafe impl Sync for WakerSource {}
 impl TaskSource {
     #[allow(clippy::new_ret_no_self)]
     // checker-ignore-item
-    fn new(
-        priority: Priority,
-        future: FutureWrapper,
-        return_tx: Option<oneshot::Sender<thread::Result<Box<dyn Any + 'static>>>>,
-    ) -> Source {
+    fn new(priority: Priority, future: FutureWrapper) -> Source {
         unsafe {
             static TASK_SOURCE_FUNCS: ffi::GSourceFuncs = ffi::GSourceFuncs {
                 check: None,
@@ -178,6 +168,7 @@ impl TaskSource {
                 closure_callback: None,
                 closure_marshal: None,
             };
+
             static WAKER_SOURCE_FUNCS: ffi::GSourceFuncs = ffi::GSourceFuncs {
                 check: None,
                 prepare: None,
@@ -189,7 +180,7 @@ impl TaskSource {
 
             let source = ffi::g_source_new(
                 mut_override(&TASK_SOURCE_FUNCS),
-                mem::size_of::<Self>() as u32,
+                mem::size_of::<TaskSource>() as u32,
             );
 
             let waker_source = ffi::g_source_new(
@@ -201,9 +192,8 @@ impl TaskSource {
             ffi::g_source_add_child_source(source, waker_source);
 
             {
-                let source = &mut *(source as *mut Self);
+                let source = &mut *(source as *mut TaskSource);
                 ptr::write(&mut source.future, future);
-                ptr::write(&mut source.return_tx, return_tx);
 
                 // This creates a new reference to the waker source.
                 let waker = Waker::from_raw(WakerSource::clone_raw(waker_source as *const ()));
@@ -240,264 +230,9 @@ impl TaskSource {
 
                 // This will panic if the future was a local future and is called from
                 // a different thread than where it was created.
-                if let Some(tx) = self.return_tx.take() {
-                    let res = panic::catch_unwind(panic::AssertUnwindSafe(|| {
-                        Pin::new(&mut self.future).poll(&mut context)
-                    }));
-                    match res {
-                        Ok(Poll::Ready(res)) => {
-                            let _ = tx.send(Ok(res));
-                            Poll::Ready(())
-                        }
-                        Ok(Poll::Pending) => {
-                            self.return_tx.replace(tx);
-                            Poll::Pending
-                        }
-                        Err(e) => {
-                            let _ = tx.send(Err(e));
-                            Poll::Ready(())
-                        }
-                    }
-                } else {
-                    Pin::new(&mut self.future).poll(&mut context).map(|_| ())
-                }
+                Pin::new(&mut self.future).poll(&mut context)
             })
             .expect("current thread is not owner of the main context")
-    }
-}
-
-// rustdoc-stripper-ignore-next
-/// A handle to a task running on a [`MainContext`].
-///
-/// Like [`std::thread::JoinHandle`] for a task rather than a thread. The return value from the
-/// task can be retrieved by awaiting on this object. Dropping the handle "detaches" the task,
-/// allowing it to complete but discarding the return value.
-#[derive(Debug)]
-pub struct JoinHandle<T> {
-    rx: oneshot::Receiver<std::thread::Result<Box<dyn Any + 'static>>>,
-    source: Source,
-    id: Cell<Option<NonZeroU32>>,
-    phantom: PhantomData<oneshot::Receiver<std::thread::Result<T>>>,
-}
-
-impl<T> JoinHandle<T> {
-    #[inline]
-    fn new(
-        ctx: &MainContext,
-        source: Source,
-        rx: oneshot::Receiver<std::thread::Result<Box<dyn Any + 'static>>>,
-    ) -> Self {
-        let id = source.attach(Some(ctx));
-        let id = Cell::new(Some(unsafe { NonZeroU32::new_unchecked(id.as_raw()) }));
-        Self {
-            rx,
-            source,
-            id,
-            phantom: PhantomData,
-        }
-    }
-    // rustdoc-stripper-ignore-next
-    /// Returns the internal source ID.
-    ///
-    /// Returns `None` if the handle was aborted already.
-    #[inline]
-    pub fn as_raw_source_id(&self) -> Option<u32> {
-        self.id.get().map(|i| i.get())
-    }
-    // rustdoc-stripper-ignore-next
-    /// Aborts the task associated with the handle.
-    #[inline]
-    pub fn abort(&self) {
-        self.source.destroy();
-        self.id.replace(None);
-    }
-    // rustdoc-stripper-ignore-next
-    /// Returns the [`Source`] associated with this handle.
-    #[inline]
-    pub fn source(&self) -> &Source {
-        &self.source
-    }
-    // rustdoc-stripper-ignore-next
-    /// Safely converts the handle into a [`SourceId`].
-    ///
-    /// Can be used to discard the return value while still retaining the ability to abort the
-    /// underlying task. Returns `Err(self)` if the handle was aborted already.
-    pub fn into_source_id(self) -> Result<SourceId, Self> {
-        if let Some(id) = self.id.take() {
-            Ok(unsafe { SourceId::from_glib(id.get()) })
-        } else {
-            Err(self)
-        }
-    }
-}
-
-impl<T: 'static> Future for JoinHandle<T> {
-    type Output = Result<T, JoinError>;
-    #[inline]
-    fn poll(
-        mut self: std::pin::Pin<&mut Self>,
-        cx: &mut std::task::Context<'_>,
-    ) -> std::task::Poll<Self::Output> {
-        std::pin::Pin::new(&mut self.rx).poll(cx).map(|r| match r {
-            Err(_) => Err(JoinErrorInner::Cancelled.into()),
-            Ok(Err(e)) => Err(JoinErrorInner::Panic(e).into()),
-            Ok(Ok(r)) => Ok(*r.downcast().unwrap()),
-        })
-    }
-}
-
-impl<T: 'static> futures_core::FusedFuture for JoinHandle<T> {
-    #[inline]
-    fn is_terminated(&self) -> bool {
-        self.rx.is_terminated()
-    }
-}
-
-unsafe impl<T> Send for JoinHandle<T> {}
-
-// rustdoc-stripper-ignore-next
-/// Variant of [`JoinHandle`] that is returned from [`MainContext::spawn_from_within`].
-#[derive(Debug)]
-pub struct SpawnWithinJoinHandle<T> {
-    rx: Option<oneshot::Receiver<JoinHandle<T>>>,
-    join_handle: Option<JoinHandle<T>>,
-}
-
-impl<T> SpawnWithinJoinHandle<T> {
-    // rustdoc-stripper-ignore-next
-    /// Waits until the task is spawned and returns the [`JoinHandle`].
-    pub async fn into_inner(self) -> Result<JoinHandle<T>, JoinError> {
-        if let Some(join_handle) = self.join_handle {
-            return Ok(join_handle);
-        }
-
-        if let Some(rx) = self.rx {
-            match rx.await {
-                Ok(join_handle) => return Ok(join_handle),
-                Err(_) => return Err(JoinErrorInner::Cancelled.into()),
-            }
-        }
-
-        Err(JoinErrorInner::Cancelled.into())
-    }
-}
-
-impl<T: 'static> Future for SpawnWithinJoinHandle<T> {
-    type Output = Result<T, JoinError>;
-    #[inline]
-    fn poll(
-        mut self: std::pin::Pin<&mut Self>,
-        cx: &mut std::task::Context<'_>,
-    ) -> std::task::Poll<Self::Output> {
-        if let Some(ref mut rx) = self.rx {
-            match std::pin::Pin::new(rx).poll(cx) {
-                std::task::Poll::Pending => return std::task::Poll::Pending,
-                std::task::Poll::Ready(Err(_)) => {
-                    self.rx = None;
-                    return std::task::Poll::Ready(Err(JoinErrorInner::Cancelled.into()));
-                }
-                std::task::Poll::Ready(Ok(join_handle)) => {
-                    self.rx = None;
-                    self.join_handle = Some(join_handle);
-                }
-            }
-        }
-
-        if let Some(ref mut join_handle) = self.join_handle {
-            match std::pin::Pin::new(join_handle).poll(cx) {
-                std::task::Poll::Pending => return std::task::Poll::Pending,
-                std::task::Poll::Ready(Err(e)) => {
-                    self.join_handle = None;
-                    return std::task::Poll::Ready(Err(e));
-                }
-                std::task::Poll::Ready(Ok(r)) => {
-                    self.join_handle = None;
-                    return std::task::Poll::Ready(Ok(r));
-                }
-            }
-        }
-
-        std::task::Poll::Ready(Err(JoinErrorInner::Cancelled.into()))
-    }
-}
-
-impl<T: 'static> futures_core::FusedFuture for SpawnWithinJoinHandle<T> {
-    #[inline]
-    fn is_terminated(&self) -> bool {
-        if let Some(ref rx) = self.rx {
-            rx.is_terminated()
-        } else if let Some(ref join_handle) = self.join_handle {
-            join_handle.is_terminated()
-        } else {
-            true
-        }
-    }
-}
-
-// rustdoc-stripper-ignore-next
-/// Task failure from awaiting a [`JoinHandle`].
-#[derive(Debug)]
-pub struct JoinError(JoinErrorInner);
-
-impl JoinError {
-    // rustdoc-stripper-ignore-next
-    /// Returns `true` if the handle was cancelled.
-    #[inline]
-    pub fn is_cancelled(&self) -> bool {
-        matches!(self.0, JoinErrorInner::Cancelled)
-    }
-    // rustdoc-stripper-ignore-next
-    /// Returns `true` if the task terminated with a panic.
-    #[inline]
-    pub fn is_panic(&self) -> bool {
-        matches!(self.0, JoinErrorInner::Panic(_))
-    }
-    // rustdoc-stripper-ignore-next
-    /// Converts the error into a panic result.
-    ///
-    /// # Panics
-    ///
-    /// Panics if the error is not a panic error. Use [`is_panic`](Self::is_panic) to check first
-    /// if the error represents a panic.
-    #[inline]
-    pub fn into_panic(self) -> Box<dyn Any + Send + 'static> {
-        self.try_into_panic()
-            .expect("`JoinError` is not a panic error")
-    }
-    // rustdoc-stripper-ignore-next
-    /// Attempts to convert the error into a panic result.
-    ///
-    /// Returns `Err(self)` if the error is not a panic result.
-    #[inline]
-    pub fn try_into_panic(self) -> Result<Box<dyn Any + Send + 'static>, Self> {
-        match self.0 {
-            JoinErrorInner::Panic(e) => Ok(e),
-            e => Err(Self(e)),
-        }
-    }
-}
-
-impl std::error::Error for JoinError {}
-
-impl std::fmt::Display for JoinError {
-    #[inline]
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        self.0.fmt(f)
-    }
-}
-
-#[derive(thiserror::Error, Debug)]
-enum JoinErrorInner {
-    #[error("task cancelled")]
-    Cancelled,
-    #[error("task panicked")]
-    Panic(Box<dyn Any + Send + 'static>),
-}
-
-impl From<JoinErrorInner> for JoinError {
-    #[inline]
-    fn from(e: JoinErrorInner) -> Self {
-        Self(e)
     }
 }
 
@@ -507,11 +242,8 @@ impl MainContext {
     ///
     /// This can be called from any thread and will execute the future from the thread
     /// where main context is running, e.g. via a `MainLoop`.
-    pub fn spawn<R: Send + 'static, F: Future<Output = R> + Send + 'static>(
-        &self,
-        f: F,
-    ) -> JoinHandle<R> {
-        self.spawn_with_priority(crate::Priority::default(), f)
+    pub fn spawn<F: Future<Output = ()> + Send + 'static>(&self, f: F) -> SourceId {
+        self.spawn_with_priority(crate::PRIORITY_DEFAULT, f)
     }
 
     // rustdoc-stripper-ignore-next
@@ -522,8 +254,8 @@ impl MainContext {
     /// This can be called only from the thread where the main context is running, e.g.
     /// from any other `Future` that is executed on this main context, or after calling
     /// `with_thread_default` or `acquire` on the main context.
-    pub fn spawn_local<R: 'static, F: Future<Output = R> + 'static>(&self, f: F) -> JoinHandle<R> {
-        self.spawn_local_with_priority(crate::Priority::default(), f)
+    pub fn spawn_local<F: Future<Output = ()> + 'static>(&self, f: F) -> SourceId {
+        self.spawn_local_with_priority(crate::PRIORITY_DEFAULT, f)
     }
 
     // rustdoc-stripper-ignore-next
@@ -531,17 +263,14 @@ impl MainContext {
     ///
     /// This can be called from any thread and will execute the future from the thread
     /// where main context is running, e.g. via a `MainLoop`.
-    pub fn spawn_with_priority<R: Send + 'static, F: Future<Output = R> + Send + 'static>(
+    pub fn spawn_with_priority<F: Future<Output = ()> + Send + 'static>(
         &self,
         priority: Priority,
         f: F,
-    ) -> JoinHandle<R> {
-        let f = FutureObj::new(Box::new(async move {
-            Box::new(f.await) as Box<dyn Any + Send + 'static>
-        }));
-        let (tx, rx) = oneshot::channel();
-        let source = TaskSource::new(priority, FutureWrapper::Send(f), Some(tx));
-        JoinHandle::new(self, source, rx)
+    ) -> SourceId {
+        let f = FutureObj::new(Box::new(f));
+        let source = TaskSource::new(priority, FutureWrapper::Send(f));
+        source.attach(Some(&*self))
     }
 
     // rustdoc-stripper-ignore-next
@@ -552,60 +281,17 @@ impl MainContext {
     /// This can be called only from the thread where the main context is running, e.g.
     /// from any other `Future` that is executed on this main context, or after calling
     /// `with_thread_default` or `acquire` on the main context.
-    pub fn spawn_local_with_priority<R: 'static, F: Future<Output = R> + 'static>(
+    pub fn spawn_local_with_priority<F: Future<Output = ()> + 'static>(
         &self,
         priority: Priority,
         f: F,
-    ) -> JoinHandle<R> {
+    ) -> SourceId {
         let _acquire = self
             .acquire()
             .expect("Spawning local futures only allowed on the thread owning the MainContext");
-        let f = LocalFutureObj::new(Box::new(async move {
-            Box::new(f.await) as Box<dyn Any + 'static>
-        }));
-        let (tx, rx) = oneshot::channel();
-        let source = TaskSource::new(
-            priority,
-            FutureWrapper::NonSend(ThreadGuard::new(f)),
-            Some(tx),
-        );
-        JoinHandle::new(self, source, rx)
-    }
-
-    // rustdoc-stripper-ignore-next
-    /// Spawn a new infallible `Future` on the main context from inside the main context.
-    ///
-    /// The given `Future` does not have to be `Send` but the closure to spawn it has to be.
-    ///
-    /// This can be called only from any thread.
-    pub fn spawn_from_within<R: 'static, F: Future<Output = R> + 'static>(
-        &self,
-        func: impl FnOnce() -> F + Send + 'static,
-    ) -> SpawnWithinJoinHandle<R> {
-        self.spawn_from_within_with_priority(crate::Priority::default(), func)
-    }
-
-    // rustdoc-stripper-ignore-next
-    /// Spawn a new infallible `Future` on the main context from inside the main context.
-    ///
-    /// The given `Future` does not have to be `Send` but the closure to spawn it has to be.
-    ///
-    /// This can be called only from any thread.
-    pub fn spawn_from_within_with_priority<R: 'static, F: Future<Output = R> + 'static>(
-        &self,
-        priority: Priority,
-        func: impl FnOnce() -> F + Send + 'static,
-    ) -> SpawnWithinJoinHandle<R> {
-        let ctx = self.clone();
-        let (tx, rx) = oneshot::channel();
-        self.invoke_with_priority(priority, move || {
-            let _ = tx.send(ctx.spawn_local(func()));
-        });
-
-        SpawnWithinJoinHandle {
-            rx: Some(rx),
-            join_handle: None,
-        }
+        let f = LocalFutureObj::new(Box::new(f));
+        let source = TaskSource::new(priority, FutureWrapper::NonSend(ThreadGuard::new(f)));
+        source.attach(Some(&*self))
     }
 
     // rustdoc-stripper-ignore-next
@@ -619,81 +305,58 @@ impl MainContext {
     #[allow(clippy::transmute_ptr_to_ptr)]
     pub fn block_on<F: Future>(&self, f: F) -> F::Output {
         let mut res = None;
-        let l = MainLoop::new(Some(self), false);
+        let l = MainLoop::new(Some(&*self), false);
+        let l_clone = l.clone();
 
         let f = async {
-            res = Some(panic::AssertUnwindSafe(f).catch_unwind().await);
-            l.quit();
+            res = Some(f.await);
+            l_clone.quit();
         };
 
-        let f = unsafe {
+        unsafe {
             // Super-unsafe: We transmute here to get rid of the 'static lifetime
-            let f = LocalFutureObj::new(Box::new(async move {
-                f.await;
-                Box::new(()) as Box<dyn Any + 'static>
-            }));
-            let f: LocalFutureObj<'static, Box<dyn Any + 'static>> = mem::transmute(f);
-            f
-        };
+            let f = LocalFutureObj::new(Box::new(f));
+            let f: LocalFutureObj<'static, ()> = mem::transmute(f);
 
-        let source = TaskSource::new(
-            crate::Priority::default(),
-            FutureWrapper::NonSend(ThreadGuard::new(f)),
-            None,
-        );
-        source.attach(Some(self));
+            let source = TaskSource::new(
+                crate::PRIORITY_DEFAULT,
+                FutureWrapper::NonSend(ThreadGuard::new(f)),
+            );
+            source.attach(Some(&*self));
+        }
 
         l.run();
 
-        match res.unwrap() {
-            Ok(v) => v,
-            Err(e) => panic::resume_unwind(e),
-        }
+        res.unwrap()
     }
 }
 
 impl Spawn for MainContext {
     fn spawn_obj(&self, f: FutureObj<'static, ()>) -> Result<(), SpawnError> {
-        let (tx, _) = oneshot::channel();
-        let source = TaskSource::new(
-            crate::Priority::default(),
-            FutureWrapper::Send(FutureObj::new(Box::new(async move {
-                f.await;
-                Box::new(()) as Box<dyn Any + Send + 'static>
-            }))),
-            Some(tx),
-        );
-        source.attach(Some(self));
+        let source = TaskSource::new(crate::PRIORITY_DEFAULT, FutureWrapper::Send(f));
+        source.attach(Some(&*self));
         Ok(())
     }
 }
 
 impl LocalSpawn for MainContext {
     fn spawn_local_obj(&self, f: LocalFutureObj<'static, ()>) -> Result<(), SpawnError> {
-        let (tx, _) = oneshot::channel();
         let source = TaskSource::new(
-            crate::Priority::default(),
-            FutureWrapper::NonSend(ThreadGuard::new(LocalFutureObj::new(Box::new(
-                async move {
-                    f.await;
-                    Box::new(()) as Box<dyn Any + 'static>
-                },
-            )))),
-            Some(tx),
+            crate::PRIORITY_DEFAULT,
+            FutureWrapper::NonSend(ThreadGuard::new(f)),
         );
-        source.attach(Some(self));
+        source.attach(Some(&*self));
         Ok(())
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use std::{sync::mpsc, thread};
-
+    use super::*;
     use futures_channel::oneshot;
     use futures_util::future::{FutureExt, TryFutureExt};
-
-    use super::*;
+    use std::sync::mpsc;
+    use std::thread;
 
     #[test]
     fn test_spawn() {
@@ -744,23 +407,6 @@ mod tests {
     }
 
     #[test]
-    fn test_spawn_from_within() {
-        let c = MainContext::new();
-        let l = crate::MainLoop::new(Some(&c), false);
-
-        std::thread::spawn({
-            let l_clone = l.clone();
-            move || {
-                c.spawn_from_within(move || async move {
-                    l_clone.quit();
-                });
-            }
-        });
-
-        l.run();
-    }
-
-    #[test]
     fn test_block_on() {
         let c = MainContext::new();
 
@@ -778,33 +424,5 @@ mod tests {
         }
 
         assert_eq!(v, Some(123));
-    }
-
-    #[test]
-    fn test_spawn_return() {
-        let c = MainContext::new();
-        c.block_on(async {
-            let val = 1;
-            let ret = c
-                .spawn(async move { futures_util::future::ready(2).await + val })
-                .await;
-            assert_eq!(ret.unwrap(), 3);
-        });
-    }
-
-    #[test]
-    fn test_spawn_panic() {
-        let c = MainContext::new();
-        c.block_on(async {
-            let ret = c
-                .spawn(async {
-                    panic!("failed");
-                })
-                .await;
-            assert_eq!(
-                *ret.unwrap_err().into_panic().downcast::<&str>().unwrap(),
-                "failed"
-            );
-        });
     }
 }

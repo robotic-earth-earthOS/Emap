@@ -3,7 +3,8 @@
 // DO NOT EDIT
 
 use crate::Action;
-use glib::{prelude::*, translate::*};
+use glib::object::IsA;
+use glib::translate::*;
 use std::fmt;
 
 glib::wrapper! {
@@ -19,13 +20,21 @@ impl ActionMap {
     pub const NONE: Option<&'static ActionMap> = None;
 }
 
-mod sealed {
-    pub trait Sealed {}
-    impl<T: super::IsA<super::ActionMap>> Sealed for T {}
+pub trait ActionMapExt: 'static {
+    #[doc(alias = "g_action_map_add_action")]
+    fn add_action(&self, action: &impl IsA<Action>);
+
+    //#[doc(alias = "g_action_map_add_action_entries")]
+    //fn add_action_entries(&self, entries: /*Ignored*/&[ActionEntry], user_data: /*Unimplemented*/Option<Fundamental: Pointer>);
+
+    #[doc(alias = "g_action_map_lookup_action")]
+    fn lookup_action(&self, action_name: &str) -> Option<Action>;
+
+    #[doc(alias = "g_action_map_remove_action")]
+    fn remove_action(&self, action_name: &str);
 }
 
-pub trait ActionMapExt: IsA<ActionMap> + sealed::Sealed + 'static {
-    #[doc(alias = "g_action_map_add_action")]
+impl<O: IsA<ActionMap>> ActionMapExt for O {
     fn add_action(&self, action: &impl IsA<Action>) {
         unsafe {
             ffi::g_action_map_add_action(
@@ -35,7 +44,10 @@ pub trait ActionMapExt: IsA<ActionMap> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_action_map_lookup_action")]
+    //fn add_action_entries(&self, entries: /*Ignored*/&[ActionEntry], user_data: /*Unimplemented*/Option<Fundamental: Pointer>) {
+    //    unsafe { TODO: call ffi:g_action_map_add_action_entries() }
+    //}
+
     fn lookup_action(&self, action_name: &str) -> Option<Action> {
         unsafe {
             from_glib_none(ffi::g_action_map_lookup_action(
@@ -45,7 +57,6 @@ pub trait ActionMapExt: IsA<ActionMap> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_action_map_remove_action")]
     fn remove_action(&self, action_name: &str) {
         unsafe {
             ffi::g_action_map_remove_action(
@@ -55,8 +66,6 @@ pub trait ActionMapExt: IsA<ActionMap> + sealed::Sealed + 'static {
         }
     }
 }
-
-impl<O: IsA<ActionMap>> ActionMapExt for O {}
 
 impl fmt::Display for ActionMap {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {

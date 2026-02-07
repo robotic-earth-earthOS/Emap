@@ -3,10 +3,9 @@
 // rustdoc-stripper-ignore-next
 //! Traits intended for blanket imports.
 
-#[doc(hidden)]
-pub use glib::prelude::*;
-
+pub use crate::auto::traits::*;
+pub use crate::pixbuf_animation::PixbufAnimationExtManual;
 #[doc(hidden)]
 pub use gio::prelude::*;
-
-pub use crate::{auto::traits::*, pixbuf_animation::PixbufAnimationExtManual};
+#[doc(hidden)]
+pub use glib::prelude::*;

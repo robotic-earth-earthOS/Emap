@@ -2,13 +2,16 @@
 // from gir-files (https://github.com/gtk-rs/gir-files)
 // DO NOT EDIT
 
-use crate::{Initable, MemoryMonitorWarningLevel};
-use glib::{
-    prelude::*,
-    signal::{connect_raw, SignalHandlerId},
-    translate::*,
-};
-use std::{boxed::Box as Box_, fmt, mem::transmute};
+use crate::Initable;
+use crate::MemoryMonitorWarningLevel;
+use glib::object::Cast;
+use glib::object::IsA;
+use glib::signal::connect_raw;
+use glib::signal::SignalHandlerId;
+use glib::translate::*;
+use std::boxed::Box as Box_;
+use std::fmt;
+use std::mem::transmute;
 
 glib::wrapper! {
     #[doc(alias = "GMemoryMonitor")]
@@ -28,15 +31,19 @@ impl MemoryMonitor {
     }
 }
 
-mod sealed {
-    pub trait Sealed {}
-    impl<T: super::IsA<super::MemoryMonitor>> Sealed for T {}
+pub trait MemoryMonitorExt: 'static {
+    #[cfg(any(feature = "v2_64", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v2_64")))]
+    #[doc(alias = "low-memory-warning")]
+    fn connect_low_memory_warning<F: Fn(&Self, MemoryMonitorWarningLevel) + 'static>(
+        &self,
+        f: F,
+    ) -> SignalHandlerId;
 }
 
-pub trait MemoryMonitorExt: IsA<MemoryMonitor> + sealed::Sealed + 'static {
-    #[cfg(feature = "v2_64")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "v2_64")))]
-    #[doc(alias = "low-memory-warning")]
+impl<O: IsA<MemoryMonitor>> MemoryMonitorExt for O {
+    #[cfg(any(feature = "v2_64", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v2_64")))]
     fn connect_low_memory_warning<F: Fn(&Self, MemoryMonitorWarningLevel) + 'static>(
         &self,
         f: F,
@@ -68,8 +75,6 @@ pub trait MemoryMonitorExt: IsA<MemoryMonitor> + sealed::Sealed + 'static {
         }
     }
 }
-
-impl<O: IsA<MemoryMonitor>> MemoryMonitorExt for O {}
 
 impl fmt::Display for MemoryMonitor {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {

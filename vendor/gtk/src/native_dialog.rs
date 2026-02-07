@@ -7,7 +7,7 @@ use std::cell::Cell;
 use std::future::Future;
 use std::pin::Pin;
 
-pub trait NativeDialogExtManual: IsA<NativeDialog> {
+pub trait NativeDialogExtManual {
     // rustdoc-stripper-ignore-next
     /// Shows the dialog and returns a `Future` that resolves to the
     /// `ResponseType` on response.
@@ -25,6 +25,14 @@ pub trait NativeDialogExtManual: IsA<NativeDialog> {
     /// dialog.destroy();
     /// # }
     /// ```
+    #[cfg(any(feature = "v3_20", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
+    fn run_future<'a>(&'a self) -> Pin<Box<dyn Future<Output = ResponseType> + 'a>>;
+}
+
+impl<O: IsA<NativeDialog>> NativeDialogExtManual for O {
+    #[cfg(any(feature = "v3_20", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
     fn run_future<'a>(&'a self) -> Pin<Box<dyn Future<Output = ResponseType> + 'a>> {
         Box::pin(async move {
             let (sender, receiver) = futures_channel::oneshot::channel();
@@ -50,5 +58,3 @@ pub trait NativeDialogExtManual: IsA<NativeDialog> {
         })
     }
 }
-
-impl<O: IsA<NativeDialog>> NativeDialogExtManual for O {}

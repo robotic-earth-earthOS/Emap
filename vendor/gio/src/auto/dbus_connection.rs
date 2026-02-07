@@ -2,20 +2,33 @@
 // from gir-files (https://github.com/gtk-rs/gir-files)
 // DO NOT EDIT
 
-#[cfg(unix)]
-#[cfg_attr(docsrs, doc(cfg(unix)))]
+use crate::AsyncInitable;
+use crate::AsyncResult;
+use crate::Cancellable;
+use crate::Credentials;
+use crate::DBusAuthObserver;
+use crate::DBusCallFlags;
+use crate::DBusCapabilityFlags;
+use crate::DBusConnectionFlags;
+use crate::DBusMessage;
+use crate::DBusSendMessageFlags;
+use crate::IOStream;
+use crate::Initable;
+#[cfg(any(unix, feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(unix)))]
 use crate::UnixFDList;
-use crate::{
-    AsyncInitable, AsyncResult, Cancellable, Credentials, DBusAuthObserver, DBusCallFlags,
-    DBusCapabilityFlags, DBusConnectionFlags, DBusMessage, DBusSendMessageFlags, IOStream,
-    Initable,
-};
-use glib::{
-    prelude::*,
-    signal::{connect_raw, SignalHandlerId},
-    translate::*,
-};
-use std::{boxed::Box as Box_, fmt, mem, mem::transmute, pin::Pin, ptr};
+use glib::object::IsA;
+use glib::object::ObjectType as ObjectType_;
+use glib::signal::connect_raw;
+use glib::signal::SignalHandlerId;
+use glib::translate::*;
+use glib::StaticType;
+use std::boxed::Box as Box_;
+use std::fmt;
+use std::mem;
+use std::mem::transmute;
+use std::pin::Pin;
+use std::ptr;
 
 glib::wrapper! {
     #[doc(alias = "GDBusConnection")]
@@ -217,8 +230,8 @@ impl DBusConnection {
         }
     }
 
-    #[cfg(unix)]
-    #[cfg_attr(docsrs, doc(cfg(unix)))]
+    #[cfg(any(unix, feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(unix)))]
     #[doc(alias = "g_dbus_connection_call_with_unix_fd_list")]
     pub fn call_with_unix_fd_list<
         P: FnOnce(Result<(glib::Variant, UnixFDList), glib::Error>) + 'static,
@@ -293,8 +306,8 @@ impl DBusConnection {
         }
     }
 
-    #[cfg(unix)]
-    #[cfg_attr(docsrs, doc(cfg(unix)))]
+    #[cfg(any(unix, feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(unix)))]
     pub fn call_with_unix_fd_list_future(
         &self,
         bus_name: Option<&str>,
@@ -341,8 +354,8 @@ impl DBusConnection {
         ))
     }
 
-    #[cfg(unix)]
-    #[cfg_attr(docsrs, doc(cfg(unix)))]
+    #[cfg(any(unix, feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(unix)))]
     #[doc(alias = "g_dbus_connection_call_with_unix_fd_list_sync")]
     pub fn call_with_unix_fd_list_sync(
         &self,
@@ -454,7 +467,7 @@ impl DBusConnection {
                 cancellable.map(|p| p.as_ref()).to_glib_none().0,
                 &mut error,
             );
-            debug_assert_eq!(is_ok == glib::ffi::GFALSE, !error.is_null());
+            assert_eq!(is_ok == glib::ffi::GFALSE, !error.is_null());
             if error.is_null() {
                 Ok(())
             } else {
@@ -483,7 +496,7 @@ impl DBusConnection {
                 parameters.to_glib_none().0,
                 &mut error,
             );
-            debug_assert_eq!(is_ok == glib::ffi::GFALSE, !error.is_null());
+            assert_eq!(is_ok == glib::ffi::GFALSE, !error.is_null());
             if error.is_null() {
                 Ok(())
             } else {
@@ -563,7 +576,7 @@ impl DBusConnection {
                 cancellable.map(|p| p.as_ref()).to_glib_none().0,
                 &mut error,
             );
-            debug_assert_eq!(is_ok == glib::ffi::GFALSE, !error.is_null());
+            assert_eq!(is_ok == glib::ffi::GFALSE, !error.is_null());
             if error.is_null() {
                 Ok(())
             } else {
@@ -592,8 +605,8 @@ impl DBusConnection {
         }
     }
 
-    #[cfg(feature = "v2_60")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "v2_60")))]
+    #[cfg(any(feature = "v2_60", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v2_60")))]
     #[doc(alias = "g_dbus_connection_get_flags")]
     #[doc(alias = "get_flags")]
     pub fn flags(&self) -> DBusConnectionFlags {
@@ -644,7 +657,7 @@ impl DBusConnection {
     }
 
     //#[doc(alias = "g_dbus_connection_register_object")]
-    //pub fn register_object(&self, object_path: &str, interface_info: &DBusInterfaceInfo, vtable: /*Ignored*/Option<&DBusInterfaceVTable>, user_data: /*Unimplemented*/Option<Basic: Pointer>) -> Result<(), glib::Error> {
+    //pub fn register_object(&self, object_path: &str, interface_info: &DBusInterfaceInfo, vtable: /*Ignored*/Option<&DBusInterfaceVTable>, user_data: /*Unimplemented*/Option<Fundamental: Pointer>) -> Result<(), glib::Error> {
     //    unsafe { TODO: call ffi:g_dbus_connection_register_object() }
     //}
 
@@ -664,9 +677,10 @@ impl DBusConnection {
                 out_serial.as_mut_ptr(),
                 &mut error,
             );
-            debug_assert_eq!(is_ok == glib::ffi::GFALSE, !error.is_null());
+            let out_serial = out_serial.assume_init();
+            assert_eq!(is_ok == glib::ffi::GFALSE, !error.is_null());
             if error.is_null() {
-                Ok(out_serial.assume_init())
+                Ok(out_serial)
             } else {
                 Err(from_glib_full(error))
             }
@@ -730,7 +744,8 @@ impl DBusConnection {
                 Some(callback),
                 Box_::into_raw(user_data) as *mut _,
             );
-            out_serial.assume_init()
+            let out_serial = out_serial.assume_init();
+            out_serial
         }
     }
 
@@ -778,8 +793,9 @@ impl DBusConnection {
                 cancellable.map(|p| p.as_ref()).to_glib_none().0,
                 &mut error,
             );
+            let out_serial = out_serial.assume_init();
             if error.is_null() {
-                Ok((from_glib_full(ret), out_serial.assume_init()))
+                Ok((from_glib_full(ret), out_serial))
             } else {
                 Err(from_glib_full(error))
             }
@@ -804,7 +820,7 @@ impl DBusConnection {
     }
 
     pub fn get_property_flags(&self) -> DBusConnectionFlags {
-        ObjectExt::property(self, "flags")
+        glib::ObjectExt::property(self, "flags")
     }
 
     #[doc(alias = "g_dbus_connection_new")]

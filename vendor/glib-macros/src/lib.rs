@@ -3,25 +3,20 @@
 mod boxed_derive;
 mod clone;
 mod closure;
-mod derived_properties_attribute;
 mod downgrade_derive;
 mod enum_derive;
 mod error_domain_derive;
 mod flags_attribute;
 mod object_interface_attribute;
 mod object_subclass_attribute;
-mod properties;
 mod shared_boxed_derive;
-mod value_delegate_derive;
 mod variant_derive;
 
 mod utils;
 
-use flags_attribute::AttrInput;
 use proc_macro::TokenStream;
 use proc_macro_error::proc_macro_error;
-use syn::{parse_macro_input, DeriveInput};
-use utils::{parse_nested_meta_items_from_stream, NestedMetaItem};
+use syn::{parse_macro_input, DeriveInput, NestedMeta};
 
 /// Macro for passing variables as strong or weak references into a closure.
 ///
@@ -49,8 +44,8 @@ use utils::{parse_nested_meta_items_from_stream, NestedMetaItem};
 /// environment variable when running your code (either in the code directly or when running the
 /// binary) to either "all" or [`CLONE_MACRO_LOG_DOMAIN`]:
 ///
-/// [`g_debug`]: ../glib/macro.g_debug.html
-/// [`CLONE_MACRO_LOG_DOMAIN`]: ../glib/constant.CLONE_MACRO_LOG_DOMAIN.html
+/// [`g_debug`]: https://gtk-rs.org/gtk-rs-core/stable/latest/docs/glib/macro.g_debug.html
+/// [`CLONE_MACRO_LOG_DOMAIN`]: https://gtk-rs.org/gtk-rs-core/stable/latest/docs/glib/constant.CLONE_MACRO_LOG_DOMAIN.html
 ///
 /// ```rust,ignore
 /// use glib::CLONE_MACRO_LOG_DOMAIN;
@@ -117,21 +112,6 @@ use utils::{parse_nested_meta_items_from_stream, NestedMetaItem};
 /// };
 ///
 /// assert_eq!(closure(3), true);
-/// ```
-///
-/// ### Creating owned values from references (`ToOwned`)
-///
-/// ```
-/// use glib;
-/// use glib_macros::clone;
-///
-/// let v = "123";
-/// let closure = clone!(@to-owned v => move |x| {
-///     // v is passed as `String` here
-///     println!("v: {}, x: {}", v, x);
-/// });
-///
-/// closure(2);
 /// ```
 ///
 /// ### Renaming variables
@@ -312,16 +292,16 @@ pub fn clone(item: TokenStream) -> TokenStream {
 /// [`clone!`](crate::clone!), as is aliasing captures with the `as` keyword. Notably, these
 /// captures are able to reference `Rc` and `Arc` values in addition to `Object` values.
 ///
-/// [`Closure`]: ../glib/closure/struct.Closure.html
-/// [`Closure::new`]: ../glib/closure/struct.Closure.html#method.new
-/// [`Closure::new_local`]: ../glib/closure/struct.Closure.html#method.new_local
-/// [`Closure::invoke`]: ../glib/closure/struct.Closure.html#method.invoke
-/// [`Value`]: ../glib/value/struct.Value.html
-/// [`FromValue`]: ../glib/value/trait.FromValue.html
-/// [`ToValue`]: ../glib/value/trait.ToValue.html
-/// [`Interface`]: ../glib/object/struct.Interface.html
-/// [`Object`]: ../glib/object/struct.Object.html
-/// [`Object::watch_closure`]: ../glib/object/trait.ObjectExt.html#tymethod.watch_closure
+/// [`Closure`]: https://gtk-rs.org/gtk-rs-core/stable/latest/docs/glib/closure/struct.Closure.html
+/// [`Closure::new`]: https://gtk-rs.org/gtk-rs-core/stable/latest/docs/glib/closure/struct.Closure.html#method.new
+/// [`Closure::new_local`]: https://gtk-rs.org/gtk-rs-core/stable/latest/docs/glib/closure/struct.Closure.html#method.new_local
+/// [`Closure::invoke`]: https://gtk-rs.org/gtk-rs-core/stable/latest/docs/glib/closure/struct.Closure.html#method.invoke
+/// [`Value`]: https://gtk-rs.org/gtk-rs-core/stable/latest/docs/glib/value/struct.Value.html
+/// [`FromValue`]: https://gtk-rs.org/gtk-rs-core/stable/latest/docs/glib/value/trait.FromValue.html
+/// [`ToValue`]: https://gtk-rs.org/gtk-rs-core/stable/latest/docs/glib/value/trait.ToValue.html
+/// [`Interface`]: https://gtk-rs.org/gtk-rs-core/stable/latest/docs/glib/object/struct.Interface.html
+/// [`Object`]: https://gtk-rs.org/gtk-rs-core/stable/latest/docs/glib/object/struct.Object.html
+/// [`Object::watch_closure`]: https://gtk-rs.org/gtk-rs-core/stable/latest/docs/glib/object/trait.ObjectExt.html#tymethod.watch_closure
 /// **⚠️ IMPORTANT ⚠️**
 ///
 /// `glib` needs to be in scope, so unless it's one of the direct crate dependencies, you need to
@@ -352,7 +332,7 @@ pub fn clone(item: TokenStream) -> TokenStream {
 /// use glib::prelude::*;
 /// use glib_macros::closure_local;
 ///
-/// let obj = glib::Object::new::<glib::Object>();
+/// let obj = glib::Object::new::<glib::Object>(&[]).unwrap();
 /// obj.connect_closure(
 ///     "notify", false,
 ///     closure_local!(|_obj: glib::Object, pspec: glib::ParamSpec| {
@@ -368,7 +348,7 @@ pub fn clone(item: TokenStream) -> TokenStream {
 /// use glib_macros::closure_local;
 ///
 /// let closure = {
-///     let obj = glib::Object::new::<glib::Object>();
+///     let obj = glib::Object::new::<glib::Object>(&[]).unwrap();
 ///     let closure = closure_local!(@watch obj => move || {
 ///         obj.type_().name()
 ///     });
@@ -386,9 +366,9 @@ pub fn clone(item: TokenStream) -> TokenStream {
 /// use glib::prelude::*;
 /// use glib_macros::closure_local;
 ///
-/// let obj = glib::Object::new::<glib::Object>();
+/// let obj = glib::Object::new::<glib::Object>(&[]).unwrap();
 /// {
-///     let other = glib::Object::new::<glib::Object>();
+///     let other = glib::Object::new::<glib::Object>(&[]).unwrap();
 ///     obj.connect_closure(
 ///         "notify", false,
 ///         closure_local!(@watch other as b => move |a: glib::Object, pspec: glib::ParamSpec| {
@@ -411,16 +391,15 @@ pub fn clone(item: TokenStream) -> TokenStream {
 /// let closure = {
 ///     let a = Arc::new(String::from("Hello"));
 ///     let b = Arc::new(String::from("World"));
-///     let c = "!";
-///     let closure = closure!(@strong a, @weak-allow-none b, @to-owned c => move || {
-///         // `a` is Arc<String>, `b` is Option<Arc<String>>, `c` is a `String`
-///         format!("{} {}{}", a, b.as_ref().map(|b| b.as_str()).unwrap_or_else(|| "Moon"), c)
+///     let closure = closure!(@strong a, @weak-allow-none b => move || {
+///         // `a` is Arc<String>, `b` is Option<Arc<String>>
+///         format!("{} {}", a, b.as_ref().map(|b| b.as_str()).unwrap_or_else(|| "Moon"))
 ///     });
-///     assert_eq!(closure.invoke::<String>(&[]), "Hello World!");
+///     assert_eq!(closure.invoke::<String>(&[]), "Hello World");
 ///     closure
 /// };
-/// // `a`, `c` still kept alive, `b` is dropped
-/// assert_eq!(closure.invoke::<String>(&[]), "Hello Moon!");
+/// // `a` still kept alive, `b` is dropped
+/// assert_eq!(closure.invoke::<String>(&[]), "Hello Moon");
 /// ```
 #[proc_macro]
 #[proc_macro_error]
@@ -432,7 +411,7 @@ pub fn closure(item: TokenStream) -> TokenStream {
 /// This is useful for closures which can't be sent across threads. See the documentation of
 /// [`closure!`](crate::closure!) for details.
 ///
-/// [`Closure::new_local`]: ../glib/closure/struct.Closure.html#method.new_local
+/// [`Closure::new_local`]: https://gtk-rs.org/gtk-rs-core/stable/latest/docs/glib/closure/struct.Closure.html#method.new_local
 #[proc_macro]
 #[proc_macro_error]
 pub fn closure_local(item: TokenStream) -> TokenStream {
@@ -458,8 +437,6 @@ pub fn closure_local(item: TokenStream) -> TokenStream {
 ///     ValWithCustomNameAndNick,
 /// }
 /// ```
-///
-/// [`glib::Value`]: ../glib/value/struct.Value.html
 #[proc_macro_derive(Enum, attributes(enum_type, enum_value))]
 #[proc_macro_error]
 pub fn enum_derive(input: TokenStream) -> TokenStream {
@@ -497,23 +474,13 @@ pub fn enum_derive(input: TokenStream) -> TokenStream {
 /// }
 /// ```
 ///
-/// [`glib::Value`]: ../glib/value/struct.Value.html
+/// [`glib::Value`]: value/struct.Value.html
 #[proc_macro_attribute]
 #[proc_macro_error]
 pub fn flags(attr: TokenStream, item: TokenStream) -> TokenStream {
-    let mut name = NestedMetaItem::<syn::LitStr>::new("name")
-        .required()
-        .value_required();
-
-    if let Err(e) = parse_nested_meta_items_from_stream(attr.into(), &mut [&mut name]) {
-        return e.to_compile_error().into();
-    }
-
-    let attr_meta = AttrInput {
-        enum_name: name.value.unwrap(),
-    };
+    let attr_meta = parse_macro_input!(attr as NestedMeta);
     let input = parse_macro_input!(item as DeriveInput);
-    let gen = flags_attribute::impl_flags(attr_meta, &input);
+    let gen = flags_attribute::impl_flags(&attr_meta, &input);
     gen.into()
 }
 
@@ -527,14 +494,14 @@ pub fn flags(attr: TokenStream, item: TokenStream) -> TokenStream {
 /// use glib::subclass::prelude::*;
 ///
 /// #[derive(Debug, Copy, Clone, glib::ErrorDomain)]
-/// #[error_domain(name = "ex-foo")]
+/// #[error_domain(name = "ExFoo")]
 /// enum Foo {
 ///     Blah,
 ///     Baaz,
 /// }
 /// ```
 ///
-/// [`ErrorDomain`]: ../glib/error/trait.ErrorDomain.html
+/// [`ErrorDomain`]: error/trait.ErrorDomain.html
 #[proc_macro_derive(ErrorDomain, attributes(error_domain))]
 #[proc_macro_error]
 pub fn error_domain_derive(input: TokenStream) -> TokenStream {
@@ -544,8 +511,7 @@ pub fn error_domain_derive(input: TokenStream) -> TokenStream {
 }
 
 /// Derive macro for defining a [`BoxedType`]`::type_` function and
-/// the [`glib::Value`] traits. Optionally, the type can be marked as
-/// `nullable` to get an implemention of `glib::value::ToValueOptional`.
+/// the [`glib::Value`] traits.
 ///
 /// # Example
 ///
@@ -556,14 +522,10 @@ pub fn error_domain_derive(input: TokenStream) -> TokenStream {
 /// #[derive(Clone, Debug, PartialEq, Eq, glib::Boxed)]
 /// #[boxed_type(name = "MyBoxed")]
 /// struct MyBoxed(String);
-///
-/// #[derive(Clone, Debug, PartialEq, Eq, glib::Boxed)]
-/// #[boxed_type(name = "MyNullableBoxed", nullable)]
-/// struct MyNullableBoxed(String);
 /// ```
 ///
-/// [`BoxedType`]: ../glib/subclass/boxed/trait.BoxedType.html
-/// [`glib::Value`]: ../glib/value/struct.Value.html
+/// [`BoxedType`]: subclass/boxed/trait.BoxedType.html
+/// [`glib::Value`]: value/struct.Value.html
 #[proc_macro_derive(Boxed, attributes(boxed_type))]
 #[proc_macro_error]
 pub fn boxed_derive(input: TokenStream) -> TokenStream {
@@ -573,8 +535,7 @@ pub fn boxed_derive(input: TokenStream) -> TokenStream {
 }
 
 /// Derive macro for defining a [`SharedType`]`::get_type` function and
-/// the [`glib::Value`] traits. Optionally, the type can be marked as
-/// `nullable` to get an implemention of `glib::value::ToValueOptional`.
+/// the [`glib::Value`] traits.
 ///
 /// # Example
 ///
@@ -586,18 +547,13 @@ pub fn boxed_derive(input: TokenStream) -> TokenStream {
 /// struct MySharedInner {
 ///   foo: String,
 /// }
-///
 /// #[derive(Clone, Debug, PartialEq, Eq, glib::SharedBoxed)]
 /// #[shared_boxed_type(name = "MySharedBoxed")]
-/// struct MySharedBoxed(std::sync::Arc<MySharedInner>);
-///
-/// #[derive(Clone, Debug, PartialEq, Eq, glib::SharedBoxed)]
-/// #[shared_boxed_type(name = "MyNullableSharedBoxed", nullable)]
-/// struct MyNullableSharedBoxed(std::sync::Arc<MySharedInner>);
+/// struct MyShared(std::sync::Arc<MySharedInner>);
 /// ```
 ///
-/// [`SharedType`]: ../glib/subclass/shared/trait.SharedType.html
-/// [`glib::Value`]: ../glib/value/struct.Value.html
+/// [`SharedType`]: subclass/shared/trait.SharedType.html
+/// [`glib::Value`]: value/struct.Value.html
 #[proc_macro_derive(SharedBoxed, attributes(shared_boxed_type))]
 #[proc_macro_error]
 pub fn shared_boxed_derive(input: TokenStream) -> TokenStream {
@@ -619,8 +575,8 @@ pub fn shared_boxed_derive(input: TokenStream) -> TokenStream {
 /// necessary for types that implement interfaces.
 ///
 /// ```ignore
-/// type Instance = glib::subclass::basic::InstanceStruct<Self>;
-/// type Class = glib::subclass::basic::ClassStruct<Self>;
+/// type Instance = glib::subclass::simple::InstanceStruct<Self>;
+/// type Class = glib::subclass::simple::ClassStruct<Self>;
 /// type Interfaces = ();
 /// ```
 ///
@@ -634,7 +590,7 @@ pub fn shared_boxed_derive(input: TokenStream) -> TokenStream {
 /// }
 /// ```
 ///
-/// [`ObjectSubclass`]: ../glib/subclass/types/trait.ObjectSubclass.html
+/// [`ObjectSubclass`]: subclass/types/trait.ObjectSubclass.html
 #[proc_macro_attribute]
 #[proc_macro_error]
 pub fn object_subclass(_attr: TokenStream, item: TokenStream) -> TokenStream {
@@ -659,7 +615,7 @@ pub fn object_subclass(_attr: TokenStream, item: TokenStream) -> TokenStream {
 /// type Prerequisites = ();
 /// ```
 ///
-/// [`ObjectInterface`]: ../glib/subclass/interface/trait.ObjectInterface.html
+/// [`ObjectInterface`]: interface/types/trait.ObjectInterface.html
 #[proc_macro_attribute]
 #[proc_macro_error]
 pub fn object_interface(_attr: TokenStream, item: TokenStream) -> TokenStream {
@@ -727,15 +683,15 @@ pub fn object_interface(_attr: TokenStream, item: TokenStream) -> TokenStream {
 /// }
 /// ```
 ///
-/// [`glib::clone::Downgrade`]: ../glib/clone/trait.Downgrade.html
-/// [`glib::clone::Upgrade`]: ../glib/clone/trait.Upgrade.html
+/// [`glib::clone::Downgrade`]: clone/trait.Downgrade.html
+/// [`glib::clone::Upgrade`]: clone/trait.Upgrade.html
 #[proc_macro_derive(Downgrade)]
 pub fn downgrade(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
     downgrade_derive::impl_downgrade(input)
 }
 
-/// Derive macro for serializing/deserializing custom structs/enums as [`glib::Variant`]s.
+/// Derive macro for serializing/deserializing custom structs as [`glib::Variant`]s.
 ///
 /// # Example
 ///
@@ -772,79 +728,13 @@ pub fn downgrade(input: TokenStream) -> TokenStream {
 /// assert_eq!(var.get::<Foo>(), Some(v));
 /// ```
 ///
-/// Enums are serialized as a tuple `(sv)` with the first value as a [kebab case] string for the
-/// enum variant, or just `s` if this is a C-style enum. Some additional attributes are supported
-/// for enums:
-/// - `#[variant_enum(repr)]` to serialize the enum variant as an integer type instead of `s`.  The
-/// `#[repr]` attribute must also be specified on the enum with a sized integer type, and the type
-/// must implement `Copy`.
-/// - `#[variant_enum(enum)]` uses [`EnumClass`] to serialize/deserialize as nicks. Meant for use
-/// with [`glib::Enum`](Enum).
-/// - `#[variant_enum(flags)]` uses [`FlagsClass`] to serialize/deserialize as nicks. Meant for use
-/// with [`glib::flags`](macro@flags).
-/// - `#[variant_enum(enum, repr)]` serializes as `i32`. Meant for use with [`glib::Enum`](Enum).
-/// The type must also implement `Copy`.
-/// - `#[variant_enum(flags, repr)]` serializes as `u32`. Meant for use with
-/// [`glib::flags`](macro@flags).
-///
-/// # Example
-///
-/// ```
-/// use glib::prelude::*;
-///
-/// #[derive(Debug, PartialEq, Eq, glib::Variant)]
-/// enum Foo {
-///     MyA,
-///     MyB(i32),
-///     MyC { some_int: u32, some_string: String }
-/// }
-///
-/// let v = Foo::MyC { some_int: 1, some_string: String::from("bar") };
-/// let var = v.to_variant();
-/// assert_eq!(var.child_value(0).str(), Some("my-c"));
-/// assert_eq!(var.get::<Foo>(), Some(v));
-///
-/// #[derive(Debug, Copy, Clone, PartialEq, Eq, glib::Variant)]
-/// #[variant_enum(repr)]
-/// #[repr(u8)]
-/// enum Bar {
-///     A,
-///     B = 3,
-///     C = 7
-/// }
-///
-/// let v = Bar::B;
-/// let var = v.to_variant();
-/// assert_eq!(var.get::<u8>(), Some(3));
-/// assert_eq!(var.get::<Bar>(), Some(v));
-///
-/// #[derive(Debug, Copy, Clone, PartialEq, Eq, glib::Enum, glib::Variant)]
-/// #[variant_enum(enum)]
-/// #[enum_type(name = "MyEnum")]
-/// enum MyEnum {
-///     Val,
-///     #[enum_value(name = "My Val")]
-///     ValWithCustomName,
-///     #[enum_value(name = "My Other Val", nick = "other")]
-///     ValWithCustomNameAndNick,
-/// }
-///
-/// let v = MyEnum::ValWithCustomNameAndNick;
-/// let var = v.to_variant();
-/// assert_eq!(var.str(), Some("other"));
-/// assert_eq!(var.get::<MyEnum>(), Some(v));
-/// ```
-///
-/// [`glib::Variant`]: ../glib/variant/struct.Variant.html
-/// [`EnumClass`]: ../glib/struct.EnumClass.html
-/// [`FlagsClass`]: ../glib/struct.FlagsClass.html
-/// [kebab case]: https://docs.rs/heck/0.4.0/heck/trait.ToKebabCase.html
-#[proc_macro_derive(Variant, attributes(variant_enum))]
-#[proc_macro_error]
+/// [`glib::Variant`]: variant/struct.Variant.html
+#[proc_macro_derive(Variant)]
 pub fn variant_derive(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
     variant_derive::impl_variant(input)
 }
+
 #[proc_macro]
 pub fn cstr_bytes(item: TokenStream) -> TokenStream {
     syn::parse::Parser::parse2(
@@ -852,7 +742,7 @@ pub fn cstr_bytes(item: TokenStream) -> TokenStream {
             let literal = stream.parse::<syn::LitStr>()?;
             stream.parse::<syn::parse::Nothing>()?;
             let bytes = std::ffi::CString::new(literal.value())
-                .map_err(|e| syn::Error::new_spanned(&literal, format!("{e}")))?
+                .map_err(|e| syn::Error::new_spanned(&literal, format!("{}", e)))?
                 .into_bytes_with_nul();
             let bytes = proc_macro2::Literal::byte_string(&bytes);
             Ok(quote::quote! { #bytes }.into())
@@ -860,243 +750,4 @@ pub fn cstr_bytes(item: TokenStream) -> TokenStream {
         item.into(),
     )
     .unwrap_or_else(|e| e.into_compile_error().into())
-}
-
-/// This macro enables you to derive object properties in a quick way.
-///
-/// # Supported `#[property]` attributes
-/// | Attribute | Description | Default | Example |
-/// | --- | --- | --- | --- |
-/// | `name = "literal"` | The name of the property | field ident where `_` (leading and trailing `_` are trimmed) is replaced into `-` | `#[property(name = "prop-name")]` |
-/// | `type = expr` | The type of the property | inferred | `#[property(type = i32)]` |
-/// | `get [= expr]` | Specify that the property is readable and use `PropertyGet::get` [or optionally set a custom internal getter] | | `#[property(get)]`, `#[property(get = get_prop)]`, or `[property(get = \|_\| 2)]` |
-/// | `set [= expr]` | Specify that the property is writable and use `PropertySet::set` [or optionally set a custom internal setter] | | `#[property(set)]`, `#[property(set = set_prop)]`, or `[property(set = \|_, val\| {})]` |
-/// | `override_class = expr` | The type of class of which to override the property from | | `#[property(override_class = SomeClass)]` |
-/// | `override_interface = expr` | The type of interface of which to override the property from | | `#[property(override_interface = SomeInterface)]` |
-/// | `nullable` | Whether to use `Option<T>` in the generated setter method |  | `#[property(nullable)]` |
-/// | `member = ident` | Field of the nested type where property is retrieved and set | | `#[property(member = author)]` |
-/// | `construct_only` | Specify that the property is construct only. This will not generate a public setter and only allow the property to be set during object construction. The use of a custom internal setter is supported. | | `#[property(get, construct_only)]` or `#[property(get, set = set_prop, construct_only)]` |
-/// | `builder(<required-params>)[.ident]*` | Used to input required params or add optional Param Spec builder fields | | `#[property(builder(SomeEnum::default()))]`, `#[builder().default_value(1).minimum(0).maximum(5)]`, etc.  |
-/// | `default` | Sets the `default_value` field of the Param Spec builder | | `#[property(default = 1)]` |
-/// | `<optional-pspec-builder-fields> = expr` | Used to add optional Param Spec builder fields | | `#[property(minimum = 0)` , `#[property(minimum = 0, maximum = 1)]`, etc. |
-/// | `<optional-pspec-builder-fields>` | Used to add optional Param Spec builder fields | | `#[property(explicit_notify)]` , `#[property(construct_only)]`, etc. |
-///
-/// ## Using Rust keywords as property names
-/// You might hit a roadblock when declaring properties with this macro because you want to use a name that happens to be a Rust keyword. This may happen with names like `loop`, which is a pretty common name when creating things like animation handlers.
-/// To use those names, you can make use of the raw identifier feature of Rust. Simply prefix the identifier name with `r#` in the struct declaration. Internally, those `r#`s are stripped so you can use its expected name in [`ObjectExt::property`] or within GtkBuilder template files.
-///
-/// # Generated methods
-/// The following methods are generated on the wrapper type specified on `#[properties(wrapper_type = ...)]`:
-/// * `$property()`, when the property is readable
-/// * `set_$property()`, when the property is writable and not construct-only
-/// * `connect_$property_notify()`
-/// * `notify_$property()`
-///
-/// ## Extension trait
-/// You can choose to move the method definitions to a trait by using `#[properties(wrapper_type = super::MyType, ext_trait = MyTypePropertiesExt)]`.
-/// The trait name is optional, and defaults to `MyTypePropertiesExt`, where `MyType` is extracted from the wrapper type.
-/// Note: The trait is defined in the same module where the `#[derive(Properties)]` call happens, and is implemented on the wrapper type.
-///
-/// Notice: You can't reimplement the generated methods on the wrapper type, unless you move them to a trait.
-/// You can change the behavior of the generated getter/setter methods by using a custom internal getter/setter.
-///
-/// # Internal getters and setters
-/// By default, they are generated for you. However, you can use a custom getter/setter
-/// by assigning an expression to `get`/`set` `#[property]` attributes: `#[property(get = |_| 2, set)]` or `#[property(get, set = custom_setter_func)]`.
-///
-/// # Supported types
-/// Every type implementing the trait `Property` is supported.
-/// The type `Option<T>` is supported as a property only if `Option<T>` implements `ToValueOptional`.
-/// Optional types also require the `nullable` attribute: without it, the generated setter on the wrapper type
-/// will take `T` instead of `Option<T>`, preventing the user from ever calling the setter with a `None` value.
-///
-/// ## Adding support for custom types
-/// ### Types wrapping an existing `T: glib::value::ToValue + glib::HasParamSpec`
-/// If you have declared a newtype as
-/// ```rust
-/// struct MyInt(i32);
-/// ```
-/// you can use it as a property by deriving `glib::ValueDelegate`.
-///
-/// ### Types with inner mutability
-/// The trait `glib::Property` must be implemented.
-/// The traits `PropertyGet` and `PropertySet` should be implemented to enable the Properties macro
-/// to generate a default internal getter/setter.
-/// If possible, implementing `PropertySetNested` is preferred over `PropertySet`, because it
-/// enables this macro to access the contained type and provide access to its fields,
-/// using the `member = $structfield` syntax.
-///
-/// ### Types without `glib::HasParamSpec`
-/// If you have encountered a type `T: glib::value::ToValue`, inside the `gtk-rs` crate, which doesn't implement `HasParamSpec`,
-/// then it's a bug and you should report it.
-/// If you need to support a `ToValue` type with a `ParamSpec` not provided by `gtk-rs`, then you need to
-/// implement `glib::HasParamSpec` on that type.
-///
-/// # Example
-/// ```
-/// use std::cell::RefCell;
-/// use glib::prelude::*;
-/// use glib::subclass::prelude::*;
-/// use glib_macros::Properties;
-///
-/// #[derive(Default, Clone)]
-/// struct Author {
-///     name: String,
-///     nick: String,
-/// }
-///
-/// pub mod imp {
-///     use std::rc::Rc;
-///
-///     use super::*;
-///
-///     #[derive(Properties, Default)]
-///     #[properties(wrapper_type = super::Foo)]
-///     pub struct Foo {
-///         #[property(get, set = Self::set_fizz)]
-///         fizz: RefCell<String>,
-///         #[property(name = "author-name", get, set, type = String, member = name)]
-///         #[property(name = "author-nick", get, set, type = String, member = nick)]
-///         author: RefCell<Author>,
-///         #[property(get, set, explicit_notify, lax_validation)]
-///         custom_flags: RefCell<String>,
-///         #[property(get, set, minimum = 0, maximum = 3)]
-///         numeric_builder: RefCell<u32>,
-///         #[property(get, set, builder('c'))]
-///         builder_with_required_param: RefCell<char>,
-///         #[property(get, set, nullable)]
-///         optional: RefCell<Option<String>>,
-///         #[property(get, set)]
-///         smart_pointer: Rc<RefCell<String>>,
-///     }
-///     
-///     #[glib::derived_properties]
-///     impl ObjectImpl for Foo {}
-///
-///     #[glib::object_subclass]
-///     impl ObjectSubclass for Foo {
-///         const NAME: &'static str = "MyFoo";
-///         type Type = super::Foo;
-///     }
-///
-///     impl Foo {
-///         fn set_fizz(&self, value: String) {
-///             *self.fizz.borrow_mut() = format!("custom set: {}", value);
-///         }
-///     }
-/// }
-///
-/// glib::wrapper! {
-///     pub struct Foo(ObjectSubclass<imp::Foo>);
-/// }
-///
-/// fn main() {
-///   let myfoo: Foo = glib::object::Object::new();
-///
-///   myfoo.set_fizz("test value");
-///   assert_eq!(myfoo.fizz(), "custom set: test value".to_string());
-/// }
-/// ```
-#[allow(clippy::needless_doctest_main)]
-#[proc_macro_derive(Properties, attributes(properties, property))]
-pub fn derive_props(input: TokenStream) -> TokenStream {
-    let input = parse_macro_input!(input as properties::PropsMacroInput);
-    properties::impl_derive_props(input)
-}
-
-/// When applied to `ObjectImpl`
-/// ```ignore
-/// #[glib::derived_properties]
-/// impl ObjectImpl for CustomObject
-/// ```
-/// this macro generates
-/// ```ignore
-/// impl ObjectImpl for CustomObject {
-///     fn properties() -> &'static [glib::ParamSpec] {
-///         Self::derived_properties()
-///     }
-///     fn set_property(&self, id: usize, value: &glib::Value, pspec: &glib::ParamSpec) {
-///         self.derived_set_property(id, value, pspec)
-///     }
-///     fn property(&self, id: usize, pspec: &glib::ParamSpec) -> glib::Value {
-///         self.derived_property(id, pspec)
-///     }
-/// }
-/// ```
-#[proc_macro_attribute]
-#[proc_macro_error]
-pub fn derived_properties(_attr: TokenStream, item: TokenStream) -> TokenStream {
-    use proc_macro_error::abort_call_site;
-    match syn::parse::<syn::ItemImpl>(item) {
-        Ok(input) => derived_properties_attribute::impl_derived_properties(&input).into(),
-        Err(_) => abort_call_site!(derived_properties_attribute::WRONG_PLACE_MSG),
-    }
-}
-
-/// # Example
-/// ```
-/// use glib::prelude::*;
-/// use glib::ValueDelegate;
-///
-/// #[derive(ValueDelegate, Debug, PartialEq)]
-/// struct MyInt(i32);
-///
-/// let myv = MyInt(2);
-/// let convertedv = myv.to_value();
-/// assert_eq!(convertedv.get::<MyInt>(), Ok(myv));
-///
-///
-/// #[derive(ValueDelegate, Debug, PartialEq)]
-/// #[value_delegate(from = u32)]
-/// enum MyEnum {
-///     Zero,
-///     NotZero(u32)
-/// }
-///
-/// impl From<u32> for MyEnum {
-///     fn from(v: u32) -> Self {
-///         match v {
-///             0 => MyEnum::Zero,
-///             x => MyEnum::NotZero(x)
-///         }
-///     }
-/// }
-/// impl<'a> From<&'a MyEnum> for u32 {
-///     fn from(v: &'a MyEnum) -> Self {
-///         match v {
-///             MyEnum::Zero => 0,
-///             MyEnum::NotZero(x) => *x
-///         }
-///     }
-/// }
-/// impl From<MyEnum> for u32 {
-///     fn from(v: MyEnum) -> Self {
-///         match v {
-///             MyEnum::Zero => 0,
-///             MyEnum::NotZero(x) => x
-///         }
-///     }
-/// }
-///
-/// let myv = MyEnum::NotZero(34);
-/// let convertedv = myv.to_value();
-/// assert_eq!(convertedv.get::<MyEnum>(), Ok(myv));
-///
-///
-/// // If you want your type to be usable inside an `Option`, you can derive `ToValueOptional`
-/// // by adding `nullable` as follows
-/// #[derive(ValueDelegate, Debug, PartialEq)]
-/// #[value_delegate(nullable)]
-/// struct MyString(String);
-///
-/// let myv = Some(MyString("Hello world".to_string()));
-/// let convertedv = myv.to_value();
-/// assert_eq!(convertedv.get::<Option<MyString>>(), Ok(myv));
-/// let convertedv = None::<MyString>.to_value();
-/// assert_eq!(convertedv.get::<Option<MyString>>(), Ok(None::<MyString>));
-/// ```
-#[proc_macro_derive(ValueDelegate, attributes(value_delegate))]
-pub fn derive_value_delegate(input: TokenStream) -> TokenStream {
-    let input = parse_macro_input!(input as value_delegate_derive::ValueDelegateInput);
-    value_delegate_derive::impl_value_delegate(input).unwrap()
 }

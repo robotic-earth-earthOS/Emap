@@ -2,9 +2,14 @@
 // from gir-files (https://github.com/gtk-rs/gir-files)
 // DO NOT EDIT
 
-use crate::{CellArea, CellRenderer, TreeIter, TreeModel};
-use glib::{prelude::*, translate::*};
-use std::{boxed::Box as Box_, fmt};
+use crate::CellArea;
+use crate::CellRenderer;
+use crate::TreeIter;
+use crate::TreeModel;
+use glib::object::IsA;
+use glib::translate::*;
+use std::boxed::Box as Box_;
+use std::fmt;
 
 glib::wrapper! {
     #[doc(alias = "GtkCellLayout")]
@@ -19,13 +24,45 @@ impl CellLayout {
     pub const NONE: Option<&'static CellLayout> = None;
 }
 
-mod sealed {
-    pub trait Sealed {}
-    impl<T: super::IsA<super::CellLayout>> Sealed for T {}
+pub trait CellLayoutExt: 'static {
+    #[doc(alias = "gtk_cell_layout_add_attribute")]
+    fn add_attribute(&self, cell: &impl IsA<CellRenderer>, attribute: &str, column: i32);
+
+    #[doc(alias = "gtk_cell_layout_clear")]
+    fn clear(&self);
+
+    #[doc(alias = "gtk_cell_layout_clear_attributes")]
+    fn clear_attributes(&self, cell: &impl IsA<CellRenderer>);
+
+    #[doc(alias = "gtk_cell_layout_get_area")]
+    #[doc(alias = "get_area")]
+    fn area(&self) -> Option<CellArea>;
+
+    #[doc(alias = "gtk_cell_layout_get_cells")]
+    #[doc(alias = "get_cells")]
+    fn cells(&self) -> Vec<CellRenderer>;
+
+    #[doc(alias = "gtk_cell_layout_pack_end")]
+    fn pack_end(&self, cell: &impl IsA<CellRenderer>, expand: bool);
+
+    #[doc(alias = "gtk_cell_layout_pack_start")]
+    fn pack_start(&self, cell: &impl IsA<CellRenderer>, expand: bool);
+
+    #[doc(alias = "gtk_cell_layout_reorder")]
+    fn reorder(&self, cell: &impl IsA<CellRenderer>, position: i32);
+
+    //#[doc(alias = "gtk_cell_layout_set_attributes")]
+    //fn set_attributes(&self, cell: &impl IsA<CellRenderer>, : /*Unknown conversion*//*Unimplemented*/Fundamental: VarArgs);
+
+    #[doc(alias = "gtk_cell_layout_set_cell_data_func")]
+    fn set_cell_data_func(
+        &self,
+        cell: &impl IsA<CellRenderer>,
+        func: Option<Box_<dyn Fn(&CellLayout, &CellRenderer, &TreeModel, &TreeIter) + 'static>>,
+    );
 }
 
-pub trait CellLayoutExt: IsA<CellLayout> + sealed::Sealed + 'static {
-    #[doc(alias = "gtk_cell_layout_add_attribute")]
+impl<O: IsA<CellLayout>> CellLayoutExt for O {
     fn add_attribute(&self, cell: &impl IsA<CellRenderer>, attribute: &str, column: i32) {
         unsafe {
             ffi::gtk_cell_layout_add_attribute(
@@ -37,14 +74,12 @@ pub trait CellLayoutExt: IsA<CellLayout> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_cell_layout_clear")]
     fn clear(&self) {
         unsafe {
             ffi::gtk_cell_layout_clear(self.as_ref().to_glib_none().0);
         }
     }
 
-    #[doc(alias = "gtk_cell_layout_clear_attributes")]
     fn clear_attributes(&self, cell: &impl IsA<CellRenderer>) {
         unsafe {
             ffi::gtk_cell_layout_clear_attributes(
@@ -54,8 +89,6 @@ pub trait CellLayoutExt: IsA<CellLayout> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_cell_layout_get_area")]
-    #[doc(alias = "get_area")]
     fn area(&self) -> Option<CellArea> {
         unsafe {
             from_glib_none(ffi::gtk_cell_layout_get_area(
@@ -64,8 +97,6 @@ pub trait CellLayoutExt: IsA<CellLayout> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_cell_layout_get_cells")]
-    #[doc(alias = "get_cells")]
     fn cells(&self) -> Vec<CellRenderer> {
         unsafe {
             FromGlibPtrContainer::from_glib_container(ffi::gtk_cell_layout_get_cells(
@@ -74,7 +105,6 @@ pub trait CellLayoutExt: IsA<CellLayout> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_cell_layout_pack_end")]
     fn pack_end(&self, cell: &impl IsA<CellRenderer>, expand: bool) {
         unsafe {
             ffi::gtk_cell_layout_pack_end(
@@ -85,7 +115,6 @@ pub trait CellLayoutExt: IsA<CellLayout> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_cell_layout_pack_start")]
     fn pack_start(&self, cell: &impl IsA<CellRenderer>, expand: bool) {
         unsafe {
             ffi::gtk_cell_layout_pack_start(
@@ -96,7 +125,6 @@ pub trait CellLayoutExt: IsA<CellLayout> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_cell_layout_reorder")]
     fn reorder(&self, cell: &impl IsA<CellRenderer>, position: i32) {
         unsafe {
             ffi::gtk_cell_layout_reorder(
@@ -107,12 +135,10 @@ pub trait CellLayoutExt: IsA<CellLayout> + sealed::Sealed + 'static {
         }
     }
 
-    //#[doc(alias = "gtk_cell_layout_set_attributes")]
-    //fn set_attributes(&self, cell: &impl IsA<CellRenderer>, : /*Unknown conversion*//*Unimplemented*/Basic: VarArgs) {
+    //fn set_attributes(&self, cell: &impl IsA<CellRenderer>, : /*Unknown conversion*//*Unimplemented*/Fundamental: VarArgs) {
     //    unsafe { TODO: call ffi:gtk_cell_layout_set_attributes() }
     //}
 
-    #[doc(alias = "gtk_cell_layout_set_cell_data_func")]
     fn set_cell_data_func(
         &self,
         cell: &impl IsA<CellRenderer>,
@@ -139,7 +165,7 @@ pub trait CellLayoutExt: IsA<CellLayout> + sealed::Sealed + 'static {
                 callback(&cell_layout, &cell, &tree_model, &iter)
             } else {
                 panic!("cannot get closure...")
-            }
+            };
         }
         let func = if func_data.is_some() {
             Some(func_func as _)
@@ -166,8 +192,6 @@ pub trait CellLayoutExt: IsA<CellLayout> + sealed::Sealed + 'static {
         }
     }
 }
-
-impl<O: IsA<CellLayout>> CellLayoutExt for O {}
 
 impl fmt::Display for CellLayout {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {

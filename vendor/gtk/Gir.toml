@@ -1,11 +1,11 @@
 [external_libraries]
-Gio = {min_version = "2.56"}
+Gio = {min_version = "2.48"}
 
 [options]
 girs_directories = ["../gir-files"]
 library = "Gtk"
 version = "3.0"
-min_cfg_version = "3.22.30"
+min_cfg_version = "3.18"
 target_path = "."
 work_mode = "normal"
 generate_safety_asserts = true
@@ -56,7 +56,6 @@ generate = [
     "Gtk.IconThemeError",
     "Gtk.IconViewDropPosition",
     "Gtk.ImageType",
-    "Gtk.InputHints",
     "Gtk.InputPurpose",
     "Gtk.JunctionSides",
     "Gtk.Justification",
@@ -72,7 +71,6 @@ generate = [
     "Gtk.Orientation",
     "Gtk.PackDirection",
     "Gtk.PackType",
-    "Gtk.PadActionType",
     "Gtk.PageOrientation",
     "Gtk.PageSet",
     "Gtk.PanDirection",
@@ -106,8 +104,6 @@ generate = [
     "Gtk.SelectionMode",
     "Gtk.SensitivityType",
     "Gtk.ShadowType",
-    "Gtk.ShortcutLabel",
-    "Gtk.ShortcutType",
     "Gtk.SizeGroupMode",
     "Gtk.SizeRequestMode",
     "Gtk.SortType",
@@ -115,7 +111,6 @@ generate = [
     "Gtk.SpinType",
     "Gtk.StackTransitionType",
     "Gtk.StateFlags",
-    "Gtk.StyleContextPrintFlags",
     "Gtk.StyleProperties",
     "Gtk.StyleProvider",
     "Gtk.TargetFlags",
@@ -235,7 +230,6 @@ manual = [
     "Gio.Menu",
     "Gio.MenuModel",
     "Gio.MountOperation",
-    "Gio.PasswordSave",
     "Gio.Permission",
     "GLib.Error",
     "GLib.KeyFile",
@@ -248,8 +242,8 @@ manual = [
     "Gtk.Allocation",
     "Gtk.AppChooser",
     "Gtk.Border",
-    "Gtk.FileFilterInfo",
     "Gtk.PadActionEntry",
+    "Gtk.PageRange",
     "Gtk.RecentData",
     "Gtk.Requisition",
     "Gtk.ResponseType",
@@ -483,15 +477,19 @@ generate_builder = true
     [[object.child_prop]]
     name = "expand"
     type = "gboolean"
+    doc_hidden = true
     [[object.child_prop]]
     name = "fill"
     type = "gboolean"
+    doc_hidden = true
     [[object.child_prop]]
     name = "pack-type"
     type = "Gtk.PackType"
+    doc_hidden = true
     [[object.child_prop]]
     name = "padding"
     type = "guint"
+    doc_hidden = true
     [[object.child_prop]]
     name = "position"
     type = "gint"
@@ -1021,10 +1019,9 @@ generate_builder = true
 [[object]]
 name = "Gtk.FileChooser"
 status = "generate"
-manual_traits = ["FileChooserExtManual"]
     [[object.function]]
     name = "add_choice"
-    manual = true # rust-ify the options param
+    ignore = true  #strange type of options and option_labels
 
 [[object]]
 name = "Gtk.FileChooserButton"
@@ -1040,6 +1037,7 @@ generate_builder = true
 name = "Gtk.FileChooserNative"
 status = "generate"
 generate_builder = true
+version = "3.20"
 
 [[object]]
 name = "Gtk.FileChooserWidget"
@@ -1348,12 +1346,23 @@ status = "generate"
 generate_builder = true
     [[object.property]]
     name = "revealed"
+    version = "3.22.29"
     [[object.function]]
     name = "get_content_area"
         [object.function.return]
         nullable = false
     [[object.function]]
     name = "get_action_area"
+
+[[object]]
+name = "Gtk.InputHints"
+status = "generate"
+    [[object.member]]
+    name = "emoji"
+    version = "3.22.20"
+    [[object.member]]
+    name = "no_emoji"
+    version = "3.22.20"
 
 [[object]]
 name = "Gtk.Invisible"
@@ -1495,6 +1504,9 @@ manual_traits = ["GtkMenuExtManual"]
     name = "top-attach"
     type = "gint"
     [[object.function]]
+    name = "place_on_monitor"
+    version = "3.22"
+    [[object.function]]
     name = "attach_to_widget"
     ignore = true # TODO: figure out
 
@@ -1546,12 +1558,12 @@ generate_builder = true
 [[object]]
 name = "Gtk.MountOperation"
 status = "generate"
-trait_name = "GtkMountOperationExt"
 generate_builder = true
 
 [[object]]
 name = "Gtk.NativeDialog"
 status = "generate"
+version = "3.20"
 manual_traits = ["NativeDialogExtManual"]
     [[object.function]]
     name = "run"
@@ -1625,26 +1637,33 @@ manual_traits = ["NotebookExtManual"]
     [[object.child_prop]]
     name = "detachable"
     type = "gboolean"
+    doc_hidden=true
     [[object.child_prop]]
     name = "menu-label"
     type = "utf8"
+    doc_hidden=true
     [[object.child_prop]]
     name = "position"
     type = "gint"
+    doc_hidden=true
     [[object.child_prop]]
     name = "reorderable"
     type = "gboolean"
+    doc_hidden=true
     [[object.child_prop]]
     name = "tab-expand"
     rename_getter = "tab_expands"
     type = "gboolean"
+    doc_hidden=true
     [[object.child_prop]]
     name = "tab-fill"
     rename_getter = "tab_fills"
     type = "gboolean"
+    doc_hidden=true
     [[object.child_prop]]
     name = "tab-label"
     type = "utf8"
+    doc_hidden=true
 
 [[object]]
 name = "Gtk.OffscreenWindow"
@@ -1660,18 +1679,24 @@ manual_traits = ["OverlaySignals"]
     name = "index"
     type = "gint"
 
+#[[object]]
+#name = "Gtk.PadActionEntry" <- Missing memory management functions
+#status = "generate"
+#version = "3.22"
+
+[[object]]
+name = "Gtk.PadActionType"
+status = "generate"
+version = "3.22"
+
 [[object]]
 name = "Gtk.PadController"
 status = "generate"
 generate_builder = true
+version = "3.22"
     [[object.function]]
     name = "set_action_entries"
     manual = true
-
-[[object]]
-name = "Gtk.PageRange"
-status = "manual"
-boxed_inline = true
 
 [[object]]
 name = "Gtk.PageSetup"
@@ -1726,6 +1751,9 @@ generate_builder = true
     name = "drag-perform-drop"
     #[gio::File]
     ignore = true
+    [[object.property]]
+    name = "show-starred-location"
+    version = "3.22.26"
 
 [[object]]
 name = "Gtk.Plug"
@@ -2027,7 +2055,6 @@ generate_builder = true
 [[object]]
 name = "Gtk.Settings"
 status = "generate"
-trait_name = "GtkSettingsExt"
     [[object.function]]
     pattern = "install_property.*"
     #deprecated in 3.16
@@ -2037,24 +2064,39 @@ trait_name = "GtkSettingsExt"
     version = "3.24"
 
 [[object]]
+name = "Gtk.ShortcutLabel"
+status = "generate"
+generate_builder = true
+version = "3.22"
+
+[[object]]
 name = "Gtk.ShortcutsGroup"
 status = "generate"
 generate_builder = true
+version = "3.20"
 
 [[object]]
 name = "Gtk.ShortcutsSection"
 status = "generate"
 generate_builder = true
+version = "3.20"
 
 [[object]]
 name = "Gtk.ShortcutsShortcut"
 status = "generate"
 generate_builder = true
+version = "3.20"
 
 [[object]]
 name = "Gtk.ShortcutsWindow"
 status = "generate"
 generate_builder = true
+version = "3.20"
+
+[[object]]
+name = "Gtk.ShortcutType"
+status = "generate"
+version = "3.20"
 
 [[object]]
 name = "Gtk.SizeGroup"
@@ -2145,6 +2187,11 @@ manual_traits = ["StyleContextExtManual"]
     [[object.function]]
     name = "get"
     ignore = true # TODO: manually implement
+
+[[object]]
+name = "Gtk.StyleContextPrintFlags"
+status = "generate"
+version = "3.20"
 
 [[object]]
 name = "Gtk.Switch"
@@ -2287,6 +2334,10 @@ generate_builder = true
     [[object.signal]]
     name = "extend-selection"
     inhibit = true
+    [[object.signal]]
+    name = "insert-emoji"
+    #actually Since 3.22.27
+    version = "3.22.26"
 
 [[object]]
 name = "Gtk.ToggleButton"

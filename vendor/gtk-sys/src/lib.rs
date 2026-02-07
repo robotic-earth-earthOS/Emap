@@ -9,7 +9,7 @@
     clippy::unreadable_literal,
     clippy::upper_case_acronyms
 )]
-#![cfg_attr(docsrs, feature(doc_cfg))]
+#![cfg_attr(feature = "dox", feature(doc_cfg))]
 
 mod manual;
 
@@ -738,259 +738,337 @@ pub const GTK_WRAP_WORD_CHAR: GtkWrapMode = 3;
 
 // Constants
 pub const GTK_INPUT_ERROR: c_int = -1;
-pub const GTK_LEVEL_BAR_OFFSET_FULL: &[u8] = b"full\0";
-pub const GTK_LEVEL_BAR_OFFSET_HIGH: &[u8] = b"high\0";
-pub const GTK_LEVEL_BAR_OFFSET_LOW: &[u8] = b"low\0";
+pub const GTK_LEVEL_BAR_OFFSET_FULL: *const c_char = b"full\0" as *const u8 as *const c_char;
+pub const GTK_LEVEL_BAR_OFFSET_HIGH: *const c_char = b"high\0" as *const u8 as *const c_char;
+pub const GTK_LEVEL_BAR_OFFSET_LOW: *const c_char = b"low\0" as *const u8 as *const c_char;
 pub const GTK_MAX_COMPOSE_LEN: c_int = 7;
-pub const GTK_PAPER_NAME_A3: &[u8] = b"iso_a3\0";
-pub const GTK_PAPER_NAME_A4: &[u8] = b"iso_a4\0";
-pub const GTK_PAPER_NAME_A5: &[u8] = b"iso_a5\0";
-pub const GTK_PAPER_NAME_B5: &[u8] = b"iso_b5\0";
-pub const GTK_PAPER_NAME_EXECUTIVE: &[u8] = b"na_executive\0";
-pub const GTK_PAPER_NAME_LEGAL: &[u8] = b"na_legal\0";
-pub const GTK_PAPER_NAME_LETTER: &[u8] = b"na_letter\0";
+pub const GTK_PAPER_NAME_A3: *const c_char = b"iso_a3\0" as *const u8 as *const c_char;
+pub const GTK_PAPER_NAME_A4: *const c_char = b"iso_a4\0" as *const u8 as *const c_char;
+pub const GTK_PAPER_NAME_A5: *const c_char = b"iso_a5\0" as *const u8 as *const c_char;
+pub const GTK_PAPER_NAME_B5: *const c_char = b"iso_b5\0" as *const u8 as *const c_char;
+pub const GTK_PAPER_NAME_EXECUTIVE: *const c_char = b"na_executive\0" as *const u8 as *const c_char;
+pub const GTK_PAPER_NAME_LEGAL: *const c_char = b"na_legal\0" as *const u8 as *const c_char;
+pub const GTK_PAPER_NAME_LETTER: *const c_char = b"na_letter\0" as *const u8 as *const c_char;
 pub const GTK_PATH_PRIO_MASK: c_int = 15;
-pub const GTK_PRINT_SETTINGS_COLLATE: &[u8] = b"collate\0";
-pub const GTK_PRINT_SETTINGS_DEFAULT_SOURCE: &[u8] = b"default-source\0";
-pub const GTK_PRINT_SETTINGS_DITHER: &[u8] = b"dither\0";
-pub const GTK_PRINT_SETTINGS_DUPLEX: &[u8] = b"duplex\0";
-pub const GTK_PRINT_SETTINGS_FINISHINGS: &[u8] = b"finishings\0";
-pub const GTK_PRINT_SETTINGS_MEDIA_TYPE: &[u8] = b"media-type\0";
-pub const GTK_PRINT_SETTINGS_NUMBER_UP: &[u8] = b"number-up\0";
-pub const GTK_PRINT_SETTINGS_NUMBER_UP_LAYOUT: &[u8] = b"number-up-layout\0";
-pub const GTK_PRINT_SETTINGS_N_COPIES: &[u8] = b"n-copies\0";
-pub const GTK_PRINT_SETTINGS_ORIENTATION: &[u8] = b"orientation\0";
-pub const GTK_PRINT_SETTINGS_OUTPUT_BASENAME: &[u8] = b"output-basename\0";
-pub const GTK_PRINT_SETTINGS_OUTPUT_BIN: &[u8] = b"output-bin\0";
-pub const GTK_PRINT_SETTINGS_OUTPUT_DIR: &[u8] = b"output-dir\0";
-pub const GTK_PRINT_SETTINGS_OUTPUT_FILE_FORMAT: &[u8] = b"output-file-format\0";
-pub const GTK_PRINT_SETTINGS_OUTPUT_URI: &[u8] = b"output-uri\0";
-pub const GTK_PRINT_SETTINGS_PAGE_RANGES: &[u8] = b"page-ranges\0";
-pub const GTK_PRINT_SETTINGS_PAGE_SET: &[u8] = b"page-set\0";
-pub const GTK_PRINT_SETTINGS_PAPER_FORMAT: &[u8] = b"paper-format\0";
-pub const GTK_PRINT_SETTINGS_PAPER_HEIGHT: &[u8] = b"paper-height\0";
-pub const GTK_PRINT_SETTINGS_PAPER_WIDTH: &[u8] = b"paper-width\0";
-pub const GTK_PRINT_SETTINGS_PRINTER: &[u8] = b"printer\0";
-pub const GTK_PRINT_SETTINGS_PRINTER_LPI: &[u8] = b"printer-lpi\0";
-pub const GTK_PRINT_SETTINGS_PRINT_PAGES: &[u8] = b"print-pages\0";
-pub const GTK_PRINT_SETTINGS_QUALITY: &[u8] = b"quality\0";
-pub const GTK_PRINT_SETTINGS_RESOLUTION: &[u8] = b"resolution\0";
-pub const GTK_PRINT_SETTINGS_RESOLUTION_X: &[u8] = b"resolution-x\0";
-pub const GTK_PRINT_SETTINGS_RESOLUTION_Y: &[u8] = b"resolution-y\0";
-pub const GTK_PRINT_SETTINGS_REVERSE: &[u8] = b"reverse\0";
-pub const GTK_PRINT_SETTINGS_SCALE: &[u8] = b"scale\0";
-pub const GTK_PRINT_SETTINGS_USE_COLOR: &[u8] = b"use-color\0";
-pub const GTK_PRINT_SETTINGS_WIN32_DRIVER_EXTRA: &[u8] = b"win32-driver-extra\0";
-pub const GTK_PRINT_SETTINGS_WIN32_DRIVER_VERSION: &[u8] = b"win32-driver-version\0";
+pub const GTK_PRINT_SETTINGS_COLLATE: *const c_char = b"collate\0" as *const u8 as *const c_char;
+pub const GTK_PRINT_SETTINGS_DEFAULT_SOURCE: *const c_char =
+    b"default-source\0" as *const u8 as *const c_char;
+pub const GTK_PRINT_SETTINGS_DITHER: *const c_char = b"dither\0" as *const u8 as *const c_char;
+pub const GTK_PRINT_SETTINGS_DUPLEX: *const c_char = b"duplex\0" as *const u8 as *const c_char;
+pub const GTK_PRINT_SETTINGS_FINISHINGS: *const c_char =
+    b"finishings\0" as *const u8 as *const c_char;
+pub const GTK_PRINT_SETTINGS_MEDIA_TYPE: *const c_char =
+    b"media-type\0" as *const u8 as *const c_char;
+pub const GTK_PRINT_SETTINGS_NUMBER_UP: *const c_char =
+    b"number-up\0" as *const u8 as *const c_char;
+pub const GTK_PRINT_SETTINGS_NUMBER_UP_LAYOUT: *const c_char =
+    b"number-up-layout\0" as *const u8 as *const c_char;
+pub const GTK_PRINT_SETTINGS_N_COPIES: *const c_char = b"n-copies\0" as *const u8 as *const c_char;
+pub const GTK_PRINT_SETTINGS_ORIENTATION: *const c_char =
+    b"orientation\0" as *const u8 as *const c_char;
+pub const GTK_PRINT_SETTINGS_OUTPUT_BASENAME: *const c_char =
+    b"output-basename\0" as *const u8 as *const c_char;
+pub const GTK_PRINT_SETTINGS_OUTPUT_BIN: *const c_char =
+    b"output-bin\0" as *const u8 as *const c_char;
+pub const GTK_PRINT_SETTINGS_OUTPUT_DIR: *const c_char =
+    b"output-dir\0" as *const u8 as *const c_char;
+pub const GTK_PRINT_SETTINGS_OUTPUT_FILE_FORMAT: *const c_char =
+    b"output-file-format\0" as *const u8 as *const c_char;
+pub const GTK_PRINT_SETTINGS_OUTPUT_URI: *const c_char =
+    b"output-uri\0" as *const u8 as *const c_char;
+pub const GTK_PRINT_SETTINGS_PAGE_RANGES: *const c_char =
+    b"page-ranges\0" as *const u8 as *const c_char;
+pub const GTK_PRINT_SETTINGS_PAGE_SET: *const c_char = b"page-set\0" as *const u8 as *const c_char;
+pub const GTK_PRINT_SETTINGS_PAPER_FORMAT: *const c_char =
+    b"paper-format\0" as *const u8 as *const c_char;
+pub const GTK_PRINT_SETTINGS_PAPER_HEIGHT: *const c_char =
+    b"paper-height\0" as *const u8 as *const c_char;
+pub const GTK_PRINT_SETTINGS_PAPER_WIDTH: *const c_char =
+    b"paper-width\0" as *const u8 as *const c_char;
+pub const GTK_PRINT_SETTINGS_PRINTER: *const c_char = b"printer\0" as *const u8 as *const c_char;
+pub const GTK_PRINT_SETTINGS_PRINTER_LPI: *const c_char =
+    b"printer-lpi\0" as *const u8 as *const c_char;
+pub const GTK_PRINT_SETTINGS_PRINT_PAGES: *const c_char =
+    b"print-pages\0" as *const u8 as *const c_char;
+pub const GTK_PRINT_SETTINGS_QUALITY: *const c_char = b"quality\0" as *const u8 as *const c_char;
+pub const GTK_PRINT_SETTINGS_RESOLUTION: *const c_char =
+    b"resolution\0" as *const u8 as *const c_char;
+pub const GTK_PRINT_SETTINGS_RESOLUTION_X: *const c_char =
+    b"resolution-x\0" as *const u8 as *const c_char;
+pub const GTK_PRINT_SETTINGS_RESOLUTION_Y: *const c_char =
+    b"resolution-y\0" as *const u8 as *const c_char;
+pub const GTK_PRINT_SETTINGS_REVERSE: *const c_char = b"reverse\0" as *const u8 as *const c_char;
+pub const GTK_PRINT_SETTINGS_SCALE: *const c_char = b"scale\0" as *const u8 as *const c_char;
+pub const GTK_PRINT_SETTINGS_USE_COLOR: *const c_char =
+    b"use-color\0" as *const u8 as *const c_char;
+pub const GTK_PRINT_SETTINGS_WIN32_DRIVER_EXTRA: *const c_char =
+    b"win32-driver-extra\0" as *const u8 as *const c_char;
+pub const GTK_PRINT_SETTINGS_WIN32_DRIVER_VERSION: *const c_char =
+    b"win32-driver-version\0" as *const u8 as *const c_char;
 pub const GTK_PRIORITY_RESIZE: c_int = 110;
-pub const GTK_STOCK_ABOUT: &[u8] = b"gtk-about\0";
-pub const GTK_STOCK_ADD: &[u8] = b"gtk-add\0";
-pub const GTK_STOCK_APPLY: &[u8] = b"gtk-apply\0";
-pub const GTK_STOCK_BOLD: &[u8] = b"gtk-bold\0";
-pub const GTK_STOCK_CANCEL: &[u8] = b"gtk-cancel\0";
-pub const GTK_STOCK_CAPS_LOCK_WARNING: &[u8] = b"gtk-caps-lock-warning\0";
-pub const GTK_STOCK_CDROM: &[u8] = b"gtk-cdrom\0";
-pub const GTK_STOCK_CLEAR: &[u8] = b"gtk-clear\0";
-pub const GTK_STOCK_CLOSE: &[u8] = b"gtk-close\0";
-pub const GTK_STOCK_COLOR_PICKER: &[u8] = b"gtk-color-picker\0";
-pub const GTK_STOCK_CONNECT: &[u8] = b"gtk-connect\0";
-pub const GTK_STOCK_CONVERT: &[u8] = b"gtk-convert\0";
-pub const GTK_STOCK_COPY: &[u8] = b"gtk-copy\0";
-pub const GTK_STOCK_CUT: &[u8] = b"gtk-cut\0";
-pub const GTK_STOCK_DELETE: &[u8] = b"gtk-delete\0";
-pub const GTK_STOCK_DIALOG_AUTHENTICATION: &[u8] = b"gtk-dialog-authentication\0";
-pub const GTK_STOCK_DIALOG_ERROR: &[u8] = b"gtk-dialog-error\0";
-pub const GTK_STOCK_DIALOG_INFO: &[u8] = b"gtk-dialog-info\0";
-pub const GTK_STOCK_DIALOG_QUESTION: &[u8] = b"gtk-dialog-question\0";
-pub const GTK_STOCK_DIALOG_WARNING: &[u8] = b"gtk-dialog-warning\0";
-pub const GTK_STOCK_DIRECTORY: &[u8] = b"gtk-directory\0";
-pub const GTK_STOCK_DISCARD: &[u8] = b"gtk-discard\0";
-pub const GTK_STOCK_DISCONNECT: &[u8] = b"gtk-disconnect\0";
-pub const GTK_STOCK_DND: &[u8] = b"gtk-dnd\0";
-pub const GTK_STOCK_DND_MULTIPLE: &[u8] = b"gtk-dnd-multiple\0";
-pub const GTK_STOCK_EDIT: &[u8] = b"gtk-edit\0";
-pub const GTK_STOCK_EXECUTE: &[u8] = b"gtk-execute\0";
-pub const GTK_STOCK_FILE: &[u8] = b"gtk-file\0";
-pub const GTK_STOCK_FIND: &[u8] = b"gtk-find\0";
-pub const GTK_STOCK_FIND_AND_REPLACE: &[u8] = b"gtk-find-and-replace\0";
-pub const GTK_STOCK_FLOPPY: &[u8] = b"gtk-floppy\0";
-pub const GTK_STOCK_FULLSCREEN: &[u8] = b"gtk-fullscreen\0";
-pub const GTK_STOCK_GOTO_BOTTOM: &[u8] = b"gtk-goto-bottom\0";
-pub const GTK_STOCK_GOTO_FIRST: &[u8] = b"gtk-goto-first\0";
-pub const GTK_STOCK_GOTO_LAST: &[u8] = b"gtk-goto-last\0";
-pub const GTK_STOCK_GOTO_TOP: &[u8] = b"gtk-goto-top\0";
-pub const GTK_STOCK_GO_BACK: &[u8] = b"gtk-go-back\0";
-pub const GTK_STOCK_GO_DOWN: &[u8] = b"gtk-go-down\0";
-pub const GTK_STOCK_GO_FORWARD: &[u8] = b"gtk-go-forward\0";
-pub const GTK_STOCK_GO_UP: &[u8] = b"gtk-go-up\0";
-pub const GTK_STOCK_HARDDISK: &[u8] = b"gtk-harddisk\0";
-pub const GTK_STOCK_HELP: &[u8] = b"gtk-help\0";
-pub const GTK_STOCK_HOME: &[u8] = b"gtk-home\0";
-pub const GTK_STOCK_INDENT: &[u8] = b"gtk-indent\0";
-pub const GTK_STOCK_INDEX: &[u8] = b"gtk-index\0";
-pub const GTK_STOCK_INFO: &[u8] = b"gtk-info\0";
-pub const GTK_STOCK_ITALIC: &[u8] = b"gtk-italic\0";
-pub const GTK_STOCK_JUMP_TO: &[u8] = b"gtk-jump-to\0";
-pub const GTK_STOCK_JUSTIFY_CENTER: &[u8] = b"gtk-justify-center\0";
-pub const GTK_STOCK_JUSTIFY_FILL: &[u8] = b"gtk-justify-fill\0";
-pub const GTK_STOCK_JUSTIFY_LEFT: &[u8] = b"gtk-justify-left\0";
-pub const GTK_STOCK_JUSTIFY_RIGHT: &[u8] = b"gtk-justify-right\0";
-pub const GTK_STOCK_LEAVE_FULLSCREEN: &[u8] = b"gtk-leave-fullscreen\0";
-pub const GTK_STOCK_MEDIA_FORWARD: &[u8] = b"gtk-media-forward\0";
-pub const GTK_STOCK_MEDIA_NEXT: &[u8] = b"gtk-media-next\0";
-pub const GTK_STOCK_MEDIA_PAUSE: &[u8] = b"gtk-media-pause\0";
-pub const GTK_STOCK_MEDIA_PLAY: &[u8] = b"gtk-media-play\0";
-pub const GTK_STOCK_MEDIA_PREVIOUS: &[u8] = b"gtk-media-previous\0";
-pub const GTK_STOCK_MEDIA_RECORD: &[u8] = b"gtk-media-record\0";
-pub const GTK_STOCK_MEDIA_REWIND: &[u8] = b"gtk-media-rewind\0";
-pub const GTK_STOCK_MEDIA_STOP: &[u8] = b"gtk-media-stop\0";
-pub const GTK_STOCK_MISSING_IMAGE: &[u8] = b"gtk-missing-image\0";
-pub const GTK_STOCK_NETWORK: &[u8] = b"gtk-network\0";
-pub const GTK_STOCK_NEW: &[u8] = b"gtk-new\0";
-pub const GTK_STOCK_NO: &[u8] = b"gtk-no\0";
-pub const GTK_STOCK_OK: &[u8] = b"gtk-ok\0";
-pub const GTK_STOCK_OPEN: &[u8] = b"gtk-open\0";
-pub const GTK_STOCK_ORIENTATION_LANDSCAPE: &[u8] = b"gtk-orientation-landscape\0";
-pub const GTK_STOCK_ORIENTATION_PORTRAIT: &[u8] = b"gtk-orientation-portrait\0";
-pub const GTK_STOCK_ORIENTATION_REVERSE_LANDSCAPE: &[u8] = b"gtk-orientation-reverse-landscape\0";
-pub const GTK_STOCK_ORIENTATION_REVERSE_PORTRAIT: &[u8] = b"gtk-orientation-reverse-portrait\0";
-pub const GTK_STOCK_PAGE_SETUP: &[u8] = b"gtk-page-setup\0";
-pub const GTK_STOCK_PASTE: &[u8] = b"gtk-paste\0";
-pub const GTK_STOCK_PREFERENCES: &[u8] = b"gtk-preferences\0";
-pub const GTK_STOCK_PRINT: &[u8] = b"gtk-print\0";
-pub const GTK_STOCK_PRINT_ERROR: &[u8] = b"gtk-print-error\0";
-pub const GTK_STOCK_PRINT_PAUSED: &[u8] = b"gtk-print-paused\0";
-pub const GTK_STOCK_PRINT_PREVIEW: &[u8] = b"gtk-print-preview\0";
-pub const GTK_STOCK_PRINT_REPORT: &[u8] = b"gtk-print-report\0";
-pub const GTK_STOCK_PRINT_WARNING: &[u8] = b"gtk-print-warning\0";
-pub const GTK_STOCK_PROPERTIES: &[u8] = b"gtk-properties\0";
-pub const GTK_STOCK_QUIT: &[u8] = b"gtk-quit\0";
-pub const GTK_STOCK_REDO: &[u8] = b"gtk-redo\0";
-pub const GTK_STOCK_REFRESH: &[u8] = b"gtk-refresh\0";
-pub const GTK_STOCK_REMOVE: &[u8] = b"gtk-remove\0";
-pub const GTK_STOCK_REVERT_TO_SAVED: &[u8] = b"gtk-revert-to-saved\0";
-pub const GTK_STOCK_SAVE: &[u8] = b"gtk-save\0";
-pub const GTK_STOCK_SAVE_AS: &[u8] = b"gtk-save-as\0";
-pub const GTK_STOCK_SELECT_ALL: &[u8] = b"gtk-select-all\0";
-pub const GTK_STOCK_SELECT_COLOR: &[u8] = b"gtk-select-color\0";
-pub const GTK_STOCK_SELECT_FONT: &[u8] = b"gtk-select-font\0";
-pub const GTK_STOCK_SORT_ASCENDING: &[u8] = b"gtk-sort-ascending\0";
-pub const GTK_STOCK_SORT_DESCENDING: &[u8] = b"gtk-sort-descending\0";
-pub const GTK_STOCK_SPELL_CHECK: &[u8] = b"gtk-spell-check\0";
-pub const GTK_STOCK_STOP: &[u8] = b"gtk-stop\0";
-pub const GTK_STOCK_STRIKETHROUGH: &[u8] = b"gtk-strikethrough\0";
-pub const GTK_STOCK_UNDELETE: &[u8] = b"gtk-undelete\0";
-pub const GTK_STOCK_UNDERLINE: &[u8] = b"gtk-underline\0";
-pub const GTK_STOCK_UNDO: &[u8] = b"gtk-undo\0";
-pub const GTK_STOCK_UNINDENT: &[u8] = b"gtk-unindent\0";
-pub const GTK_STOCK_YES: &[u8] = b"gtk-yes\0";
-pub const GTK_STOCK_ZOOM_100: &[u8] = b"gtk-zoom-100\0";
-pub const GTK_STOCK_ZOOM_FIT: &[u8] = b"gtk-zoom-fit\0";
-pub const GTK_STOCK_ZOOM_IN: &[u8] = b"gtk-zoom-in\0";
-pub const GTK_STOCK_ZOOM_OUT: &[u8] = b"gtk-zoom-out\0";
-pub const GTK_STYLE_CLASS_ACCELERATOR: &[u8] = b"accelerator\0";
-pub const GTK_STYLE_CLASS_ARROW: &[u8] = b"arrow\0";
-pub const GTK_STYLE_CLASS_BACKGROUND: &[u8] = b"background\0";
-pub const GTK_STYLE_CLASS_BOTTOM: &[u8] = b"bottom\0";
-pub const GTK_STYLE_CLASS_BUTTON: &[u8] = b"button\0";
-pub const GTK_STYLE_CLASS_CALENDAR: &[u8] = b"calendar\0";
-pub const GTK_STYLE_CLASS_CELL: &[u8] = b"cell\0";
-pub const GTK_STYLE_CLASS_CHECK: &[u8] = b"check\0";
-pub const GTK_STYLE_CLASS_COMBOBOX_ENTRY: &[u8] = b"combobox-entry\0";
-pub const GTK_STYLE_CLASS_CONTEXT_MENU: &[u8] = b"context-menu\0";
-pub const GTK_STYLE_CLASS_CSD: &[u8] = b"csd\0";
-pub const GTK_STYLE_CLASS_CURSOR_HANDLE: &[u8] = b"cursor-handle\0";
-pub const GTK_STYLE_CLASS_DEFAULT: &[u8] = b"default\0";
-pub const GTK_STYLE_CLASS_DESTRUCTIVE_ACTION: &[u8] = b"destructive-action\0";
-pub const GTK_STYLE_CLASS_DIM_LABEL: &[u8] = b"dim-label\0";
-pub const GTK_STYLE_CLASS_DND: &[u8] = b"dnd\0";
-pub const GTK_STYLE_CLASS_DOCK: &[u8] = b"dock\0";
-pub const GTK_STYLE_CLASS_ENTRY: &[u8] = b"entry\0";
-pub const GTK_STYLE_CLASS_ERROR: &[u8] = b"error\0";
-pub const GTK_STYLE_CLASS_EXPANDER: &[u8] = b"expander\0";
-pub const GTK_STYLE_CLASS_FLAT: &[u8] = b"flat\0";
-pub const GTK_STYLE_CLASS_FRAME: &[u8] = b"frame\0";
-pub const GTK_STYLE_CLASS_GRIP: &[u8] = b"grip\0";
-pub const GTK_STYLE_CLASS_HEADER: &[u8] = b"header\0";
-pub const GTK_STYLE_CLASS_HIGHLIGHT: &[u8] = b"highlight\0";
-pub const GTK_STYLE_CLASS_HORIZONTAL: &[u8] = b"horizontal\0";
-pub const GTK_STYLE_CLASS_IMAGE: &[u8] = b"image\0";
-pub const GTK_STYLE_CLASS_INFO: &[u8] = b"info\0";
-pub const GTK_STYLE_CLASS_INLINE_TOOLBAR: &[u8] = b"inline-toolbar\0";
-pub const GTK_STYLE_CLASS_INSERTION_CURSOR: &[u8] = b"insertion-cursor\0";
-pub const GTK_STYLE_CLASS_LABEL: &[u8] = b"label\0";
-pub const GTK_STYLE_CLASS_LEFT: &[u8] = b"left\0";
-pub const GTK_STYLE_CLASS_LEVEL_BAR: &[u8] = b"level-bar\0";
-pub const GTK_STYLE_CLASS_LINKED: &[u8] = b"linked\0";
-pub const GTK_STYLE_CLASS_LIST: &[u8] = b"list\0";
-pub const GTK_STYLE_CLASS_LIST_ROW: &[u8] = b"list-row\0";
-pub const GTK_STYLE_CLASS_MARK: &[u8] = b"mark\0";
-pub const GTK_STYLE_CLASS_MENU: &[u8] = b"menu\0";
-pub const GTK_STYLE_CLASS_MENUBAR: &[u8] = b"menubar\0";
-pub const GTK_STYLE_CLASS_MENUITEM: &[u8] = b"menuitem\0";
-pub const GTK_STYLE_CLASS_MESSAGE_DIALOG: &[u8] = b"message-dialog\0";
-pub const GTK_STYLE_CLASS_MONOSPACE: &[u8] = b"monospace\0";
-pub const GTK_STYLE_CLASS_NEEDS_ATTENTION: &[u8] = b"needs-attention\0";
-pub const GTK_STYLE_CLASS_NOTEBOOK: &[u8] = b"notebook\0";
-pub const GTK_STYLE_CLASS_OSD: &[u8] = b"osd\0";
-pub const GTK_STYLE_CLASS_OVERSHOOT: &[u8] = b"overshoot\0";
-pub const GTK_STYLE_CLASS_PANE_SEPARATOR: &[u8] = b"pane-separator\0";
-pub const GTK_STYLE_CLASS_PAPER: &[u8] = b"paper\0";
-pub const GTK_STYLE_CLASS_POPOVER: &[u8] = b"popover\0";
-pub const GTK_STYLE_CLASS_POPUP: &[u8] = b"popup\0";
-pub const GTK_STYLE_CLASS_PRIMARY_TOOLBAR: &[u8] = b"primary-toolbar\0";
-pub const GTK_STYLE_CLASS_PROGRESSBAR: &[u8] = b"progressbar\0";
-pub const GTK_STYLE_CLASS_PULSE: &[u8] = b"pulse\0";
-pub const GTK_STYLE_CLASS_QUESTION: &[u8] = b"question\0";
-pub const GTK_STYLE_CLASS_RADIO: &[u8] = b"radio\0";
-pub const GTK_STYLE_CLASS_RAISED: &[u8] = b"raised\0";
-pub const GTK_STYLE_CLASS_READ_ONLY: &[u8] = b"read-only\0";
-pub const GTK_STYLE_CLASS_RIGHT: &[u8] = b"right\0";
-pub const GTK_STYLE_CLASS_RUBBERBAND: &[u8] = b"rubberband\0";
-pub const GTK_STYLE_CLASS_SCALE: &[u8] = b"scale\0";
-pub const GTK_STYLE_CLASS_SCALE_HAS_MARKS_ABOVE: &[u8] = b"scale-has-marks-above\0";
-pub const GTK_STYLE_CLASS_SCALE_HAS_MARKS_BELOW: &[u8] = b"scale-has-marks-below\0";
-pub const GTK_STYLE_CLASS_SCROLLBAR: &[u8] = b"scrollbar\0";
-pub const GTK_STYLE_CLASS_SCROLLBARS_JUNCTION: &[u8] = b"scrollbars-junction\0";
-pub const GTK_STYLE_CLASS_SEPARATOR: &[u8] = b"separator\0";
-pub const GTK_STYLE_CLASS_SIDEBAR: &[u8] = b"sidebar\0";
-pub const GTK_STYLE_CLASS_SLIDER: &[u8] = b"slider\0";
-pub const GTK_STYLE_CLASS_SPINBUTTON: &[u8] = b"spinbutton\0";
-pub const GTK_STYLE_CLASS_SPINNER: &[u8] = b"spinner\0";
-pub const GTK_STYLE_CLASS_STATUSBAR: &[u8] = b"statusbar\0";
-pub const GTK_STYLE_CLASS_SUBTITLE: &[u8] = b"subtitle\0";
-pub const GTK_STYLE_CLASS_SUGGESTED_ACTION: &[u8] = b"suggested-action\0";
-pub const GTK_STYLE_CLASS_TITLE: &[u8] = b"title\0";
-pub const GTK_STYLE_CLASS_TITLEBAR: &[u8] = b"titlebar\0";
-pub const GTK_STYLE_CLASS_TOOLBAR: &[u8] = b"toolbar\0";
-pub const GTK_STYLE_CLASS_TOOLTIP: &[u8] = b"tooltip\0";
-pub const GTK_STYLE_CLASS_TOP: &[u8] = b"top\0";
-pub const GTK_STYLE_CLASS_TOUCH_SELECTION: &[u8] = b"touch-selection\0";
-pub const GTK_STYLE_CLASS_TROUGH: &[u8] = b"trough\0";
-pub const GTK_STYLE_CLASS_UNDERSHOOT: &[u8] = b"undershoot\0";
-pub const GTK_STYLE_CLASS_VERTICAL: &[u8] = b"vertical\0";
-pub const GTK_STYLE_CLASS_VIEW: &[u8] = b"view\0";
-pub const GTK_STYLE_CLASS_WARNING: &[u8] = b"warning\0";
-pub const GTK_STYLE_CLASS_WIDE: &[u8] = b"wide\0";
-pub const GTK_STYLE_PROPERTY_BACKGROUND_COLOR: &[u8] = b"background-color\0";
-pub const GTK_STYLE_PROPERTY_BACKGROUND_IMAGE: &[u8] = b"background-image\0";
-pub const GTK_STYLE_PROPERTY_BORDER_COLOR: &[u8] = b"border-color\0";
-pub const GTK_STYLE_PROPERTY_BORDER_RADIUS: &[u8] = b"border-radius\0";
-pub const GTK_STYLE_PROPERTY_BORDER_STYLE: &[u8] = b"border-style\0";
-pub const GTK_STYLE_PROPERTY_BORDER_WIDTH: &[u8] = b"border-width\0";
-pub const GTK_STYLE_PROPERTY_COLOR: &[u8] = b"color\0";
-pub const GTK_STYLE_PROPERTY_FONT: &[u8] = b"font\0";
-pub const GTK_STYLE_PROPERTY_MARGIN: &[u8] = b"margin\0";
-pub const GTK_STYLE_PROPERTY_PADDING: &[u8] = b"padding\0";
+pub const GTK_STOCK_ABOUT: *const c_char = b"gtk-about\0" as *const u8 as *const c_char;
+pub const GTK_STOCK_ADD: *const c_char = b"gtk-add\0" as *const u8 as *const c_char;
+pub const GTK_STOCK_APPLY: *const c_char = b"gtk-apply\0" as *const u8 as *const c_char;
+pub const GTK_STOCK_BOLD: *const c_char = b"gtk-bold\0" as *const u8 as *const c_char;
+pub const GTK_STOCK_CANCEL: *const c_char = b"gtk-cancel\0" as *const u8 as *const c_char;
+pub const GTK_STOCK_CAPS_LOCK_WARNING: *const c_char =
+    b"gtk-caps-lock-warning\0" as *const u8 as *const c_char;
+pub const GTK_STOCK_CDROM: *const c_char = b"gtk-cdrom\0" as *const u8 as *const c_char;
+pub const GTK_STOCK_CLEAR: *const c_char = b"gtk-clear\0" as *const u8 as *const c_char;
+pub const GTK_STOCK_CLOSE: *const c_char = b"gtk-close\0" as *const u8 as *const c_char;
+pub const GTK_STOCK_COLOR_PICKER: *const c_char =
+    b"gtk-color-picker\0" as *const u8 as *const c_char;
+pub const GTK_STOCK_CONNECT: *const c_char = b"gtk-connect\0" as *const u8 as *const c_char;
+pub const GTK_STOCK_CONVERT: *const c_char = b"gtk-convert\0" as *const u8 as *const c_char;
+pub const GTK_STOCK_COPY: *const c_char = b"gtk-copy\0" as *const u8 as *const c_char;
+pub const GTK_STOCK_CUT: *const c_char = b"gtk-cut\0" as *const u8 as *const c_char;
+pub const GTK_STOCK_DELETE: *const c_char = b"gtk-delete\0" as *const u8 as *const c_char;
+pub const GTK_STOCK_DIALOG_AUTHENTICATION: *const c_char =
+    b"gtk-dialog-authentication\0" as *const u8 as *const c_char;
+pub const GTK_STOCK_DIALOG_ERROR: *const c_char =
+    b"gtk-dialog-error\0" as *const u8 as *const c_char;
+pub const GTK_STOCK_DIALOG_INFO: *const c_char = b"gtk-dialog-info\0" as *const u8 as *const c_char;
+pub const GTK_STOCK_DIALOG_QUESTION: *const c_char =
+    b"gtk-dialog-question\0" as *const u8 as *const c_char;
+pub const GTK_STOCK_DIALOG_WARNING: *const c_char =
+    b"gtk-dialog-warning\0" as *const u8 as *const c_char;
+pub const GTK_STOCK_DIRECTORY: *const c_char = b"gtk-directory\0" as *const u8 as *const c_char;
+pub const GTK_STOCK_DISCARD: *const c_char = b"gtk-discard\0" as *const u8 as *const c_char;
+pub const GTK_STOCK_DISCONNECT: *const c_char = b"gtk-disconnect\0" as *const u8 as *const c_char;
+pub const GTK_STOCK_DND: *const c_char = b"gtk-dnd\0" as *const u8 as *const c_char;
+pub const GTK_STOCK_DND_MULTIPLE: *const c_char =
+    b"gtk-dnd-multiple\0" as *const u8 as *const c_char;
+pub const GTK_STOCK_EDIT: *const c_char = b"gtk-edit\0" as *const u8 as *const c_char;
+pub const GTK_STOCK_EXECUTE: *const c_char = b"gtk-execute\0" as *const u8 as *const c_char;
+pub const GTK_STOCK_FILE: *const c_char = b"gtk-file\0" as *const u8 as *const c_char;
+pub const GTK_STOCK_FIND: *const c_char = b"gtk-find\0" as *const u8 as *const c_char;
+pub const GTK_STOCK_FIND_AND_REPLACE: *const c_char =
+    b"gtk-find-and-replace\0" as *const u8 as *const c_char;
+pub const GTK_STOCK_FLOPPY: *const c_char = b"gtk-floppy\0" as *const u8 as *const c_char;
+pub const GTK_STOCK_FULLSCREEN: *const c_char = b"gtk-fullscreen\0" as *const u8 as *const c_char;
+pub const GTK_STOCK_GOTO_BOTTOM: *const c_char = b"gtk-goto-bottom\0" as *const u8 as *const c_char;
+pub const GTK_STOCK_GOTO_FIRST: *const c_char = b"gtk-goto-first\0" as *const u8 as *const c_char;
+pub const GTK_STOCK_GOTO_LAST: *const c_char = b"gtk-goto-last\0" as *const u8 as *const c_char;
+pub const GTK_STOCK_GOTO_TOP: *const c_char = b"gtk-goto-top\0" as *const u8 as *const c_char;
+pub const GTK_STOCK_GO_BACK: *const c_char = b"gtk-go-back\0" as *const u8 as *const c_char;
+pub const GTK_STOCK_GO_DOWN: *const c_char = b"gtk-go-down\0" as *const u8 as *const c_char;
+pub const GTK_STOCK_GO_FORWARD: *const c_char = b"gtk-go-forward\0" as *const u8 as *const c_char;
+pub const GTK_STOCK_GO_UP: *const c_char = b"gtk-go-up\0" as *const u8 as *const c_char;
+pub const GTK_STOCK_HARDDISK: *const c_char = b"gtk-harddisk\0" as *const u8 as *const c_char;
+pub const GTK_STOCK_HELP: *const c_char = b"gtk-help\0" as *const u8 as *const c_char;
+pub const GTK_STOCK_HOME: *const c_char = b"gtk-home\0" as *const u8 as *const c_char;
+pub const GTK_STOCK_INDENT: *const c_char = b"gtk-indent\0" as *const u8 as *const c_char;
+pub const GTK_STOCK_INDEX: *const c_char = b"gtk-index\0" as *const u8 as *const c_char;
+pub const GTK_STOCK_INFO: *const c_char = b"gtk-info\0" as *const u8 as *const c_char;
+pub const GTK_STOCK_ITALIC: *const c_char = b"gtk-italic\0" as *const u8 as *const c_char;
+pub const GTK_STOCK_JUMP_TO: *const c_char = b"gtk-jump-to\0" as *const u8 as *const c_char;
+pub const GTK_STOCK_JUSTIFY_CENTER: *const c_char =
+    b"gtk-justify-center\0" as *const u8 as *const c_char;
+pub const GTK_STOCK_JUSTIFY_FILL: *const c_char =
+    b"gtk-justify-fill\0" as *const u8 as *const c_char;
+pub const GTK_STOCK_JUSTIFY_LEFT: *const c_char =
+    b"gtk-justify-left\0" as *const u8 as *const c_char;
+pub const GTK_STOCK_JUSTIFY_RIGHT: *const c_char =
+    b"gtk-justify-right\0" as *const u8 as *const c_char;
+pub const GTK_STOCK_LEAVE_FULLSCREEN: *const c_char =
+    b"gtk-leave-fullscreen\0" as *const u8 as *const c_char;
+pub const GTK_STOCK_MEDIA_FORWARD: *const c_char =
+    b"gtk-media-forward\0" as *const u8 as *const c_char;
+pub const GTK_STOCK_MEDIA_NEXT: *const c_char = b"gtk-media-next\0" as *const u8 as *const c_char;
+pub const GTK_STOCK_MEDIA_PAUSE: *const c_char = b"gtk-media-pause\0" as *const u8 as *const c_char;
+pub const GTK_STOCK_MEDIA_PLAY: *const c_char = b"gtk-media-play\0" as *const u8 as *const c_char;
+pub const GTK_STOCK_MEDIA_PREVIOUS: *const c_char =
+    b"gtk-media-previous\0" as *const u8 as *const c_char;
+pub const GTK_STOCK_MEDIA_RECORD: *const c_char =
+    b"gtk-media-record\0" as *const u8 as *const c_char;
+pub const GTK_STOCK_MEDIA_REWIND: *const c_char =
+    b"gtk-media-rewind\0" as *const u8 as *const c_char;
+pub const GTK_STOCK_MEDIA_STOP: *const c_char = b"gtk-media-stop\0" as *const u8 as *const c_char;
+pub const GTK_STOCK_MISSING_IMAGE: *const c_char =
+    b"gtk-missing-image\0" as *const u8 as *const c_char;
+pub const GTK_STOCK_NETWORK: *const c_char = b"gtk-network\0" as *const u8 as *const c_char;
+pub const GTK_STOCK_NEW: *const c_char = b"gtk-new\0" as *const u8 as *const c_char;
+pub const GTK_STOCK_NO: *const c_char = b"gtk-no\0" as *const u8 as *const c_char;
+pub const GTK_STOCK_OK: *const c_char = b"gtk-ok\0" as *const u8 as *const c_char;
+pub const GTK_STOCK_OPEN: *const c_char = b"gtk-open\0" as *const u8 as *const c_char;
+pub const GTK_STOCK_ORIENTATION_LANDSCAPE: *const c_char =
+    b"gtk-orientation-landscape\0" as *const u8 as *const c_char;
+pub const GTK_STOCK_ORIENTATION_PORTRAIT: *const c_char =
+    b"gtk-orientation-portrait\0" as *const u8 as *const c_char;
+pub const GTK_STOCK_ORIENTATION_REVERSE_LANDSCAPE: *const c_char =
+    b"gtk-orientation-reverse-landscape\0" as *const u8 as *const c_char;
+pub const GTK_STOCK_ORIENTATION_REVERSE_PORTRAIT: *const c_char =
+    b"gtk-orientation-reverse-portrait\0" as *const u8 as *const c_char;
+pub const GTK_STOCK_PAGE_SETUP: *const c_char = b"gtk-page-setup\0" as *const u8 as *const c_char;
+pub const GTK_STOCK_PASTE: *const c_char = b"gtk-paste\0" as *const u8 as *const c_char;
+pub const GTK_STOCK_PREFERENCES: *const c_char = b"gtk-preferences\0" as *const u8 as *const c_char;
+pub const GTK_STOCK_PRINT: *const c_char = b"gtk-print\0" as *const u8 as *const c_char;
+pub const GTK_STOCK_PRINT_ERROR: *const c_char = b"gtk-print-error\0" as *const u8 as *const c_char;
+pub const GTK_STOCK_PRINT_PAUSED: *const c_char =
+    b"gtk-print-paused\0" as *const u8 as *const c_char;
+pub const GTK_STOCK_PRINT_PREVIEW: *const c_char =
+    b"gtk-print-preview\0" as *const u8 as *const c_char;
+pub const GTK_STOCK_PRINT_REPORT: *const c_char =
+    b"gtk-print-report\0" as *const u8 as *const c_char;
+pub const GTK_STOCK_PRINT_WARNING: *const c_char =
+    b"gtk-print-warning\0" as *const u8 as *const c_char;
+pub const GTK_STOCK_PROPERTIES: *const c_char = b"gtk-properties\0" as *const u8 as *const c_char;
+pub const GTK_STOCK_QUIT: *const c_char = b"gtk-quit\0" as *const u8 as *const c_char;
+pub const GTK_STOCK_REDO: *const c_char = b"gtk-redo\0" as *const u8 as *const c_char;
+pub const GTK_STOCK_REFRESH: *const c_char = b"gtk-refresh\0" as *const u8 as *const c_char;
+pub const GTK_STOCK_REMOVE: *const c_char = b"gtk-remove\0" as *const u8 as *const c_char;
+pub const GTK_STOCK_REVERT_TO_SAVED: *const c_char =
+    b"gtk-revert-to-saved\0" as *const u8 as *const c_char;
+pub const GTK_STOCK_SAVE: *const c_char = b"gtk-save\0" as *const u8 as *const c_char;
+pub const GTK_STOCK_SAVE_AS: *const c_char = b"gtk-save-as\0" as *const u8 as *const c_char;
+pub const GTK_STOCK_SELECT_ALL: *const c_char = b"gtk-select-all\0" as *const u8 as *const c_char;
+pub const GTK_STOCK_SELECT_COLOR: *const c_char =
+    b"gtk-select-color\0" as *const u8 as *const c_char;
+pub const GTK_STOCK_SELECT_FONT: *const c_char = b"gtk-select-font\0" as *const u8 as *const c_char;
+pub const GTK_STOCK_SORT_ASCENDING: *const c_char =
+    b"gtk-sort-ascending\0" as *const u8 as *const c_char;
+pub const GTK_STOCK_SORT_DESCENDING: *const c_char =
+    b"gtk-sort-descending\0" as *const u8 as *const c_char;
+pub const GTK_STOCK_SPELL_CHECK: *const c_char = b"gtk-spell-check\0" as *const u8 as *const c_char;
+pub const GTK_STOCK_STOP: *const c_char = b"gtk-stop\0" as *const u8 as *const c_char;
+pub const GTK_STOCK_STRIKETHROUGH: *const c_char =
+    b"gtk-strikethrough\0" as *const u8 as *const c_char;
+pub const GTK_STOCK_UNDELETE: *const c_char = b"gtk-undelete\0" as *const u8 as *const c_char;
+pub const GTK_STOCK_UNDERLINE: *const c_char = b"gtk-underline\0" as *const u8 as *const c_char;
+pub const GTK_STOCK_UNDO: *const c_char = b"gtk-undo\0" as *const u8 as *const c_char;
+pub const GTK_STOCK_UNINDENT: *const c_char = b"gtk-unindent\0" as *const u8 as *const c_char;
+pub const GTK_STOCK_YES: *const c_char = b"gtk-yes\0" as *const u8 as *const c_char;
+pub const GTK_STOCK_ZOOM_100: *const c_char = b"gtk-zoom-100\0" as *const u8 as *const c_char;
+pub const GTK_STOCK_ZOOM_FIT: *const c_char = b"gtk-zoom-fit\0" as *const u8 as *const c_char;
+pub const GTK_STOCK_ZOOM_IN: *const c_char = b"gtk-zoom-in\0" as *const u8 as *const c_char;
+pub const GTK_STOCK_ZOOM_OUT: *const c_char = b"gtk-zoom-out\0" as *const u8 as *const c_char;
+pub const GTK_STYLE_CLASS_ACCELERATOR: *const c_char =
+    b"accelerator\0" as *const u8 as *const c_char;
+pub const GTK_STYLE_CLASS_ARROW: *const c_char = b"arrow\0" as *const u8 as *const c_char;
+pub const GTK_STYLE_CLASS_BACKGROUND: *const c_char = b"background\0" as *const u8 as *const c_char;
+pub const GTK_STYLE_CLASS_BOTTOM: *const c_char = b"bottom\0" as *const u8 as *const c_char;
+pub const GTK_STYLE_CLASS_BUTTON: *const c_char = b"button\0" as *const u8 as *const c_char;
+pub const GTK_STYLE_CLASS_CALENDAR: *const c_char = b"calendar\0" as *const u8 as *const c_char;
+pub const GTK_STYLE_CLASS_CELL: *const c_char = b"cell\0" as *const u8 as *const c_char;
+pub const GTK_STYLE_CLASS_CHECK: *const c_char = b"check\0" as *const u8 as *const c_char;
+pub const GTK_STYLE_CLASS_COMBOBOX_ENTRY: *const c_char =
+    b"combobox-entry\0" as *const u8 as *const c_char;
+pub const GTK_STYLE_CLASS_CONTEXT_MENU: *const c_char =
+    b"context-menu\0" as *const u8 as *const c_char;
+pub const GTK_STYLE_CLASS_CSD: *const c_char = b"csd\0" as *const u8 as *const c_char;
+pub const GTK_STYLE_CLASS_CURSOR_HANDLE: *const c_char =
+    b"cursor-handle\0" as *const u8 as *const c_char;
+pub const GTK_STYLE_CLASS_DEFAULT: *const c_char = b"default\0" as *const u8 as *const c_char;
+pub const GTK_STYLE_CLASS_DESTRUCTIVE_ACTION: *const c_char =
+    b"destructive-action\0" as *const u8 as *const c_char;
+pub const GTK_STYLE_CLASS_DIM_LABEL: *const c_char = b"dim-label\0" as *const u8 as *const c_char;
+pub const GTK_STYLE_CLASS_DND: *const c_char = b"dnd\0" as *const u8 as *const c_char;
+pub const GTK_STYLE_CLASS_DOCK: *const c_char = b"dock\0" as *const u8 as *const c_char;
+pub const GTK_STYLE_CLASS_ENTRY: *const c_char = b"entry\0" as *const u8 as *const c_char;
+pub const GTK_STYLE_CLASS_ERROR: *const c_char = b"error\0" as *const u8 as *const c_char;
+pub const GTK_STYLE_CLASS_EXPANDER: *const c_char = b"expander\0" as *const u8 as *const c_char;
+pub const GTK_STYLE_CLASS_FLAT: *const c_char = b"flat\0" as *const u8 as *const c_char;
+pub const GTK_STYLE_CLASS_FRAME: *const c_char = b"frame\0" as *const u8 as *const c_char;
+pub const GTK_STYLE_CLASS_GRIP: *const c_char = b"grip\0" as *const u8 as *const c_char;
+pub const GTK_STYLE_CLASS_HEADER: *const c_char = b"header\0" as *const u8 as *const c_char;
+pub const GTK_STYLE_CLASS_HIGHLIGHT: *const c_char = b"highlight\0" as *const u8 as *const c_char;
+pub const GTK_STYLE_CLASS_HORIZONTAL: *const c_char = b"horizontal\0" as *const u8 as *const c_char;
+pub const GTK_STYLE_CLASS_IMAGE: *const c_char = b"image\0" as *const u8 as *const c_char;
+pub const GTK_STYLE_CLASS_INFO: *const c_char = b"info\0" as *const u8 as *const c_char;
+pub const GTK_STYLE_CLASS_INLINE_TOOLBAR: *const c_char =
+    b"inline-toolbar\0" as *const u8 as *const c_char;
+pub const GTK_STYLE_CLASS_INSERTION_CURSOR: *const c_char =
+    b"insertion-cursor\0" as *const u8 as *const c_char;
+pub const GTK_STYLE_CLASS_LABEL: *const c_char = b"label\0" as *const u8 as *const c_char;
+pub const GTK_STYLE_CLASS_LEFT: *const c_char = b"left\0" as *const u8 as *const c_char;
+pub const GTK_STYLE_CLASS_LEVEL_BAR: *const c_char = b"level-bar\0" as *const u8 as *const c_char;
+pub const GTK_STYLE_CLASS_LINKED: *const c_char = b"linked\0" as *const u8 as *const c_char;
+pub const GTK_STYLE_CLASS_LIST: *const c_char = b"list\0" as *const u8 as *const c_char;
+pub const GTK_STYLE_CLASS_LIST_ROW: *const c_char = b"list-row\0" as *const u8 as *const c_char;
+pub const GTK_STYLE_CLASS_MARK: *const c_char = b"mark\0" as *const u8 as *const c_char;
+pub const GTK_STYLE_CLASS_MENU: *const c_char = b"menu\0" as *const u8 as *const c_char;
+pub const GTK_STYLE_CLASS_MENUBAR: *const c_char = b"menubar\0" as *const u8 as *const c_char;
+pub const GTK_STYLE_CLASS_MENUITEM: *const c_char = b"menuitem\0" as *const u8 as *const c_char;
+pub const GTK_STYLE_CLASS_MESSAGE_DIALOG: *const c_char =
+    b"message-dialog\0" as *const u8 as *const c_char;
+pub const GTK_STYLE_CLASS_MONOSPACE: *const c_char = b"monospace\0" as *const u8 as *const c_char;
+pub const GTK_STYLE_CLASS_NEEDS_ATTENTION: *const c_char =
+    b"needs-attention\0" as *const u8 as *const c_char;
+pub const GTK_STYLE_CLASS_NOTEBOOK: *const c_char = b"notebook\0" as *const u8 as *const c_char;
+pub const GTK_STYLE_CLASS_OSD: *const c_char = b"osd\0" as *const u8 as *const c_char;
+pub const GTK_STYLE_CLASS_OVERSHOOT: *const c_char = b"overshoot\0" as *const u8 as *const c_char;
+pub const GTK_STYLE_CLASS_PANE_SEPARATOR: *const c_char =
+    b"pane-separator\0" as *const u8 as *const c_char;
+pub const GTK_STYLE_CLASS_PAPER: *const c_char = b"paper\0" as *const u8 as *const c_char;
+pub const GTK_STYLE_CLASS_POPOVER: *const c_char = b"popover\0" as *const u8 as *const c_char;
+pub const GTK_STYLE_CLASS_POPUP: *const c_char = b"popup\0" as *const u8 as *const c_char;
+pub const GTK_STYLE_CLASS_PRIMARY_TOOLBAR: *const c_char =
+    b"primary-toolbar\0" as *const u8 as *const c_char;
+pub const GTK_STYLE_CLASS_PROGRESSBAR: *const c_char =
+    b"progressbar\0" as *const u8 as *const c_char;
+pub const GTK_STYLE_CLASS_PULSE: *const c_char = b"pulse\0" as *const u8 as *const c_char;
+pub const GTK_STYLE_CLASS_QUESTION: *const c_char = b"question\0" as *const u8 as *const c_char;
+pub const GTK_STYLE_CLASS_RADIO: *const c_char = b"radio\0" as *const u8 as *const c_char;
+pub const GTK_STYLE_CLASS_RAISED: *const c_char = b"raised\0" as *const u8 as *const c_char;
+pub const GTK_STYLE_CLASS_READ_ONLY: *const c_char = b"read-only\0" as *const u8 as *const c_char;
+pub const GTK_STYLE_CLASS_RIGHT: *const c_char = b"right\0" as *const u8 as *const c_char;
+pub const GTK_STYLE_CLASS_RUBBERBAND: *const c_char = b"rubberband\0" as *const u8 as *const c_char;
+pub const GTK_STYLE_CLASS_SCALE: *const c_char = b"scale\0" as *const u8 as *const c_char;
+pub const GTK_STYLE_CLASS_SCALE_HAS_MARKS_ABOVE: *const c_char =
+    b"scale-has-marks-above\0" as *const u8 as *const c_char;
+pub const GTK_STYLE_CLASS_SCALE_HAS_MARKS_BELOW: *const c_char =
+    b"scale-has-marks-below\0" as *const u8 as *const c_char;
+pub const GTK_STYLE_CLASS_SCROLLBAR: *const c_char = b"scrollbar\0" as *const u8 as *const c_char;
+pub const GTK_STYLE_CLASS_SCROLLBARS_JUNCTION: *const c_char =
+    b"scrollbars-junction\0" as *const u8 as *const c_char;
+pub const GTK_STYLE_CLASS_SEPARATOR: *const c_char = b"separator\0" as *const u8 as *const c_char;
+pub const GTK_STYLE_CLASS_SIDEBAR: *const c_char = b"sidebar\0" as *const u8 as *const c_char;
+pub const GTK_STYLE_CLASS_SLIDER: *const c_char = b"slider\0" as *const u8 as *const c_char;
+pub const GTK_STYLE_CLASS_SPINBUTTON: *const c_char = b"spinbutton\0" as *const u8 as *const c_char;
+pub const GTK_STYLE_CLASS_SPINNER: *const c_char = b"spinner\0" as *const u8 as *const c_char;
+pub const GTK_STYLE_CLASS_STATUSBAR: *const c_char = b"statusbar\0" as *const u8 as *const c_char;
+pub const GTK_STYLE_CLASS_SUBTITLE: *const c_char = b"subtitle\0" as *const u8 as *const c_char;
+pub const GTK_STYLE_CLASS_SUGGESTED_ACTION: *const c_char =
+    b"suggested-action\0" as *const u8 as *const c_char;
+pub const GTK_STYLE_CLASS_TITLE: *const c_char = b"title\0" as *const u8 as *const c_char;
+pub const GTK_STYLE_CLASS_TITLEBAR: *const c_char = b"titlebar\0" as *const u8 as *const c_char;
+pub const GTK_STYLE_CLASS_TOOLBAR: *const c_char = b"toolbar\0" as *const u8 as *const c_char;
+pub const GTK_STYLE_CLASS_TOOLTIP: *const c_char = b"tooltip\0" as *const u8 as *const c_char;
+pub const GTK_STYLE_CLASS_TOP: *const c_char = b"top\0" as *const u8 as *const c_char;
+pub const GTK_STYLE_CLASS_TOUCH_SELECTION: *const c_char =
+    b"touch-selection\0" as *const u8 as *const c_char;
+pub const GTK_STYLE_CLASS_TROUGH: *const c_char = b"trough\0" as *const u8 as *const c_char;
+pub const GTK_STYLE_CLASS_UNDERSHOOT: *const c_char = b"undershoot\0" as *const u8 as *const c_char;
+pub const GTK_STYLE_CLASS_VERTICAL: *const c_char = b"vertical\0" as *const u8 as *const c_char;
+pub const GTK_STYLE_CLASS_VIEW: *const c_char = b"view\0" as *const u8 as *const c_char;
+pub const GTK_STYLE_CLASS_WARNING: *const c_char = b"warning\0" as *const u8 as *const c_char;
+pub const GTK_STYLE_CLASS_WIDE: *const c_char = b"wide\0" as *const u8 as *const c_char;
+pub const GTK_STYLE_PROPERTY_BACKGROUND_COLOR: *const c_char =
+    b"background-color\0" as *const u8 as *const c_char;
+pub const GTK_STYLE_PROPERTY_BACKGROUND_IMAGE: *const c_char =
+    b"background-image\0" as *const u8 as *const c_char;
+pub const GTK_STYLE_PROPERTY_BORDER_COLOR: *const c_char =
+    b"border-color\0" as *const u8 as *const c_char;
+pub const GTK_STYLE_PROPERTY_BORDER_RADIUS: *const c_char =
+    b"border-radius\0" as *const u8 as *const c_char;
+pub const GTK_STYLE_PROPERTY_BORDER_STYLE: *const c_char =
+    b"border-style\0" as *const u8 as *const c_char;
+pub const GTK_STYLE_PROPERTY_BORDER_WIDTH: *const c_char =
+    b"border-width\0" as *const u8 as *const c_char;
+pub const GTK_STYLE_PROPERTY_COLOR: *const c_char = b"color\0" as *const u8 as *const c_char;
+pub const GTK_STYLE_PROPERTY_FONT: *const c_char = b"font\0" as *const u8 as *const c_char;
+pub const GTK_STYLE_PROPERTY_MARGIN: *const c_char = b"margin\0" as *const u8 as *const c_char;
+pub const GTK_STYLE_PROPERTY_PADDING: *const c_char = b"padding\0" as *const u8 as *const c_char;
 pub const GTK_STYLE_PROVIDER_PRIORITY_APPLICATION: c_int = 600;
 pub const GTK_STYLE_PROVIDER_PRIORITY_FALLBACK: c_int = 1;
 pub const GTK_STYLE_PROVIDER_PRIORITY_SETTINGS: c_int = 400;
 pub const GTK_STYLE_PROVIDER_PRIORITY_THEME: c_int = 200;
 pub const GTK_STYLE_PROVIDER_PRIORITY_USER: c_int = 800;
-pub const GTK_STYLE_REGION_COLUMN: &[u8] = b"column\0";
-pub const GTK_STYLE_REGION_COLUMN_HEADER: &[u8] = b"column-header\0";
-pub const GTK_STYLE_REGION_ROW: &[u8] = b"row\0";
-pub const GTK_STYLE_REGION_TAB: &[u8] = b"tab\0";
+pub const GTK_STYLE_REGION_COLUMN: *const c_char = b"column\0" as *const u8 as *const c_char;
+pub const GTK_STYLE_REGION_COLUMN_HEADER: *const c_char =
+    b"column-header\0" as *const u8 as *const c_char;
+pub const GTK_STYLE_REGION_ROW: *const c_char = b"row\0" as *const u8 as *const c_char;
+pub const GTK_STYLE_REGION_TAB: *const c_char = b"tab\0" as *const u8 as *const c_char;
 pub const GTK_TEXT_VIEW_PRIORITY_VALIDATE: c_int = 125;
 pub const GTK_TREE_SORTABLE_DEFAULT_SORT_COLUMN_ID: c_int = -1;
 pub const GTK_TREE_SORTABLE_UNSORTED_SORT_COLUMN_ID: c_int = -2;
@@ -1211,7 +1289,7 @@ pub union GtkBindingArg_d {
 
 impl ::std::fmt::Debug for GtkBindingArg_d {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkBindingArg_d @ {self:p}"))
+        f.debug_struct(&format!("GtkBindingArg_d @ {:p}", self))
             .field("long_data", unsafe { &self.long_data })
             .field("double_data", unsafe { &self.double_data })
             .field("string_data", unsafe { &self.string_data })
@@ -1228,7 +1306,7 @@ pub union GtkTextAppearance_u1 {
 
 impl ::std::fmt::Debug for GtkTextAppearance_u1 {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkTextAppearance_u1 @ {self:p}"))
+        f.debug_struct(&format!("GtkTextAppearance_u1 @ {:p}", self))
             .field("rgba", unsafe { &self.rgba })
             .finish()
     }
@@ -1243,7 +1321,7 @@ pub union GtkTextAttributes_u1 {
 
 impl ::std::fmt::Debug for GtkTextAttributes_u1 {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkTextAttributes_u1 @ {self:p}"))
+        f.debug_struct(&format!("GtkTextAttributes_u1 @ {:p}", self))
             .field("font_features", unsafe { &self.font_features })
             .finish()
     }
@@ -1485,7 +1563,7 @@ pub struct GtkAboutDialogClass {
 
 impl ::std::fmt::Debug for GtkAboutDialogClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkAboutDialogClass @ {self:p}"))
+        f.debug_struct(&format!("GtkAboutDialogClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("activate_link", &self.activate_link)
             .field("_gtk_reserved1", &self._gtk_reserved1)
@@ -1524,7 +1602,7 @@ pub struct GtkAccelGroupClass {
 
 impl ::std::fmt::Debug for GtkAccelGroupClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkAccelGroupClass @ {self:p}"))
+        f.debug_struct(&format!("GtkAccelGroupClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("accel_changed", &self.accel_changed)
             .field("_gtk_reserved1", &self._gtk_reserved1)
@@ -1545,7 +1623,7 @@ pub struct GtkAccelGroupEntry {
 
 impl ::std::fmt::Debug for GtkAccelGroupEntry {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkAccelGroupEntry @ {self:p}"))
+        f.debug_struct(&format!("GtkAccelGroupEntry @ {:p}", self))
             .field("key", &self.key)
             .field("closure", &self.closure)
             .field("accel_path_quark", &self.accel_path_quark)
@@ -1571,7 +1649,7 @@ pub struct GtkAccelKey {
 
 impl ::std::fmt::Debug for GtkAccelKey {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkAccelKey @ {self:p}"))
+        f.debug_struct(&format!("GtkAccelKey @ {:p}", self))
             .field("accel_key", &self.accel_key)
             .field("accel_mods", &self.accel_mods)
             .field("accel_flags", &self.accel_flags)
@@ -1597,7 +1675,7 @@ pub struct GtkAccelLabelClass {
 
 impl ::std::fmt::Debug for GtkAccelLabelClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkAccelLabelClass @ {self:p}"))
+        f.debug_struct(&format!("GtkAccelLabelClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("signal_quote1", &self.signal_quote1)
             .field("signal_quote2", &self.signal_quote2)
@@ -1642,7 +1720,7 @@ pub struct GtkAccessibleClass {
 
 impl ::std::fmt::Debug for GtkAccessibleClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkAccessibleClass @ {self:p}"))
+        f.debug_struct(&format!("GtkAccessibleClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("connect_widget_destroyed", &self.connect_widget_destroyed)
             .field("widget_set", &self.widget_set)
@@ -1673,7 +1751,7 @@ pub struct GtkActionBarClass {
 
 impl ::std::fmt::Debug for GtkActionBarClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkActionBarClass @ {self:p}"))
+        f.debug_struct(&format!("GtkActionBarClass @ {:p}", self))
             .field("_gtk_reserved1", &self._gtk_reserved1)
             .field("_gtk_reserved2", &self._gtk_reserved2)
             .field("_gtk_reserved3", &self._gtk_reserved3)
@@ -1710,7 +1788,7 @@ pub struct GtkActionClass {
 
 impl ::std::fmt::Debug for GtkActionClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkActionClass @ {self:p}"))
+        f.debug_struct(&format!("GtkActionClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("activate", &self.activate)
             .field("create_menu_item", &self.create_menu_item)
@@ -1739,7 +1817,7 @@ pub struct GtkActionEntry {
 
 impl ::std::fmt::Debug for GtkActionEntry {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkActionEntry @ {self:p}"))
+        f.debug_struct(&format!("GtkActionEntry @ {:p}", self))
             .field("name", &self.name)
             .field("stock_id", &self.stock_id)
             .field("label", &self.label)
@@ -1764,7 +1842,7 @@ pub struct GtkActionGroupClass {
 
 impl ::std::fmt::Debug for GtkActionGroupClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkActionGroupClass @ {self:p}"))
+        f.debug_struct(&format!("GtkActionGroupClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("get_action", &self.get_action)
             .field("_gtk_reserved1", &self._gtk_reserved1)
@@ -1805,7 +1883,7 @@ pub struct GtkActionableInterface {
 
 impl ::std::fmt::Debug for GtkActionableInterface {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkActionableInterface @ {self:p}"))
+        f.debug_struct(&format!("GtkActionableInterface @ {:p}", self))
             .field("get_action_name", &self.get_action_name)
             .field("set_action_name", &self.set_action_name)
             .field("get_action_target_value", &self.get_action_target_value)
@@ -1824,7 +1902,7 @@ pub struct GtkActivatableIface {
 
 impl ::std::fmt::Debug for GtkActivatableIface {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkActivatableIface @ {self:p}"))
+        f.debug_struct(&format!("GtkActivatableIface @ {:p}", self))
             .field("update", &self.update)
             .field("sync_action_properties", &self.sync_action_properties)
             .finish()
@@ -1845,7 +1923,7 @@ pub struct GtkAdjustmentClass {
 
 impl ::std::fmt::Debug for GtkAdjustmentClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkAdjustmentClass @ {self:p}"))
+        f.debug_struct(&format!("GtkAdjustmentClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("changed", &self.changed)
             .field("value_changed", &self.value_changed)
@@ -1877,7 +1955,7 @@ pub struct GtkAlignmentClass {
 
 impl ::std::fmt::Debug for GtkAlignmentClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkAlignmentClass @ {self:p}"))
+        f.debug_struct(&format!("GtkAlignmentClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("_gtk_reserved1", &self._gtk_reserved1)
             .field("_gtk_reserved2", &self._gtk_reserved2)
@@ -1906,7 +1984,7 @@ pub struct GtkAppChooserButtonClass {
 
 impl ::std::fmt::Debug for GtkAppChooserButtonClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkAppChooserButtonClass @ {self:p}"))
+        f.debug_struct(&format!("GtkAppChooserButtonClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("custom_item_activated", &self.custom_item_activated)
             .finish()
@@ -1930,7 +2008,7 @@ pub struct GtkAppChooserDialogClass {
 
 impl ::std::fmt::Debug for GtkAppChooserDialogClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkAppChooserDialogClass @ {self:p}"))
+        f.debug_struct(&format!("GtkAppChooserDialogClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .finish()
     }
@@ -1959,7 +2037,7 @@ pub struct GtkAppChooserWidgetClass {
 
 impl ::std::fmt::Debug for GtkAppChooserWidgetClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkAppChooserWidgetClass @ {self:p}"))
+        f.debug_struct(&format!("GtkAppChooserWidgetClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("application_selected", &self.application_selected)
             .field("application_activated", &self.application_activated)
@@ -1987,7 +2065,7 @@ pub struct GtkApplicationClass {
 
 impl ::std::fmt::Debug for GtkApplicationClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkApplicationClass @ {self:p}"))
+        f.debug_struct(&format!("GtkApplicationClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("window_added", &self.window_added)
             .field("window_removed", &self.window_removed)
@@ -2012,7 +2090,7 @@ pub struct GtkApplicationWindowClass {
 
 impl ::std::fmt::Debug for GtkApplicationWindowClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkApplicationWindowClass @ {self:p}"))
+        f.debug_struct(&format!("GtkApplicationWindowClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .finish()
     }
@@ -2034,7 +2112,7 @@ pub struct GtkArrowAccessibleClass {
 
 impl ::std::fmt::Debug for GtkArrowAccessibleClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkArrowAccessibleClass @ {self:p}"))
+        f.debug_struct(&format!("GtkArrowAccessibleClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .finish()
     }
@@ -2060,7 +2138,7 @@ pub struct GtkArrowClass {
 
 impl ::std::fmt::Debug for GtkArrowClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkArrowClass @ {self:p}"))
+        f.debug_struct(&format!("GtkArrowClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("_gtk_reserved1", &self._gtk_reserved1)
             .field("_gtk_reserved2", &self._gtk_reserved2)
@@ -2090,7 +2168,7 @@ pub struct GtkAspectFrameClass {
 
 impl ::std::fmt::Debug for GtkAspectFrameClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkAspectFrameClass @ {self:p}"))
+        f.debug_struct(&format!("GtkAspectFrameClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("_gtk_reserved1", &self._gtk_reserved1)
             .field("_gtk_reserved2", &self._gtk_reserved2)
@@ -2125,7 +2203,7 @@ pub struct GtkAssistantClass {
 
 impl ::std::fmt::Debug for GtkAssistantClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkAssistantClass @ {self:p}"))
+        f.debug_struct(&format!("GtkAssistantClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("prepare", &self.prepare)
             .field("apply", &self.apply)
@@ -2160,7 +2238,7 @@ pub struct GtkBinClass {
 
 impl ::std::fmt::Debug for GtkBinClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkBinClass @ {self:p}"))
+        f.debug_struct(&format!("GtkBinClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("_gtk_reserved1", &self._gtk_reserved1)
             .field("_gtk_reserved2", &self._gtk_reserved2)
@@ -2187,7 +2265,7 @@ pub struct GtkBindingArg {
 
 impl ::std::fmt::Debug for GtkBindingArg {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkBindingArg @ {self:p}"))
+        f.debug_struct(&format!("GtkBindingArg @ {:p}", self))
             .field("arg_type", &self.arg_type)
             .field("d", &self.d)
             .finish()
@@ -2206,7 +2284,7 @@ pub struct GtkBindingEntry {
 
 impl ::std::fmt::Debug for GtkBindingEntry {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkBindingEntry @ {self:p}"))
+        f.debug_struct(&format!("GtkBindingEntry @ {:p}", self))
             .field("keyval", &self.keyval)
             .field("modifiers", &self.modifiers)
             .field("binding_set", &self.binding_set)
@@ -2230,7 +2308,7 @@ pub struct GtkBindingSet {
 
 impl ::std::fmt::Debug for GtkBindingSet {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkBindingSet @ {self:p}"))
+        f.debug_struct(&format!("GtkBindingSet @ {:p}", self))
             .field("set_name", &self.set_name)
             .field("priority", &self.priority)
             .field("widget_path_pspecs", &self.widget_path_pspecs)
@@ -2254,7 +2332,7 @@ pub struct GtkBindingSignal {
 
 impl ::std::fmt::Debug for GtkBindingSignal {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkBindingSignal @ {self:p}"))
+        f.debug_struct(&format!("GtkBindingSignal @ {:p}", self))
             .field("next", &self.next)
             .field("signal_name", &self.signal_name)
             .field("n_args", &self.n_args)
@@ -2271,7 +2349,7 @@ pub struct GtkBooleanCellAccessibleClass {
 
 impl ::std::fmt::Debug for GtkBooleanCellAccessibleClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkBooleanCellAccessibleClass @ {self:p}"))
+        f.debug_struct(&format!("GtkBooleanCellAccessibleClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .finish()
     }
@@ -2296,7 +2374,7 @@ pub struct GtkBorder {
 
 impl ::std::fmt::Debug for GtkBorder {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkBorder @ {self:p}"))
+        f.debug_struct(&format!("GtkBorder @ {:p}", self))
             .field("left", &self.left)
             .field("right", &self.right)
             .field("top", &self.top)
@@ -2317,7 +2395,7 @@ pub struct GtkBoxClass {
 
 impl ::std::fmt::Debug for GtkBoxClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkBoxClass @ {self:p}"))
+        f.debug_struct(&format!("GtkBoxClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("_gtk_reserved1", &self._gtk_reserved1)
             .field("_gtk_reserved2", &self._gtk_reserved2)
@@ -2404,7 +2482,7 @@ pub struct GtkBuildableIface {
 
 impl ::std::fmt::Debug for GtkBuildableIface {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkBuildableIface @ {self:p}"))
+        f.debug_struct(&format!("GtkBuildableIface @ {:p}", self))
             .field("g_iface", &self.g_iface)
             .field("set_name", &self.set_name)
             .field("get_name", &self.get_name)
@@ -2437,7 +2515,7 @@ pub struct GtkBuilderClass {
 
 impl ::std::fmt::Debug for GtkBuilderClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkBuilderClass @ {self:p}"))
+        f.debug_struct(&format!("GtkBuilderClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("get_type_from_name", &self.get_type_from_name)
             .field("_gtk_reserved1", &self._gtk_reserved1)
@@ -2468,7 +2546,7 @@ pub struct GtkButtonAccessibleClass {
 
 impl ::std::fmt::Debug for GtkButtonAccessibleClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkButtonAccessibleClass @ {self:p}"))
+        f.debug_struct(&format!("GtkButtonAccessibleClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .finish()
     }
@@ -2494,7 +2572,7 @@ pub struct GtkButtonBoxClass {
 
 impl ::std::fmt::Debug for GtkButtonBoxClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkButtonBoxClass @ {self:p}"))
+        f.debug_struct(&format!("GtkButtonBoxClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("_gtk_reserved1", &self._gtk_reserved1)
             .field("_gtk_reserved2", &self._gtk_reserved2)
@@ -2530,7 +2608,7 @@ pub struct GtkButtonClass {
 
 impl ::std::fmt::Debug for GtkButtonClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkButtonClass @ {self:p}"))
+        f.debug_struct(&format!("GtkButtonClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("pressed", &self.pressed)
             .field("released", &self.released)
@@ -2573,7 +2651,7 @@ pub struct GtkCalendarClass {
 
 impl ::std::fmt::Debug for GtkCalendarClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkCalendarClass @ {self:p}"))
+        f.debug_struct(&format!("GtkCalendarClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("month_changed", &self.month_changed)
             .field("day_selected", &self.day_selected)
@@ -2607,7 +2685,7 @@ pub struct GtkCellAccessibleClass {
 
 impl ::std::fmt::Debug for GtkCellAccessibleClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkCellAccessibleClass @ {self:p}"))
+        f.debug_struct(&format!("GtkCellAccessibleClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("update_cache", &self.update_cache)
             .finish()
@@ -2683,7 +2761,7 @@ pub struct GtkCellAccessibleParentIface {
 
 impl ::std::fmt::Debug for GtkCellAccessibleParentIface {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkCellAccessibleParentIface @ {self:p}"))
+        f.debug_struct(&format!("GtkCellAccessibleParentIface @ {:p}", self))
             .field("parent", &self.parent)
             .field("get_cell_extents", &self.get_cell_extents)
             .field("get_cell_area", &self.get_cell_area)
@@ -2721,7 +2799,7 @@ pub struct GtkCellAreaBoxClass {
 
 impl ::std::fmt::Debug for GtkCellAreaBoxClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkCellAreaBoxClass @ {self:p}"))
+        f.debug_struct(&format!("GtkCellAreaBoxClass @ {:p}", self))
             .field("_gtk_reserved1", &self._gtk_reserved1)
             .field("_gtk_reserved2", &self._gtk_reserved2)
             .field("_gtk_reserved3", &self._gtk_reserved3)
@@ -2872,7 +2950,7 @@ pub struct GtkCellAreaClass {
 
 impl ::std::fmt::Debug for GtkCellAreaClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkCellAreaClass @ {self:p}"))
+        f.debug_struct(&format!("GtkCellAreaClass @ {:p}", self))
             .field("add", &self.add)
             .field("remove", &self.remove)
             .field("foreach", &self.foreach)
@@ -2930,7 +3008,7 @@ pub struct GtkCellAreaContextClass {
 
 impl ::std::fmt::Debug for GtkCellAreaContextClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkCellAreaContextClass @ {self:p}"))
+        f.debug_struct(&format!("GtkCellAreaContextClass @ {:p}", self))
             .field("allocate", &self.allocate)
             .field("reset", &self.reset)
             .field(
@@ -2978,7 +3056,7 @@ pub struct GtkCellEditableIface {
 
 impl ::std::fmt::Debug for GtkCellEditableIface {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkCellEditableIface @ {self:p}"))
+        f.debug_struct(&format!("GtkCellEditableIface @ {:p}", self))
             .field("editing_done", &self.editing_done)
             .field("remove_widget", &self.remove_widget)
             .field("start_editing", &self.start_editing)
@@ -3014,7 +3092,7 @@ pub struct GtkCellLayoutIface {
 
 impl ::std::fmt::Debug for GtkCellLayoutIface {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkCellLayoutIface @ {self:p}"))
+        f.debug_struct(&format!("GtkCellLayoutIface @ {:p}", self))
             .field("pack_start", &self.pack_start)
             .field("pack_end", &self.pack_end)
             .field("clear", &self.clear)
@@ -3051,7 +3129,7 @@ pub struct GtkCellRendererAccelClass {
 
 impl ::std::fmt::Debug for GtkCellRendererAccelClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkCellRendererAccelClass @ {self:p}"))
+        f.debug_struct(&format!("GtkCellRendererAccelClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("accel_edited", &self.accel_edited)
             .field("accel_cleared", &self.accel_cleared)
@@ -3150,7 +3228,7 @@ pub struct GtkCellRendererClass {
 
 impl ::std::fmt::Debug for GtkCellRendererClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkCellRendererClass @ {self:p}"))
+        f.debug_struct(&format!("GtkCellRendererClass @ {:p}", self))
             .field("get_request_mode", &self.get_request_mode)
             .field("get_preferred_width", &self.get_preferred_width)
             .field(
@@ -3196,7 +3274,7 @@ pub struct GtkCellRendererComboClass {
 
 impl ::std::fmt::Debug for GtkCellRendererComboClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkCellRendererComboClass @ {self:p}"))
+        f.debug_struct(&format!("GtkCellRendererComboClass @ {:p}", self))
             .field("parent", &self.parent)
             .field("_gtk_reserved1", &self._gtk_reserved1)
             .field("_gtk_reserved2", &self._gtk_reserved2)
@@ -3226,7 +3304,7 @@ pub struct GtkCellRendererPixbufClass {
 
 impl ::std::fmt::Debug for GtkCellRendererPixbufClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkCellRendererPixbufClass @ {self:p}"))
+        f.debug_struct(&format!("GtkCellRendererPixbufClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("_gtk_reserved1", &self._gtk_reserved1)
             .field("_gtk_reserved2", &self._gtk_reserved2)
@@ -3264,7 +3342,7 @@ pub struct GtkCellRendererProgressClass {
 
 impl ::std::fmt::Debug for GtkCellRendererProgressClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkCellRendererProgressClass @ {self:p}"))
+        f.debug_struct(&format!("GtkCellRendererProgressClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("_gtk_reserved1", &self._gtk_reserved1)
             .field("_gtk_reserved2", &self._gtk_reserved2)
@@ -3294,7 +3372,7 @@ pub struct GtkCellRendererSpinClass {
 
 impl ::std::fmt::Debug for GtkCellRendererSpinClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkCellRendererSpinClass @ {self:p}"))
+        f.debug_struct(&format!("GtkCellRendererSpinClass @ {:p}", self))
             .field("parent", &self.parent)
             .field("_gtk_reserved1", &self._gtk_reserved1)
             .field("_gtk_reserved2", &self._gtk_reserved2)
@@ -3324,7 +3402,7 @@ pub struct GtkCellRendererSpinnerClass {
 
 impl ::std::fmt::Debug for GtkCellRendererSpinnerClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkCellRendererSpinnerClass @ {self:p}"))
+        f.debug_struct(&format!("GtkCellRendererSpinnerClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("_gtk_reserved1", &self._gtk_reserved1)
             .field("_gtk_reserved2", &self._gtk_reserved2)
@@ -3356,7 +3434,7 @@ pub struct GtkCellRendererTextClass {
 
 impl ::std::fmt::Debug for GtkCellRendererTextClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkCellRendererTextClass @ {self:p}"))
+        f.debug_struct(&format!("GtkCellRendererTextClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("edited", &self.edited)
             .field("_gtk_reserved1", &self._gtk_reserved1)
@@ -3388,7 +3466,7 @@ pub struct GtkCellRendererToggleClass {
 
 impl ::std::fmt::Debug for GtkCellRendererToggleClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkCellRendererToggleClass @ {self:p}"))
+        f.debug_struct(&format!("GtkCellRendererToggleClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("toggled", &self.toggled)
             .field("_gtk_reserved1", &self._gtk_reserved1)
@@ -3419,7 +3497,7 @@ pub struct GtkCellViewClass {
 
 impl ::std::fmt::Debug for GtkCellViewClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkCellViewClass @ {self:p}"))
+        f.debug_struct(&format!("GtkCellViewClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("_gtk_reserved1", &self._gtk_reserved1)
             .field("_gtk_reserved2", &self._gtk_reserved2)
@@ -3450,7 +3528,7 @@ pub struct GtkCheckButtonClass {
 
 impl ::std::fmt::Debug for GtkCheckButtonClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkCheckButtonClass @ {self:p}"))
+        f.debug_struct(&format!("GtkCheckButtonClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("draw_indicator", &self.draw_indicator)
             .field("_gtk_reserved1", &self._gtk_reserved1)
@@ -3469,7 +3547,7 @@ pub struct GtkCheckMenuItemAccessibleClass {
 
 impl ::std::fmt::Debug for GtkCheckMenuItemAccessibleClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkCheckMenuItemAccessibleClass @ {self:p}"))
+        f.debug_struct(&format!("GtkCheckMenuItemAccessibleClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .finish()
     }
@@ -3497,7 +3575,7 @@ pub struct GtkCheckMenuItemClass {
 
 impl ::std::fmt::Debug for GtkCheckMenuItemClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkCheckMenuItemClass @ {self:p}"))
+        f.debug_struct(&format!("GtkCheckMenuItemClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("toggled", &self.toggled)
             .field("draw_indicator", &self.draw_indicator)
@@ -3530,7 +3608,7 @@ pub struct GtkColorButtonClass {
 
 impl ::std::fmt::Debug for GtkColorButtonClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkColorButtonClass @ {self:p}"))
+        f.debug_struct(&format!("GtkColorButtonClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("color_set", &self.color_set)
             .field("_gtk_reserved1", &self._gtk_reserved1)
@@ -3561,7 +3639,7 @@ pub struct GtkColorChooserDialogClass {
 
 impl ::std::fmt::Debug for GtkColorChooserDialogClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkColorChooserDialogClass @ {self:p}"))
+        f.debug_struct(&format!("GtkColorChooserDialogClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("_gtk_reserved1", &self._gtk_reserved1)
             .field("_gtk_reserved2", &self._gtk_reserved2)
@@ -3594,7 +3672,7 @@ pub struct GtkColorChooserInterface {
 
 impl ::std::fmt::Debug for GtkColorChooserInterface {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkColorChooserInterface @ {self:p}"))
+        f.debug_struct(&format!("GtkColorChooserInterface @ {:p}", self))
             .field("base_interface", &self.base_interface)
             .field("get_rgba", &self.get_rgba)
             .field("set_rgba", &self.set_rgba)
@@ -3621,7 +3699,7 @@ pub struct GtkColorChooserWidgetClass {
 
 impl ::std::fmt::Debug for GtkColorChooserWidgetClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkColorChooserWidgetClass @ {self:p}"))
+        f.debug_struct(&format!("GtkColorChooserWidgetClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("_gtk_reserved1", &self._gtk_reserved1)
             .field("_gtk_reserved2", &self._gtk_reserved2)
@@ -3656,7 +3734,7 @@ pub struct GtkColorSelectionClass {
 
 impl ::std::fmt::Debug for GtkColorSelectionClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkColorSelectionClass @ {self:p}"))
+        f.debug_struct(&format!("GtkColorSelectionClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("color_changed", &self.color_changed)
             .field("_gtk_reserved1", &self._gtk_reserved1)
@@ -3679,7 +3757,7 @@ pub struct GtkColorSelectionDialogClass {
 
 impl ::std::fmt::Debug for GtkColorSelectionDialogClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkColorSelectionDialogClass @ {self:p}"))
+        f.debug_struct(&format!("GtkColorSelectionDialogClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("_gtk_reserved1", &self._gtk_reserved1)
             .field("_gtk_reserved2", &self._gtk_reserved2)
@@ -3713,7 +3791,7 @@ pub struct GtkComboBoxAccessibleClass {
 
 impl ::std::fmt::Debug for GtkComboBoxAccessibleClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkComboBoxAccessibleClass @ {self:p}"))
+        f.debug_struct(&format!("GtkComboBoxAccessibleClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .finish()
     }
@@ -3741,7 +3819,7 @@ pub struct GtkComboBoxClass {
 
 impl ::std::fmt::Debug for GtkComboBoxClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkComboBoxClass @ {self:p}"))
+        f.debug_struct(&format!("GtkComboBoxClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("changed", &self.changed)
             .field("format_entry_text", &self.format_entry_text)
@@ -3772,7 +3850,7 @@ pub struct GtkComboBoxTextClass {
 
 impl ::std::fmt::Debug for GtkComboBoxTextClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkComboBoxTextClass @ {self:p}"))
+        f.debug_struct(&format!("GtkComboBoxTextClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("_gtk_reserved1", &self._gtk_reserved1)
             .field("_gtk_reserved2", &self._gtk_reserved2)
@@ -3801,7 +3879,7 @@ pub struct GtkContainerAccessibleClass {
 
 impl ::std::fmt::Debug for GtkContainerAccessibleClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkContainerAccessibleClass @ {self:p}"))
+        f.debug_struct(&format!("GtkContainerAccessibleClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("add_gtk", &self.add_gtk)
             .field("remove_gtk", &self.remove_gtk)
@@ -3825,7 +3903,7 @@ pub struct GtkContainerCellAccessibleClass {
 
 impl ::std::fmt::Debug for GtkContainerCellAccessibleClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkContainerCellAccessibleClass @ {self:p}"))
+        f.debug_struct(&format!("GtkContainerCellAccessibleClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .finish()
     }
@@ -3884,7 +3962,7 @@ pub struct GtkContainerClass {
 
 impl ::std::fmt::Debug for GtkContainerClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkContainerClass @ {self:p}"))
+        f.debug_struct(&format!("GtkContainerClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("add", &self.add)
             .field("remove", &self.remove)
@@ -3929,7 +4007,7 @@ pub struct GtkCssProviderClass {
 
 impl ::std::fmt::Debug for GtkCssProviderClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkCssProviderClass @ {self:p}"))
+        f.debug_struct(&format!("GtkCssProviderClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("parsing_error", &self.parsing_error)
             .field("_gtk_reserved2", &self._gtk_reserved2)
@@ -3955,7 +4033,7 @@ pub struct GtkCssSection {
 
 impl ::std::fmt::Debug for GtkCssSection {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkCssSection @ {self:p}"))
+        f.debug_struct(&format!("GtkCssSection @ {:p}", self))
             .finish()
     }
 }
@@ -3974,7 +4052,7 @@ pub struct GtkDialogClass {
 
 impl ::std::fmt::Debug for GtkDialogClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkDialogClass @ {self:p}"))
+        f.debug_struct(&format!("GtkDialogClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("response", &self.response)
             .field("close", &self.close)
@@ -4006,7 +4084,7 @@ pub struct GtkDrawingAreaClass {
 
 impl ::std::fmt::Debug for GtkDrawingAreaClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkDrawingAreaClass @ {self:p}"))
+        f.debug_struct(&format!("GtkDrawingAreaClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("_gtk_reserved1", &self._gtk_reserved1)
             .field("_gtk_reserved2", &self._gtk_reserved2)
@@ -4037,7 +4115,7 @@ pub struct GtkEditableInterface {
 
 impl ::std::fmt::Debug for GtkEditableInterface {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkEditableInterface @ {self:p}"))
+        f.debug_struct(&format!("GtkEditableInterface @ {:p}", self))
             .field("base_iface", &self.base_iface)
             .field("insert_text", &self.insert_text)
             .field("delete_text", &self.delete_text)
@@ -4061,7 +4139,7 @@ pub struct GtkEntryAccessibleClass {
 
 impl ::std::fmt::Debug for GtkEntryAccessibleClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkEntryAccessibleClass @ {self:p}"))
+        f.debug_struct(&format!("GtkEntryAccessibleClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .finish()
     }
@@ -4099,7 +4177,7 @@ pub struct GtkEntryBufferClass {
 
 impl ::std::fmt::Debug for GtkEntryBufferClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkEntryBufferClass @ {self:p}"))
+        f.debug_struct(&format!("GtkEntryBufferClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("inserted_text", &self.inserted_text)
             .field("deleted_text", &self.deleted_text)
@@ -4156,7 +4234,7 @@ pub struct GtkEntryClass {
 
 impl ::std::fmt::Debug for GtkEntryClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkEntryClass @ {self:p}"))
+        f.debug_struct(&format!("GtkEntryClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("populate_popup", &self.populate_popup)
             .field("activate", &self.activate)
@@ -4210,7 +4288,7 @@ pub struct GtkEntryCompletionClass {
 
 impl ::std::fmt::Debug for GtkEntryCompletionClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkEntryCompletionClass @ {self:p}"))
+        f.debug_struct(&format!("GtkEntryCompletionClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("match_selected", &self.match_selected)
             .field("action_activated", &self.action_activated)
@@ -4252,7 +4330,7 @@ pub struct GtkEventBoxClass {
 
 impl ::std::fmt::Debug for GtkEventBoxClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkEventBoxClass @ {self:p}"))
+        f.debug_struct(&format!("GtkEventBoxClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("_gtk_reserved1", &self._gtk_reserved1)
             .field("_gtk_reserved2", &self._gtk_reserved2)
@@ -4310,7 +4388,7 @@ pub struct GtkExpanderAccessibleClass {
 
 impl ::std::fmt::Debug for GtkExpanderAccessibleClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkExpanderAccessibleClass @ {self:p}"))
+        f.debug_struct(&format!("GtkExpanderAccessibleClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .finish()
     }
@@ -4337,7 +4415,7 @@ pub struct GtkExpanderClass {
 
 impl ::std::fmt::Debug for GtkExpanderClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkExpanderClass @ {self:p}"))
+        f.debug_struct(&format!("GtkExpanderClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("activate", &self.activate)
             .field("_gtk_reserved1", &self._gtk_reserved1)
@@ -4369,7 +4447,7 @@ pub struct GtkFileChooserButtonClass {
 
 impl ::std::fmt::Debug for GtkFileChooserButtonClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkFileChooserButtonClass @ {self:p}"))
+        f.debug_struct(&format!("GtkFileChooserButtonClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("file_set", &self.file_set)
             .field("__gtk_reserved1", &self.__gtk_reserved1)
@@ -4400,7 +4478,7 @@ pub struct GtkFileChooserDialogClass {
 
 impl ::std::fmt::Debug for GtkFileChooserDialogClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkFileChooserDialogClass @ {self:p}"))
+        f.debug_struct(&format!("GtkFileChooserDialogClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("_gtk_reserved1", &self._gtk_reserved1)
             .field("_gtk_reserved2", &self._gtk_reserved2)
@@ -4426,7 +4504,7 @@ pub struct GtkFileChooserNativeClass {
 
 impl ::std::fmt::Debug for GtkFileChooserNativeClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkFileChooserNativeClass @ {self:p}"))
+        f.debug_struct(&format!("GtkFileChooserNativeClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .finish()
     }
@@ -4440,7 +4518,7 @@ pub struct GtkFileChooserWidgetAccessibleClass {
 
 impl ::std::fmt::Debug for GtkFileChooserWidgetAccessibleClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkFileChooserWidgetAccessibleClass @ {self:p}"))
+        f.debug_struct(&format!("GtkFileChooserWidgetAccessibleClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .finish()
     }
@@ -4466,7 +4544,7 @@ pub struct GtkFileChooserWidgetClass {
 
 impl ::std::fmt::Debug for GtkFileChooserWidgetClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkFileChooserWidgetClass @ {self:p}"))
+        f.debug_struct(&format!("GtkFileChooserWidgetClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("_gtk_reserved1", &self._gtk_reserved1)
             .field("_gtk_reserved2", &self._gtk_reserved2)
@@ -4496,7 +4574,7 @@ pub struct GtkFileFilterInfo {
 
 impl ::std::fmt::Debug for GtkFileFilterInfo {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkFileFilterInfo @ {self:p}"))
+        f.debug_struct(&format!("GtkFileFilterInfo @ {:p}", self))
             .field("contains", &self.contains)
             .field("filename", &self.filename)
             .field("uri", &self.uri)
@@ -4516,7 +4594,7 @@ pub struct GtkFixedChild {
 
 impl ::std::fmt::Debug for GtkFixedChild {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkFixedChild @ {self:p}"))
+        f.debug_struct(&format!("GtkFixedChild @ {:p}", self))
             .field("widget", &self.widget)
             .field("x", &self.x)
             .field("y", &self.y)
@@ -4536,7 +4614,7 @@ pub struct GtkFixedClass {
 
 impl ::std::fmt::Debug for GtkFixedClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkFixedClass @ {self:p}"))
+        f.debug_struct(&format!("GtkFixedClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("_gtk_reserved1", &self._gtk_reserved1)
             .field("_gtk_reserved2", &self._gtk_reserved2)
@@ -4562,7 +4640,7 @@ pub struct GtkFlowBoxAccessibleClass {
 
 impl ::std::fmt::Debug for GtkFlowBoxAccessibleClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkFlowBoxAccessibleClass @ {self:p}"))
+        f.debug_struct(&format!("GtkFlowBoxAccessibleClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .finish()
     }
@@ -4584,7 +4662,7 @@ pub struct GtkFlowBoxChildAccessibleClass {
 
 impl ::std::fmt::Debug for GtkFlowBoxChildAccessibleClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkFlowBoxChildAccessibleClass @ {self:p}"))
+        f.debug_struct(&format!("GtkFlowBoxChildAccessibleClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .finish()
     }
@@ -4601,7 +4679,7 @@ pub struct GtkFlowBoxChildClass {
 
 impl ::std::fmt::Debug for GtkFlowBoxChildClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkFlowBoxChildClass @ {self:p}"))
+        f.debug_struct(&format!("GtkFlowBoxChildClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("activate", &self.activate)
             .field("_gtk_reserved1", &self._gtk_reserved1)
@@ -4632,7 +4710,7 @@ pub struct GtkFlowBoxClass {
 
 impl ::std::fmt::Debug for GtkFlowBoxClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkFlowBoxClass @ {self:p}"))
+        f.debug_struct(&format!("GtkFlowBoxClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("child_activated", &self.child_activated)
             .field("selected_children_changed", &self.selected_children_changed)
@@ -4664,7 +4742,7 @@ pub struct GtkFontButtonClass {
 
 impl ::std::fmt::Debug for GtkFontButtonClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkFontButtonClass @ {self:p}"))
+        f.debug_struct(&format!("GtkFontButtonClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("font_set", &self.font_set)
             .field("_gtk_reserved1", &self._gtk_reserved1)
@@ -4695,7 +4773,7 @@ pub struct GtkFontChooserDialogClass {
 
 impl ::std::fmt::Debug for GtkFontChooserDialogClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkFontChooserDialogClass @ {self:p}"))
+        f.debug_struct(&format!("GtkFontChooserDialogClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("_gtk_reserved1", &self._gtk_reserved1)
             .field("_gtk_reserved2", &self._gtk_reserved2)
@@ -4738,7 +4816,7 @@ pub struct GtkFontChooserIface {
 
 impl ::std::fmt::Debug for GtkFontChooserIface {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkFontChooserIface @ {self:p}"))
+        f.debug_struct(&format!("GtkFontChooserIface @ {:p}", self))
             .field("base_iface", &self.base_iface)
             .field("get_font_family", &self.get_font_family)
             .field("get_font_face", &self.get_font_face)
@@ -4768,7 +4846,7 @@ pub struct GtkFontChooserWidgetClass {
 
 impl ::std::fmt::Debug for GtkFontChooserWidgetClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkFontChooserWidgetClass @ {self:p}"))
+        f.debug_struct(&format!("GtkFontChooserWidgetClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("_gtk_reserved1", &self._gtk_reserved1)
             .field("_gtk_reserved2", &self._gtk_reserved2)
@@ -4802,7 +4880,7 @@ pub struct GtkFontSelectionClass {
 
 impl ::std::fmt::Debug for GtkFontSelectionClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkFontSelectionClass @ {self:p}"))
+        f.debug_struct(&format!("GtkFontSelectionClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("_gtk_reserved1", &self._gtk_reserved1)
             .field("_gtk_reserved2", &self._gtk_reserved2)
@@ -4824,7 +4902,7 @@ pub struct GtkFontSelectionDialogClass {
 
 impl ::std::fmt::Debug for GtkFontSelectionDialogClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkFontSelectionDialogClass @ {self:p}"))
+        f.debug_struct(&format!("GtkFontSelectionDialogClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("_gtk_reserved1", &self._gtk_reserved1)
             .field("_gtk_reserved2", &self._gtk_reserved2)
@@ -4858,7 +4936,7 @@ pub struct GtkFrameAccessibleClass {
 
 impl ::std::fmt::Debug for GtkFrameAccessibleClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkFrameAccessibleClass @ {self:p}"))
+        f.debug_struct(&format!("GtkFrameAccessibleClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .finish()
     }
@@ -4885,7 +4963,7 @@ pub struct GtkFrameClass {
 
 impl ::std::fmt::Debug for GtkFrameClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkFrameClass @ {self:p}"))
+        f.debug_struct(&format!("GtkFrameClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("compute_child_allocation", &self.compute_child_allocation)
             .field("_gtk_reserved1", &self._gtk_reserved1)
@@ -4916,7 +4994,7 @@ pub struct GtkGLAreaClass {
 
 impl ::std::fmt::Debug for GtkGLAreaClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkGLAreaClass @ {self:p}"))
+        f.debug_struct(&format!("GtkGLAreaClass @ {:p}", self))
             .field("render", &self.render)
             .field("resize", &self.resize)
             .field("create_context", &self.create_context)
@@ -5012,7 +5090,8 @@ pub struct GtkGradient {
 
 impl ::std::fmt::Debug for GtkGradient {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkGradient @ {self:p}")).finish()
+        f.debug_struct(&format!("GtkGradient @ {:p}", self))
+            .finish()
     }
 }
 
@@ -5032,7 +5111,7 @@ pub struct GtkGridClass {
 
 impl ::std::fmt::Debug for GtkGridClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkGridClass @ {self:p}"))
+        f.debug_struct(&format!("GtkGridClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("_gtk_reserved1", &self._gtk_reserved1)
             .field("_gtk_reserved2", &self._gtk_reserved2)
@@ -5062,7 +5141,7 @@ pub struct GtkHBoxClass {
 
 impl ::std::fmt::Debug for GtkHBoxClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkHBoxClass @ {self:p}"))
+        f.debug_struct(&format!("GtkHBoxClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .finish()
     }
@@ -5076,7 +5155,7 @@ pub struct GtkHButtonBoxClass {
 
 impl ::std::fmt::Debug for GtkHButtonBoxClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkHButtonBoxClass @ {self:p}"))
+        f.debug_struct(&format!("GtkHButtonBoxClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .finish()
     }
@@ -5090,7 +5169,7 @@ pub struct GtkHPanedClass {
 
 impl ::std::fmt::Debug for GtkHPanedClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkHPanedClass @ {self:p}"))
+        f.debug_struct(&format!("GtkHPanedClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .finish()
     }
@@ -5110,7 +5189,7 @@ pub struct GtkHSVClass {
 
 impl ::std::fmt::Debug for GtkHSVClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkHSVClass @ {self:p}"))
+        f.debug_struct(&format!("GtkHSVClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("changed", &self.changed)
             .field("move_", &self.move_)
@@ -5138,7 +5217,7 @@ pub struct GtkHScaleClass {
 
 impl ::std::fmt::Debug for GtkHScaleClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkHScaleClass @ {self:p}"))
+        f.debug_struct(&format!("GtkHScaleClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .finish()
     }
@@ -5152,7 +5231,7 @@ pub struct GtkHScrollbarClass {
 
 impl ::std::fmt::Debug for GtkHScrollbarClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkHScrollbarClass @ {self:p}"))
+        f.debug_struct(&format!("GtkHScrollbarClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .finish()
     }
@@ -5166,7 +5245,7 @@ pub struct GtkHSeparatorClass {
 
 impl ::std::fmt::Debug for GtkHSeparatorClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkHSeparatorClass @ {self:p}"))
+        f.debug_struct(&format!("GtkHSeparatorClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .finish()
     }
@@ -5186,7 +5265,7 @@ pub struct GtkHandleBoxClass {
 
 impl ::std::fmt::Debug for GtkHandleBoxClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkHandleBoxClass @ {self:p}"))
+        f.debug_struct(&format!("GtkHandleBoxClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("child_attached", &self.child_attached)
             .field("child_detached", &self.child_detached)
@@ -5214,7 +5293,7 @@ pub struct GtkHeaderBarAccessibleClass {
 
 impl ::std::fmt::Debug for GtkHeaderBarAccessibleClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkHeaderBarAccessibleClass @ {self:p}"))
+        f.debug_struct(&format!("GtkHeaderBarAccessibleClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .finish()
     }
@@ -5240,7 +5319,7 @@ pub struct GtkHeaderBarClass {
 
 impl ::std::fmt::Debug for GtkHeaderBarClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkHeaderBarClass @ {self:p}"))
+        f.debug_struct(&format!("GtkHeaderBarClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("_gtk_reserved1", &self._gtk_reserved1)
             .field("_gtk_reserved2", &self._gtk_reserved2)
@@ -5300,7 +5379,7 @@ pub struct GtkIMContextClass {
 
 impl ::std::fmt::Debug for GtkIMContextClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkIMContextClass @ {self:p}"))
+        f.debug_struct(&format!("GtkIMContextClass @ {:p}", self))
             .field("preedit_start", &self.preedit_start)
             .field("preedit_end", &self.preedit_end)
             .field("preedit_changed", &self.preedit_changed)
@@ -5339,7 +5418,7 @@ pub struct GtkIMContextInfo {
 
 impl ::std::fmt::Debug for GtkIMContextInfo {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkIMContextInfo @ {self:p}"))
+        f.debug_struct(&format!("GtkIMContextInfo @ {:p}", self))
             .field("context_id", &self.context_id)
             .field("context_name", &self.context_name)
             .field("domain", &self.domain)
@@ -5357,7 +5436,7 @@ pub struct GtkIMContextSimpleClass {
 
 impl ::std::fmt::Debug for GtkIMContextSimpleClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkIMContextSimpleClass @ {self:p}"))
+        f.debug_struct(&format!("GtkIMContextSimpleClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .finish()
     }
@@ -5383,7 +5462,7 @@ pub struct GtkIMMulticontextClass {
 
 impl ::std::fmt::Debug for GtkIMMulticontextClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkIMMulticontextClass @ {self:p}"))
+        f.debug_struct(&format!("GtkIMMulticontextClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("_gtk_reserved1", &self._gtk_reserved1)
             .field("_gtk_reserved2", &self._gtk_reserved2)
@@ -5413,7 +5492,7 @@ pub struct GtkIconFactoryClass {
 
 impl ::std::fmt::Debug for GtkIconFactoryClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkIconFactoryClass @ {self:p}"))
+        f.debug_struct(&format!("GtkIconFactoryClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("_gtk_reserved1", &self._gtk_reserved1)
             .field("_gtk_reserved2", &self._gtk_reserved2)
@@ -5447,7 +5526,7 @@ pub struct GtkIconSet {
 
 impl ::std::fmt::Debug for GtkIconSet {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkIconSet @ {self:p}")).finish()
+        f.debug_struct(&format!("GtkIconSet @ {:p}", self)).finish()
     }
 }
 
@@ -5459,7 +5538,7 @@ pub struct GtkIconSource {
 
 impl ::std::fmt::Debug for GtkIconSource {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkIconSource @ {self:p}"))
+        f.debug_struct(&format!("GtkIconSource @ {:p}", self))
             .finish()
     }
 }
@@ -5477,7 +5556,7 @@ pub struct GtkIconThemeClass {
 
 impl ::std::fmt::Debug for GtkIconThemeClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkIconThemeClass @ {self:p}"))
+        f.debug_struct(&format!("GtkIconThemeClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("changed", &self.changed)
             .field("_gtk_reserved1", &self._gtk_reserved1)
@@ -5504,7 +5583,7 @@ pub struct GtkIconViewAccessibleClass {
 
 impl ::std::fmt::Debug for GtkIconViewAccessibleClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkIconViewAccessibleClass @ {self:p}"))
+        f.debug_struct(&format!("GtkIconViewAccessibleClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .finish()
     }
@@ -5539,7 +5618,7 @@ pub struct GtkIconViewClass {
 
 impl ::std::fmt::Debug for GtkIconViewClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkIconViewClass @ {self:p}"))
+        f.debug_struct(&format!("GtkIconViewClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("item_activated", &self.item_activated)
             .field("selection_changed", &self.selection_changed)
@@ -5573,7 +5652,7 @@ pub struct GtkImageAccessibleClass {
 
 impl ::std::fmt::Debug for GtkImageAccessibleClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkImageAccessibleClass @ {self:p}"))
+        f.debug_struct(&format!("GtkImageAccessibleClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .finish()
     }
@@ -5595,7 +5674,7 @@ pub struct GtkImageCellAccessibleClass {
 
 impl ::std::fmt::Debug for GtkImageCellAccessibleClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkImageCellAccessibleClass @ {self:p}"))
+        f.debug_struct(&format!("GtkImageCellAccessibleClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .finish()
     }
@@ -5621,7 +5700,7 @@ pub struct GtkImageClass {
 
 impl ::std::fmt::Debug for GtkImageClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkImageClass @ {self:p}"))
+        f.debug_struct(&format!("GtkImageClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("_gtk_reserved1", &self._gtk_reserved1)
             .field("_gtk_reserved2", &self._gtk_reserved2)
@@ -5643,7 +5722,7 @@ pub struct GtkImageMenuItemClass {
 
 impl ::std::fmt::Debug for GtkImageMenuItemClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkImageMenuItemClass @ {self:p}"))
+        f.debug_struct(&format!("GtkImageMenuItemClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("_gtk_reserved1", &self._gtk_reserved1)
             .field("_gtk_reserved2", &self._gtk_reserved2)
@@ -5683,7 +5762,7 @@ pub struct GtkInfoBarClass {
 
 impl ::std::fmt::Debug for GtkInfoBarClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkInfoBarClass @ {self:p}"))
+        f.debug_struct(&format!("GtkInfoBarClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("response", &self.response)
             .field("close", &self.close)
@@ -5715,7 +5794,7 @@ pub struct GtkInvisibleClass {
 
 impl ::std::fmt::Debug for GtkInvisibleClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkInvisibleClass @ {self:p}"))
+        f.debug_struct(&format!("GtkInvisibleClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("_gtk_reserved1", &self._gtk_reserved1)
             .field("_gtk_reserved2", &self._gtk_reserved2)
@@ -5741,7 +5820,7 @@ pub struct GtkLabelAccessibleClass {
 
 impl ::std::fmt::Debug for GtkLabelAccessibleClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkLabelAccessibleClass @ {self:p}"))
+        f.debug_struct(&format!("GtkLabelAccessibleClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .finish()
     }
@@ -5775,7 +5854,7 @@ pub struct GtkLabelClass {
 
 impl ::std::fmt::Debug for GtkLabelClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkLabelClass @ {self:p}"))
+        f.debug_struct(&format!("GtkLabelClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("move_cursor", &self.move_cursor)
             .field("copy_clipboard", &self.copy_clipboard)
@@ -5821,7 +5900,7 @@ pub struct GtkLayoutClass {
 
 impl ::std::fmt::Debug for GtkLayoutClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkLayoutClass @ {self:p}"))
+        f.debug_struct(&format!("GtkLayoutClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("_gtk_reserved1", &self._gtk_reserved1)
             .field("_gtk_reserved2", &self._gtk_reserved2)
@@ -5847,7 +5926,7 @@ pub struct GtkLevelBarAccessibleClass {
 
 impl ::std::fmt::Debug for GtkLevelBarAccessibleClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkLevelBarAccessibleClass @ {self:p}"))
+        f.debug_struct(&format!("GtkLevelBarAccessibleClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .finish()
     }
@@ -5871,7 +5950,7 @@ pub struct GtkLevelBarClass {
 
 impl ::std::fmt::Debug for GtkLevelBarClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkLevelBarClass @ {self:p}"))
+        f.debug_struct(&format!("GtkLevelBarClass @ {:p}", self))
             .field("offset_changed", &self.offset_changed)
             .finish()
     }
@@ -5893,7 +5972,7 @@ pub struct GtkLinkButtonAccessibleClass {
 
 impl ::std::fmt::Debug for GtkLinkButtonAccessibleClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkLinkButtonAccessibleClass @ {self:p}"))
+        f.debug_struct(&format!("GtkLinkButtonAccessibleClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .finish()
     }
@@ -5920,7 +5999,7 @@ pub struct GtkLinkButtonClass {
 
 impl ::std::fmt::Debug for GtkLinkButtonClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkLinkButtonClass @ {self:p}"))
+        f.debug_struct(&format!("GtkLinkButtonClass @ {:p}", self))
             .field("activate_link", &self.activate_link)
             .field("_gtk_padding1", &self._gtk_padding1)
             .field("_gtk_padding2", &self._gtk_padding2)
@@ -5946,7 +6025,7 @@ pub struct GtkListBoxAccessibleClass {
 
 impl ::std::fmt::Debug for GtkListBoxAccessibleClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkListBoxAccessibleClass @ {self:p}"))
+        f.debug_struct(&format!("GtkListBoxAccessibleClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .finish()
     }
@@ -5979,7 +6058,7 @@ pub struct GtkListBoxClass {
 
 impl ::std::fmt::Debug for GtkListBoxClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkListBoxClass @ {self:p}"))
+        f.debug_struct(&format!("GtkListBoxClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("row_selected", &self.row_selected)
             .field("row_activated", &self.row_activated)
@@ -6004,7 +6083,7 @@ pub struct GtkListBoxRowAccessibleClass {
 
 impl ::std::fmt::Debug for GtkListBoxRowAccessibleClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkListBoxRowAccessibleClass @ {self:p}"))
+        f.debug_struct(&format!("GtkListBoxRowAccessibleClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .finish()
     }
@@ -6021,7 +6100,7 @@ pub struct GtkListBoxRowClass {
 
 impl ::std::fmt::Debug for GtkListBoxRowClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkListBoxRowClass @ {self:p}"))
+        f.debug_struct(&format!("GtkListBoxRowClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("activate", &self.activate)
             .field("_gtk_reserved1", &self._gtk_reserved1)
@@ -6042,7 +6121,7 @@ pub struct GtkListStoreClass {
 
 impl ::std::fmt::Debug for GtkListStoreClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkListStoreClass @ {self:p}"))
+        f.debug_struct(&format!("GtkListStoreClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("_gtk_reserved1", &self._gtk_reserved1)
             .field("_gtk_reserved2", &self._gtk_reserved2)
@@ -6068,7 +6147,7 @@ pub struct GtkLockButtonAccessibleClass {
 
 impl ::std::fmt::Debug for GtkLockButtonAccessibleClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkLockButtonAccessibleClass @ {self:p}"))
+        f.debug_struct(&format!("GtkLockButtonAccessibleClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .finish()
     }
@@ -6098,7 +6177,7 @@ pub struct GtkLockButtonClass {
 
 impl ::std::fmt::Debug for GtkLockButtonClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkLockButtonClass @ {self:p}"))
+        f.debug_struct(&format!("GtkLockButtonClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("reserved0", &self.reserved0)
             .field("reserved1", &self.reserved1)
@@ -6128,7 +6207,7 @@ pub struct GtkMenuAccessibleClass {
 
 impl ::std::fmt::Debug for GtkMenuAccessibleClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkMenuAccessibleClass @ {self:p}"))
+        f.debug_struct(&format!("GtkMenuAccessibleClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .finish()
     }
@@ -6154,7 +6233,7 @@ pub struct GtkMenuBarClass {
 
 impl ::std::fmt::Debug for GtkMenuBarClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkMenuBarClass @ {self:p}"))
+        f.debug_struct(&format!("GtkMenuBarClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("_gtk_reserved1", &self._gtk_reserved1)
             .field("_gtk_reserved2", &self._gtk_reserved2)
@@ -6180,7 +6259,7 @@ pub struct GtkMenuButtonAccessibleClass {
 
 impl ::std::fmt::Debug for GtkMenuButtonAccessibleClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkMenuButtonAccessibleClass @ {self:p}"))
+        f.debug_struct(&format!("GtkMenuButtonAccessibleClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .finish()
     }
@@ -6206,7 +6285,7 @@ pub struct GtkMenuButtonClass {
 
 impl ::std::fmt::Debug for GtkMenuButtonClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkMenuButtonClass @ {self:p}"))
+        f.debug_struct(&format!("GtkMenuButtonClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("_gtk_reserved1", &self._gtk_reserved1)
             .field("_gtk_reserved2", &self._gtk_reserved2)
@@ -6236,7 +6315,7 @@ pub struct GtkMenuClass {
 
 impl ::std::fmt::Debug for GtkMenuClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkMenuClass @ {self:p}"))
+        f.debug_struct(&format!("GtkMenuClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("_gtk_reserved1", &self._gtk_reserved1)
             .field("_gtk_reserved2", &self._gtk_reserved2)
@@ -6254,7 +6333,7 @@ pub struct GtkMenuItemAccessibleClass {
 
 impl ::std::fmt::Debug for GtkMenuItemAccessibleClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkMenuItemAccessibleClass @ {self:p}"))
+        f.debug_struct(&format!("GtkMenuItemAccessibleClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .finish()
     }
@@ -6289,7 +6368,7 @@ pub struct GtkMenuItemClass {
 
 impl ::std::fmt::Debug for GtkMenuItemClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkMenuItemClass @ {self:p}"))
+        f.debug_struct(&format!("GtkMenuItemClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("hide_on_activate", &self.hide_on_activate)
             .field("activate", &self.activate)
@@ -6332,7 +6411,7 @@ pub struct GtkMenuShellAccessibleClass {
 
 impl ::std::fmt::Debug for GtkMenuShellAccessibleClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkMenuShellAccessibleClass @ {self:p}"))
+        f.debug_struct(&format!("GtkMenuShellAccessibleClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .finish()
     }
@@ -6368,7 +6447,7 @@ pub struct GtkMenuShellClass {
 
 impl ::std::fmt::Debug for GtkMenuShellClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkMenuShellClass @ {self:p}"))
+        f.debug_struct(&format!("GtkMenuShellClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("submenu_placement", &self.submenu_placement)
             .field("deactivate", &self.deactivate)
@@ -6409,7 +6488,7 @@ pub struct GtkMenuToolButtonClass {
 
 impl ::std::fmt::Debug for GtkMenuToolButtonClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkMenuToolButtonClass @ {self:p}"))
+        f.debug_struct(&format!("GtkMenuToolButtonClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("show_menu", &self.show_menu)
             .field("_gtk_reserved1", &self._gtk_reserved1)
@@ -6440,7 +6519,7 @@ pub struct GtkMessageDialogClass {
 
 impl ::std::fmt::Debug for GtkMessageDialogClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkMessageDialogClass @ {self:p}"))
+        f.debug_struct(&format!("GtkMessageDialogClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("_gtk_reserved1", &self._gtk_reserved1)
             .field("_gtk_reserved2", &self._gtk_reserved2)
@@ -6470,7 +6549,7 @@ pub struct GtkMiscClass {
 
 impl ::std::fmt::Debug for GtkMiscClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkMiscClass @ {self:p}"))
+        f.debug_struct(&format!("GtkMiscClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("_gtk_reserved1", &self._gtk_reserved1)
             .field("_gtk_reserved2", &self._gtk_reserved2)
@@ -6500,7 +6579,7 @@ pub struct GtkMountOperationClass {
 
 impl ::std::fmt::Debug for GtkMountOperationClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkMountOperationClass @ {self:p}"))
+        f.debug_struct(&format!("GtkMountOperationClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("_gtk_reserved1", &self._gtk_reserved1)
             .field("_gtk_reserved2", &self._gtk_reserved2)
@@ -6533,7 +6612,7 @@ pub struct GtkNativeDialogClass {
 
 impl ::std::fmt::Debug for GtkNativeDialogClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkNativeDialogClass @ {self:p}"))
+        f.debug_struct(&format!("GtkNativeDialogClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("response", &self.response)
             .field("show", &self.show)
@@ -6554,7 +6633,7 @@ pub struct GtkNotebookAccessibleClass {
 
 impl ::std::fmt::Debug for GtkNotebookAccessibleClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkNotebookAccessibleClass @ {self:p}"))
+        f.debug_struct(&format!("GtkNotebookAccessibleClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .finish()
     }
@@ -6606,7 +6685,7 @@ pub struct GtkNotebookClass {
 
 impl ::std::fmt::Debug for GtkNotebookClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkNotebookClass @ {self:p}"))
+        f.debug_struct(&format!("GtkNotebookClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("switch_page", &self.switch_page)
             .field("select_page", &self.select_page)
@@ -6639,7 +6718,7 @@ pub struct GtkNotebookPageAccessibleClass {
 
 impl ::std::fmt::Debug for GtkNotebookPageAccessibleClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkNotebookPageAccessibleClass @ {self:p}"))
+        f.debug_struct(&format!("GtkNotebookPageAccessibleClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .finish()
     }
@@ -6670,7 +6749,7 @@ pub struct GtkNumerableIconClass {
 
 impl ::std::fmt::Debug for GtkNumerableIconClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkNumerableIconClass @ {self:p}"))
+        f.debug_struct(&format!("GtkNumerableIconClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("padding", &self.padding)
             .finish()
@@ -6697,7 +6776,7 @@ pub struct GtkOffscreenWindowClass {
 
 impl ::std::fmt::Debug for GtkOffscreenWindowClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkOffscreenWindowClass @ {self:p}"))
+        f.debug_struct(&format!("GtkOffscreenWindowClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("_gtk_reserved1", &self._gtk_reserved1)
             .field("_gtk_reserved2", &self._gtk_reserved2)
@@ -6715,7 +6794,7 @@ pub struct GtkOrientableIface {
 
 impl ::std::fmt::Debug for GtkOrientableIface {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkOrientableIface @ {self:p}"))
+        f.debug_struct(&format!("GtkOrientableIface @ {:p}", self))
             .field("base_iface", &self.base_iface)
             .finish()
     }
@@ -6740,7 +6819,7 @@ pub struct GtkOverlayClass {
 
 impl ::std::fmt::Debug for GtkOverlayClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkOverlayClass @ {self:p}"))
+        f.debug_struct(&format!("GtkOverlayClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("get_child_position", &self.get_child_position)
             .field("_gtk_reserved1", &self._gtk_reserved1)
@@ -6775,7 +6854,7 @@ pub struct GtkPadActionEntry {
 
 impl ::std::fmt::Debug for GtkPadActionEntry {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkPadActionEntry @ {self:p}"))
+        f.debug_struct(&format!("GtkPadActionEntry @ {:p}", self))
             .field("type_", &self.type_)
             .field("index", &self.index)
             .field("mode", &self.mode)
@@ -6802,7 +6881,7 @@ pub struct GtkPageRange {
 
 impl ::std::fmt::Debug for GtkPageRange {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkPageRange @ {self:p}"))
+        f.debug_struct(&format!("GtkPageRange @ {:p}", self))
             .field("start", &self.start)
             .field("end", &self.end)
             .finish()
@@ -6817,7 +6896,7 @@ pub struct GtkPanedAccessibleClass {
 
 impl ::std::fmt::Debug for GtkPanedAccessibleClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkPanedAccessibleClass @ {self:p}"))
+        f.debug_struct(&format!("GtkPanedAccessibleClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .finish()
     }
@@ -6849,7 +6928,7 @@ pub struct GtkPanedClass {
 
 impl ::std::fmt::Debug for GtkPanedClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkPanedClass @ {self:p}"))
+        f.debug_struct(&format!("GtkPanedClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("cycle_child_focus", &self.cycle_child_focus)
             .field("toggle_handle_focus", &self.toggle_handle_focus)
@@ -6881,7 +6960,8 @@ pub struct GtkPaperSize {
 
 impl ::std::fmt::Debug for GtkPaperSize {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkPaperSize @ {self:p}")).finish()
+        f.debug_struct(&format!("GtkPaperSize @ {:p}", self))
+            .finish()
     }
 }
 
@@ -6901,7 +6981,7 @@ pub struct GtkPlugAccessibleClass {
 
 impl ::std::fmt::Debug for GtkPlugAccessibleClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkPlugAccessibleClass @ {self:p}"))
+        f.debug_struct(&format!("GtkPlugAccessibleClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .finish()
     }
@@ -6928,7 +7008,7 @@ pub struct GtkPlugClass {
 
 impl ::std::fmt::Debug for GtkPlugClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkPlugClass @ {self:p}"))
+        f.debug_struct(&format!("GtkPlugClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("embedded", &self.embedded)
             .field("_gtk_reserved1", &self._gtk_reserved1)
@@ -6955,7 +7035,7 @@ pub struct GtkPopoverAccessibleClass {
 
 impl ::std::fmt::Debug for GtkPopoverAccessibleClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkPopoverAccessibleClass @ {self:p}"))
+        f.debug_struct(&format!("GtkPopoverAccessibleClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .finish()
     }
@@ -6971,7 +7051,7 @@ pub struct GtkPopoverClass {
 
 impl ::std::fmt::Debug for GtkPopoverClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkPopoverClass @ {self:p}"))
+        f.debug_struct(&format!("GtkPopoverClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("closed", &self.closed)
             .finish()
@@ -6987,7 +7067,7 @@ pub struct GtkPopoverMenuClass {
 
 impl ::std::fmt::Debug for GtkPopoverMenuClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkPopoverMenuClass @ {self:p}"))
+        f.debug_struct(&format!("GtkPopoverMenuClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .finish()
     }
@@ -7052,7 +7132,7 @@ pub struct GtkPrintOperationClass {
 
 impl ::std::fmt::Debug for GtkPrintOperationClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkPrintOperationClass @ {self:p}"))
+        f.debug_struct(&format!("GtkPrintOperationClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("done", &self.done)
             .field("begin_print", &self.begin_print)
@@ -7104,7 +7184,7 @@ pub struct GtkPrintOperationPreviewIface {
 
 impl ::std::fmt::Debug for GtkPrintOperationPreviewIface {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkPrintOperationPreviewIface @ {self:p}"))
+        f.debug_struct(&format!("GtkPrintOperationPreviewIface @ {:p}", self))
             .field("g_iface", &self.g_iface)
             .field("ready", &self.ready)
             .field("got_page_size", &self.got_page_size)
@@ -7139,7 +7219,7 @@ pub struct GtkProgressBarAccessibleClass {
 
 impl ::std::fmt::Debug for GtkProgressBarAccessibleClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkProgressBarAccessibleClass @ {self:p}"))
+        f.debug_struct(&format!("GtkProgressBarAccessibleClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .finish()
     }
@@ -7165,7 +7245,7 @@ pub struct GtkProgressBarClass {
 
 impl ::std::fmt::Debug for GtkProgressBarClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkProgressBarClass @ {self:p}"))
+        f.debug_struct(&format!("GtkProgressBarClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("_gtk_reserved1", &self._gtk_reserved1)
             .field("_gtk_reserved2", &self._gtk_reserved2)
@@ -7196,7 +7276,7 @@ pub struct GtkRadioActionClass {
 
 impl ::std::fmt::Debug for GtkRadioActionClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkRadioActionClass @ {self:p}"))
+        f.debug_struct(&format!("GtkRadioActionClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("changed", &self.changed)
             .field("_gtk_reserved1", &self._gtk_reserved1)
@@ -7220,7 +7300,7 @@ pub struct GtkRadioActionEntry {
 
 impl ::std::fmt::Debug for GtkRadioActionEntry {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkRadioActionEntry @ {self:p}"))
+        f.debug_struct(&format!("GtkRadioActionEntry @ {:p}", self))
             .field("name", &self.name)
             .field("stock_id", &self.stock_id)
             .field("label", &self.label)
@@ -7247,7 +7327,7 @@ pub struct GtkRadioButtonAccessibleClass {
 
 impl ::std::fmt::Debug for GtkRadioButtonAccessibleClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkRadioButtonAccessibleClass @ {self:p}"))
+        f.debug_struct(&format!("GtkRadioButtonAccessibleClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .finish()
     }
@@ -7274,7 +7354,7 @@ pub struct GtkRadioButtonClass {
 
 impl ::std::fmt::Debug for GtkRadioButtonClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkRadioButtonClass @ {self:p}"))
+        f.debug_struct(&format!("GtkRadioButtonClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("group_changed", &self.group_changed)
             .field("_gtk_reserved1", &self._gtk_reserved1)
@@ -7301,7 +7381,7 @@ pub struct GtkRadioMenuItemAccessibleClass {
 
 impl ::std::fmt::Debug for GtkRadioMenuItemAccessibleClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkRadioMenuItemAccessibleClass @ {self:p}"))
+        f.debug_struct(&format!("GtkRadioMenuItemAccessibleClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .finish()
     }
@@ -7328,7 +7408,7 @@ pub struct GtkRadioMenuItemClass {
 
 impl ::std::fmt::Debug for GtkRadioMenuItemClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkRadioMenuItemClass @ {self:p}"))
+        f.debug_struct(&format!("GtkRadioMenuItemClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("group_changed", &self.group_changed)
             .field("_gtk_reserved1", &self._gtk_reserved1)
@@ -7359,7 +7439,7 @@ pub struct GtkRadioToolButtonClass {
 
 impl ::std::fmt::Debug for GtkRadioToolButtonClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkRadioToolButtonClass @ {self:p}"))
+        f.debug_struct(&format!("GtkRadioToolButtonClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("_gtk_reserved1", &self._gtk_reserved1)
             .field("_gtk_reserved2", &self._gtk_reserved2)
@@ -7377,7 +7457,7 @@ pub struct GtkRangeAccessibleClass {
 
 impl ::std::fmt::Debug for GtkRangeAccessibleClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkRangeAccessibleClass @ {self:p}"))
+        f.debug_struct(&format!("GtkRangeAccessibleClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .finish()
     }
@@ -7412,7 +7492,7 @@ pub struct GtkRangeClass {
 
 impl ::std::fmt::Debug for GtkRangeClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkRangeClass @ {self:p}"))
+        f.debug_struct(&format!("GtkRangeClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("slider_detail", &self.slider_detail)
             .field("stepper_detail", &self.stepper_detail)
@@ -7456,7 +7536,7 @@ pub struct GtkRcProperty {
 
 impl ::std::fmt::Debug for GtkRcProperty {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkRcProperty @ {self:p}"))
+        f.debug_struct(&format!("GtkRcProperty @ {:p}", self))
             .field("type_name", &self.type_name)
             .field("property_name", &self.property_name)
             .field("origin", &self.origin)
@@ -7483,7 +7563,7 @@ pub struct GtkRcStyleClass {
 
 impl ::std::fmt::Debug for GtkRcStyleClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkRcStyleClass @ {self:p}"))
+        f.debug_struct(&format!("GtkRcStyleClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("create_rc_style", &self.create_rc_style)
             .field("parse", &self.parse)
@@ -7509,7 +7589,7 @@ pub struct GtkRecentActionClass {
 
 impl ::std::fmt::Debug for GtkRecentActionClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkRecentActionClass @ {self:p}"))
+        f.debug_struct(&format!("GtkRecentActionClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("_gtk_reserved1", &self._gtk_reserved1)
             .field("_gtk_reserved2", &self._gtk_reserved2)
@@ -7539,7 +7619,7 @@ pub struct GtkRecentChooserDialogClass {
 
 impl ::std::fmt::Debug for GtkRecentChooserDialogClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkRecentChooserDialogClass @ {self:p}"))
+        f.debug_struct(&format!("GtkRecentChooserDialogClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("_gtk_reserved1", &self._gtk_reserved1)
             .field("_gtk_reserved2", &self._gtk_reserved2)
@@ -7599,7 +7679,7 @@ pub struct GtkRecentChooserIface {
 
 impl ::std::fmt::Debug for GtkRecentChooserIface {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkRecentChooserIface @ {self:p}"))
+        f.debug_struct(&format!("GtkRecentChooserIface @ {:p}", self))
             .field("set_current_uri", &self.set_current_uri)
             .field("get_current_uri", &self.get_current_uri)
             .field("select_uri", &self.select_uri)
@@ -7630,7 +7710,7 @@ pub struct GtkRecentChooserMenuClass {
 
 impl ::std::fmt::Debug for GtkRecentChooserMenuClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkRecentChooserMenuClass @ {self:p}"))
+        f.debug_struct(&format!("GtkRecentChooserMenuClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("gtk_recent1", &self.gtk_recent1)
             .field("gtk_recent2", &self.gtk_recent2)
@@ -7660,7 +7740,7 @@ pub struct GtkRecentChooserWidgetClass {
 
 impl ::std::fmt::Debug for GtkRecentChooserWidgetClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkRecentChooserWidgetClass @ {self:p}"))
+        f.debug_struct(&format!("GtkRecentChooserWidgetClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("_gtk_reserved1", &self._gtk_reserved1)
             .field("_gtk_reserved2", &self._gtk_reserved2)
@@ -7692,7 +7772,7 @@ pub struct GtkRecentData {
 
 impl ::std::fmt::Debug for GtkRecentData {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkRecentData @ {self:p}"))
+        f.debug_struct(&format!("GtkRecentData @ {:p}", self))
             .field("display_name", &self.display_name)
             .field("description", &self.description)
             .field("mime_type", &self.mime_type)
@@ -7718,7 +7798,7 @@ pub struct GtkRecentFilterInfo {
 
 impl ::std::fmt::Debug for GtkRecentFilterInfo {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkRecentFilterInfo @ {self:p}"))
+        f.debug_struct(&format!("GtkRecentFilterInfo @ {:p}", self))
             .field("contains", &self.contains)
             .field("uri", &self.uri)
             .field("display_name", &self.display_name)
@@ -7738,7 +7818,7 @@ pub struct GtkRecentInfo {
 
 impl ::std::fmt::Debug for GtkRecentInfo {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkRecentInfo @ {self:p}"))
+        f.debug_struct(&format!("GtkRecentInfo @ {:p}", self))
             .finish()
     }
 }
@@ -7756,7 +7836,7 @@ pub struct GtkRecentManagerClass {
 
 impl ::std::fmt::Debug for GtkRecentManagerClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkRecentManagerClass @ {self:p}"))
+        f.debug_struct(&format!("GtkRecentManagerClass @ {:p}", self))
             .field("changed", &self.changed)
             .field("_gtk_recent1", &self._gtk_recent1)
             .field("_gtk_recent2", &self._gtk_recent2)
@@ -7782,7 +7862,7 @@ pub struct GtkRendererCellAccessibleClass {
 
 impl ::std::fmt::Debug for GtkRendererCellAccessibleClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkRendererCellAccessibleClass @ {self:p}"))
+        f.debug_struct(&format!("GtkRendererCellAccessibleClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .finish()
     }
@@ -7806,7 +7886,7 @@ pub struct GtkRequestedSize {
 
 impl ::std::fmt::Debug for GtkRequestedSize {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkRequestedSize @ {self:p}"))
+        f.debug_struct(&format!("GtkRequestedSize @ {:p}", self))
             .field("data", &self.data)
             .field("minimum_size", &self.minimum_size)
             .field("natural_size", &self.natural_size)
@@ -7823,7 +7903,7 @@ pub struct GtkRequisition {
 
 impl ::std::fmt::Debug for GtkRequisition {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkRequisition @ {self:p}"))
+        f.debug_struct(&format!("GtkRequisition @ {:p}", self))
             .field("width", &self.width)
             .field("height", &self.height)
             .finish()
@@ -7838,7 +7918,7 @@ pub struct GtkRevealerClass {
 
 impl ::std::fmt::Debug for GtkRevealerClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkRevealerClass @ {self:p}"))
+        f.debug_struct(&format!("GtkRevealerClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .finish()
     }
@@ -7852,7 +7932,7 @@ pub struct GtkScaleAccessibleClass {
 
 impl ::std::fmt::Debug for GtkScaleAccessibleClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkScaleAccessibleClass @ {self:p}"))
+        f.debug_struct(&format!("GtkScaleAccessibleClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .finish()
     }
@@ -7874,7 +7954,7 @@ pub struct GtkScaleButtonAccessibleClass {
 
 impl ::std::fmt::Debug for GtkScaleButtonAccessibleClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkScaleButtonAccessibleClass @ {self:p}"))
+        f.debug_struct(&format!("GtkScaleButtonAccessibleClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .finish()
     }
@@ -7901,7 +7981,7 @@ pub struct GtkScaleButtonClass {
 
 impl ::std::fmt::Debug for GtkScaleButtonClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkScaleButtonClass @ {self:p}"))
+        f.debug_struct(&format!("GtkScaleButtonClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("value_changed", &self.value_changed)
             .field("_gtk_reserved1", &self._gtk_reserved1)
@@ -7935,7 +8015,7 @@ pub struct GtkScaleClass {
 
 impl ::std::fmt::Debug for GtkScaleClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkScaleClass @ {self:p}"))
+        f.debug_struct(&format!("GtkScaleClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("format_value", &self.format_value)
             .field("draw_value", &self.draw_value)
@@ -7965,7 +8045,7 @@ pub struct GtkScrollableInterface {
 
 impl ::std::fmt::Debug for GtkScrollableInterface {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkScrollableInterface @ {self:p}"))
+        f.debug_struct(&format!("GtkScrollableInterface @ {:p}", self))
             .field("base_iface", &self.base_iface)
             .field("get_border", &self.get_border)
             .finish()
@@ -7984,7 +8064,7 @@ pub struct GtkScrollbarClass {
 
 impl ::std::fmt::Debug for GtkScrollbarClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkScrollbarClass @ {self:p}"))
+        f.debug_struct(&format!("GtkScrollbarClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("_gtk_reserved1", &self._gtk_reserved1)
             .field("_gtk_reserved2", &self._gtk_reserved2)
@@ -8002,7 +8082,7 @@ pub struct GtkScrolledWindowAccessibleClass {
 
 impl ::std::fmt::Debug for GtkScrolledWindowAccessibleClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkScrolledWindowAccessibleClass @ {self:p}"))
+        f.debug_struct(&format!("GtkScrolledWindowAccessibleClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .finish()
     }
@@ -8032,7 +8112,7 @@ pub struct GtkScrolledWindowClass {
 
 impl ::std::fmt::Debug for GtkScrolledWindowClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkScrolledWindowClass @ {self:p}"))
+        f.debug_struct(&format!("GtkScrolledWindowClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("scrollbar_spacing", &self.scrollbar_spacing)
             .field("scroll_child", &self.scroll_child)
@@ -8065,7 +8145,7 @@ pub struct GtkSearchBarClass {
 
 impl ::std::fmt::Debug for GtkSearchBarClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkSearchBarClass @ {self:p}"))
+        f.debug_struct(&format!("GtkSearchBarClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("_gtk_reserved1", &self._gtk_reserved1)
             .field("_gtk_reserved2", &self._gtk_reserved2)
@@ -8087,7 +8167,7 @@ pub struct GtkSearchEntryClass {
 
 impl ::std::fmt::Debug for GtkSearchEntryClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkSearchEntryClass @ {self:p}"))
+        f.debug_struct(&format!("GtkSearchEntryClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("search_changed", &self.search_changed)
             .field("next_match", &self.next_match)
@@ -8105,7 +8185,7 @@ pub struct GtkSelectionData {
 
 impl ::std::fmt::Debug for GtkSelectionData {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkSelectionData @ {self:p}"))
+        f.debug_struct(&format!("GtkSelectionData @ {:p}", self))
             .finish()
     }
 }
@@ -8122,7 +8202,7 @@ pub struct GtkSeparatorClass {
 
 impl ::std::fmt::Debug for GtkSeparatorClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkSeparatorClass @ {self:p}"))
+        f.debug_struct(&format!("GtkSeparatorClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("_gtk_reserved1", &self._gtk_reserved1)
             .field("_gtk_reserved2", &self._gtk_reserved2)
@@ -8144,7 +8224,7 @@ pub struct GtkSeparatorMenuItemClass {
 
 impl ::std::fmt::Debug for GtkSeparatorMenuItemClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkSeparatorMenuItemClass @ {self:p}"))
+        f.debug_struct(&format!("GtkSeparatorMenuItemClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("_gtk_reserved1", &self._gtk_reserved1)
             .field("_gtk_reserved2", &self._gtk_reserved2)
@@ -8174,7 +8254,7 @@ pub struct GtkSeparatorToolItemClass {
 
 impl ::std::fmt::Debug for GtkSeparatorToolItemClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkSeparatorToolItemClass @ {self:p}"))
+        f.debug_struct(&format!("GtkSeparatorToolItemClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("_gtk_reserved1", &self._gtk_reserved1)
             .field("_gtk_reserved2", &self._gtk_reserved2)
@@ -8204,7 +8284,7 @@ pub struct GtkSettingsClass {
 
 impl ::std::fmt::Debug for GtkSettingsClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkSettingsClass @ {self:p}"))
+        f.debug_struct(&format!("GtkSettingsClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("_gtk_reserved1", &self._gtk_reserved1)
             .field("_gtk_reserved2", &self._gtk_reserved2)
@@ -8231,7 +8311,7 @@ pub struct GtkSettingsValue {
 
 impl ::std::fmt::Debug for GtkSettingsValue {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkSettingsValue @ {self:p}"))
+        f.debug_struct(&format!("GtkSettingsValue @ {:p}", self))
             .field("origin", &self.origin)
             .field("value", &self.value)
             .finish()
@@ -8280,7 +8360,7 @@ pub struct GtkShortcutsWindowClass {
 
 impl ::std::fmt::Debug for GtkShortcutsWindowClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkShortcutsWindowClass @ {self:p}"))
+        f.debug_struct(&format!("GtkShortcutsWindowClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("close", &self.close)
             .field("search", &self.search)
@@ -8300,7 +8380,7 @@ pub struct GtkSizeGroupClass {
 
 impl ::std::fmt::Debug for GtkSizeGroupClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkSizeGroupClass @ {self:p}"))
+        f.debug_struct(&format!("GtkSizeGroupClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("_gtk_reserved1", &self._gtk_reserved1)
             .field("_gtk_reserved2", &self._gtk_reserved2)
@@ -8326,7 +8406,7 @@ pub struct GtkSocketAccessibleClass {
 
 impl ::std::fmt::Debug for GtkSocketAccessibleClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkSocketAccessibleClass @ {self:p}"))
+        f.debug_struct(&format!("GtkSocketAccessibleClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .finish()
     }
@@ -8354,7 +8434,7 @@ pub struct GtkSocketClass {
 
 impl ::std::fmt::Debug for GtkSocketClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkSocketClass @ {self:p}"))
+        f.debug_struct(&format!("GtkSocketClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("plug_added", &self.plug_added)
             .field("plug_removed", &self.plug_removed)
@@ -8382,7 +8462,7 @@ pub struct GtkSpinButtonAccessibleClass {
 
 impl ::std::fmt::Debug for GtkSpinButtonAccessibleClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkSpinButtonAccessibleClass @ {self:p}"))
+        f.debug_struct(&format!("GtkSpinButtonAccessibleClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .finish()
     }
@@ -8413,7 +8493,7 @@ pub struct GtkSpinButtonClass {
 
 impl ::std::fmt::Debug for GtkSpinButtonClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkSpinButtonClass @ {self:p}"))
+        f.debug_struct(&format!("GtkSpinButtonClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("input", &self.input)
             .field("output", &self.output)
@@ -8444,7 +8524,7 @@ pub struct GtkSpinnerAccessibleClass {
 
 impl ::std::fmt::Debug for GtkSpinnerAccessibleClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkSpinnerAccessibleClass @ {self:p}"))
+        f.debug_struct(&format!("GtkSpinnerAccessibleClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .finish()
     }
@@ -8470,7 +8550,7 @@ pub struct GtkSpinnerClass {
 
 impl ::std::fmt::Debug for GtkSpinnerClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkSpinnerClass @ {self:p}"))
+        f.debug_struct(&format!("GtkSpinnerClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("_gtk_reserved1", &self._gtk_reserved1)
             .field("_gtk_reserved2", &self._gtk_reserved2)
@@ -8496,7 +8576,7 @@ pub struct GtkStackAccessibleClass {
 
 impl ::std::fmt::Debug for GtkStackAccessibleClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkStackAccessibleClass @ {self:p}"))
+        f.debug_struct(&format!("GtkStackAccessibleClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .finish()
     }
@@ -8510,7 +8590,7 @@ pub struct GtkStackClass {
 
 impl ::std::fmt::Debug for GtkStackClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkStackClass @ {self:p}"))
+        f.debug_struct(&format!("GtkStackClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .finish()
     }
@@ -8528,7 +8608,7 @@ pub struct GtkStackSidebarClass {
 
 impl ::std::fmt::Debug for GtkStackSidebarClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkStackSidebarClass @ {self:p}"))
+        f.debug_struct(&format!("GtkStackSidebarClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("_gtk_reserved1", &self._gtk_reserved1)
             .field("_gtk_reserved2", &self._gtk_reserved2)
@@ -8558,7 +8638,7 @@ pub struct GtkStackSwitcherClass {
 
 impl ::std::fmt::Debug for GtkStackSwitcherClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkStackSwitcherClass @ {self:p}"))
+        f.debug_struct(&format!("GtkStackSwitcherClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("_gtk_reserved1", &self._gtk_reserved1)
             .field("_gtk_reserved2", &self._gtk_reserved2)
@@ -8598,7 +8678,7 @@ pub struct GtkStatusIconClass {
 
 impl ::std::fmt::Debug for GtkStatusIconClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkStatusIconClass @ {self:p}"))
+        f.debug_struct(&format!("GtkStatusIconClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("activate", &self.activate)
             .field("popup_menu", &self.popup_menu)
@@ -8631,7 +8711,7 @@ pub struct GtkStatusbarAccessibleClass {
 
 impl ::std::fmt::Debug for GtkStatusbarAccessibleClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkStatusbarAccessibleClass @ {self:p}"))
+        f.debug_struct(&format!("GtkStatusbarAccessibleClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .finish()
     }
@@ -8660,7 +8740,7 @@ pub struct GtkStatusbarClass {
 
 impl ::std::fmt::Debug for GtkStatusbarClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkStatusbarClass @ {self:p}"))
+        f.debug_struct(&format!("GtkStatusbarClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("reserved", &self.reserved)
             .field("text_pushed", &self.text_pushed)
@@ -8693,7 +8773,7 @@ pub struct GtkStockItem {
 
 impl ::std::fmt::Debug for GtkStockItem {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkStockItem @ {self:p}"))
+        f.debug_struct(&format!("GtkStockItem @ {:p}", self))
             .field("stock_id", &self.stock_id)
             .field("label", &self.label)
             .field("modifier", &self.modifier)
@@ -9023,7 +9103,7 @@ pub struct GtkStyleClass {
 
 impl ::std::fmt::Debug for GtkStyleClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkStyleClass @ {self:p}"))
+        f.debug_struct(&format!("GtkStyleClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("realize", &self.realize)
             .field("unrealize", &self.unrealize)
@@ -9078,7 +9158,7 @@ pub struct GtkStyleContextClass {
 
 impl ::std::fmt::Debug for GtkStyleContextClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkStyleContextClass @ {self:p}"))
+        f.debug_struct(&format!("GtkStyleContextClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("changed", &self.changed)
             .field("_gtk_reserved1", &self._gtk_reserved1)
@@ -9109,7 +9189,7 @@ pub struct GtkStylePropertiesClass {
 
 impl ::std::fmt::Debug for GtkStylePropertiesClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkStylePropertiesClass @ {self:p}"))
+        f.debug_struct(&format!("GtkStylePropertiesClass @ {:p}", self))
             .field("_gtk_reserved1", &self._gtk_reserved1)
             .field("_gtk_reserved2", &self._gtk_reserved2)
             .field("_gtk_reserved3", &self._gtk_reserved3)
@@ -9149,7 +9229,7 @@ pub struct GtkStyleProviderIface {
 
 impl ::std::fmt::Debug for GtkStyleProviderIface {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkStyleProviderIface @ {self:p}"))
+        f.debug_struct(&format!("GtkStyleProviderIface @ {:p}", self))
             .field("get_style", &self.get_style)
             .field("get_style_property", &self.get_style_property)
             .field("get_icon_factory", &self.get_icon_factory)
@@ -9165,7 +9245,7 @@ pub struct GtkSwitchAccessibleClass {
 
 impl ::std::fmt::Debug for GtkSwitchAccessibleClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkSwitchAccessibleClass @ {self:p}"))
+        f.debug_struct(&format!("GtkSwitchAccessibleClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .finish()
     }
@@ -9194,7 +9274,7 @@ pub struct GtkSwitchClass {
 
 impl ::std::fmt::Debug for GtkSwitchClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkSwitchClass @ {self:p}"))
+        f.debug_struct(&format!("GtkSwitchClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("activate", &self.activate)
             .field("state_set", &self.state_set)
@@ -9223,7 +9303,7 @@ pub struct GtkSymbolicColor {
 
 impl ::std::fmt::Debug for GtkSymbolicColor {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkSymbolicColor @ {self:p}"))
+        f.debug_struct(&format!("GtkSymbolicColor @ {:p}", self))
             .finish()
     }
 }
@@ -9244,7 +9324,7 @@ pub struct GtkTableChild {
 
 impl ::std::fmt::Debug for GtkTableChild {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkTableChild @ {self:p}"))
+        f.debug_struct(&format!("GtkTableChild @ {:p}", self))
             .field("widget", &self.widget)
             .field("left_attach", &self.left_attach)
             .field("right_attach", &self.right_attach)
@@ -9269,7 +9349,7 @@ pub struct GtkTableClass {
 
 impl ::std::fmt::Debug for GtkTableClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkTableClass @ {self:p}"))
+        f.debug_struct(&format!("GtkTableClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("_gtk_reserved1", &self._gtk_reserved1)
             .field("_gtk_reserved2", &self._gtk_reserved2)
@@ -9299,7 +9379,7 @@ pub struct GtkTableRowCol {
 
 impl ::std::fmt::Debug for GtkTableRowCol {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkTableRowCol @ {self:p}"))
+        f.debug_struct(&format!("GtkTableRowCol @ {:p}", self))
             .field("requisition", &self.requisition)
             .field("allocation", &self.allocation)
             .field("spacing", &self.spacing)
@@ -9318,7 +9398,7 @@ pub struct GtkTargetEntry {
 
 impl ::std::fmt::Debug for GtkTargetEntry {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkTargetEntry @ {self:p}"))
+        f.debug_struct(&format!("GtkTargetEntry @ {:p}", self))
             .field("target", &self.target)
             .field("flags", &self.flags)
             .field("info", &self.info)
@@ -9334,7 +9414,7 @@ pub struct GtkTargetList {
 
 impl ::std::fmt::Debug for GtkTargetList {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkTargetList @ {self:p}"))
+        f.debug_struct(&format!("GtkTargetList @ {:p}", self))
             .finish()
     }
 }
@@ -9349,7 +9429,7 @@ pub struct GtkTargetPair {
 
 impl ::std::fmt::Debug for GtkTargetPair {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkTargetPair @ {self:p}"))
+        f.debug_struct(&format!("GtkTargetPair @ {:p}", self))
             .field("target", &self.target)
             .field("flags", &self.flags)
             .field("info", &self.info)
@@ -9369,7 +9449,7 @@ pub struct GtkTearoffMenuItemClass {
 
 impl ::std::fmt::Debug for GtkTearoffMenuItemClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkTearoffMenuItemClass @ {self:p}"))
+        f.debug_struct(&format!("GtkTearoffMenuItemClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("_gtk_reserved1", &self._gtk_reserved1)
             .field("_gtk_reserved2", &self._gtk_reserved2)
@@ -9399,7 +9479,7 @@ pub struct GtkTextAppearance {
 
 impl ::std::fmt::Debug for GtkTextAppearance {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkTextAppearance @ {self:p}"))
+        f.debug_struct(&format!("GtkTextAppearance @ {:p}", self))
             .field("bg_color", &self.bg_color)
             .field("fg_color", &self.fg_color)
             .field("rise", &self.rise)
@@ -9417,7 +9497,7 @@ pub struct GtkTextAttributes {
 
 impl ::std::fmt::Debug for GtkTextAttributes {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkTextAttributes @ {self:p}"))
+        f.debug_struct(&format!("GtkTextAttributes @ {:p}", self))
             .finish()
     }
 }
@@ -9475,7 +9555,7 @@ pub struct GtkTextBufferClass {
 
 impl ::std::fmt::Debug for GtkTextBufferClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkTextBufferClass @ {self:p}"))
+        f.debug_struct(&format!("GtkTextBufferClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("insert_text", &self.insert_text)
             .field("insert_pixbuf", &self.insert_pixbuf)
@@ -9514,7 +9594,7 @@ pub struct GtkTextCellAccessibleClass {
 
 impl ::std::fmt::Debug for GtkTextCellAccessibleClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkTextCellAccessibleClass @ {self:p}"))
+        f.debug_struct(&format!("GtkTextCellAccessibleClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .finish()
     }
@@ -9540,7 +9620,7 @@ pub struct GtkTextChildAnchorClass {
 
 impl ::std::fmt::Debug for GtkTextChildAnchorClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkTextChildAnchorClass @ {self:p}"))
+        f.debug_struct(&format!("GtkTextChildAnchorClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("_gtk_reserved1", &self._gtk_reserved1)
             .field("_gtk_reserved2", &self._gtk_reserved2)
@@ -9571,7 +9651,8 @@ pub struct GtkTextIter {
 
 impl ::std::fmt::Debug for GtkTextIter {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkTextIter @ {self:p}")).finish()
+        f.debug_struct(&format!("GtkTextIter @ {:p}", self))
+            .finish()
     }
 }
 
@@ -9587,7 +9668,7 @@ pub struct GtkTextMarkClass {
 
 impl ::std::fmt::Debug for GtkTextMarkClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkTextMarkClass @ {self:p}"))
+        f.debug_struct(&format!("GtkTextMarkClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("_gtk_reserved1", &self._gtk_reserved1)
             .field("_gtk_reserved2", &self._gtk_reserved2)
@@ -9617,7 +9698,7 @@ pub struct GtkTextTagClass {
 
 impl ::std::fmt::Debug for GtkTextTagClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkTextTagClass @ {self:p}"))
+        f.debug_struct(&format!("GtkTextTagClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("event", &self.event)
             .field("_gtk_reserved1", &self._gtk_reserved1)
@@ -9651,7 +9732,7 @@ pub struct GtkTextTagTableClass {
 
 impl ::std::fmt::Debug for GtkTextTagTableClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkTextTagTableClass @ {self:p}"))
+        f.debug_struct(&format!("GtkTextTagTableClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("tag_changed", &self.tag_changed)
             .field("tag_added", &self.tag_added)
@@ -9680,7 +9761,7 @@ pub struct GtkTextViewAccessibleClass {
 
 impl ::std::fmt::Debug for GtkTextViewAccessibleClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkTextViewAccessibleClass @ {self:p}"))
+        f.debug_struct(&format!("GtkTextViewAccessibleClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .finish()
     }
@@ -9730,7 +9811,7 @@ pub struct GtkTextViewClass {
 
 impl ::std::fmt::Debug for GtkTextViewClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkTextViewClass @ {self:p}"))
+        f.debug_struct(&format!("GtkTextViewClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("populate_popup", &self.populate_popup)
             .field("move_cursor", &self.move_cursor)
@@ -9948,7 +10029,7 @@ pub struct GtkThemingEngineClass {
 
 impl ::std::fmt::Debug for GtkThemingEngineClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkThemingEngineClass @ {self:p}"))
+        f.debug_struct(&format!("GtkThemingEngineClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("render_line", &self.render_line)
             .field("render_background", &self.render_background)
@@ -9992,7 +10073,7 @@ pub struct GtkToggleActionClass {
 
 impl ::std::fmt::Debug for GtkToggleActionClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkToggleActionClass @ {self:p}"))
+        f.debug_struct(&format!("GtkToggleActionClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("toggled", &self.toggled)
             .field("_gtk_reserved1", &self._gtk_reserved1)
@@ -10017,7 +10098,7 @@ pub struct GtkToggleActionEntry {
 
 impl ::std::fmt::Debug for GtkToggleActionEntry {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkToggleActionEntry @ {self:p}"))
+        f.debug_struct(&format!("GtkToggleActionEntry @ {:p}", self))
             .field("name", &self.name)
             .field("stock_id", &self.stock_id)
             .field("label", &self.label)
@@ -10045,7 +10126,7 @@ pub struct GtkToggleButtonAccessibleClass {
 
 impl ::std::fmt::Debug for GtkToggleButtonAccessibleClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkToggleButtonAccessibleClass @ {self:p}"))
+        f.debug_struct(&format!("GtkToggleButtonAccessibleClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .finish()
     }
@@ -10072,7 +10153,7 @@ pub struct GtkToggleButtonClass {
 
 impl ::std::fmt::Debug for GtkToggleButtonClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkToggleButtonClass @ {self:p}"))
+        f.debug_struct(&format!("GtkToggleButtonClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("toggled", &self.toggled)
             .field("_gtk_reserved1", &self._gtk_reserved1)
@@ -10104,7 +10185,7 @@ pub struct GtkToggleToolButtonClass {
 
 impl ::std::fmt::Debug for GtkToggleToolButtonClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkToggleToolButtonClass @ {self:p}"))
+        f.debug_struct(&format!("GtkToggleToolButtonClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("toggled", &self.toggled)
             .field("_gtk_reserved1", &self._gtk_reserved1)
@@ -10137,7 +10218,7 @@ pub struct GtkToolButtonClass {
 
 impl ::std::fmt::Debug for GtkToolButtonClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkToolButtonClass @ {self:p}"))
+        f.debug_struct(&format!("GtkToolButtonClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("button_type", &self.button_type)
             .field("clicked", &self.clicked)
@@ -10171,7 +10252,7 @@ pub struct GtkToolItemClass {
 
 impl ::std::fmt::Debug for GtkToolItemClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkToolItemClass @ {self:p}"))
+        f.debug_struct(&format!("GtkToolItemClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("create_menu_proxy", &self.create_menu_proxy)
             .field("toolbar_reconfigured", &self.toolbar_reconfigured)
@@ -10195,7 +10276,7 @@ pub struct GtkToolItemGroupClass {
 
 impl ::std::fmt::Debug for GtkToolItemGroupClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkToolItemGroupClass @ {self:p}"))
+        f.debug_struct(&format!("GtkToolItemGroupClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("_gtk_reserved1", &self._gtk_reserved1)
             .field("_gtk_reserved2", &self._gtk_reserved2)
@@ -10233,7 +10314,7 @@ pub struct GtkToolPaletteClass {
 
 impl ::std::fmt::Debug for GtkToolPaletteClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkToolPaletteClass @ {self:p}"))
+        f.debug_struct(&format!("GtkToolPaletteClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("_gtk_reserved1", &self._gtk_reserved1)
             .field("_gtk_reserved2", &self._gtk_reserved2)
@@ -10269,7 +10350,7 @@ pub struct GtkToolShellIface {
 
 impl ::std::fmt::Debug for GtkToolShellIface {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkToolShellIface @ {self:p}"))
+        f.debug_struct(&format!("GtkToolShellIface @ {:p}", self))
             .field("get_icon_size", &self.get_icon_size)
             .field("get_orientation", &self.get_orientation)
             .field("get_style", &self.get_style)
@@ -10299,7 +10380,7 @@ pub struct GtkToolbarClass {
 
 impl ::std::fmt::Debug for GtkToolbarClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkToolbarClass @ {self:p}"))
+        f.debug_struct(&format!("GtkToolbarClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("orientation_changed", &self.orientation_changed)
             .field("style_changed", &self.style_changed)
@@ -10328,7 +10409,7 @@ pub struct GtkToplevelAccessibleClass {
 
 impl ::std::fmt::Debug for GtkToplevelAccessibleClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkToplevelAccessibleClass @ {self:p}"))
+        f.debug_struct(&format!("GtkToplevelAccessibleClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .finish()
     }
@@ -10364,7 +10445,7 @@ pub struct GtkTreeDragDestIface {
 
 impl ::std::fmt::Debug for GtkTreeDragDestIface {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkTreeDragDestIface @ {self:p}"))
+        f.debug_struct(&format!("GtkTreeDragDestIface @ {:p}", self))
             .field("drag_data_received", &self.drag_data_received)
             .field("row_drop_possible", &self.row_drop_possible)
             .finish()
@@ -10390,7 +10471,7 @@ pub struct GtkTreeDragSourceIface {
 
 impl ::std::fmt::Debug for GtkTreeDragSourceIface {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkTreeDragSourceIface @ {self:p}"))
+        f.debug_struct(&format!("GtkTreeDragSourceIface @ {:p}", self))
             .field("row_draggable", &self.row_draggable)
             .field("drag_data_get", &self.drag_data_get)
             .field("drag_data_delete", &self.drag_data_delete)
@@ -10409,7 +10490,7 @@ pub struct GtkTreeIter {
 
 impl ::std::fmt::Debug for GtkTreeIter {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkTreeIter @ {self:p}"))
+        f.debug_struct(&format!("GtkTreeIter @ {:p}", self))
             .field("stamp", &self.stamp)
             .field("user_data", &self.user_data)
             .field("user_data2", &self.user_data2)
@@ -10446,7 +10527,7 @@ pub struct GtkTreeModelFilterClass {
 
 impl ::std::fmt::Debug for GtkTreeModelFilterClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkTreeModelFilterClass @ {self:p}"))
+        f.debug_struct(&format!("GtkTreeModelFilterClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("visible", &self.visible)
             .field("modify", &self.modify)
@@ -10517,7 +10598,7 @@ pub struct GtkTreeModelIface {
 
 impl ::std::fmt::Debug for GtkTreeModelIface {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkTreeModelIface @ {self:p}"))
+        f.debug_struct(&format!("GtkTreeModelIface @ {:p}", self))
             .field("row_changed", &self.row_changed)
             .field("row_inserted", &self.row_inserted)
             .field("row_has_child_toggled", &self.row_has_child_toggled)
@@ -10554,7 +10635,7 @@ pub struct GtkTreeModelSortClass {
 
 impl ::std::fmt::Debug for GtkTreeModelSortClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkTreeModelSortClass @ {self:p}"))
+        f.debug_struct(&format!("GtkTreeModelSortClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("_gtk_reserved1", &self._gtk_reserved1)
             .field("_gtk_reserved2", &self._gtk_reserved2)
@@ -10580,7 +10661,8 @@ pub struct GtkTreePath {
 
 impl ::std::fmt::Debug for GtkTreePath {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkTreePath @ {self:p}")).finish()
+        f.debug_struct(&format!("GtkTreePath @ {:p}", self))
+            .finish()
     }
 }
 
@@ -10592,7 +10674,7 @@ pub struct GtkTreeRowReference {
 
 impl ::std::fmt::Debug for GtkTreeRowReference {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkTreeRowReference @ {self:p}"))
+        f.debug_struct(&format!("GtkTreeRowReference @ {:p}", self))
             .finish()
     }
 }
@@ -10610,7 +10692,7 @@ pub struct GtkTreeSelectionClass {
 
 impl ::std::fmt::Debug for GtkTreeSelectionClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkTreeSelectionClass @ {self:p}"))
+        f.debug_struct(&format!("GtkTreeSelectionClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("changed", &self.changed)
             .field("_gtk_reserved1", &self._gtk_reserved1)
@@ -10660,7 +10742,7 @@ pub struct GtkTreeSortableIface {
 
 impl ::std::fmt::Debug for GtkTreeSortableIface {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkTreeSortableIface @ {self:p}"))
+        f.debug_struct(&format!("GtkTreeSortableIface @ {:p}", self))
             .field("sort_column_changed", &self.sort_column_changed)
             .field("get_sort_column_id", &self.get_sort_column_id)
             .field("set_sort_column_id", &self.set_sort_column_id)
@@ -10683,7 +10765,7 @@ pub struct GtkTreeStoreClass {
 
 impl ::std::fmt::Debug for GtkTreeStoreClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkTreeStoreClass @ {self:p}"))
+        f.debug_struct(&format!("GtkTreeStoreClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("_gtk_reserved1", &self._gtk_reserved1)
             .field("_gtk_reserved2", &self._gtk_reserved2)
@@ -10709,7 +10791,7 @@ pub struct GtkTreeViewAccessibleClass {
 
 impl ::std::fmt::Debug for GtkTreeViewAccessibleClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkTreeViewAccessibleClass @ {self:p}"))
+        f.debug_struct(&format!("GtkTreeViewAccessibleClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .finish()
     }
@@ -10763,7 +10845,7 @@ pub struct GtkTreeViewClass {
 
 impl ::std::fmt::Debug for GtkTreeViewClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkTreeViewClass @ {self:p}"))
+        f.debug_struct(&format!("GtkTreeViewClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("row_activated", &self.row_activated)
             .field("test_expand_row", &self.test_expand_row)
@@ -10808,7 +10890,7 @@ pub struct GtkTreeViewColumnClass {
 
 impl ::std::fmt::Debug for GtkTreeViewColumnClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkTreeViewColumnClass @ {self:p}"))
+        f.debug_struct(&format!("GtkTreeViewColumnClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("clicked", &self.clicked)
             .field("_gtk_reserved1", &self._gtk_reserved1)
@@ -10859,7 +10941,7 @@ pub struct GtkUIManagerClass {
 
 impl ::std::fmt::Debug for GtkUIManagerClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkUIManagerClass @ {self:p}"))
+        f.debug_struct(&format!("GtkUIManagerClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("add_widget", &self.add_widget)
             .field("actions_changed", &self.actions_changed)
@@ -10893,7 +10975,7 @@ pub struct GtkVBoxClass {
 
 impl ::std::fmt::Debug for GtkVBoxClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkVBoxClass @ {self:p}"))
+        f.debug_struct(&format!("GtkVBoxClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .finish()
     }
@@ -10907,7 +10989,7 @@ pub struct GtkVButtonBoxClass {
 
 impl ::std::fmt::Debug for GtkVButtonBoxClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkVButtonBoxClass @ {self:p}"))
+        f.debug_struct(&format!("GtkVButtonBoxClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .finish()
     }
@@ -10921,7 +11003,7 @@ pub struct GtkVPanedClass {
 
 impl ::std::fmt::Debug for GtkVPanedClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkVPanedClass @ {self:p}"))
+        f.debug_struct(&format!("GtkVPanedClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .finish()
     }
@@ -10935,7 +11017,7 @@ pub struct GtkVScaleClass {
 
 impl ::std::fmt::Debug for GtkVScaleClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkVScaleClass @ {self:p}"))
+        f.debug_struct(&format!("GtkVScaleClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .finish()
     }
@@ -10949,7 +11031,7 @@ pub struct GtkVScrollbarClass {
 
 impl ::std::fmt::Debug for GtkVScrollbarClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkVScrollbarClass @ {self:p}"))
+        f.debug_struct(&format!("GtkVScrollbarClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .finish()
     }
@@ -10963,7 +11045,7 @@ pub struct GtkVSeparatorClass {
 
 impl ::std::fmt::Debug for GtkVSeparatorClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkVSeparatorClass @ {self:p}"))
+        f.debug_struct(&format!("GtkVSeparatorClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .finish()
     }
@@ -10981,7 +11063,7 @@ pub struct GtkViewportClass {
 
 impl ::std::fmt::Debug for GtkViewportClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkViewportClass @ {self:p}"))
+        f.debug_struct(&format!("GtkViewportClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("_gtk_reserved1", &self._gtk_reserved1)
             .field("_gtk_reserved2", &self._gtk_reserved2)
@@ -11011,7 +11093,7 @@ pub struct GtkVolumeButtonClass {
 
 impl ::std::fmt::Debug for GtkVolumeButtonClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkVolumeButtonClass @ {self:p}"))
+        f.debug_struct(&format!("GtkVolumeButtonClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("_gtk_reserved1", &self._gtk_reserved1)
             .field("_gtk_reserved2", &self._gtk_reserved2)
@@ -11030,7 +11112,7 @@ pub struct GtkWidgetAccessibleClass {
 
 impl ::std::fmt::Debug for GtkWidgetAccessibleClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkWidgetAccessibleClass @ {self:p}"))
+        f.debug_struct(&format!("GtkWidgetAccessibleClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("notify_gtk", &self.notify_gtk)
             .finish()
@@ -11221,7 +11303,7 @@ pub struct GtkWidgetClass {
 
 impl ::std::fmt::Debug for GtkWidgetClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkWidgetClass @ {self:p}"))
+        f.debug_struct(&format!("GtkWidgetClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("activate_signal", &self.activate_signal)
             .field(
@@ -11343,7 +11425,7 @@ pub struct GtkWidgetPath {
 
 impl ::std::fmt::Debug for GtkWidgetPath {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkWidgetPath @ {self:p}"))
+        f.debug_struct(&format!("GtkWidgetPath @ {:p}", self))
             .finish()
     }
 }
@@ -11364,7 +11446,7 @@ pub struct GtkWindowAccessibleClass {
 
 impl ::std::fmt::Debug for GtkWindowAccessibleClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkWindowAccessibleClass @ {self:p}"))
+        f.debug_struct(&format!("GtkWindowAccessibleClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .finish()
     }
@@ -11394,7 +11476,7 @@ pub struct GtkWindowClass {
 
 impl ::std::fmt::Debug for GtkWindowClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkWindowClass @ {self:p}"))
+        f.debug_struct(&format!("GtkWindowClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("set_focus", &self.set_focus)
             .field("activate_focus", &self.activate_focus)
@@ -11428,7 +11510,7 @@ pub struct GtkWindowGroupClass {
 
 impl ::std::fmt::Debug for GtkWindowGroupClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkWindowGroupClass @ {self:p}"))
+        f.debug_struct(&format!("GtkWindowGroupClass @ {:p}", self))
             .field("parent_class", &self.parent_class)
             .field("_gtk_reserved1", &self._gtk_reserved1)
             .field("_gtk_reserved2", &self._gtk_reserved2)
@@ -11464,7 +11546,7 @@ pub struct GtkAboutDialog {
 
 impl ::std::fmt::Debug for GtkAboutDialog {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkAboutDialog @ {self:p}"))
+        f.debug_struct(&format!("GtkAboutDialog @ {:p}", self))
             .field("parent_instance", &self.parent_instance)
             .finish()
     }
@@ -11479,7 +11561,7 @@ pub struct GtkAccelGroup {
 
 impl ::std::fmt::Debug for GtkAccelGroup {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkAccelGroup @ {self:p}"))
+        f.debug_struct(&format!("GtkAccelGroup @ {:p}", self))
             .field("parent", &self.parent)
             .field("priv_", &self.priv_)
             .finish()
@@ -11495,7 +11577,7 @@ pub struct GtkAccelLabel {
 
 impl ::std::fmt::Debug for GtkAccelLabel {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkAccelLabel @ {self:p}"))
+        f.debug_struct(&format!("GtkAccelLabel @ {:p}", self))
             .field("label", &self.label)
             .field("priv_", &self.priv_)
             .finish()
@@ -11510,7 +11592,8 @@ pub struct GtkAccelMap {
 
 impl ::std::fmt::Debug for GtkAccelMap {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkAccelMap @ {self:p}")).finish()
+        f.debug_struct(&format!("GtkAccelMap @ {:p}", self))
+            .finish()
     }
 }
 
@@ -11523,7 +11606,7 @@ pub struct GtkAccessible {
 
 impl ::std::fmt::Debug for GtkAccessible {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkAccessible @ {self:p}"))
+        f.debug_struct(&format!("GtkAccessible @ {:p}", self))
             .field("parent", &self.parent)
             .finish()
     }
@@ -11538,7 +11621,7 @@ pub struct GtkAction {
 
 impl ::std::fmt::Debug for GtkAction {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkAction @ {self:p}"))
+        f.debug_struct(&format!("GtkAction @ {:p}", self))
             .field("object", &self.object)
             .finish()
     }
@@ -11552,7 +11635,8 @@ pub struct GtkActionBar {
 
 impl ::std::fmt::Debug for GtkActionBar {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkActionBar @ {self:p}")).finish()
+        f.debug_struct(&format!("GtkActionBar @ {:p}", self))
+            .finish()
     }
 }
 
@@ -11565,7 +11649,7 @@ pub struct GtkActionGroup {
 
 impl ::std::fmt::Debug for GtkActionGroup {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkActionGroup @ {self:p}"))
+        f.debug_struct(&format!("GtkActionGroup @ {:p}", self))
             .field("parent", &self.parent)
             .finish()
     }
@@ -11580,7 +11664,7 @@ pub struct GtkAdjustment {
 
 impl ::std::fmt::Debug for GtkAdjustment {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkAdjustment @ {self:p}"))
+        f.debug_struct(&format!("GtkAdjustment @ {:p}", self))
             .field("parent_instance", &self.parent_instance)
             .field("priv_", &self.priv_)
             .finish()
@@ -11596,7 +11680,7 @@ pub struct GtkAlignment {
 
 impl ::std::fmt::Debug for GtkAlignment {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkAlignment @ {self:p}"))
+        f.debug_struct(&format!("GtkAlignment @ {:p}", self))
             .field("bin", &self.bin)
             .finish()
     }
@@ -11611,7 +11695,7 @@ pub struct GtkAppChooserButton {
 
 impl ::std::fmt::Debug for GtkAppChooserButton {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkAppChooserButton @ {self:p}"))
+        f.debug_struct(&format!("GtkAppChooserButton @ {:p}", self))
             .field("parent", &self.parent)
             .finish()
     }
@@ -11626,7 +11710,7 @@ pub struct GtkAppChooserDialog {
 
 impl ::std::fmt::Debug for GtkAppChooserDialog {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkAppChooserDialog @ {self:p}"))
+        f.debug_struct(&format!("GtkAppChooserDialog @ {:p}", self))
             .field("parent", &self.parent)
             .finish()
     }
@@ -11641,7 +11725,7 @@ pub struct GtkAppChooserWidget {
 
 impl ::std::fmt::Debug for GtkAppChooserWidget {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkAppChooserWidget @ {self:p}"))
+        f.debug_struct(&format!("GtkAppChooserWidget @ {:p}", self))
             .field("parent", &self.parent)
             .finish()
     }
@@ -11656,7 +11740,7 @@ pub struct GtkApplication {
 
 impl ::std::fmt::Debug for GtkApplication {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkApplication @ {self:p}"))
+        f.debug_struct(&format!("GtkApplication @ {:p}", self))
             .field("parent", &self.parent)
             .finish()
     }
@@ -11671,7 +11755,7 @@ pub struct GtkApplicationWindow {
 
 impl ::std::fmt::Debug for GtkApplicationWindow {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkApplicationWindow @ {self:p}"))
+        f.debug_struct(&format!("GtkApplicationWindow @ {:p}", self))
             .field("parent_instance", &self.parent_instance)
             .finish()
     }
@@ -11686,7 +11770,7 @@ pub struct GtkArrow {
 
 impl ::std::fmt::Debug for GtkArrow {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkArrow @ {self:p}"))
+        f.debug_struct(&format!("GtkArrow @ {:p}", self))
             .field("misc", &self.misc)
             .finish()
     }
@@ -11701,7 +11785,7 @@ pub struct GtkArrowAccessible {
 
 impl ::std::fmt::Debug for GtkArrowAccessible {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkArrowAccessible @ {self:p}"))
+        f.debug_struct(&format!("GtkArrowAccessible @ {:p}", self))
             .field("parent", &self.parent)
             .field("priv_", &self.priv_)
             .finish()
@@ -11717,7 +11801,7 @@ pub struct GtkAspectFrame {
 
 impl ::std::fmt::Debug for GtkAspectFrame {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkAspectFrame @ {self:p}"))
+        f.debug_struct(&format!("GtkAspectFrame @ {:p}", self))
             .field("frame", &self.frame)
             .finish()
     }
@@ -11732,7 +11816,7 @@ pub struct GtkAssistant {
 
 impl ::std::fmt::Debug for GtkAssistant {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkAssistant @ {self:p}"))
+        f.debug_struct(&format!("GtkAssistant @ {:p}", self))
             .field("parent", &self.parent)
             .finish()
     }
@@ -11747,7 +11831,7 @@ pub struct GtkBin {
 
 impl ::std::fmt::Debug for GtkBin {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkBin @ {self:p}"))
+        f.debug_struct(&format!("GtkBin @ {:p}", self))
             .field("container", &self.container)
             .finish()
     }
@@ -11762,7 +11846,7 @@ pub struct GtkBooleanCellAccessible {
 
 impl ::std::fmt::Debug for GtkBooleanCellAccessible {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkBooleanCellAccessible @ {self:p}"))
+        f.debug_struct(&format!("GtkBooleanCellAccessible @ {:p}", self))
             .field("parent", &self.parent)
             .field("priv_", &self.priv_)
             .finish()
@@ -11778,7 +11862,7 @@ pub struct GtkBox {
 
 impl ::std::fmt::Debug for GtkBox {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkBox @ {self:p}"))
+        f.debug_struct(&format!("GtkBox @ {:p}", self))
             .field("container", &self.container)
             .finish()
     }
@@ -11793,7 +11877,7 @@ pub struct GtkBuilder {
 
 impl ::std::fmt::Debug for GtkBuilder {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkBuilder @ {self:p}"))
+        f.debug_struct(&format!("GtkBuilder @ {:p}", self))
             .field("parent_instance", &self.parent_instance)
             .field("priv_", &self.priv_)
             .finish()
@@ -11809,7 +11893,7 @@ pub struct GtkButton {
 
 impl ::std::fmt::Debug for GtkButton {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkButton @ {self:p}")).finish()
+        f.debug_struct(&format!("GtkButton @ {:p}", self)).finish()
     }
 }
 
@@ -11822,7 +11906,7 @@ pub struct GtkButtonAccessible {
 
 impl ::std::fmt::Debug for GtkButtonAccessible {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkButtonAccessible @ {self:p}"))
+        f.debug_struct(&format!("GtkButtonAccessible @ {:p}", self))
             .field("parent", &self.parent)
             .field("priv_", &self.priv_)
             .finish()
@@ -11838,7 +11922,7 @@ pub struct GtkButtonBox {
 
 impl ::std::fmt::Debug for GtkButtonBox {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkButtonBox @ {self:p}"))
+        f.debug_struct(&format!("GtkButtonBox @ {:p}", self))
             .field("box_", &self.box_)
             .finish()
     }
@@ -11853,7 +11937,7 @@ pub struct GtkCalendar {
 
 impl ::std::fmt::Debug for GtkCalendar {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkCalendar @ {self:p}"))
+        f.debug_struct(&format!("GtkCalendar @ {:p}", self))
             .field("widget", &self.widget)
             .field("priv_", &self.priv_)
             .finish()
@@ -11869,7 +11953,7 @@ pub struct GtkCellAccessible {
 
 impl ::std::fmt::Debug for GtkCellAccessible {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkCellAccessible @ {self:p}"))
+        f.debug_struct(&format!("GtkCellAccessible @ {:p}", self))
             .field("parent", &self.parent)
             .field("priv_", &self.priv_)
             .finish()
@@ -11885,7 +11969,8 @@ pub struct GtkCellArea {
 
 impl ::std::fmt::Debug for GtkCellArea {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkCellArea @ {self:p}")).finish()
+        f.debug_struct(&format!("GtkCellArea @ {:p}", self))
+            .finish()
     }
 }
 
@@ -11898,7 +11983,7 @@ pub struct GtkCellAreaBox {
 
 impl ::std::fmt::Debug for GtkCellAreaBox {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkCellAreaBox @ {self:p}"))
+        f.debug_struct(&format!("GtkCellAreaBox @ {:p}", self))
             .finish()
     }
 }
@@ -11912,7 +11997,7 @@ pub struct GtkCellAreaContext {
 
 impl ::std::fmt::Debug for GtkCellAreaContext {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkCellAreaContext @ {self:p}"))
+        f.debug_struct(&format!("GtkCellAreaContext @ {:p}", self))
             .finish()
     }
 }
@@ -11926,7 +12011,7 @@ pub struct GtkCellRenderer {
 
 impl ::std::fmt::Debug for GtkCellRenderer {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkCellRenderer @ {self:p}"))
+        f.debug_struct(&format!("GtkCellRenderer @ {:p}", self))
             .field("parent_instance", &self.parent_instance)
             .finish()
     }
@@ -11941,7 +12026,7 @@ pub struct GtkCellRendererAccel {
 
 impl ::std::fmt::Debug for GtkCellRendererAccel {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkCellRendererAccel @ {self:p}"))
+        f.debug_struct(&format!("GtkCellRendererAccel @ {:p}", self))
             .field("parent", &self.parent)
             .finish()
     }
@@ -11956,7 +12041,7 @@ pub struct GtkCellRendererCombo {
 
 impl ::std::fmt::Debug for GtkCellRendererCombo {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkCellRendererCombo @ {self:p}"))
+        f.debug_struct(&format!("GtkCellRendererCombo @ {:p}", self))
             .field("parent", &self.parent)
             .finish()
     }
@@ -11971,7 +12056,7 @@ pub struct GtkCellRendererPixbuf {
 
 impl ::std::fmt::Debug for GtkCellRendererPixbuf {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkCellRendererPixbuf @ {self:p}"))
+        f.debug_struct(&format!("GtkCellRendererPixbuf @ {:p}", self))
             .field("parent", &self.parent)
             .finish()
     }
@@ -11986,7 +12071,7 @@ pub struct GtkCellRendererProgress {
 
 impl ::std::fmt::Debug for GtkCellRendererProgress {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkCellRendererProgress @ {self:p}"))
+        f.debug_struct(&format!("GtkCellRendererProgress @ {:p}", self))
             .field("parent_instance", &self.parent_instance)
             .finish()
     }
@@ -12001,7 +12086,7 @@ pub struct GtkCellRendererSpin {
 
 impl ::std::fmt::Debug for GtkCellRendererSpin {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkCellRendererSpin @ {self:p}"))
+        f.debug_struct(&format!("GtkCellRendererSpin @ {:p}", self))
             .field("parent", &self.parent)
             .finish()
     }
@@ -12016,7 +12101,7 @@ pub struct GtkCellRendererSpinner {
 
 impl ::std::fmt::Debug for GtkCellRendererSpinner {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkCellRendererSpinner @ {self:p}"))
+        f.debug_struct(&format!("GtkCellRendererSpinner @ {:p}", self))
             .field("parent", &self.parent)
             .finish()
     }
@@ -12031,7 +12116,7 @@ pub struct GtkCellRendererText {
 
 impl ::std::fmt::Debug for GtkCellRendererText {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkCellRendererText @ {self:p}"))
+        f.debug_struct(&format!("GtkCellRendererText @ {:p}", self))
             .field("parent", &self.parent)
             .finish()
     }
@@ -12046,7 +12131,7 @@ pub struct GtkCellRendererToggle {
 
 impl ::std::fmt::Debug for GtkCellRendererToggle {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkCellRendererToggle @ {self:p}"))
+        f.debug_struct(&format!("GtkCellRendererToggle @ {:p}", self))
             .field("parent", &self.parent)
             .finish()
     }
@@ -12061,7 +12146,7 @@ pub struct GtkCellView {
 
 impl ::std::fmt::Debug for GtkCellView {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkCellView @ {self:p}"))
+        f.debug_struct(&format!("GtkCellView @ {:p}", self))
             .field("parent_instance", &self.parent_instance)
             .finish()
     }
@@ -12075,7 +12160,7 @@ pub struct GtkCheckButton {
 
 impl ::std::fmt::Debug for GtkCheckButton {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkCheckButton @ {self:p}"))
+        f.debug_struct(&format!("GtkCheckButton @ {:p}", self))
             .field("toggle_button", &self.toggle_button)
             .finish()
     }
@@ -12090,7 +12175,7 @@ pub struct GtkCheckMenuItem {
 
 impl ::std::fmt::Debug for GtkCheckMenuItem {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkCheckMenuItem @ {self:p}"))
+        f.debug_struct(&format!("GtkCheckMenuItem @ {:p}", self))
             .field("menu_item", &self.menu_item)
             .finish()
     }
@@ -12105,7 +12190,7 @@ pub struct GtkCheckMenuItemAccessible {
 
 impl ::std::fmt::Debug for GtkCheckMenuItemAccessible {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkCheckMenuItemAccessible @ {self:p}"))
+        f.debug_struct(&format!("GtkCheckMenuItemAccessible @ {:p}", self))
             .field("parent", &self.parent)
             .field("priv_", &self.priv_)
             .finish()
@@ -12120,7 +12205,8 @@ pub struct GtkClipboard {
 
 impl ::std::fmt::Debug for GtkClipboard {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkClipboard @ {self:p}")).finish()
+        f.debug_struct(&format!("GtkClipboard @ {:p}", self))
+            .finish()
     }
 }
 
@@ -12133,7 +12219,7 @@ pub struct GtkColorButton {
 
 impl ::std::fmt::Debug for GtkColorButton {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkColorButton @ {self:p}"))
+        f.debug_struct(&format!("GtkColorButton @ {:p}", self))
             .field("button", &self.button)
             .finish()
     }
@@ -12148,7 +12234,7 @@ pub struct GtkColorChooserDialog {
 
 impl ::std::fmt::Debug for GtkColorChooserDialog {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkColorChooserDialog @ {self:p}"))
+        f.debug_struct(&format!("GtkColorChooserDialog @ {:p}", self))
             .field("parent_instance", &self.parent_instance)
             .finish()
     }
@@ -12163,7 +12249,7 @@ pub struct GtkColorChooserWidget {
 
 impl ::std::fmt::Debug for GtkColorChooserWidget {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkColorChooserWidget @ {self:p}"))
+        f.debug_struct(&format!("GtkColorChooserWidget @ {:p}", self))
             .field("parent_instance", &self.parent_instance)
             .finish()
     }
@@ -12178,7 +12264,7 @@ pub struct GtkColorSelection {
 
 impl ::std::fmt::Debug for GtkColorSelection {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkColorSelection @ {self:p}"))
+        f.debug_struct(&format!("GtkColorSelection @ {:p}", self))
             .field("parent_instance", &self.parent_instance)
             .finish()
     }
@@ -12193,7 +12279,7 @@ pub struct GtkColorSelectionDialog {
 
 impl ::std::fmt::Debug for GtkColorSelectionDialog {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkColorSelectionDialog @ {self:p}"))
+        f.debug_struct(&format!("GtkColorSelectionDialog @ {:p}", self))
             .field("parent_instance", &self.parent_instance)
             .finish()
     }
@@ -12208,7 +12294,7 @@ pub struct GtkComboBox {
 
 impl ::std::fmt::Debug for GtkComboBox {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkComboBox @ {self:p}"))
+        f.debug_struct(&format!("GtkComboBox @ {:p}", self))
             .field("parent_instance", &self.parent_instance)
             .finish()
     }
@@ -12223,7 +12309,7 @@ pub struct GtkComboBoxAccessible {
 
 impl ::std::fmt::Debug for GtkComboBoxAccessible {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkComboBoxAccessible @ {self:p}"))
+        f.debug_struct(&format!("GtkComboBoxAccessible @ {:p}", self))
             .field("parent", &self.parent)
             .field("priv_", &self.priv_)
             .finish()
@@ -12239,7 +12325,7 @@ pub struct GtkComboBoxText {
 
 impl ::std::fmt::Debug for GtkComboBoxText {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkComboBoxText @ {self:p}"))
+        f.debug_struct(&format!("GtkComboBoxText @ {:p}", self))
             .finish()
     }
 }
@@ -12253,7 +12339,7 @@ pub struct GtkContainer {
 
 impl ::std::fmt::Debug for GtkContainer {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkContainer @ {self:p}"))
+        f.debug_struct(&format!("GtkContainer @ {:p}", self))
             .field("widget", &self.widget)
             .finish()
     }
@@ -12268,7 +12354,7 @@ pub struct GtkContainerAccessible {
 
 impl ::std::fmt::Debug for GtkContainerAccessible {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkContainerAccessible @ {self:p}"))
+        f.debug_struct(&format!("GtkContainerAccessible @ {:p}", self))
             .field("parent", &self.parent)
             .field("priv_", &self.priv_)
             .finish()
@@ -12284,7 +12370,7 @@ pub struct GtkContainerCellAccessible {
 
 impl ::std::fmt::Debug for GtkContainerCellAccessible {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkContainerCellAccessible @ {self:p}"))
+        f.debug_struct(&format!("GtkContainerCellAccessible @ {:p}", self))
             .field("parent", &self.parent)
             .field("priv_", &self.priv_)
             .finish()
@@ -12300,7 +12386,7 @@ pub struct GtkCssProvider {
 
 impl ::std::fmt::Debug for GtkCssProvider {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkCssProvider @ {self:p}"))
+        f.debug_struct(&format!("GtkCssProvider @ {:p}", self))
             .field("parent_instance", &self.parent_instance)
             .field("priv_", &self.priv_)
             .finish()
@@ -12316,7 +12402,7 @@ pub struct GtkDialog {
 
 impl ::std::fmt::Debug for GtkDialog {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkDialog @ {self:p}"))
+        f.debug_struct(&format!("GtkDialog @ {:p}", self))
             .field("window", &self.window)
             .finish()
     }
@@ -12331,7 +12417,7 @@ pub struct GtkDrawingArea {
 
 impl ::std::fmt::Debug for GtkDrawingArea {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkDrawingArea @ {self:p}"))
+        f.debug_struct(&format!("GtkDrawingArea @ {:p}", self))
             .field("widget", &self.widget)
             .finish()
     }
@@ -12346,7 +12432,7 @@ pub struct GtkEntry {
 
 impl ::std::fmt::Debug for GtkEntry {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkEntry @ {self:p}")).finish()
+        f.debug_struct(&format!("GtkEntry @ {:p}", self)).finish()
     }
 }
 
@@ -12359,7 +12445,7 @@ pub struct GtkEntryAccessible {
 
 impl ::std::fmt::Debug for GtkEntryAccessible {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkEntryAccessible @ {self:p}"))
+        f.debug_struct(&format!("GtkEntryAccessible @ {:p}", self))
             .field("parent", &self.parent)
             .field("priv_", &self.priv_)
             .finish()
@@ -12375,7 +12461,7 @@ pub struct GtkEntryBuffer {
 
 impl ::std::fmt::Debug for GtkEntryBuffer {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkEntryBuffer @ {self:p}"))
+        f.debug_struct(&format!("GtkEntryBuffer @ {:p}", self))
             .field("parent_instance", &self.parent_instance)
             .finish()
     }
@@ -12390,7 +12476,7 @@ pub struct GtkEntryCompletion {
 
 impl ::std::fmt::Debug for GtkEntryCompletion {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkEntryCompletion @ {self:p}"))
+        f.debug_struct(&format!("GtkEntryCompletion @ {:p}", self))
             .field("parent_instance", &self.parent_instance)
             .finish()
     }
@@ -12404,7 +12490,7 @@ pub struct GtkEntryIconAccessible {
 
 impl ::std::fmt::Debug for GtkEntryIconAccessible {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkEntryIconAccessible @ {self:p}"))
+        f.debug_struct(&format!("GtkEntryIconAccessible @ {:p}", self))
             .finish()
     }
 }
@@ -12418,7 +12504,7 @@ pub struct GtkEventBox {
 
 impl ::std::fmt::Debug for GtkEventBox {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkEventBox @ {self:p}"))
+        f.debug_struct(&format!("GtkEventBox @ {:p}", self))
             .field("bin", &self.bin)
             .finish()
     }
@@ -12432,7 +12518,7 @@ pub struct GtkEventController {
 
 impl ::std::fmt::Debug for GtkEventController {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkEventController @ {self:p}"))
+        f.debug_struct(&format!("GtkEventController @ {:p}", self))
             .finish()
     }
 }
@@ -12445,7 +12531,7 @@ pub struct GtkEventControllerKey {
 
 impl ::std::fmt::Debug for GtkEventControllerKey {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkEventControllerKey @ {self:p}"))
+        f.debug_struct(&format!("GtkEventControllerKey @ {:p}", self))
             .finish()
     }
 }
@@ -12458,7 +12544,7 @@ pub struct GtkEventControllerMotion {
 
 impl ::std::fmt::Debug for GtkEventControllerMotion {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkEventControllerMotion @ {self:p}"))
+        f.debug_struct(&format!("GtkEventControllerMotion @ {:p}", self))
             .finish()
     }
 }
@@ -12471,7 +12557,7 @@ pub struct GtkEventControllerScroll {
 
 impl ::std::fmt::Debug for GtkEventControllerScroll {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkEventControllerScroll @ {self:p}"))
+        f.debug_struct(&format!("GtkEventControllerScroll @ {:p}", self))
             .finish()
     }
 }
@@ -12485,7 +12571,7 @@ pub struct GtkExpander {
 
 impl ::std::fmt::Debug for GtkExpander {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkExpander @ {self:p}"))
+        f.debug_struct(&format!("GtkExpander @ {:p}", self))
             .field("bin", &self.bin)
             .field("priv_", &self.priv_)
             .finish()
@@ -12501,7 +12587,7 @@ pub struct GtkExpanderAccessible {
 
 impl ::std::fmt::Debug for GtkExpanderAccessible {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkExpanderAccessible @ {self:p}"))
+        f.debug_struct(&format!("GtkExpanderAccessible @ {:p}", self))
             .field("parent", &self.parent)
             .field("priv_", &self.priv_)
             .finish()
@@ -12517,7 +12603,7 @@ pub struct GtkFileChooserButton {
 
 impl ::std::fmt::Debug for GtkFileChooserButton {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkFileChooserButton @ {self:p}"))
+        f.debug_struct(&format!("GtkFileChooserButton @ {:p}", self))
             .field("parent", &self.parent)
             .finish()
     }
@@ -12532,7 +12618,7 @@ pub struct GtkFileChooserDialog {
 
 impl ::std::fmt::Debug for GtkFileChooserDialog {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkFileChooserDialog @ {self:p}"))
+        f.debug_struct(&format!("GtkFileChooserDialog @ {:p}", self))
             .field("parent_instance", &self.parent_instance)
             .field("priv_", &self.priv_)
             .finish()
@@ -12547,7 +12633,7 @@ pub struct GtkFileChooserNative {
 
 impl ::std::fmt::Debug for GtkFileChooserNative {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkFileChooserNative @ {self:p}"))
+        f.debug_struct(&format!("GtkFileChooserNative @ {:p}", self))
             .finish()
     }
 }
@@ -12561,7 +12647,7 @@ pub struct GtkFileChooserWidget {
 
 impl ::std::fmt::Debug for GtkFileChooserWidget {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkFileChooserWidget @ {self:p}"))
+        f.debug_struct(&format!("GtkFileChooserWidget @ {:p}", self))
             .field("parent_instance", &self.parent_instance)
             .field("priv_", &self.priv_)
             .finish()
@@ -12577,7 +12663,7 @@ pub struct GtkFileChooserWidgetAccessible {
 
 impl ::std::fmt::Debug for GtkFileChooserWidgetAccessible {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkFileChooserWidgetAccessible @ {self:p}"))
+        f.debug_struct(&format!("GtkFileChooserWidgetAccessible @ {:p}", self))
             .field("parent", &self.parent)
             .field("priv_", &self.priv_)
             .finish()
@@ -12592,7 +12678,7 @@ pub struct GtkFileFilter {
 
 impl ::std::fmt::Debug for GtkFileFilter {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkFileFilter @ {self:p}"))
+        f.debug_struct(&format!("GtkFileFilter @ {:p}", self))
             .finish()
     }
 }
@@ -12606,7 +12692,7 @@ pub struct GtkFixed {
 
 impl ::std::fmt::Debug for GtkFixed {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkFixed @ {self:p}"))
+        f.debug_struct(&format!("GtkFixed @ {:p}", self))
             .field("container", &self.container)
             .finish()
     }
@@ -12620,7 +12706,7 @@ pub struct GtkFlowBox {
 
 impl ::std::fmt::Debug for GtkFlowBox {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkFlowBox @ {self:p}"))
+        f.debug_struct(&format!("GtkFlowBox @ {:p}", self))
             .field("container", &self.container)
             .finish()
     }
@@ -12635,7 +12721,7 @@ pub struct GtkFlowBoxAccessible {
 
 impl ::std::fmt::Debug for GtkFlowBoxAccessible {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkFlowBoxAccessible @ {self:p}"))
+        f.debug_struct(&format!("GtkFlowBoxAccessible @ {:p}", self))
             .field("parent", &self.parent)
             .field("priv_", &self.priv_)
             .finish()
@@ -12650,7 +12736,7 @@ pub struct GtkFlowBoxChild {
 
 impl ::std::fmt::Debug for GtkFlowBoxChild {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkFlowBoxChild @ {self:p}"))
+        f.debug_struct(&format!("GtkFlowBoxChild @ {:p}", self))
             .field("parent_instance", &self.parent_instance)
             .finish()
     }
@@ -12664,7 +12750,7 @@ pub struct GtkFlowBoxChildAccessible {
 
 impl ::std::fmt::Debug for GtkFlowBoxChildAccessible {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkFlowBoxChildAccessible @ {self:p}"))
+        f.debug_struct(&format!("GtkFlowBoxChildAccessible @ {:p}", self))
             .field("parent", &self.parent)
             .finish()
     }
@@ -12679,7 +12765,7 @@ pub struct GtkFontButton {
 
 impl ::std::fmt::Debug for GtkFontButton {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkFontButton @ {self:p}"))
+        f.debug_struct(&format!("GtkFontButton @ {:p}", self))
             .field("button", &self.button)
             .finish()
     }
@@ -12694,7 +12780,7 @@ pub struct GtkFontChooserDialog {
 
 impl ::std::fmt::Debug for GtkFontChooserDialog {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkFontChooserDialog @ {self:p}"))
+        f.debug_struct(&format!("GtkFontChooserDialog @ {:p}", self))
             .field("parent_instance", &self.parent_instance)
             .finish()
     }
@@ -12709,7 +12795,7 @@ pub struct GtkFontChooserWidget {
 
 impl ::std::fmt::Debug for GtkFontChooserWidget {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkFontChooserWidget @ {self:p}"))
+        f.debug_struct(&format!("GtkFontChooserWidget @ {:p}", self))
             .field("parent_instance", &self.parent_instance)
             .finish()
     }
@@ -12724,7 +12810,7 @@ pub struct GtkFontSelection {
 
 impl ::std::fmt::Debug for GtkFontSelection {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkFontSelection @ {self:p}"))
+        f.debug_struct(&format!("GtkFontSelection @ {:p}", self))
             .field("parent_instance", &self.parent_instance)
             .finish()
     }
@@ -12739,7 +12825,7 @@ pub struct GtkFontSelectionDialog {
 
 impl ::std::fmt::Debug for GtkFontSelectionDialog {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkFontSelectionDialog @ {self:p}"))
+        f.debug_struct(&format!("GtkFontSelectionDialog @ {:p}", self))
             .field("parent_instance", &self.parent_instance)
             .finish()
     }
@@ -12754,7 +12840,7 @@ pub struct GtkFrame {
 
 impl ::std::fmt::Debug for GtkFrame {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkFrame @ {self:p}"))
+        f.debug_struct(&format!("GtkFrame @ {:p}", self))
             .field("bin", &self.bin)
             .finish()
     }
@@ -12769,7 +12855,7 @@ pub struct GtkFrameAccessible {
 
 impl ::std::fmt::Debug for GtkFrameAccessible {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkFrameAccessible @ {self:p}"))
+        f.debug_struct(&format!("GtkFrameAccessible @ {:p}", self))
             .field("parent", &self.parent)
             .field("priv_", &self.priv_)
             .finish()
@@ -12784,7 +12870,7 @@ pub struct GtkGLArea {
 
 impl ::std::fmt::Debug for GtkGLArea {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkGLArea @ {self:p}")).finish()
+        f.debug_struct(&format!("GtkGLArea @ {:p}", self)).finish()
     }
 }
 
@@ -12796,7 +12882,7 @@ pub struct GtkGesture {
 
 impl ::std::fmt::Debug for GtkGesture {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkGesture @ {self:p}")).finish()
+        f.debug_struct(&format!("GtkGesture @ {:p}", self)).finish()
     }
 }
 
@@ -12808,7 +12894,7 @@ pub struct GtkGestureDrag {
 
 impl ::std::fmt::Debug for GtkGestureDrag {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkGestureDrag @ {self:p}"))
+        f.debug_struct(&format!("GtkGestureDrag @ {:p}", self))
             .finish()
     }
 }
@@ -12821,7 +12907,7 @@ pub struct GtkGestureLongPress {
 
 impl ::std::fmt::Debug for GtkGestureLongPress {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkGestureLongPress @ {self:p}"))
+        f.debug_struct(&format!("GtkGestureLongPress @ {:p}", self))
             .finish()
     }
 }
@@ -12834,7 +12920,7 @@ pub struct GtkGestureMultiPress {
 
 impl ::std::fmt::Debug for GtkGestureMultiPress {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkGestureMultiPress @ {self:p}"))
+        f.debug_struct(&format!("GtkGestureMultiPress @ {:p}", self))
             .finish()
     }
 }
@@ -12847,7 +12933,7 @@ pub struct GtkGesturePan {
 
 impl ::std::fmt::Debug for GtkGesturePan {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkGesturePan @ {self:p}"))
+        f.debug_struct(&format!("GtkGesturePan @ {:p}", self))
             .finish()
     }
 }
@@ -12860,7 +12946,7 @@ pub struct GtkGestureRotate {
 
 impl ::std::fmt::Debug for GtkGestureRotate {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkGestureRotate @ {self:p}"))
+        f.debug_struct(&format!("GtkGestureRotate @ {:p}", self))
             .finish()
     }
 }
@@ -12873,7 +12959,7 @@ pub struct GtkGestureSingle {
 
 impl ::std::fmt::Debug for GtkGestureSingle {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkGestureSingle @ {self:p}"))
+        f.debug_struct(&format!("GtkGestureSingle @ {:p}", self))
             .finish()
     }
 }
@@ -12886,7 +12972,7 @@ pub struct GtkGestureStylus {
 
 impl ::std::fmt::Debug for GtkGestureStylus {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkGestureStylus @ {self:p}"))
+        f.debug_struct(&format!("GtkGestureStylus @ {:p}", self))
             .finish()
     }
 }
@@ -12899,7 +12985,7 @@ pub struct GtkGestureSwipe {
 
 impl ::std::fmt::Debug for GtkGestureSwipe {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkGestureSwipe @ {self:p}"))
+        f.debug_struct(&format!("GtkGestureSwipe @ {:p}", self))
             .finish()
     }
 }
@@ -12912,7 +12998,7 @@ pub struct GtkGestureZoom {
 
 impl ::std::fmt::Debug for GtkGestureZoom {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkGestureZoom @ {self:p}"))
+        f.debug_struct(&format!("GtkGestureZoom @ {:p}", self))
             .finish()
     }
 }
@@ -12926,7 +13012,7 @@ pub struct GtkGrid {
 
 impl ::std::fmt::Debug for GtkGrid {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkGrid @ {self:p}")).finish()
+        f.debug_struct(&format!("GtkGrid @ {:p}", self)).finish()
     }
 }
 
@@ -12938,7 +13024,7 @@ pub struct GtkHBox {
 
 impl ::std::fmt::Debug for GtkHBox {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkHBox @ {self:p}"))
+        f.debug_struct(&format!("GtkHBox @ {:p}", self))
             .field("box_", &self.box_)
             .finish()
     }
@@ -12952,7 +13038,7 @@ pub struct GtkHButtonBox {
 
 impl ::std::fmt::Debug for GtkHButtonBox {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkHButtonBox @ {self:p}"))
+        f.debug_struct(&format!("GtkHButtonBox @ {:p}", self))
             .field("button_box", &self.button_box)
             .finish()
     }
@@ -12966,7 +13052,7 @@ pub struct GtkHPaned {
 
 impl ::std::fmt::Debug for GtkHPaned {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkHPaned @ {self:p}"))
+        f.debug_struct(&format!("GtkHPaned @ {:p}", self))
             .field("paned", &self.paned)
             .finish()
     }
@@ -12981,7 +13067,7 @@ pub struct GtkHSV {
 
 impl ::std::fmt::Debug for GtkHSV {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkHSV @ {self:p}"))
+        f.debug_struct(&format!("GtkHSV @ {:p}", self))
             .field("parent_instance", &self.parent_instance)
             .finish()
     }
@@ -12995,7 +13081,7 @@ pub struct GtkHScale {
 
 impl ::std::fmt::Debug for GtkHScale {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkHScale @ {self:p}"))
+        f.debug_struct(&format!("GtkHScale @ {:p}", self))
             .field("scale", &self.scale)
             .finish()
     }
@@ -13009,7 +13095,7 @@ pub struct GtkHScrollbar {
 
 impl ::std::fmt::Debug for GtkHScrollbar {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkHScrollbar @ {self:p}"))
+        f.debug_struct(&format!("GtkHScrollbar @ {:p}", self))
             .field("scrollbar", &self.scrollbar)
             .finish()
     }
@@ -13023,7 +13109,7 @@ pub struct GtkHSeparator {
 
 impl ::std::fmt::Debug for GtkHSeparator {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkHSeparator @ {self:p}"))
+        f.debug_struct(&format!("GtkHSeparator @ {:p}", self))
             .field("separator", &self.separator)
             .finish()
     }
@@ -13038,7 +13124,7 @@ pub struct GtkHandleBox {
 
 impl ::std::fmt::Debug for GtkHandleBox {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkHandleBox @ {self:p}"))
+        f.debug_struct(&format!("GtkHandleBox @ {:p}", self))
             .field("bin", &self.bin)
             .finish()
     }
@@ -13052,7 +13138,7 @@ pub struct GtkHeaderBar {
 
 impl ::std::fmt::Debug for GtkHeaderBar {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkHeaderBar @ {self:p}"))
+        f.debug_struct(&format!("GtkHeaderBar @ {:p}", self))
             .field("container", &self.container)
             .finish()
     }
@@ -13066,7 +13152,7 @@ pub struct GtkHeaderBarAccessible {
 
 impl ::std::fmt::Debug for GtkHeaderBarAccessible {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkHeaderBarAccessible @ {self:p}"))
+        f.debug_struct(&format!("GtkHeaderBarAccessible @ {:p}", self))
             .field("parent", &self.parent)
             .finish()
     }
@@ -13080,7 +13166,7 @@ pub struct GtkIMContext {
 
 impl ::std::fmt::Debug for GtkIMContext {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkIMContext @ {self:p}"))
+        f.debug_struct(&format!("GtkIMContext @ {:p}", self))
             .field("parent_instance", &self.parent_instance)
             .finish()
     }
@@ -13095,7 +13181,7 @@ pub struct GtkIMContextSimple {
 
 impl ::std::fmt::Debug for GtkIMContextSimple {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkIMContextSimple @ {self:p}"))
+        f.debug_struct(&format!("GtkIMContextSimple @ {:p}", self))
             .field("object", &self.object)
             .finish()
     }
@@ -13110,7 +13196,7 @@ pub struct GtkIMMulticontext {
 
 impl ::std::fmt::Debug for GtkIMMulticontext {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkIMMulticontext @ {self:p}"))
+        f.debug_struct(&format!("GtkIMMulticontext @ {:p}", self))
             .field("object", &self.object)
             .finish()
     }
@@ -13125,7 +13211,7 @@ pub struct GtkIconFactory {
 
 impl ::std::fmt::Debug for GtkIconFactory {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkIconFactory @ {self:p}"))
+        f.debug_struct(&format!("GtkIconFactory @ {:p}", self))
             .field("parent_instance", &self.parent_instance)
             .finish()
     }
@@ -13139,7 +13225,8 @@ pub struct GtkIconInfo {
 
 impl ::std::fmt::Debug for GtkIconInfo {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkIconInfo @ {self:p}")).finish()
+        f.debug_struct(&format!("GtkIconInfo @ {:p}", self))
+            .finish()
     }
 }
 
@@ -13152,7 +13239,8 @@ pub struct GtkIconTheme {
 
 impl ::std::fmt::Debug for GtkIconTheme {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkIconTheme @ {self:p}")).finish()
+        f.debug_struct(&format!("GtkIconTheme @ {:p}", self))
+            .finish()
     }
 }
 
@@ -13165,7 +13253,7 @@ pub struct GtkIconView {
 
 impl ::std::fmt::Debug for GtkIconView {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkIconView @ {self:p}"))
+        f.debug_struct(&format!("GtkIconView @ {:p}", self))
             .field("parent", &self.parent)
             .finish()
     }
@@ -13180,7 +13268,7 @@ pub struct GtkIconViewAccessible {
 
 impl ::std::fmt::Debug for GtkIconViewAccessible {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkIconViewAccessible @ {self:p}"))
+        f.debug_struct(&format!("GtkIconViewAccessible @ {:p}", self))
             .field("parent", &self.parent)
             .field("priv_", &self.priv_)
             .finish()
@@ -13196,7 +13284,7 @@ pub struct GtkImage {
 
 impl ::std::fmt::Debug for GtkImage {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkImage @ {self:p}"))
+        f.debug_struct(&format!("GtkImage @ {:p}", self))
             .field("misc", &self.misc)
             .finish()
     }
@@ -13211,7 +13299,7 @@ pub struct GtkImageAccessible {
 
 impl ::std::fmt::Debug for GtkImageAccessible {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkImageAccessible @ {self:p}"))
+        f.debug_struct(&format!("GtkImageAccessible @ {:p}", self))
             .field("parent", &self.parent)
             .field("priv_", &self.priv_)
             .finish()
@@ -13227,7 +13315,7 @@ pub struct GtkImageCellAccessible {
 
 impl ::std::fmt::Debug for GtkImageCellAccessible {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkImageCellAccessible @ {self:p}"))
+        f.debug_struct(&format!("GtkImageCellAccessible @ {:p}", self))
             .field("parent", &self.parent)
             .field("priv_", &self.priv_)
             .finish()
@@ -13243,7 +13331,7 @@ pub struct GtkImageMenuItem {
 
 impl ::std::fmt::Debug for GtkImageMenuItem {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkImageMenuItem @ {self:p}"))
+        f.debug_struct(&format!("GtkImageMenuItem @ {:p}", self))
             .field("menu_item", &self.menu_item)
             .finish()
     }
@@ -13258,7 +13346,7 @@ pub struct GtkInfoBar {
 
 impl ::std::fmt::Debug for GtkInfoBar {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkInfoBar @ {self:p}"))
+        f.debug_struct(&format!("GtkInfoBar @ {:p}", self))
             .field("parent", &self.parent)
             .finish()
     }
@@ -13273,7 +13361,7 @@ pub struct GtkInvisible {
 
 impl ::std::fmt::Debug for GtkInvisible {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkInvisible @ {self:p}"))
+        f.debug_struct(&format!("GtkInvisible @ {:p}", self))
             .field("widget", &self.widget)
             .finish()
     }
@@ -13288,7 +13376,7 @@ pub struct GtkLabel {
 
 impl ::std::fmt::Debug for GtkLabel {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkLabel @ {self:p}"))
+        f.debug_struct(&format!("GtkLabel @ {:p}", self))
             .field("misc", &self.misc)
             .finish()
     }
@@ -13303,7 +13391,7 @@ pub struct GtkLabelAccessible {
 
 impl ::std::fmt::Debug for GtkLabelAccessible {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkLabelAccessible @ {self:p}"))
+        f.debug_struct(&format!("GtkLabelAccessible @ {:p}", self))
             .field("parent", &self.parent)
             .field("priv_", &self.priv_)
             .finish()
@@ -13319,7 +13407,7 @@ pub struct GtkLayout {
 
 impl ::std::fmt::Debug for GtkLayout {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkLayout @ {self:p}"))
+        f.debug_struct(&format!("GtkLayout @ {:p}", self))
             .field("container", &self.container)
             .finish()
     }
@@ -13334,7 +13422,8 @@ pub struct GtkLevelBar {
 
 impl ::std::fmt::Debug for GtkLevelBar {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkLevelBar @ {self:p}")).finish()
+        f.debug_struct(&format!("GtkLevelBar @ {:p}", self))
+            .finish()
     }
 }
 
@@ -13347,7 +13436,7 @@ pub struct GtkLevelBarAccessible {
 
 impl ::std::fmt::Debug for GtkLevelBarAccessible {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkLevelBarAccessible @ {self:p}"))
+        f.debug_struct(&format!("GtkLevelBarAccessible @ {:p}", self))
             .field("parent", &self.parent)
             .field("priv_", &self.priv_)
             .finish()
@@ -13363,7 +13452,7 @@ pub struct GtkLinkButton {
 
 impl ::std::fmt::Debug for GtkLinkButton {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkLinkButton @ {self:p}"))
+        f.debug_struct(&format!("GtkLinkButton @ {:p}", self))
             .finish()
     }
 }
@@ -13377,7 +13466,7 @@ pub struct GtkLinkButtonAccessible {
 
 impl ::std::fmt::Debug for GtkLinkButtonAccessible {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkLinkButtonAccessible @ {self:p}"))
+        f.debug_struct(&format!("GtkLinkButtonAccessible @ {:p}", self))
             .field("parent", &self.parent)
             .field("priv_", &self.priv_)
             .finish()
@@ -13392,7 +13481,7 @@ pub struct GtkListBox {
 
 impl ::std::fmt::Debug for GtkListBox {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkListBox @ {self:p}"))
+        f.debug_struct(&format!("GtkListBox @ {:p}", self))
             .field("parent_instance", &self.parent_instance)
             .finish()
     }
@@ -13407,7 +13496,7 @@ pub struct GtkListBoxAccessible {
 
 impl ::std::fmt::Debug for GtkListBoxAccessible {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkListBoxAccessible @ {self:p}"))
+        f.debug_struct(&format!("GtkListBoxAccessible @ {:p}", self))
             .field("parent", &self.parent)
             .field("priv_", &self.priv_)
             .finish()
@@ -13422,7 +13511,7 @@ pub struct GtkListBoxRow {
 
 impl ::std::fmt::Debug for GtkListBoxRow {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkListBoxRow @ {self:p}"))
+        f.debug_struct(&format!("GtkListBoxRow @ {:p}", self))
             .field("parent_instance", &self.parent_instance)
             .finish()
     }
@@ -13436,7 +13525,7 @@ pub struct GtkListBoxRowAccessible {
 
 impl ::std::fmt::Debug for GtkListBoxRowAccessible {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkListBoxRowAccessible @ {self:p}"))
+        f.debug_struct(&format!("GtkListBoxRowAccessible @ {:p}", self))
             .field("parent", &self.parent)
             .finish()
     }
@@ -13451,7 +13540,7 @@ pub struct GtkListStore {
 
 impl ::std::fmt::Debug for GtkListStore {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkListStore @ {self:p}"))
+        f.debug_struct(&format!("GtkListStore @ {:p}", self))
             .field("parent", &self.parent)
             .finish()
     }
@@ -13466,7 +13555,7 @@ pub struct GtkLockButton {
 
 impl ::std::fmt::Debug for GtkLockButton {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkLockButton @ {self:p}"))
+        f.debug_struct(&format!("GtkLockButton @ {:p}", self))
             .field("parent", &self.parent)
             .field("priv_", &self.priv_)
             .finish()
@@ -13482,7 +13571,7 @@ pub struct GtkLockButtonAccessible {
 
 impl ::std::fmt::Debug for GtkLockButtonAccessible {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkLockButtonAccessible @ {self:p}"))
+        f.debug_struct(&format!("GtkLockButtonAccessible @ {:p}", self))
             .field("parent", &self.parent)
             .field("priv_", &self.priv_)
             .finish()
@@ -13498,7 +13587,7 @@ pub struct GtkMenu {
 
 impl ::std::fmt::Debug for GtkMenu {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkMenu @ {self:p}"))
+        f.debug_struct(&format!("GtkMenu @ {:p}", self))
             .field("menu_shell", &self.menu_shell)
             .finish()
     }
@@ -13513,7 +13602,7 @@ pub struct GtkMenuAccessible {
 
 impl ::std::fmt::Debug for GtkMenuAccessible {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkMenuAccessible @ {self:p}"))
+        f.debug_struct(&format!("GtkMenuAccessible @ {:p}", self))
             .field("parent", &self.parent)
             .field("priv_", &self.priv_)
             .finish()
@@ -13529,7 +13618,7 @@ pub struct GtkMenuBar {
 
 impl ::std::fmt::Debug for GtkMenuBar {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkMenuBar @ {self:p}"))
+        f.debug_struct(&format!("GtkMenuBar @ {:p}", self))
             .field("menu_shell", &self.menu_shell)
             .finish()
     }
@@ -13544,7 +13633,7 @@ pub struct GtkMenuButton {
 
 impl ::std::fmt::Debug for GtkMenuButton {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkMenuButton @ {self:p}"))
+        f.debug_struct(&format!("GtkMenuButton @ {:p}", self))
             .field("parent", &self.parent)
             .finish()
     }
@@ -13559,7 +13648,7 @@ pub struct GtkMenuButtonAccessible {
 
 impl ::std::fmt::Debug for GtkMenuButtonAccessible {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkMenuButtonAccessible @ {self:p}"))
+        f.debug_struct(&format!("GtkMenuButtonAccessible @ {:p}", self))
             .field("parent", &self.parent)
             .field("priv_", &self.priv_)
             .finish()
@@ -13575,7 +13664,7 @@ pub struct GtkMenuItem {
 
 impl ::std::fmt::Debug for GtkMenuItem {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkMenuItem @ {self:p}"))
+        f.debug_struct(&format!("GtkMenuItem @ {:p}", self))
             .field("bin", &self.bin)
             .finish()
     }
@@ -13590,7 +13679,7 @@ pub struct GtkMenuItemAccessible {
 
 impl ::std::fmt::Debug for GtkMenuItemAccessible {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkMenuItemAccessible @ {self:p}"))
+        f.debug_struct(&format!("GtkMenuItemAccessible @ {:p}", self))
             .field("parent", &self.parent)
             .field("priv_", &self.priv_)
             .finish()
@@ -13606,7 +13695,7 @@ pub struct GtkMenuShell {
 
 impl ::std::fmt::Debug for GtkMenuShell {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkMenuShell @ {self:p}"))
+        f.debug_struct(&format!("GtkMenuShell @ {:p}", self))
             .field("container", &self.container)
             .finish()
     }
@@ -13621,7 +13710,7 @@ pub struct GtkMenuShellAccessible {
 
 impl ::std::fmt::Debug for GtkMenuShellAccessible {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkMenuShellAccessible @ {self:p}"))
+        f.debug_struct(&format!("GtkMenuShellAccessible @ {:p}", self))
             .field("parent", &self.parent)
             .field("priv_", &self.priv_)
             .finish()
@@ -13637,7 +13726,7 @@ pub struct GtkMenuToolButton {
 
 impl ::std::fmt::Debug for GtkMenuToolButton {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkMenuToolButton @ {self:p}"))
+        f.debug_struct(&format!("GtkMenuToolButton @ {:p}", self))
             .field("parent", &self.parent)
             .finish()
     }
@@ -13652,7 +13741,7 @@ pub struct GtkMessageDialog {
 
 impl ::std::fmt::Debug for GtkMessageDialog {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkMessageDialog @ {self:p}"))
+        f.debug_struct(&format!("GtkMessageDialog @ {:p}", self))
             .field("parent_instance", &self.parent_instance)
             .finish()
     }
@@ -13667,7 +13756,7 @@ pub struct GtkMisc {
 
 impl ::std::fmt::Debug for GtkMisc {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkMisc @ {self:p}"))
+        f.debug_struct(&format!("GtkMisc @ {:p}", self))
             .field("widget", &self.widget)
             .finish()
     }
@@ -13681,7 +13770,7 @@ pub struct GtkModelButton {
 
 impl ::std::fmt::Debug for GtkModelButton {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkModelButton @ {self:p}"))
+        f.debug_struct(&format!("GtkModelButton @ {:p}", self))
             .finish()
     }
 }
@@ -13695,7 +13784,7 @@ pub struct GtkMountOperation {
 
 impl ::std::fmt::Debug for GtkMountOperation {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkMountOperation @ {self:p}"))
+        f.debug_struct(&format!("GtkMountOperation @ {:p}", self))
             .field("parent_instance", &self.parent_instance)
             .field("priv_", &self.priv_)
             .finish()
@@ -13710,7 +13799,7 @@ pub struct GtkNativeDialog {
 
 impl ::std::fmt::Debug for GtkNativeDialog {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkNativeDialog @ {self:p}"))
+        f.debug_struct(&format!("GtkNativeDialog @ {:p}", self))
             .field("parent_instance", &self.parent_instance)
             .finish()
     }
@@ -13725,7 +13814,8 @@ pub struct GtkNotebook {
 
 impl ::std::fmt::Debug for GtkNotebook {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkNotebook @ {self:p}")).finish()
+        f.debug_struct(&format!("GtkNotebook @ {:p}", self))
+            .finish()
     }
 }
 
@@ -13738,7 +13828,7 @@ pub struct GtkNotebookAccessible {
 
 impl ::std::fmt::Debug for GtkNotebookAccessible {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkNotebookAccessible @ {self:p}"))
+        f.debug_struct(&format!("GtkNotebookAccessible @ {:p}", self))
             .field("parent", &self.parent)
             .field("priv_", &self.priv_)
             .finish()
@@ -13754,7 +13844,7 @@ pub struct GtkNotebookPageAccessible {
 
 impl ::std::fmt::Debug for GtkNotebookPageAccessible {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkNotebookPageAccessible @ {self:p}"))
+        f.debug_struct(&format!("GtkNotebookPageAccessible @ {:p}", self))
             .field("parent", &self.parent)
             .field("priv_", &self.priv_)
             .finish()
@@ -13770,7 +13860,7 @@ pub struct GtkNumerableIcon {
 
 impl ::std::fmt::Debug for GtkNumerableIcon {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkNumerableIcon @ {self:p}"))
+        f.debug_struct(&format!("GtkNumerableIcon @ {:p}", self))
             .field("parent", &self.parent)
             .finish()
     }
@@ -13784,7 +13874,7 @@ pub struct GtkOffscreenWindow {
 
 impl ::std::fmt::Debug for GtkOffscreenWindow {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkOffscreenWindow @ {self:p}"))
+        f.debug_struct(&format!("GtkOffscreenWindow @ {:p}", self))
             .field("parent_object", &self.parent_object)
             .finish()
     }
@@ -13799,7 +13889,7 @@ pub struct GtkOverlay {
 
 impl ::std::fmt::Debug for GtkOverlay {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkOverlay @ {self:p}"))
+        f.debug_struct(&format!("GtkOverlay @ {:p}", self))
             .field("parent", &self.parent)
             .field("priv_", &self.priv_)
             .finish()
@@ -13814,7 +13904,7 @@ pub struct GtkPadController {
 
 impl ::std::fmt::Debug for GtkPadController {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkPadController @ {self:p}"))
+        f.debug_struct(&format!("GtkPadController @ {:p}", self))
             .finish()
     }
 }
@@ -13827,7 +13917,8 @@ pub struct GtkPageSetup {
 
 impl ::std::fmt::Debug for GtkPageSetup {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkPageSetup @ {self:p}")).finish()
+        f.debug_struct(&format!("GtkPageSetup @ {:p}", self))
+            .finish()
     }
 }
 
@@ -13840,7 +13931,7 @@ pub struct GtkPaned {
 
 impl ::std::fmt::Debug for GtkPaned {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkPaned @ {self:p}"))
+        f.debug_struct(&format!("GtkPaned @ {:p}", self))
             .field("container", &self.container)
             .finish()
     }
@@ -13855,7 +13946,7 @@ pub struct GtkPanedAccessible {
 
 impl ::std::fmt::Debug for GtkPanedAccessible {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkPanedAccessible @ {self:p}"))
+        f.debug_struct(&format!("GtkPanedAccessible @ {:p}", self))
             .field("parent", &self.parent)
             .field("priv_", &self.priv_)
             .finish()
@@ -13870,7 +13961,7 @@ pub struct GtkPlacesSidebar {
 
 impl ::std::fmt::Debug for GtkPlacesSidebar {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkPlacesSidebar @ {self:p}"))
+        f.debug_struct(&format!("GtkPlacesSidebar @ {:p}", self))
             .finish()
     }
 }
@@ -13884,7 +13975,7 @@ pub struct GtkPlug {
 
 impl ::std::fmt::Debug for GtkPlug {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkPlug @ {self:p}"))
+        f.debug_struct(&format!("GtkPlug @ {:p}", self))
             .field("window", &self.window)
             .field("priv_", &self.priv_)
             .finish()
@@ -13900,7 +13991,7 @@ pub struct GtkPlugAccessible {
 
 impl ::std::fmt::Debug for GtkPlugAccessible {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkPlugAccessible @ {self:p}"))
+        f.debug_struct(&format!("GtkPlugAccessible @ {:p}", self))
             .field("parent", &self.parent)
             .field("priv_", &self.priv_)
             .finish()
@@ -13916,7 +14007,7 @@ pub struct GtkPopover {
 
 impl ::std::fmt::Debug for GtkPopover {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkPopover @ {self:p}"))
+        f.debug_struct(&format!("GtkPopover @ {:p}", self))
             .field("parent_instance", &self.parent_instance)
             .finish()
     }
@@ -13930,7 +14021,7 @@ pub struct GtkPopoverAccessible {
 
 impl ::std::fmt::Debug for GtkPopoverAccessible {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkPopoverAccessible @ {self:p}"))
+        f.debug_struct(&format!("GtkPopoverAccessible @ {:p}", self))
             .field("parent", &self.parent)
             .finish()
     }
@@ -13944,7 +14035,7 @@ pub struct GtkPopoverMenu {
 
 impl ::std::fmt::Debug for GtkPopoverMenu {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkPopoverMenu @ {self:p}"))
+        f.debug_struct(&format!("GtkPopoverMenu @ {:p}", self))
             .finish()
     }
 }
@@ -13957,7 +14048,7 @@ pub struct GtkPrintContext {
 
 impl ::std::fmt::Debug for GtkPrintContext {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkPrintContext @ {self:p}"))
+        f.debug_struct(&format!("GtkPrintContext @ {:p}", self))
             .finish()
     }
 }
@@ -13971,7 +14062,7 @@ pub struct GtkPrintOperation {
 
 impl ::std::fmt::Debug for GtkPrintOperation {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkPrintOperation @ {self:p}"))
+        f.debug_struct(&format!("GtkPrintOperation @ {:p}", self))
             .field("parent_instance", &self.parent_instance)
             .finish()
     }
@@ -13985,7 +14076,7 @@ pub struct GtkPrintSettings {
 
 impl ::std::fmt::Debug for GtkPrintSettings {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkPrintSettings @ {self:p}"))
+        f.debug_struct(&format!("GtkPrintSettings @ {:p}", self))
             .finish()
     }
 }
@@ -13999,7 +14090,7 @@ pub struct GtkProgressBar {
 
 impl ::std::fmt::Debug for GtkProgressBar {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkProgressBar @ {self:p}"))
+        f.debug_struct(&format!("GtkProgressBar @ {:p}", self))
             .field("parent", &self.parent)
             .finish()
     }
@@ -14014,7 +14105,7 @@ pub struct GtkProgressBarAccessible {
 
 impl ::std::fmt::Debug for GtkProgressBarAccessible {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkProgressBarAccessible @ {self:p}"))
+        f.debug_struct(&format!("GtkProgressBarAccessible @ {:p}", self))
             .field("parent", &self.parent)
             .field("priv_", &self.priv_)
             .finish()
@@ -14030,7 +14121,7 @@ pub struct GtkRadioAction {
 
 impl ::std::fmt::Debug for GtkRadioAction {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkRadioAction @ {self:p}"))
+        f.debug_struct(&format!("GtkRadioAction @ {:p}", self))
             .field("parent", &self.parent)
             .finish()
     }
@@ -14045,7 +14136,7 @@ pub struct GtkRadioButton {
 
 impl ::std::fmt::Debug for GtkRadioButton {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkRadioButton @ {self:p}"))
+        f.debug_struct(&format!("GtkRadioButton @ {:p}", self))
             .field("check_button", &self.check_button)
             .finish()
     }
@@ -14060,7 +14151,7 @@ pub struct GtkRadioButtonAccessible {
 
 impl ::std::fmt::Debug for GtkRadioButtonAccessible {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkRadioButtonAccessible @ {self:p}"))
+        f.debug_struct(&format!("GtkRadioButtonAccessible @ {:p}", self))
             .field("parent", &self.parent)
             .field("priv_", &self.priv_)
             .finish()
@@ -14076,7 +14167,7 @@ pub struct GtkRadioMenuItem {
 
 impl ::std::fmt::Debug for GtkRadioMenuItem {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkRadioMenuItem @ {self:p}"))
+        f.debug_struct(&format!("GtkRadioMenuItem @ {:p}", self))
             .field("check_menu_item", &self.check_menu_item)
             .finish()
     }
@@ -14091,7 +14182,7 @@ pub struct GtkRadioMenuItemAccessible {
 
 impl ::std::fmt::Debug for GtkRadioMenuItemAccessible {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkRadioMenuItemAccessible @ {self:p}"))
+        f.debug_struct(&format!("GtkRadioMenuItemAccessible @ {:p}", self))
             .field("parent", &self.parent)
             .field("priv_", &self.priv_)
             .finish()
@@ -14106,7 +14197,7 @@ pub struct GtkRadioToolButton {
 
 impl ::std::fmt::Debug for GtkRadioToolButton {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkRadioToolButton @ {self:p}"))
+        f.debug_struct(&format!("GtkRadioToolButton @ {:p}", self))
             .field("parent", &self.parent)
             .finish()
     }
@@ -14121,7 +14212,7 @@ pub struct GtkRange {
 
 impl ::std::fmt::Debug for GtkRange {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkRange @ {self:p}"))
+        f.debug_struct(&format!("GtkRange @ {:p}", self))
             .field("widget", &self.widget)
             .field("priv_", &self.priv_)
             .finish()
@@ -14137,7 +14228,7 @@ pub struct GtkRangeAccessible {
 
 impl ::std::fmt::Debug for GtkRangeAccessible {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkRangeAccessible @ {self:p}"))
+        f.debug_struct(&format!("GtkRangeAccessible @ {:p}", self))
             .field("parent", &self.parent)
             .field("priv_", &self.priv_)
             .finish()
@@ -14166,7 +14257,7 @@ pub struct GtkRcStyle {
 
 impl ::std::fmt::Debug for GtkRcStyle {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkRcStyle @ {self:p}"))
+        f.debug_struct(&format!("GtkRcStyle @ {:p}", self))
             .field("parent_instance", &self.parent_instance)
             .field("name", &self.name)
             .field("bg_pixmap_name", &self.bg_pixmap_name)
@@ -14191,7 +14282,7 @@ pub struct GtkRecentAction {
 
 impl ::std::fmt::Debug for GtkRecentAction {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkRecentAction @ {self:p}"))
+        f.debug_struct(&format!("GtkRecentAction @ {:p}", self))
             .field("parent_instance", &self.parent_instance)
             .finish()
     }
@@ -14206,7 +14297,7 @@ pub struct GtkRecentChooserDialog {
 
 impl ::std::fmt::Debug for GtkRecentChooserDialog {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkRecentChooserDialog @ {self:p}"))
+        f.debug_struct(&format!("GtkRecentChooserDialog @ {:p}", self))
             .field("parent_instance", &self.parent_instance)
             .finish()
     }
@@ -14221,7 +14312,7 @@ pub struct GtkRecentChooserMenu {
 
 impl ::std::fmt::Debug for GtkRecentChooserMenu {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkRecentChooserMenu @ {self:p}"))
+        f.debug_struct(&format!("GtkRecentChooserMenu @ {:p}", self))
             .field("parent_instance", &self.parent_instance)
             .finish()
     }
@@ -14236,7 +14327,7 @@ pub struct GtkRecentChooserWidget {
 
 impl ::std::fmt::Debug for GtkRecentChooserWidget {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkRecentChooserWidget @ {self:p}"))
+        f.debug_struct(&format!("GtkRecentChooserWidget @ {:p}", self))
             .field("parent_instance", &self.parent_instance)
             .finish()
     }
@@ -14250,7 +14341,7 @@ pub struct GtkRecentFilter {
 
 impl ::std::fmt::Debug for GtkRecentFilter {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkRecentFilter @ {self:p}"))
+        f.debug_struct(&format!("GtkRecentFilter @ {:p}", self))
             .finish()
     }
 }
@@ -14264,7 +14355,7 @@ pub struct GtkRecentManager {
 
 impl ::std::fmt::Debug for GtkRecentManager {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkRecentManager @ {self:p}"))
+        f.debug_struct(&format!("GtkRecentManager @ {:p}", self))
             .finish()
     }
 }
@@ -14278,7 +14369,7 @@ pub struct GtkRendererCellAccessible {
 
 impl ::std::fmt::Debug for GtkRendererCellAccessible {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkRendererCellAccessible @ {self:p}"))
+        f.debug_struct(&format!("GtkRendererCellAccessible @ {:p}", self))
             .field("parent", &self.parent)
             .field("priv_", &self.priv_)
             .finish()
@@ -14293,7 +14384,7 @@ pub struct GtkRevealer {
 
 impl ::std::fmt::Debug for GtkRevealer {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkRevealer @ {self:p}"))
+        f.debug_struct(&format!("GtkRevealer @ {:p}", self))
             .field("parent_instance", &self.parent_instance)
             .finish()
     }
@@ -14308,7 +14399,7 @@ pub struct GtkScale {
 
 impl ::std::fmt::Debug for GtkScale {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkScale @ {self:p}"))
+        f.debug_struct(&format!("GtkScale @ {:p}", self))
             .field("range", &self.range)
             .finish()
     }
@@ -14323,7 +14414,7 @@ pub struct GtkScaleAccessible {
 
 impl ::std::fmt::Debug for GtkScaleAccessible {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkScaleAccessible @ {self:p}"))
+        f.debug_struct(&format!("GtkScaleAccessible @ {:p}", self))
             .field("parent", &self.parent)
             .field("priv_", &self.priv_)
             .finish()
@@ -14339,7 +14430,7 @@ pub struct GtkScaleButton {
 
 impl ::std::fmt::Debug for GtkScaleButton {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkScaleButton @ {self:p}"))
+        f.debug_struct(&format!("GtkScaleButton @ {:p}", self))
             .field("parent", &self.parent)
             .finish()
     }
@@ -14354,7 +14445,7 @@ pub struct GtkScaleButtonAccessible {
 
 impl ::std::fmt::Debug for GtkScaleButtonAccessible {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkScaleButtonAccessible @ {self:p}"))
+        f.debug_struct(&format!("GtkScaleButtonAccessible @ {:p}", self))
             .field("parent", &self.parent)
             .field("priv_", &self.priv_)
             .finish()
@@ -14369,7 +14460,7 @@ pub struct GtkScrollbar {
 
 impl ::std::fmt::Debug for GtkScrollbar {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkScrollbar @ {self:p}"))
+        f.debug_struct(&format!("GtkScrollbar @ {:p}", self))
             .field("range", &self.range)
             .finish()
     }
@@ -14384,7 +14475,7 @@ pub struct GtkScrolledWindow {
 
 impl ::std::fmt::Debug for GtkScrolledWindow {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkScrolledWindow @ {self:p}"))
+        f.debug_struct(&format!("GtkScrolledWindow @ {:p}", self))
             .field("container", &self.container)
             .field("priv_", &self.priv_)
             .finish()
@@ -14400,7 +14491,7 @@ pub struct GtkScrolledWindowAccessible {
 
 impl ::std::fmt::Debug for GtkScrolledWindowAccessible {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkScrolledWindowAccessible @ {self:p}"))
+        f.debug_struct(&format!("GtkScrolledWindowAccessible @ {:p}", self))
             .field("parent", &self.parent)
             .field("priv_", &self.priv_)
             .finish()
@@ -14415,7 +14506,8 @@ pub struct GtkSearchBar {
 
 impl ::std::fmt::Debug for GtkSearchBar {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkSearchBar @ {self:p}")).finish()
+        f.debug_struct(&format!("GtkSearchBar @ {:p}", self))
+            .finish()
     }
 }
 
@@ -14427,7 +14519,7 @@ pub struct GtkSearchEntry {
 
 impl ::std::fmt::Debug for GtkSearchEntry {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkSearchEntry @ {self:p}"))
+        f.debug_struct(&format!("GtkSearchEntry @ {:p}", self))
             .field("parent", &self.parent)
             .finish()
     }
@@ -14442,7 +14534,7 @@ pub struct GtkSeparator {
 
 impl ::std::fmt::Debug for GtkSeparator {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkSeparator @ {self:p}"))
+        f.debug_struct(&format!("GtkSeparator @ {:p}", self))
             .field("widget", &self.widget)
             .field("priv_", &self.priv_)
             .finish()
@@ -14457,7 +14549,7 @@ pub struct GtkSeparatorMenuItem {
 
 impl ::std::fmt::Debug for GtkSeparatorMenuItem {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkSeparatorMenuItem @ {self:p}"))
+        f.debug_struct(&format!("GtkSeparatorMenuItem @ {:p}", self))
             .field("menu_item", &self.menu_item)
             .finish()
     }
@@ -14472,7 +14564,7 @@ pub struct GtkSeparatorToolItem {
 
 impl ::std::fmt::Debug for GtkSeparatorToolItem {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkSeparatorToolItem @ {self:p}"))
+        f.debug_struct(&format!("GtkSeparatorToolItem @ {:p}", self))
             .field("parent", &self.parent)
             .finish()
     }
@@ -14487,7 +14579,7 @@ pub struct GtkSettings {
 
 impl ::std::fmt::Debug for GtkSettings {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkSettings @ {self:p}"))
+        f.debug_struct(&format!("GtkSettings @ {:p}", self))
             .field("parent_instance", &self.parent_instance)
             .finish()
     }
@@ -14501,7 +14593,7 @@ pub struct GtkShortcutLabel {
 
 impl ::std::fmt::Debug for GtkShortcutLabel {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkShortcutLabel @ {self:p}"))
+        f.debug_struct(&format!("GtkShortcutLabel @ {:p}", self))
             .finish()
     }
 }
@@ -14514,7 +14606,7 @@ pub struct GtkShortcutsGroup {
 
 impl ::std::fmt::Debug for GtkShortcutsGroup {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkShortcutsGroup @ {self:p}"))
+        f.debug_struct(&format!("GtkShortcutsGroup @ {:p}", self))
             .finish()
     }
 }
@@ -14527,7 +14619,7 @@ pub struct GtkShortcutsSection {
 
 impl ::std::fmt::Debug for GtkShortcutsSection {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkShortcutsSection @ {self:p}"))
+        f.debug_struct(&format!("GtkShortcutsSection @ {:p}", self))
             .finish()
     }
 }
@@ -14540,7 +14632,7 @@ pub struct GtkShortcutsShortcut {
 
 impl ::std::fmt::Debug for GtkShortcutsShortcut {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkShortcutsShortcut @ {self:p}"))
+        f.debug_struct(&format!("GtkShortcutsShortcut @ {:p}", self))
             .finish()
     }
 }
@@ -14553,7 +14645,7 @@ pub struct GtkShortcutsWindow {
 
 impl ::std::fmt::Debug for GtkShortcutsWindow {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkShortcutsWindow @ {self:p}"))
+        f.debug_struct(&format!("GtkShortcutsWindow @ {:p}", self))
             .field("window", &self.window)
             .finish()
     }
@@ -14568,7 +14660,7 @@ pub struct GtkSizeGroup {
 
 impl ::std::fmt::Debug for GtkSizeGroup {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkSizeGroup @ {self:p}"))
+        f.debug_struct(&format!("GtkSizeGroup @ {:p}", self))
             .field("parent_instance", &self.parent_instance)
             .finish()
     }
@@ -14583,7 +14675,7 @@ pub struct GtkSocket {
 
 impl ::std::fmt::Debug for GtkSocket {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkSocket @ {self:p}"))
+        f.debug_struct(&format!("GtkSocket @ {:p}", self))
             .field("container", &self.container)
             .field("priv_", &self.priv_)
             .finish()
@@ -14599,7 +14691,7 @@ pub struct GtkSocketAccessible {
 
 impl ::std::fmt::Debug for GtkSocketAccessible {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkSocketAccessible @ {self:p}"))
+        f.debug_struct(&format!("GtkSocketAccessible @ {:p}", self))
             .field("parent", &self.parent)
             .field("priv_", &self.priv_)
             .finish()
@@ -14615,7 +14707,7 @@ pub struct GtkSpinButton {
 
 impl ::std::fmt::Debug for GtkSpinButton {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkSpinButton @ {self:p}"))
+        f.debug_struct(&format!("GtkSpinButton @ {:p}", self))
             .field("entry", &self.entry)
             .finish()
     }
@@ -14630,7 +14722,7 @@ pub struct GtkSpinButtonAccessible {
 
 impl ::std::fmt::Debug for GtkSpinButtonAccessible {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkSpinButtonAccessible @ {self:p}"))
+        f.debug_struct(&format!("GtkSpinButtonAccessible @ {:p}", self))
             .field("parent", &self.parent)
             .field("priv_", &self.priv_)
             .finish()
@@ -14646,7 +14738,7 @@ pub struct GtkSpinner {
 
 impl ::std::fmt::Debug for GtkSpinner {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkSpinner @ {self:p}"))
+        f.debug_struct(&format!("GtkSpinner @ {:p}", self))
             .field("parent", &self.parent)
             .finish()
     }
@@ -14661,7 +14753,7 @@ pub struct GtkSpinnerAccessible {
 
 impl ::std::fmt::Debug for GtkSpinnerAccessible {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkSpinnerAccessible @ {self:p}"))
+        f.debug_struct(&format!("GtkSpinnerAccessible @ {:p}", self))
             .field("parent", &self.parent)
             .field("priv_", &self.priv_)
             .finish()
@@ -14676,7 +14768,7 @@ pub struct GtkStack {
 
 impl ::std::fmt::Debug for GtkStack {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkStack @ {self:p}"))
+        f.debug_struct(&format!("GtkStack @ {:p}", self))
             .field("parent_instance", &self.parent_instance)
             .finish()
     }
@@ -14690,7 +14782,7 @@ pub struct GtkStackAccessible {
 
 impl ::std::fmt::Debug for GtkStackAccessible {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkStackAccessible @ {self:p}"))
+        f.debug_struct(&format!("GtkStackAccessible @ {:p}", self))
             .field("parent", &self.parent)
             .finish()
     }
@@ -14704,7 +14796,7 @@ pub struct GtkStackSidebar {
 
 impl ::std::fmt::Debug for GtkStackSidebar {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkStackSidebar @ {self:p}"))
+        f.debug_struct(&format!("GtkStackSidebar @ {:p}", self))
             .field("parent", &self.parent)
             .finish()
     }
@@ -14718,7 +14810,7 @@ pub struct GtkStackSwitcher {
 
 impl ::std::fmt::Debug for GtkStackSwitcher {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkStackSwitcher @ {self:p}"))
+        f.debug_struct(&format!("GtkStackSwitcher @ {:p}", self))
             .field("widget", &self.widget)
             .finish()
     }
@@ -14733,7 +14825,7 @@ pub struct GtkStatusIcon {
 
 impl ::std::fmt::Debug for GtkStatusIcon {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkStatusIcon @ {self:p}"))
+        f.debug_struct(&format!("GtkStatusIcon @ {:p}", self))
             .field("parent_instance", &self.parent_instance)
             .field("priv_", &self.priv_)
             .finish()
@@ -14749,7 +14841,7 @@ pub struct GtkStatusbar {
 
 impl ::std::fmt::Debug for GtkStatusbar {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkStatusbar @ {self:p}"))
+        f.debug_struct(&format!("GtkStatusbar @ {:p}", self))
             .field("parent_widget", &self.parent_widget)
             .finish()
     }
@@ -14764,7 +14856,7 @@ pub struct GtkStatusbarAccessible {
 
 impl ::std::fmt::Debug for GtkStatusbarAccessible {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkStatusbarAccessible @ {self:p}"))
+        f.debug_struct(&format!("GtkStatusbarAccessible @ {:p}", self))
             .field("parent", &self.parent)
             .field("priv_", &self.priv_)
             .finish()
@@ -14793,7 +14885,7 @@ pub struct GtkStyle {
 
 impl ::std::fmt::Debug for GtkStyle {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkStyle @ {self:p}"))
+        f.debug_struct(&format!("GtkStyle @ {:p}", self))
             .field("fg", &self.fg)
             .field("bg", &self.bg)
             .field("light", &self.light)
@@ -14820,7 +14912,7 @@ pub struct GtkStyleContext {
 
 impl ::std::fmt::Debug for GtkStyleContext {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkStyleContext @ {self:p}"))
+        f.debug_struct(&format!("GtkStyleContext @ {:p}", self))
             .field("parent_object", &self.parent_object)
             .field("priv_", &self.priv_)
             .finish()
@@ -14836,7 +14928,7 @@ pub struct GtkStyleProperties {
 
 impl ::std::fmt::Debug for GtkStyleProperties {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkStyleProperties @ {self:p}"))
+        f.debug_struct(&format!("GtkStyleProperties @ {:p}", self))
             .finish()
     }
 }
@@ -14850,7 +14942,7 @@ pub struct GtkSwitch {
 
 impl ::std::fmt::Debug for GtkSwitch {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkSwitch @ {self:p}")).finish()
+        f.debug_struct(&format!("GtkSwitch @ {:p}", self)).finish()
     }
 }
 
@@ -14863,7 +14955,7 @@ pub struct GtkSwitchAccessible {
 
 impl ::std::fmt::Debug for GtkSwitchAccessible {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkSwitchAccessible @ {self:p}"))
+        f.debug_struct(&format!("GtkSwitchAccessible @ {:p}", self))
             .field("parent", &self.parent)
             .field("priv_", &self.priv_)
             .finish()
@@ -14879,7 +14971,7 @@ pub struct GtkTable {
 
 impl ::std::fmt::Debug for GtkTable {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkTable @ {self:p}"))
+        f.debug_struct(&format!("GtkTable @ {:p}", self))
             .field("container", &self.container)
             .finish()
     }
@@ -14894,7 +14986,7 @@ pub struct GtkTearoffMenuItem {
 
 impl ::std::fmt::Debug for GtkTearoffMenuItem {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkTearoffMenuItem @ {self:p}"))
+        f.debug_struct(&format!("GtkTearoffMenuItem @ {:p}", self))
             .field("menu_item", &self.menu_item)
             .finish()
     }
@@ -14909,7 +15001,7 @@ pub struct GtkTextBuffer {
 
 impl ::std::fmt::Debug for GtkTextBuffer {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkTextBuffer @ {self:p}"))
+        f.debug_struct(&format!("GtkTextBuffer @ {:p}", self))
             .field("parent_instance", &self.parent_instance)
             .field("priv_", &self.priv_)
             .finish()
@@ -14925,7 +15017,7 @@ pub struct GtkTextCellAccessible {
 
 impl ::std::fmt::Debug for GtkTextCellAccessible {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkTextCellAccessible @ {self:p}"))
+        f.debug_struct(&format!("GtkTextCellAccessible @ {:p}", self))
             .field("parent", &self.parent)
             .field("priv_", &self.priv_)
             .finish()
@@ -14941,7 +15033,7 @@ pub struct GtkTextChildAnchor {
 
 impl ::std::fmt::Debug for GtkTextChildAnchor {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkTextChildAnchor @ {self:p}"))
+        f.debug_struct(&format!("GtkTextChildAnchor @ {:p}", self))
             .field("parent_instance", &self.parent_instance)
             .finish()
     }
@@ -14956,7 +15048,7 @@ pub struct GtkTextMark {
 
 impl ::std::fmt::Debug for GtkTextMark {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkTextMark @ {self:p}"))
+        f.debug_struct(&format!("GtkTextMark @ {:p}", self))
             .field("parent_instance", &self.parent_instance)
             .finish()
     }
@@ -14971,7 +15063,7 @@ pub struct GtkTextTag {
 
 impl ::std::fmt::Debug for GtkTextTag {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkTextTag @ {self:p}"))
+        f.debug_struct(&format!("GtkTextTag @ {:p}", self))
             .field("parent_instance", &self.parent_instance)
             .field("priv_", &self.priv_)
             .finish()
@@ -14987,7 +15079,7 @@ pub struct GtkTextTagTable {
 
 impl ::std::fmt::Debug for GtkTextTagTable {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkTextTagTable @ {self:p}"))
+        f.debug_struct(&format!("GtkTextTagTable @ {:p}", self))
             .field("parent_instance", &self.parent_instance)
             .field("priv_", &self.priv_)
             .finish()
@@ -15003,7 +15095,7 @@ pub struct GtkTextView {
 
 impl ::std::fmt::Debug for GtkTextView {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkTextView @ {self:p}"))
+        f.debug_struct(&format!("GtkTextView @ {:p}", self))
             .field("parent_instance", &self.parent_instance)
             .finish()
     }
@@ -15018,7 +15110,7 @@ pub struct GtkTextViewAccessible {
 
 impl ::std::fmt::Debug for GtkTextViewAccessible {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkTextViewAccessible @ {self:p}"))
+        f.debug_struct(&format!("GtkTextViewAccessible @ {:p}", self))
             .field("parent", &self.parent)
             .field("priv_", &self.priv_)
             .finish()
@@ -15034,7 +15126,7 @@ pub struct GtkThemingEngine {
 
 impl ::std::fmt::Debug for GtkThemingEngine {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkThemingEngine @ {self:p}"))
+        f.debug_struct(&format!("GtkThemingEngine @ {:p}", self))
             .field("parent_object", &self.parent_object)
             .field("priv_", &self.priv_)
             .finish()
@@ -15050,7 +15142,7 @@ pub struct GtkToggleAction {
 
 impl ::std::fmt::Debug for GtkToggleAction {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkToggleAction @ {self:p}"))
+        f.debug_struct(&format!("GtkToggleAction @ {:p}", self))
             .field("parent", &self.parent)
             .finish()
     }
@@ -15065,7 +15157,7 @@ pub struct GtkToggleButton {
 
 impl ::std::fmt::Debug for GtkToggleButton {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkToggleButton @ {self:p}"))
+        f.debug_struct(&format!("GtkToggleButton @ {:p}", self))
             .finish()
     }
 }
@@ -15079,7 +15171,7 @@ pub struct GtkToggleButtonAccessible {
 
 impl ::std::fmt::Debug for GtkToggleButtonAccessible {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkToggleButtonAccessible @ {self:p}"))
+        f.debug_struct(&format!("GtkToggleButtonAccessible @ {:p}", self))
             .field("parent", &self.parent)
             .field("priv_", &self.priv_)
             .finish()
@@ -15095,7 +15187,7 @@ pub struct GtkToggleToolButton {
 
 impl ::std::fmt::Debug for GtkToggleToolButton {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkToggleToolButton @ {self:p}"))
+        f.debug_struct(&format!("GtkToggleToolButton @ {:p}", self))
             .field("parent", &self.parent)
             .finish()
     }
@@ -15110,7 +15202,7 @@ pub struct GtkToolButton {
 
 impl ::std::fmt::Debug for GtkToolButton {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkToolButton @ {self:p}"))
+        f.debug_struct(&format!("GtkToolButton @ {:p}", self))
             .field("parent", &self.parent)
             .finish()
     }
@@ -15125,7 +15217,7 @@ pub struct GtkToolItem {
 
 impl ::std::fmt::Debug for GtkToolItem {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkToolItem @ {self:p}"))
+        f.debug_struct(&format!("GtkToolItem @ {:p}", self))
             .field("parent", &self.parent)
             .finish()
     }
@@ -15140,7 +15232,7 @@ pub struct GtkToolItemGroup {
 
 impl ::std::fmt::Debug for GtkToolItemGroup {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkToolItemGroup @ {self:p}"))
+        f.debug_struct(&format!("GtkToolItemGroup @ {:p}", self))
             .field("parent_instance", &self.parent_instance)
             .field("priv_", &self.priv_)
             .finish()
@@ -15156,7 +15248,7 @@ pub struct GtkToolPalette {
 
 impl ::std::fmt::Debug for GtkToolPalette {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkToolPalette @ {self:p}"))
+        f.debug_struct(&format!("GtkToolPalette @ {:p}", self))
             .field("parent_instance", &self.parent_instance)
             .field("priv_", &self.priv_)
             .finish()
@@ -15172,7 +15264,7 @@ pub struct GtkToolbar {
 
 impl ::std::fmt::Debug for GtkToolbar {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkToolbar @ {self:p}"))
+        f.debug_struct(&format!("GtkToolbar @ {:p}", self))
             .field("container", &self.container)
             .field("priv_", &self.priv_)
             .finish()
@@ -15187,7 +15279,7 @@ pub struct GtkTooltip {
 
 impl ::std::fmt::Debug for GtkTooltip {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkTooltip @ {self:p}")).finish()
+        f.debug_struct(&format!("GtkTooltip @ {:p}", self)).finish()
     }
 }
 
@@ -15200,7 +15292,7 @@ pub struct GtkToplevelAccessible {
 
 impl ::std::fmt::Debug for GtkToplevelAccessible {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkToplevelAccessible @ {self:p}"))
+        f.debug_struct(&format!("GtkToplevelAccessible @ {:p}", self))
             .field("parent", &self.parent)
             .field("priv_", &self.priv_)
             .finish()
@@ -15216,7 +15308,7 @@ pub struct GtkTreeModelFilter {
 
 impl ::std::fmt::Debug for GtkTreeModelFilter {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkTreeModelFilter @ {self:p}"))
+        f.debug_struct(&format!("GtkTreeModelFilter @ {:p}", self))
             .field("parent", &self.parent)
             .finish()
     }
@@ -15231,7 +15323,7 @@ pub struct GtkTreeModelSort {
 
 impl ::std::fmt::Debug for GtkTreeModelSort {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkTreeModelSort @ {self:p}"))
+        f.debug_struct(&format!("GtkTreeModelSort @ {:p}", self))
             .field("parent", &self.parent)
             .finish()
     }
@@ -15246,7 +15338,7 @@ pub struct GtkTreeSelection {
 
 impl ::std::fmt::Debug for GtkTreeSelection {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkTreeSelection @ {self:p}"))
+        f.debug_struct(&format!("GtkTreeSelection @ {:p}", self))
             .finish()
     }
 }
@@ -15260,7 +15352,7 @@ pub struct GtkTreeStore {
 
 impl ::std::fmt::Debug for GtkTreeStore {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkTreeStore @ {self:p}"))
+        f.debug_struct(&format!("GtkTreeStore @ {:p}", self))
             .field("parent", &self.parent)
             .field("priv_", &self.priv_)
             .finish()
@@ -15276,7 +15368,7 @@ pub struct GtkTreeView {
 
 impl ::std::fmt::Debug for GtkTreeView {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkTreeView @ {self:p}"))
+        f.debug_struct(&format!("GtkTreeView @ {:p}", self))
             .field("parent", &self.parent)
             .finish()
     }
@@ -15291,7 +15383,7 @@ pub struct GtkTreeViewAccessible {
 
 impl ::std::fmt::Debug for GtkTreeViewAccessible {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkTreeViewAccessible @ {self:p}"))
+        f.debug_struct(&format!("GtkTreeViewAccessible @ {:p}", self))
             .field("parent", &self.parent)
             .field("priv_", &self.priv_)
             .finish()
@@ -15307,7 +15399,7 @@ pub struct GtkTreeViewColumn {
 
 impl ::std::fmt::Debug for GtkTreeViewColumn {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkTreeViewColumn @ {self:p}"))
+        f.debug_struct(&format!("GtkTreeViewColumn @ {:p}", self))
             .field("parent_instance", &self.parent_instance)
             .field("priv_", &self.priv_)
             .finish()
@@ -15323,7 +15415,7 @@ pub struct GtkUIManager {
 
 impl ::std::fmt::Debug for GtkUIManager {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkUIManager @ {self:p}"))
+        f.debug_struct(&format!("GtkUIManager @ {:p}", self))
             .field("parent", &self.parent)
             .finish()
     }
@@ -15337,7 +15429,7 @@ pub struct GtkVBox {
 
 impl ::std::fmt::Debug for GtkVBox {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkVBox @ {self:p}"))
+        f.debug_struct(&format!("GtkVBox @ {:p}", self))
             .field("box_", &self.box_)
             .finish()
     }
@@ -15351,7 +15443,7 @@ pub struct GtkVButtonBox {
 
 impl ::std::fmt::Debug for GtkVButtonBox {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkVButtonBox @ {self:p}"))
+        f.debug_struct(&format!("GtkVButtonBox @ {:p}", self))
             .field("button_box", &self.button_box)
             .finish()
     }
@@ -15365,7 +15457,7 @@ pub struct GtkVPaned {
 
 impl ::std::fmt::Debug for GtkVPaned {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkVPaned @ {self:p}"))
+        f.debug_struct(&format!("GtkVPaned @ {:p}", self))
             .field("paned", &self.paned)
             .finish()
     }
@@ -15379,7 +15471,7 @@ pub struct GtkVScale {
 
 impl ::std::fmt::Debug for GtkVScale {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkVScale @ {self:p}"))
+        f.debug_struct(&format!("GtkVScale @ {:p}", self))
             .field("scale", &self.scale)
             .finish()
     }
@@ -15393,7 +15485,7 @@ pub struct GtkVScrollbar {
 
 impl ::std::fmt::Debug for GtkVScrollbar {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkVScrollbar @ {self:p}"))
+        f.debug_struct(&format!("GtkVScrollbar @ {:p}", self))
             .field("scrollbar", &self.scrollbar)
             .finish()
     }
@@ -15407,7 +15499,7 @@ pub struct GtkVSeparator {
 
 impl ::std::fmt::Debug for GtkVSeparator {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkVSeparator @ {self:p}"))
+        f.debug_struct(&format!("GtkVSeparator @ {:p}", self))
             .field("separator", &self.separator)
             .finish()
     }
@@ -15422,7 +15514,7 @@ pub struct GtkViewport {
 
 impl ::std::fmt::Debug for GtkViewport {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkViewport @ {self:p}"))
+        f.debug_struct(&format!("GtkViewport @ {:p}", self))
             .field("bin", &self.bin)
             .finish()
     }
@@ -15436,7 +15528,7 @@ pub struct GtkVolumeButton {
 
 impl ::std::fmt::Debug for GtkVolumeButton {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkVolumeButton @ {self:p}"))
+        f.debug_struct(&format!("GtkVolumeButton @ {:p}", self))
             .field("parent", &self.parent)
             .finish()
     }
@@ -15451,7 +15543,7 @@ pub struct GtkWidget {
 
 impl ::std::fmt::Debug for GtkWidget {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkWidget @ {self:p}"))
+        f.debug_struct(&format!("GtkWidget @ {:p}", self))
             .field("parent_instance", &self.parent_instance)
             .finish()
     }
@@ -15466,7 +15558,7 @@ pub struct GtkWidgetAccessible {
 
 impl ::std::fmt::Debug for GtkWidgetAccessible {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkWidgetAccessible @ {self:p}"))
+        f.debug_struct(&format!("GtkWidgetAccessible @ {:p}", self))
             .field("parent", &self.parent)
             .field("priv_", &self.priv_)
             .finish()
@@ -15482,7 +15574,7 @@ pub struct GtkWindow {
 
 impl ::std::fmt::Debug for GtkWindow {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkWindow @ {self:p}"))
+        f.debug_struct(&format!("GtkWindow @ {:p}", self))
             .field("bin", &self.bin)
             .field("priv_", &self.priv_)
             .finish()
@@ -15498,7 +15590,7 @@ pub struct GtkWindowAccessible {
 
 impl ::std::fmt::Debug for GtkWindowAccessible {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkWindowAccessible @ {self:p}"))
+        f.debug_struct(&format!("GtkWindowAccessible @ {:p}", self))
             .field("parent", &self.parent)
             .field("priv_", &self.priv_)
             .finish()
@@ -15514,7 +15606,7 @@ pub struct GtkWindowGroup {
 
 impl ::std::fmt::Debug for GtkWindowGroup {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("GtkWindowGroup @ {self:p}"))
+        f.debug_struct(&format!("GtkWindowGroup @ {:p}", self))
             .field("parent_instance", &self.parent_instance)
             .field("priv_", &self.priv_)
             .finish()
@@ -15530,7 +15622,7 @@ pub struct GtkActionable {
 
 impl ::std::fmt::Debug for GtkActionable {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        write!(f, "GtkActionable @ {self:p}")
+        write!(f, "GtkActionable @ {:p}", self)
     }
 }
 
@@ -15542,7 +15634,7 @@ pub struct GtkActivatable {
 
 impl ::std::fmt::Debug for GtkActivatable {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        write!(f, "GtkActivatable @ {self:p}")
+        write!(f, "GtkActivatable @ {:p}", self)
     }
 }
 
@@ -15554,7 +15646,7 @@ pub struct GtkAppChooser {
 
 impl ::std::fmt::Debug for GtkAppChooser {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        write!(f, "GtkAppChooser @ {self:p}")
+        write!(f, "GtkAppChooser @ {:p}", self)
     }
 }
 
@@ -15566,7 +15658,7 @@ pub struct GtkBuildable {
 
 impl ::std::fmt::Debug for GtkBuildable {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        write!(f, "GtkBuildable @ {self:p}")
+        write!(f, "GtkBuildable @ {:p}", self)
     }
 }
 
@@ -15578,7 +15670,7 @@ pub struct GtkCellAccessibleParent {
 
 impl ::std::fmt::Debug for GtkCellAccessibleParent {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        write!(f, "GtkCellAccessibleParent @ {self:p}")
+        write!(f, "GtkCellAccessibleParent @ {:p}", self)
     }
 }
 
@@ -15590,7 +15682,7 @@ pub struct GtkCellEditable {
 
 impl ::std::fmt::Debug for GtkCellEditable {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        write!(f, "GtkCellEditable @ {self:p}")
+        write!(f, "GtkCellEditable @ {:p}", self)
     }
 }
 
@@ -15602,7 +15694,7 @@ pub struct GtkCellLayout {
 
 impl ::std::fmt::Debug for GtkCellLayout {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        write!(f, "GtkCellLayout @ {self:p}")
+        write!(f, "GtkCellLayout @ {:p}", self)
     }
 }
 
@@ -15614,7 +15706,7 @@ pub struct GtkColorChooser {
 
 impl ::std::fmt::Debug for GtkColorChooser {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        write!(f, "GtkColorChooser @ {self:p}")
+        write!(f, "GtkColorChooser @ {:p}", self)
     }
 }
 
@@ -15626,7 +15718,7 @@ pub struct GtkEditable {
 
 impl ::std::fmt::Debug for GtkEditable {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        write!(f, "GtkEditable @ {self:p}")
+        write!(f, "GtkEditable @ {:p}", self)
     }
 }
 
@@ -15638,7 +15730,7 @@ pub struct GtkFileChooser {
 
 impl ::std::fmt::Debug for GtkFileChooser {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        write!(f, "GtkFileChooser @ {self:p}")
+        write!(f, "GtkFileChooser @ {:p}", self)
     }
 }
 
@@ -15650,7 +15742,7 @@ pub struct GtkFontChooser {
 
 impl ::std::fmt::Debug for GtkFontChooser {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        write!(f, "GtkFontChooser @ {self:p}")
+        write!(f, "GtkFontChooser @ {:p}", self)
     }
 }
 
@@ -15662,7 +15754,7 @@ pub struct GtkOrientable {
 
 impl ::std::fmt::Debug for GtkOrientable {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        write!(f, "GtkOrientable @ {self:p}")
+        write!(f, "GtkOrientable @ {:p}", self)
     }
 }
 
@@ -15674,7 +15766,7 @@ pub struct GtkPrintOperationPreview {
 
 impl ::std::fmt::Debug for GtkPrintOperationPreview {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        write!(f, "GtkPrintOperationPreview @ {self:p}")
+        write!(f, "GtkPrintOperationPreview @ {:p}", self)
     }
 }
 
@@ -15686,7 +15778,7 @@ pub struct GtkRecentChooser {
 
 impl ::std::fmt::Debug for GtkRecentChooser {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        write!(f, "GtkRecentChooser @ {self:p}")
+        write!(f, "GtkRecentChooser @ {:p}", self)
     }
 }
 
@@ -15698,7 +15790,7 @@ pub struct GtkScrollable {
 
 impl ::std::fmt::Debug for GtkScrollable {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        write!(f, "GtkScrollable @ {self:p}")
+        write!(f, "GtkScrollable @ {:p}", self)
     }
 }
 
@@ -15710,7 +15802,7 @@ pub struct GtkStyleProvider {
 
 impl ::std::fmt::Debug for GtkStyleProvider {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        write!(f, "GtkStyleProvider @ {self:p}")
+        write!(f, "GtkStyleProvider @ {:p}", self)
     }
 }
 
@@ -15722,7 +15814,7 @@ pub struct GtkToolShell {
 
 impl ::std::fmt::Debug for GtkToolShell {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        write!(f, "GtkToolShell @ {self:p}")
+        write!(f, "GtkToolShell @ {:p}", self)
     }
 }
 
@@ -15734,7 +15826,7 @@ pub struct GtkTreeDragDest {
 
 impl ::std::fmt::Debug for GtkTreeDragDest {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        write!(f, "GtkTreeDragDest @ {self:p}")
+        write!(f, "GtkTreeDragDest @ {:p}", self)
     }
 }
 
@@ -15746,7 +15838,7 @@ pub struct GtkTreeDragSource {
 
 impl ::std::fmt::Debug for GtkTreeDragSource {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        write!(f, "GtkTreeDragSource @ {self:p}")
+        write!(f, "GtkTreeDragSource @ {:p}", self)
     }
 }
 
@@ -15758,7 +15850,7 @@ pub struct GtkTreeModel {
 
 impl ::std::fmt::Debug for GtkTreeModel {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        write!(f, "GtkTreeModel @ {self:p}")
+        write!(f, "GtkTreeModel @ {:p}", self)
     }
 }
 
@@ -15770,7 +15862,7 @@ pub struct GtkTreeSortable {
 
 impl ::std::fmt::Debug for GtkTreeSortable {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        write!(f, "GtkTreeSortable @ {self:p}")
+        write!(f, "GtkTreeSortable @ {:p}", self)
     }
 }
 
@@ -16009,6 +16101,8 @@ extern "C" {
     //=========================================================================
     // GtkPadActionType
     //=========================================================================
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
     pub fn gtk_pad_action_type_get_type() -> GType;
 
     //=========================================================================
@@ -16044,6 +16138,8 @@ extern "C" {
     //=========================================================================
     // GtkPopoverConstraint
     //=========================================================================
+    #[cfg(any(feature = "v3_20", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
     pub fn gtk_popover_constraint_get_type() -> GType;
 
     //=========================================================================
@@ -16167,6 +16263,8 @@ extern "C" {
     //=========================================================================
     // GtkShortcutType
     //=========================================================================
+    #[cfg(any(feature = "v3_20", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
     pub fn gtk_shortcut_type_get_type() -> GType;
 
     //=========================================================================
@@ -16322,8 +16420,8 @@ extern "C" {
     //=========================================================================
     // GtkEventControllerScrollFlags
     //=========================================================================
-    #[cfg(feature = "v3_24")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "v3_24")))]
+    #[cfg(any(feature = "v3_24", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_24")))]
     pub fn gtk_event_controller_scroll_flags_get_type() -> GType;
 
     //=========================================================================
@@ -16334,8 +16432,8 @@ extern "C" {
     //=========================================================================
     // GtkFontChooserLevel
     //=========================================================================
-    #[cfg(feature = "v3_24")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "v3_24")))]
+    #[cfg(any(feature = "v3_24", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_24")))]
     pub fn gtk_font_chooser_level_get_type() -> GType;
 
     //=========================================================================
@@ -16381,6 +16479,8 @@ extern "C" {
     //=========================================================================
     // GtkStyleContextPrintFlags
     //=========================================================================
+    #[cfg(any(feature = "v3_20", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
     pub fn gtk_style_context_print_flags_get_type() -> GType;
 
     //=========================================================================
@@ -16638,6 +16738,8 @@ extern "C" {
         height: c_double,
         unit: GtkUnit,
     ) -> *mut GtkPaperSize;
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
     pub fn gtk_paper_size_new_from_gvariant(variant: *mut glib::GVariant) -> *mut GtkPaperSize;
     pub fn gtk_paper_size_new_from_ipp(
         ipp_name: *const c_char,
@@ -16687,6 +16789,8 @@ extern "C" {
         height: c_double,
         unit: GtkUnit,
     );
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
     pub fn gtk_paper_size_to_gvariant(paper_size: *mut GtkPaperSize) -> *mut glib::GVariant;
     pub fn gtk_paper_size_to_key_file(
         size: *mut GtkPaperSize,
@@ -17129,6 +17233,8 @@ extern "C" {
     pub fn gtk_text_iter_set_visible_line_offset(iter: *mut GtkTextIter, char_on_line: c_int);
     pub fn gtk_text_iter_starts_line(iter: *const GtkTextIter) -> gboolean;
     pub fn gtk_text_iter_starts_sentence(iter: *const GtkTextIter) -> gboolean;
+    #[cfg(any(feature = "v3_20", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
     pub fn gtk_text_iter_starts_tag(iter: *const GtkTextIter, tag: *mut GtkTextTag) -> gboolean;
     pub fn gtk_text_iter_starts_word(iter: *const GtkTextIter) -> gboolean;
     pub fn gtk_text_iter_toggles_tag(iter: *const GtkTextIter, tag: *mut GtkTextTag) -> gboolean;
@@ -17225,6 +17331,8 @@ extern "C" {
         klass: *mut GtkWidgetClass,
         property_name: *const c_char,
     ) -> *mut gobject::GParamSpec;
+    #[cfg(any(feature = "v3_20", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
     pub fn gtk_widget_class_get_css_name(widget_class: *mut GtkWidgetClass) -> *const c_char;
     pub fn gtk_widget_class_install_style_property(
         klass: *mut GtkWidgetClass,
@@ -17250,6 +17358,8 @@ extern "C" {
         connect_data: gpointer,
         connect_data_destroy: glib::GDestroyNotify,
     );
+    #[cfg(any(feature = "v3_20", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
     pub fn gtk_widget_class_set_css_name(widget_class: *mut GtkWidgetClass, name: *const c_char);
     pub fn gtk_widget_class_set_template(
         widget_class: *mut GtkWidgetClass,
@@ -17294,6 +17404,8 @@ extern "C" {
     pub fn gtk_widget_path_iter_clear_classes(path: *mut GtkWidgetPath, pos: c_int);
     pub fn gtk_widget_path_iter_clear_regions(path: *mut GtkWidgetPath, pos: c_int);
     pub fn gtk_widget_path_iter_get_name(path: *const GtkWidgetPath, pos: c_int) -> *const c_char;
+    #[cfg(any(feature = "v3_20", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
     pub fn gtk_widget_path_iter_get_object_name(
         path: *const GtkWidgetPath,
         pos: c_int,
@@ -17357,6 +17469,8 @@ extern "C" {
         name: *const c_char,
     );
     pub fn gtk_widget_path_iter_set_name(path: *mut GtkWidgetPath, pos: c_int, name: *const c_char);
+    #[cfg(any(feature = "v3_20", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
     pub fn gtk_widget_path_iter_set_object_name(
         path: *mut GtkWidgetPath,
         pos: c_int,
@@ -17948,11 +18062,15 @@ extern "C" {
     //=========================================================================
     pub fn gtk_application_window_get_type() -> GType;
     pub fn gtk_application_window_new(application: *mut GtkApplication) -> *mut GtkWidget;
+    #[cfg(any(feature = "v3_20", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
     pub fn gtk_application_window_get_help_overlay(
         window: *mut GtkApplicationWindow,
     ) -> *mut GtkShortcutsWindow;
     pub fn gtk_application_window_get_id(window: *mut GtkApplicationWindow) -> c_uint;
     pub fn gtk_application_window_get_show_menubar(window: *mut GtkApplicationWindow) -> gboolean;
+    #[cfg(any(feature = "v3_20", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
     pub fn gtk_application_window_set_help_overlay(
         window: *mut GtkApplicationWindow,
         help_overlay: *mut GtkShortcutsWindow,
@@ -18910,6 +19028,8 @@ extern "C" {
     pub fn gtk_clipboard_clear(clipboard: *mut GtkClipboard);
     pub fn gtk_clipboard_get_display(clipboard: *mut GtkClipboard) -> *mut gdk::GdkDisplay;
     pub fn gtk_clipboard_get_owner(clipboard: *mut GtkClipboard) -> *mut gobject::GObject;
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
     pub fn gtk_clipboard_get_selection(clipboard: *mut GtkClipboard) -> gdk::GdkAtom;
     pub fn gtk_clipboard_request_contents(
         clipboard: *mut GtkClipboard,
@@ -19743,28 +19863,28 @@ extern "C" {
     //=========================================================================
     // GtkEventControllerKey
     //=========================================================================
-    #[cfg(feature = "v3_24")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "v3_24")))]
+    #[cfg(any(feature = "v3_24", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_24")))]
     pub fn gtk_event_controller_key_get_type() -> GType;
-    #[cfg(feature = "v3_24")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "v3_24")))]
+    #[cfg(any(feature = "v3_24", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_24")))]
     pub fn gtk_event_controller_key_new(widget: *mut GtkWidget) -> *mut GtkEventController;
-    #[cfg(feature = "v3_24")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "v3_24")))]
+    #[cfg(any(feature = "v3_24", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_24")))]
     pub fn gtk_event_controller_key_forward(
         controller: *mut GtkEventControllerKey,
         widget: *mut GtkWidget,
     ) -> gboolean;
-    #[cfg(feature = "v3_24")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "v3_24")))]
+    #[cfg(any(feature = "v3_24", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_24")))]
     pub fn gtk_event_controller_key_get_group(controller: *mut GtkEventControllerKey) -> c_uint;
-    #[cfg(feature = "v3_24")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "v3_24")))]
+    #[cfg(any(feature = "v3_24", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_24")))]
     pub fn gtk_event_controller_key_get_im_context(
         controller: *mut GtkEventControllerKey,
     ) -> *mut GtkIMContext;
-    #[cfg(feature = "v3_24")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "v3_24")))]
+    #[cfg(any(feature = "v3_24", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_24")))]
     pub fn gtk_event_controller_key_set_im_context(
         controller: *mut GtkEventControllerKey,
         im_context: *mut GtkIMContext,
@@ -19773,34 +19893,34 @@ extern "C" {
     //=========================================================================
     // GtkEventControllerMotion
     //=========================================================================
-    #[cfg(feature = "v3_24")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "v3_24")))]
+    #[cfg(any(feature = "v3_24", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_24")))]
     pub fn gtk_event_controller_motion_get_type() -> GType;
-    #[cfg(feature = "v3_24")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "v3_24")))]
+    #[cfg(any(feature = "v3_24", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_24")))]
     pub fn gtk_event_controller_motion_new(widget: *mut GtkWidget) -> *mut GtkEventController;
 
     //=========================================================================
     // GtkEventControllerScroll
     //=========================================================================
-    #[cfg(feature = "v3_24")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "v3_24")))]
+    #[cfg(any(feature = "v3_24", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_24")))]
     pub fn gtk_event_controller_scroll_get_type() -> GType;
-    #[cfg(feature = "v3_24")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "v3_24")))]
+    #[cfg(any(feature = "v3_24", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_24")))]
     pub fn gtk_event_controller_scroll_new(
         widget: *mut GtkWidget,
         flags: GtkEventControllerScrollFlags,
     ) -> *mut GtkEventController;
-    #[cfg(feature = "v3_24")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "v3_24")))]
+    #[cfg(any(feature = "v3_24", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_24")))]
     pub fn gtk_event_controller_scroll_get_flags(
-        scroll: *mut GtkEventControllerScroll,
+        controller: *mut GtkEventControllerScroll,
     ) -> GtkEventControllerScrollFlags;
-    #[cfg(feature = "v3_24")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "v3_24")))]
+    #[cfg(any(feature = "v3_24", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_24")))]
     pub fn gtk_event_controller_scroll_set_flags(
-        scroll: *mut GtkEventControllerScroll,
+        controller: *mut GtkEventControllerScroll,
         flags: GtkEventControllerScrollFlags,
     );
 
@@ -19874,7 +19994,11 @@ extern "C" {
     //=========================================================================
     // GtkFileChooserNative
     //=========================================================================
+    #[cfg(any(feature = "v3_20", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
     pub fn gtk_file_chooser_native_get_type() -> GType;
+    #[cfg(any(feature = "v3_20", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
     pub fn gtk_file_chooser_native_new(
         title: *const c_char,
         parent: *mut GtkWindow,
@@ -19882,16 +20006,24 @@ extern "C" {
         accept_label: *const c_char,
         cancel_label: *const c_char,
     ) -> *mut GtkFileChooserNative;
+    #[cfg(any(feature = "v3_20", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
     pub fn gtk_file_chooser_native_get_accept_label(
         self_: *mut GtkFileChooserNative,
     ) -> *const c_char;
+    #[cfg(any(feature = "v3_20", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
     pub fn gtk_file_chooser_native_get_cancel_label(
         self_: *mut GtkFileChooserNative,
     ) -> *const c_char;
+    #[cfg(any(feature = "v3_20", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
     pub fn gtk_file_chooser_native_set_accept_label(
         self_: *mut GtkFileChooserNative,
         accept_label: *const c_char,
     );
+    #[cfg(any(feature = "v3_20", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
     pub fn gtk_file_chooser_native_set_cancel_label(
         self_: *mut GtkFileChooserNative,
         cancel_label: *const c_char,
@@ -19906,8 +20038,8 @@ extern "C" {
     //=========================================================================
     // GtkFileChooserWidgetAccessible
     //=========================================================================
-    #[cfg(feature = "v3_24_30")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "v3_24_30")))]
+    #[cfg(any(feature = "v3_24_30", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_24_30")))]
     pub fn gtk_file_chooser_widget_accessible_get_type() -> GType;
 
     //=========================================================================
@@ -19915,6 +20047,8 @@ extern "C" {
     //=========================================================================
     pub fn gtk_file_filter_get_type() -> GType;
     pub fn gtk_file_filter_new() -> *mut GtkFileFilter;
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
     pub fn gtk_file_filter_new_from_gvariant(variant: *mut glib::GVariant) -> *mut GtkFileFilter;
     pub fn gtk_file_filter_add_custom(
         filter: *mut GtkFileFilter,
@@ -19933,6 +20067,8 @@ extern "C" {
     pub fn gtk_file_filter_get_name(filter: *mut GtkFileFilter) -> *const c_char;
     pub fn gtk_file_filter_get_needed(filter: *mut GtkFileFilter) -> GtkFileFilterFlags;
     pub fn gtk_file_filter_set_name(filter: *mut GtkFileFilter, name: *const c_char);
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
     pub fn gtk_file_filter_to_gvariant(filter: *mut GtkFileFilter) -> *mut glib::GVariant;
 
     //=========================================================================
@@ -19960,6 +20096,8 @@ extern "C" {
         box_: *mut GtkFlowBox,
         idx: c_int,
     ) -> *mut GtkFlowBoxChild;
+    #[cfg(any(feature = "v3_22_6", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22_6")))]
     pub fn gtk_flow_box_get_child_at_pos(
         box_: *mut GtkFlowBox,
         x: c_int,
@@ -20154,6 +20292,8 @@ extern "C" {
         major: *mut c_int,
         minor: *mut c_int,
     );
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
     pub fn gtk_gl_area_get_use_es(area: *mut GtkGLArea) -> gboolean;
     pub fn gtk_gl_area_make_current(area: *mut GtkGLArea);
     pub fn gtk_gl_area_queue_render(area: *mut GtkGLArea);
@@ -20163,6 +20303,8 @@ extern "C" {
     pub fn gtk_gl_area_set_has_depth_buffer(area: *mut GtkGLArea, has_depth_buffer: gboolean);
     pub fn gtk_gl_area_set_has_stencil_buffer(area: *mut GtkGLArea, has_stencil_buffer: gboolean);
     pub fn gtk_gl_area_set_required_version(area: *mut GtkGLArea, major: c_int, minor: c_int);
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
     pub fn gtk_gl_area_set_use_es(area: *mut GtkGLArea, use_es: gboolean);
 
     //=========================================================================
@@ -20298,25 +20440,25 @@ extern "C" {
     // GtkGestureStylus
     //=========================================================================
     pub fn gtk_gesture_stylus_get_type() -> GType;
-    #[cfg(feature = "v3_24")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "v3_24")))]
+    #[cfg(any(feature = "v3_24", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_24")))]
     pub fn gtk_gesture_stylus_new(widget: *mut GtkWidget) -> *mut GtkGesture;
-    #[cfg(feature = "v3_24")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "v3_24")))]
+    #[cfg(any(feature = "v3_24", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_24")))]
     pub fn gtk_gesture_stylus_get_axes(
         gesture: *mut GtkGestureStylus,
         axes: *mut gdk::GdkAxisUse,
         values: *mut *mut c_double,
     ) -> gboolean;
-    #[cfg(feature = "v3_24")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "v3_24")))]
+    #[cfg(any(feature = "v3_24", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_24")))]
     pub fn gtk_gesture_stylus_get_axis(
         gesture: *mut GtkGestureStylus,
         axis: gdk::GdkAxisUse,
         value: *mut c_double,
     ) -> gboolean;
-    #[cfg(feature = "v3_24")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "v3_24")))]
+    #[cfg(any(feature = "v3_24", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_24")))]
     pub fn gtk_gesture_stylus_get_device_tool(
         gesture: *mut GtkGestureStylus,
     ) -> *mut gdk::GdkDeviceTool;
@@ -20494,8 +20636,8 @@ extern "C" {
     //=========================================================================
     // GtkHeaderBarAccessible
     //=========================================================================
-    #[cfg(feature = "v3_24_11")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "v3_24_11")))]
+    #[cfg(any(feature = "v3_24_11", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_24_11")))]
     pub fn gtk_header_bar_accessible_get_type() -> GType;
 
     //=========================================================================
@@ -21118,6 +21260,8 @@ extern "C" {
     pub fn gtk_info_bar_get_action_area(info_bar: *mut GtkInfoBar) -> *mut GtkBox;
     pub fn gtk_info_bar_get_content_area(info_bar: *mut GtkInfoBar) -> *mut GtkBox;
     pub fn gtk_info_bar_get_message_type(info_bar: *mut GtkInfoBar) -> GtkMessageType;
+    #[cfg(any(feature = "v3_22_29", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22_29")))]
     pub fn gtk_info_bar_get_revealed(info_bar: *mut GtkInfoBar) -> gboolean;
     pub fn gtk_info_bar_get_show_close_button(info_bar: *mut GtkInfoBar) -> gboolean;
     pub fn gtk_info_bar_response(info_bar: *mut GtkInfoBar, response_id: GtkResponseType);
@@ -21131,6 +21275,8 @@ extern "C" {
         response_id: GtkResponseType,
         setting: gboolean,
     );
+    #[cfg(any(feature = "v3_22_29", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22_29")))]
     pub fn gtk_info_bar_set_revealed(info_bar: *mut GtkInfoBar, revealed: gboolean);
     pub fn gtk_info_bar_set_show_close_button(info_bar: *mut GtkInfoBar, setting: gboolean);
 
@@ -21493,6 +21639,8 @@ extern "C" {
     pub fn gtk_menu_get_reserve_toggle_size(menu: *mut GtkMenu) -> gboolean;
     pub fn gtk_menu_get_tearoff_state(menu: *mut GtkMenu) -> gboolean;
     pub fn gtk_menu_get_title(menu: *mut GtkMenu) -> *const c_char;
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
     pub fn gtk_menu_place_on_monitor(menu: *mut GtkMenu, monitor: *mut gdk::GdkMonitor);
     pub fn gtk_menu_popdown(menu: *mut GtkMenu);
     pub fn gtk_menu_popup(
@@ -21504,7 +21652,11 @@ extern "C" {
         button: c_uint,
         activate_time: u32,
     );
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
     pub fn gtk_menu_popup_at_pointer(menu: *mut GtkMenu, trigger_event: *const gdk::GdkEvent);
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
     pub fn gtk_menu_popup_at_rect(
         menu: *mut GtkMenu,
         rect_window: *mut gdk::GdkWindow,
@@ -21513,6 +21665,8 @@ extern "C" {
         menu_anchor: gdk::GdkGravity,
         trigger_event: *const gdk::GdkEvent,
     );
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
     pub fn gtk_menu_popup_at_widget(
         menu: *mut GtkMenu,
         widget: *mut GtkWidget,
@@ -21746,17 +21900,41 @@ extern "C" {
     //=========================================================================
     // GtkNativeDialog
     //=========================================================================
+    #[cfg(any(feature = "v3_20", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
     pub fn gtk_native_dialog_get_type() -> GType;
+    #[cfg(any(feature = "v3_20", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
     pub fn gtk_native_dialog_destroy(self_: *mut GtkNativeDialog);
+    #[cfg(any(feature = "v3_20", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
     pub fn gtk_native_dialog_get_modal(self_: *mut GtkNativeDialog) -> gboolean;
+    #[cfg(any(feature = "v3_20", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
     pub fn gtk_native_dialog_get_title(self_: *mut GtkNativeDialog) -> *const c_char;
+    #[cfg(any(feature = "v3_20", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
     pub fn gtk_native_dialog_get_transient_for(self_: *mut GtkNativeDialog) -> *mut GtkWindow;
+    #[cfg(any(feature = "v3_20", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
     pub fn gtk_native_dialog_get_visible(self_: *mut GtkNativeDialog) -> gboolean;
+    #[cfg(any(feature = "v3_20", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
     pub fn gtk_native_dialog_hide(self_: *mut GtkNativeDialog);
+    #[cfg(any(feature = "v3_20", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
     pub fn gtk_native_dialog_run(self_: *mut GtkNativeDialog) -> c_int;
+    #[cfg(any(feature = "v3_20", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
     pub fn gtk_native_dialog_set_modal(self_: *mut GtkNativeDialog, modal: gboolean);
+    #[cfg(any(feature = "v3_20", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
     pub fn gtk_native_dialog_set_title(self_: *mut GtkNativeDialog, title: *const c_char);
+    #[cfg(any(feature = "v3_20", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
     pub fn gtk_native_dialog_set_transient_for(self_: *mut GtkNativeDialog, parent: *mut GtkWindow);
+    #[cfg(any(feature = "v3_20", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
     pub fn gtk_native_dialog_show(self_: *mut GtkNativeDialog);
 
     //=========================================================================
@@ -21977,12 +22155,18 @@ extern "C" {
     //=========================================================================
     // GtkPadController
     //=========================================================================
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
     pub fn gtk_pad_controller_get_type() -> GType;
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
     pub fn gtk_pad_controller_new(
         window: *mut GtkWindow,
         group: *mut gio::GActionGroup,
         pad: *mut gdk::GdkDevice,
     ) -> *mut GtkPadController;
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
     pub fn gtk_pad_controller_set_action(
         controller: *mut GtkPadController,
         type_: GtkPadActionType,
@@ -21991,6 +22175,8 @@ extern "C" {
         label: *const c_char,
         action_name: *const c_char,
     );
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
     pub fn gtk_pad_controller_set_action_entries(
         controller: *mut GtkPadController,
         entries: *const GtkPadActionEntry,
@@ -22006,6 +22192,8 @@ extern "C" {
         file_name: *const c_char,
         error: *mut *mut glib::GError,
     ) -> *mut GtkPageSetup;
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
     pub fn gtk_page_setup_new_from_gvariant(variant: *mut glib::GVariant) -> *mut GtkPageSetup;
     pub fn gtk_page_setup_new_from_key_file(
         key_file: *mut glib::GKeyFile,
@@ -22064,6 +22252,8 @@ extern "C" {
         file_name: *const c_char,
         error: *mut *mut glib::GError,
     ) -> gboolean;
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
     pub fn gtk_page_setup_to_gvariant(setup: *mut GtkPageSetup) -> *mut glib::GVariant;
     pub fn gtk_page_setup_to_key_file(
         setup: *mut GtkPageSetup,
@@ -22126,6 +22316,8 @@ extern "C" {
     pub fn gtk_places_sidebar_get_show_enter_location(sidebar: *mut GtkPlacesSidebar) -> gboolean;
     pub fn gtk_places_sidebar_get_show_other_locations(sidebar: *mut GtkPlacesSidebar) -> gboolean;
     pub fn gtk_places_sidebar_get_show_recent(sidebar: *mut GtkPlacesSidebar) -> gboolean;
+    #[cfg(any(feature = "v3_22_26", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22_26")))]
     pub fn gtk_places_sidebar_get_show_starred_location(sidebar: *mut GtkPlacesSidebar)
         -> gboolean;
     pub fn gtk_places_sidebar_get_show_trash(sidebar: *mut GtkPlacesSidebar) -> gboolean;
@@ -22168,6 +22360,8 @@ extern "C" {
         sidebar: *mut GtkPlacesSidebar,
         show_recent: gboolean,
     );
+    #[cfg(any(feature = "v3_22_26", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22_26")))]
     pub fn gtk_places_sidebar_set_show_starred_location(
         sidebar: *mut GtkPlacesSidebar,
         show_starred_location: gboolean,
@@ -22196,11 +22390,11 @@ extern "C" {
     //=========================================================================
     // GtkPlugAccessible
     //=========================================================================
-    #[cfg(feature = "v3_24_30")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "v3_24_30")))]
+    #[cfg(any(feature = "v3_24_30", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_24_30")))]
     pub fn gtk_plug_accessible_get_type() -> GType;
-    #[cfg(feature = "v3_24_30")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "v3_24_30")))]
+    #[cfg(any(feature = "v3_24_30", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_24_30")))]
     pub fn gtk_plug_accessible_get_id(plug: *mut GtkPlugAccessible) -> *mut c_char;
 
     //=========================================================================
@@ -22217,6 +22411,8 @@ extern "C" {
         model: *mut gio::GMenuModel,
         action_namespace: *const c_char,
     );
+    #[cfg(any(feature = "v3_20", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
     pub fn gtk_popover_get_constrain_to(popover: *mut GtkPopover) -> GtkPopoverConstraint;
     pub fn gtk_popover_get_default_widget(popover: *mut GtkPopover) -> *mut GtkWidget;
     pub fn gtk_popover_get_modal(popover: *mut GtkPopover) -> gboolean;
@@ -22227,8 +22423,14 @@ extern "C" {
     pub fn gtk_popover_get_position(popover: *mut GtkPopover) -> GtkPositionType;
     pub fn gtk_popover_get_relative_to(popover: *mut GtkPopover) -> *mut GtkWidget;
     pub fn gtk_popover_get_transitions_enabled(popover: *mut GtkPopover) -> gboolean;
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
     pub fn gtk_popover_popdown(popover: *mut GtkPopover);
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
     pub fn gtk_popover_popup(popover: *mut GtkPopover);
+    #[cfg(any(feature = "v3_20", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
     pub fn gtk_popover_set_constrain_to(popover: *mut GtkPopover, constraint: GtkPopoverConstraint);
     pub fn gtk_popover_set_default_widget(popover: *mut GtkPopover, widget: *mut GtkWidget);
     pub fn gtk_popover_set_modal(popover: *mut GtkPopover, modal: gboolean);
@@ -22364,6 +22566,8 @@ extern "C" {
         file_name: *const c_char,
         error: *mut *mut glib::GError,
     ) -> *mut GtkPrintSettings;
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
     pub fn gtk_print_settings_new_from_gvariant(
         variant: *mut glib::GVariant,
     ) -> *mut GtkPrintSettings;
@@ -22560,6 +22764,8 @@ extern "C" {
         file_name: *const c_char,
         error: *mut *mut glib::GError,
     ) -> gboolean;
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
     pub fn gtk_print_settings_to_gvariant(settings: *mut GtkPrintSettings) -> *mut glib::GVariant;
     pub fn gtk_print_settings_to_key_file(
         settings: *mut GtkPrintSettings,
@@ -23023,9 +23229,13 @@ extern "C" {
     pub fn gtk_scrolled_window_get_kinetic_scrolling(
         scrolled_window: *mut GtkScrolledWindow,
     ) -> gboolean;
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
     pub fn gtk_scrolled_window_get_max_content_height(
         scrolled_window: *mut GtkScrolledWindow,
     ) -> c_int;
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
     pub fn gtk_scrolled_window_get_max_content_width(
         scrolled_window: *mut GtkScrolledWindow,
     ) -> c_int;
@@ -23046,9 +23256,13 @@ extern "C" {
         hscrollbar_policy: *mut GtkPolicyType,
         vscrollbar_policy: *mut GtkPolicyType,
     );
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
     pub fn gtk_scrolled_window_get_propagate_natural_height(
         scrolled_window: *mut GtkScrolledWindow,
     ) -> gboolean;
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
     pub fn gtk_scrolled_window_get_propagate_natural_width(
         scrolled_window: *mut GtkScrolledWindow,
     ) -> gboolean;
@@ -23073,10 +23287,14 @@ extern "C" {
         scrolled_window: *mut GtkScrolledWindow,
         kinetic_scrolling: gboolean,
     );
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
     pub fn gtk_scrolled_window_set_max_content_height(
         scrolled_window: *mut GtkScrolledWindow,
         height: c_int,
     );
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
     pub fn gtk_scrolled_window_set_max_content_width(
         scrolled_window: *mut GtkScrolledWindow,
         width: c_int,
@@ -23102,10 +23320,14 @@ extern "C" {
         hscrollbar_policy: GtkPolicyType,
         vscrollbar_policy: GtkPolicyType,
     );
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
     pub fn gtk_scrolled_window_set_propagate_natural_height(
         scrolled_window: *mut GtkScrolledWindow,
         propagate: gboolean,
     );
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
     pub fn gtk_scrolled_window_set_propagate_natural_width(
         scrolled_window: *mut GtkScrolledWindow,
         propagate: gboolean,
@@ -23181,6 +23403,8 @@ extern "C" {
         pspec: *mut gobject::GParamSpec,
         parser: GtkRcPropertyParser,
     );
+    #[cfg(any(feature = "v3_20", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
     pub fn gtk_settings_reset_property(settings: *mut GtkSettings, name: *const c_char);
     pub fn gtk_settings_set_double_property(
         settings: *mut GtkSettings,
@@ -23209,14 +23433,26 @@ extern "C" {
     //=========================================================================
     // GtkShortcutLabel
     //=========================================================================
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
     pub fn gtk_shortcut_label_get_type() -> GType;
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
     pub fn gtk_shortcut_label_new(accelerator: *const c_char) -> *mut GtkWidget;
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
     pub fn gtk_shortcut_label_get_accelerator(self_: *mut GtkShortcutLabel) -> *const c_char;
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
     pub fn gtk_shortcut_label_get_disabled_text(self_: *mut GtkShortcutLabel) -> *const c_char;
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
     pub fn gtk_shortcut_label_set_accelerator(
         self_: *mut GtkShortcutLabel,
         accelerator: *const c_char,
     );
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
     pub fn gtk_shortcut_label_set_disabled_text(
         self_: *mut GtkShortcutLabel,
         disabled_text: *const c_char,
@@ -23225,21 +23461,29 @@ extern "C" {
     //=========================================================================
     // GtkShortcutsGroup
     //=========================================================================
+    #[cfg(any(feature = "v3_20", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
     pub fn gtk_shortcuts_group_get_type() -> GType;
 
     //=========================================================================
     // GtkShortcutsSection
     //=========================================================================
+    #[cfg(any(feature = "v3_20", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
     pub fn gtk_shortcuts_section_get_type() -> GType;
 
     //=========================================================================
     // GtkShortcutsShortcut
     //=========================================================================
+    #[cfg(any(feature = "v3_20", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
     pub fn gtk_shortcuts_shortcut_get_type() -> GType;
 
     //=========================================================================
     // GtkShortcutsWindow
     //=========================================================================
+    #[cfg(any(feature = "v3_20", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
     pub fn gtk_shortcuts_window_get_type() -> GType;
 
     //=========================================================================
@@ -23267,11 +23511,11 @@ extern "C" {
     //=========================================================================
     // GtkSocketAccessible
     //=========================================================================
-    #[cfg(feature = "v3_24_30")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "v3_24_30")))]
+    #[cfg(any(feature = "v3_24_30", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_24_30")))]
     pub fn gtk_socket_accessible_get_type() -> GType;
-    #[cfg(feature = "v3_24_30")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "v3_24_30")))]
+    #[cfg(any(feature = "v3_24_30", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_24_30")))]
     pub fn gtk_socket_accessible_embed(socket: *mut GtkSocketAccessible, path: *mut c_char);
 
     //=========================================================================
@@ -23401,6 +23645,8 @@ extern "C" {
     //=========================================================================
     // GtkStackAccessible
     //=========================================================================
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
     pub fn gtk_stack_accessible_get_type() -> GType;
 
     //=========================================================================
@@ -23735,6 +23981,8 @@ extern "C" {
         state: GtkStateType,
         progress: *mut c_double,
     ) -> gboolean;
+    #[cfg(any(feature = "v3_20", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
     pub fn gtk_style_context_to_string(
         context: *mut GtkStyleContext,
         flags: GtkStyleContextPrintFlags,
@@ -24202,6 +24450,8 @@ extern "C" {
     //=========================================================================
     pub fn gtk_text_tag_get_type() -> GType;
     pub fn gtk_text_tag_new(name: *const c_char) -> *mut GtkTextTag;
+    #[cfg(any(feature = "v3_20", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
     pub fn gtk_text_tag_changed(tag: *mut GtkTextTag, size_changed: gboolean);
     pub fn gtk_text_tag_event(
         tag: *mut GtkTextTag,
@@ -24368,6 +24618,8 @@ extern "C" {
         count: c_int,
     ) -> gboolean;
     pub fn gtk_text_view_place_cursor_onscreen(text_view: *mut GtkTextView) -> gboolean;
+    #[cfg(any(feature = "v3_20", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
     pub fn gtk_text_view_reset_cursor_blink(text_view: *mut GtkTextView);
     pub fn gtk_text_view_reset_im_context(text_view: *mut GtkTextView);
     pub fn gtk_text_view_scroll_mark_onscreen(text_view: *mut GtkTextView, mark: *mut GtkTextMark);
@@ -25844,6 +26096,8 @@ extern "C" {
     ) -> *mut gio::GActionGroup;
     pub fn gtk_widget_get_allocated_baseline(widget: *mut GtkWidget) -> c_int;
     pub fn gtk_widget_get_allocated_height(widget: *mut GtkWidget) -> c_int;
+    #[cfg(any(feature = "v3_20", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
     pub fn gtk_widget_get_allocated_size(
         widget: *mut GtkWidget,
         allocation: *mut GtkAllocation,
@@ -25878,6 +26132,8 @@ extern "C" {
     pub fn gtk_widget_get_display(widget: *mut GtkWidget) -> *mut gdk::GdkDisplay;
     pub fn gtk_widget_get_double_buffered(widget: *mut GtkWidget) -> gboolean;
     pub fn gtk_widget_get_events(widget: *mut GtkWidget) -> c_int;
+    #[cfg(any(feature = "v3_20", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
     pub fn gtk_widget_get_focus_on_click(widget: *mut GtkWidget) -> gboolean;
     pub fn gtk_widget_get_font_map(widget: *mut GtkWidget) -> *mut pango::PangoFontMap;
     pub fn gtk_widget_get_font_options(
@@ -26086,6 +26342,8 @@ extern "C" {
         path: *mut *mut c_char,
         path_reversed: *mut *mut c_char,
     );
+    #[cfg(any(feature = "v3_20", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
     pub fn gtk_widget_queue_allocate(widget: *mut GtkWidget);
     pub fn gtk_widget_queue_compute_expand(widget: *mut GtkWidget);
     pub fn gtk_widget_queue_draw(widget: *mut GtkWidget);
@@ -26160,6 +26418,8 @@ extern "C" {
     pub fn gtk_widget_set_direction(widget: *mut GtkWidget, dir: GtkTextDirection);
     pub fn gtk_widget_set_double_buffered(widget: *mut GtkWidget, double_buffered: gboolean);
     pub fn gtk_widget_set_events(widget: *mut GtkWidget, events: c_int);
+    #[cfg(any(feature = "v3_20", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
     pub fn gtk_widget_set_focus_on_click(widget: *mut GtkWidget, focus_on_click: gboolean);
     pub fn gtk_widget_set_font_map(widget: *mut GtkWidget, font_map: *mut pango::PangoFontMap);
     pub fn gtk_widget_set_font_options(
@@ -26729,6 +26989,8 @@ extern "C" {
     // GtkFileChooser
     //=========================================================================
     pub fn gtk_file_chooser_get_type() -> GType;
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
     pub fn gtk_file_chooser_add_choice(
         chooser: *mut GtkFileChooser,
         id: *const c_char,
@@ -26748,6 +27010,8 @@ extern "C" {
         error: *mut *mut glib::GError,
     ) -> gboolean;
     pub fn gtk_file_chooser_get_action(chooser: *mut GtkFileChooser) -> GtkFileChooserAction;
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
     pub fn gtk_file_chooser_get_choice(
         chooser: *mut GtkFileChooser,
         id: *const c_char,
@@ -26785,6 +27049,8 @@ extern "C" {
     pub fn gtk_file_chooser_list_shortcut_folders(
         chooser: *mut GtkFileChooser,
     ) -> *mut glib::GSList;
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
     pub fn gtk_file_chooser_remove_choice(chooser: *mut GtkFileChooser, id: *const c_char);
     pub fn gtk_file_chooser_remove_filter(chooser: *mut GtkFileChooser, filter: *mut GtkFileFilter);
     pub fn gtk_file_chooser_remove_shortcut_folder(
@@ -26812,6 +27078,8 @@ extern "C" {
         uri: *const c_char,
     ) -> gboolean;
     pub fn gtk_file_chooser_set_action(chooser: *mut GtkFileChooser, action: GtkFileChooserAction);
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
     pub fn gtk_file_chooser_set_choice(
         chooser: *mut GtkFileChooser,
         id: *const c_char,
@@ -26894,18 +27162,18 @@ extern "C" {
     pub fn gtk_font_chooser_get_font_family(
         fontchooser: *mut GtkFontChooser,
     ) -> *mut pango::PangoFontFamily;
-    #[cfg(feature = "v3_24")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "v3_24")))]
+    #[cfg(any(feature = "v3_24", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_24")))]
     pub fn gtk_font_chooser_get_font_features(fontchooser: *mut GtkFontChooser) -> *mut c_char;
     pub fn gtk_font_chooser_get_font_map(
         fontchooser: *mut GtkFontChooser,
     ) -> *mut pango::PangoFontMap;
     pub fn gtk_font_chooser_get_font_size(fontchooser: *mut GtkFontChooser) -> c_int;
-    #[cfg(feature = "v3_24")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "v3_24")))]
+    #[cfg(any(feature = "v3_24", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_24")))]
     pub fn gtk_font_chooser_get_language(fontchooser: *mut GtkFontChooser) -> *mut c_char;
-    #[cfg(feature = "v3_24")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "v3_24")))]
+    #[cfg(any(feature = "v3_24", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_24")))]
     pub fn gtk_font_chooser_get_level(fontchooser: *mut GtkFontChooser) -> GtkFontChooserLevel;
     pub fn gtk_font_chooser_get_preview_text(fontchooser: *mut GtkFontChooser) -> *mut c_char;
     pub fn gtk_font_chooser_get_show_preview_entry(fontchooser: *mut GtkFontChooser) -> gboolean;
@@ -26924,11 +27192,11 @@ extern "C" {
         fontchooser: *mut GtkFontChooser,
         fontmap: *mut pango::PangoFontMap,
     );
-    #[cfg(feature = "v3_24")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "v3_24")))]
+    #[cfg(any(feature = "v3_24", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_24")))]
     pub fn gtk_font_chooser_set_language(fontchooser: *mut GtkFontChooser, language: *const c_char);
-    #[cfg(feature = "v3_24")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "v3_24")))]
+    #[cfg(any(feature = "v3_24", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_24")))]
     pub fn gtk_font_chooser_set_level(fontchooser: *mut GtkFontChooser, level: GtkFontChooserLevel);
     pub fn gtk_font_chooser_set_preview_text(fontchooser: *mut GtkFontChooser, text: *const c_char);
     pub fn gtk_font_chooser_set_show_preview_entry(
@@ -27760,6 +28028,8 @@ extern "C" {
         width: c_double,
         height: c_double,
     );
+    #[cfg(any(feature = "v3_20", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
     pub fn gtk_render_background_get_clip(
         context: *mut GtkStyleContext,
         x: c_double,
@@ -27935,6 +28205,8 @@ extern "C" {
         timestamp: u32,
         error: *mut *mut glib::GError,
     ) -> gboolean;
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
     pub fn gtk_show_uri_on_window(
         parent: *mut GtkWindow,
         uri: *const c_char,

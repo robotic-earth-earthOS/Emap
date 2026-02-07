@@ -3,12 +3,14 @@
 // DO NOT EDIT
 
 use crate::SocketFamily;
-use glib::{
-    prelude::*,
-    signal::{connect_raw, SignalHandlerId},
-    translate::*,
-};
-use std::{boxed::Box as Box_, fmt, mem::transmute};
+use glib::object::Cast;
+use glib::object::IsA;
+use glib::signal::connect_raw;
+use glib::signal::SignalHandlerId;
+use glib::translate::*;
+use std::boxed::Box as Box_;
+use std::fmt;
+use std::mem::transmute;
 
 glib::wrapper! {
     #[doc(alias = "GInetAddress")]
@@ -49,13 +51,123 @@ impl fmt::Display for InetAddress {
 unsafe impl Send for InetAddress {}
 unsafe impl Sync for InetAddress {}
 
-mod sealed {
-    pub trait Sealed {}
-    impl<T: super::IsA<super::InetAddress>> Sealed for T {}
+pub trait InetAddressExt: 'static {
+    #[doc(alias = "g_inet_address_equal")]
+    fn equal(&self, other_address: &impl IsA<InetAddress>) -> bool;
+
+    #[doc(alias = "g_inet_address_get_family")]
+    #[doc(alias = "get_family")]
+    fn family(&self) -> SocketFamily;
+
+    #[doc(alias = "g_inet_address_get_is_any")]
+    #[doc(alias = "get_is_any")]
+    fn is_any(&self) -> bool;
+
+    #[doc(alias = "g_inet_address_get_is_link_local")]
+    #[doc(alias = "get_is_link_local")]
+    fn is_link_local(&self) -> bool;
+
+    #[doc(alias = "g_inet_address_get_is_loopback")]
+    #[doc(alias = "get_is_loopback")]
+    fn is_loopback(&self) -> bool;
+
+    #[doc(alias = "g_inet_address_get_is_mc_global")]
+    #[doc(alias = "get_is_mc_global")]
+    fn is_mc_global(&self) -> bool;
+
+    #[doc(alias = "g_inet_address_get_is_mc_link_local")]
+    #[doc(alias = "get_is_mc_link_local")]
+    fn is_mc_link_local(&self) -> bool;
+
+    #[doc(alias = "g_inet_address_get_is_mc_node_local")]
+    #[doc(alias = "get_is_mc_node_local")]
+    fn is_mc_node_local(&self) -> bool;
+
+    #[doc(alias = "g_inet_address_get_is_mc_org_local")]
+    #[doc(alias = "get_is_mc_org_local")]
+    fn is_mc_org_local(&self) -> bool;
+
+    #[doc(alias = "g_inet_address_get_is_mc_site_local")]
+    #[doc(alias = "get_is_mc_site_local")]
+    fn is_mc_site_local(&self) -> bool;
+
+    #[doc(alias = "g_inet_address_get_is_multicast")]
+    #[doc(alias = "get_is_multicast")]
+    fn is_multicast(&self) -> bool;
+
+    #[doc(alias = "g_inet_address_get_is_site_local")]
+    #[doc(alias = "get_is_site_local")]
+    fn is_site_local(&self) -> bool;
+
+    #[doc(alias = "g_inet_address_get_native_size")]
+    #[doc(alias = "get_native_size")]
+    fn native_size(&self) -> usize;
+
+    #[doc(alias = "g_inet_address_to_string")]
+    #[doc(alias = "to_string")]
+    fn to_str(&self) -> glib::GString;
+
+    //fn bytes(&self) -> /*Unimplemented*/Fundamental: Pointer;
+
+    #[doc(alias = "is-any")]
+    fn connect_is_any_notify<F: Fn(&Self) + Send + Sync + 'static>(&self, f: F) -> SignalHandlerId;
+
+    #[doc(alias = "is-link-local")]
+    fn connect_is_link_local_notify<F: Fn(&Self) + Send + Sync + 'static>(
+        &self,
+        f: F,
+    ) -> SignalHandlerId;
+
+    #[doc(alias = "is-loopback")]
+    fn connect_is_loopback_notify<F: Fn(&Self) + Send + Sync + 'static>(
+        &self,
+        f: F,
+    ) -> SignalHandlerId;
+
+    #[doc(alias = "is-mc-global")]
+    fn connect_is_mc_global_notify<F: Fn(&Self) + Send + Sync + 'static>(
+        &self,
+        f: F,
+    ) -> SignalHandlerId;
+
+    #[doc(alias = "is-mc-link-local")]
+    fn connect_is_mc_link_local_notify<F: Fn(&Self) + Send + Sync + 'static>(
+        &self,
+        f: F,
+    ) -> SignalHandlerId;
+
+    #[doc(alias = "is-mc-node-local")]
+    fn connect_is_mc_node_local_notify<F: Fn(&Self) + Send + Sync + 'static>(
+        &self,
+        f: F,
+    ) -> SignalHandlerId;
+
+    #[doc(alias = "is-mc-org-local")]
+    fn connect_is_mc_org_local_notify<F: Fn(&Self) + Send + Sync + 'static>(
+        &self,
+        f: F,
+    ) -> SignalHandlerId;
+
+    #[doc(alias = "is-mc-site-local")]
+    fn connect_is_mc_site_local_notify<F: Fn(&Self) + Send + Sync + 'static>(
+        &self,
+        f: F,
+    ) -> SignalHandlerId;
+
+    #[doc(alias = "is-multicast")]
+    fn connect_is_multicast_notify<F: Fn(&Self) + Send + Sync + 'static>(
+        &self,
+        f: F,
+    ) -> SignalHandlerId;
+
+    #[doc(alias = "is-site-local")]
+    fn connect_is_site_local_notify<F: Fn(&Self) + Send + Sync + 'static>(
+        &self,
+        f: F,
+    ) -> SignalHandlerId;
 }
 
-pub trait InetAddressExt: IsA<InetAddress> + sealed::Sealed + 'static {
-    #[doc(alias = "g_inet_address_equal")]
+impl<O: IsA<InetAddress>> InetAddressExt for O {
     fn equal(&self, other_address: &impl IsA<InetAddress>) -> bool {
         unsafe {
             from_glib(ffi::g_inet_address_equal(
@@ -65,8 +177,6 @@ pub trait InetAddressExt: IsA<InetAddress> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_inet_address_get_family")]
-    #[doc(alias = "get_family")]
     fn family(&self) -> SocketFamily {
         unsafe {
             from_glib(ffi::g_inet_address_get_family(
@@ -75,8 +185,6 @@ pub trait InetAddressExt: IsA<InetAddress> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_inet_address_get_is_any")]
-    #[doc(alias = "get_is_any")]
     fn is_any(&self) -> bool {
         unsafe {
             from_glib(ffi::g_inet_address_get_is_any(
@@ -85,8 +193,6 @@ pub trait InetAddressExt: IsA<InetAddress> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_inet_address_get_is_link_local")]
-    #[doc(alias = "get_is_link_local")]
     fn is_link_local(&self) -> bool {
         unsafe {
             from_glib(ffi::g_inet_address_get_is_link_local(
@@ -95,8 +201,6 @@ pub trait InetAddressExt: IsA<InetAddress> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_inet_address_get_is_loopback")]
-    #[doc(alias = "get_is_loopback")]
     fn is_loopback(&self) -> bool {
         unsafe {
             from_glib(ffi::g_inet_address_get_is_loopback(
@@ -105,8 +209,6 @@ pub trait InetAddressExt: IsA<InetAddress> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_inet_address_get_is_mc_global")]
-    #[doc(alias = "get_is_mc_global")]
     fn is_mc_global(&self) -> bool {
         unsafe {
             from_glib(ffi::g_inet_address_get_is_mc_global(
@@ -115,8 +217,6 @@ pub trait InetAddressExt: IsA<InetAddress> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_inet_address_get_is_mc_link_local")]
-    #[doc(alias = "get_is_mc_link_local")]
     fn is_mc_link_local(&self) -> bool {
         unsafe {
             from_glib(ffi::g_inet_address_get_is_mc_link_local(
@@ -125,8 +225,6 @@ pub trait InetAddressExt: IsA<InetAddress> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_inet_address_get_is_mc_node_local")]
-    #[doc(alias = "get_is_mc_node_local")]
     fn is_mc_node_local(&self) -> bool {
         unsafe {
             from_glib(ffi::g_inet_address_get_is_mc_node_local(
@@ -135,8 +233,6 @@ pub trait InetAddressExt: IsA<InetAddress> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_inet_address_get_is_mc_org_local")]
-    #[doc(alias = "get_is_mc_org_local")]
     fn is_mc_org_local(&self) -> bool {
         unsafe {
             from_glib(ffi::g_inet_address_get_is_mc_org_local(
@@ -145,8 +241,6 @@ pub trait InetAddressExt: IsA<InetAddress> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_inet_address_get_is_mc_site_local")]
-    #[doc(alias = "get_is_mc_site_local")]
     fn is_mc_site_local(&self) -> bool {
         unsafe {
             from_glib(ffi::g_inet_address_get_is_mc_site_local(
@@ -155,8 +249,6 @@ pub trait InetAddressExt: IsA<InetAddress> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_inet_address_get_is_multicast")]
-    #[doc(alias = "get_is_multicast")]
     fn is_multicast(&self) -> bool {
         unsafe {
             from_glib(ffi::g_inet_address_get_is_multicast(
@@ -165,8 +257,6 @@ pub trait InetAddressExt: IsA<InetAddress> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_inet_address_get_is_site_local")]
-    #[doc(alias = "get_is_site_local")]
     fn is_site_local(&self) -> bool {
         unsafe {
             from_glib(ffi::g_inet_address_get_is_site_local(
@@ -175,14 +265,10 @@ pub trait InetAddressExt: IsA<InetAddress> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_inet_address_get_native_size")]
-    #[doc(alias = "get_native_size")]
     fn native_size(&self) -> usize {
         unsafe { ffi::g_inet_address_get_native_size(self.as_ref().to_glib_none().0) }
     }
 
-    #[doc(alias = "g_inet_address_to_string")]
-    #[doc(alias = "to_string")]
     fn to_str(&self) -> glib::GString {
         unsafe {
             from_glib_full(ffi::g_inet_address_to_string(
@@ -191,11 +277,10 @@ pub trait InetAddressExt: IsA<InetAddress> + sealed::Sealed + 'static {
         }
     }
 
-    //fn bytes(&self) -> /*Unimplemented*/Basic: Pointer {
-    //    ObjectExt::property(self.as_ref(), "bytes")
+    //fn bytes(&self) -> /*Unimplemented*/Fundamental: Pointer {
+    //    glib::ObjectExt::property(self.as_ref(), "bytes")
     //}
 
-    #[doc(alias = "is-any")]
     fn connect_is_any_notify<F: Fn(&Self) + Send + Sync + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_is_any_trampoline<
             P: IsA<InetAddress>,
@@ -221,7 +306,6 @@ pub trait InetAddressExt: IsA<InetAddress> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "is-link-local")]
     fn connect_is_link_local_notify<F: Fn(&Self) + Send + Sync + 'static>(
         &self,
         f: F,
@@ -250,7 +334,6 @@ pub trait InetAddressExt: IsA<InetAddress> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "is-loopback")]
     fn connect_is_loopback_notify<F: Fn(&Self) + Send + Sync + 'static>(
         &self,
         f: F,
@@ -279,7 +362,6 @@ pub trait InetAddressExt: IsA<InetAddress> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "is-mc-global")]
     fn connect_is_mc_global_notify<F: Fn(&Self) + Send + Sync + 'static>(
         &self,
         f: F,
@@ -308,7 +390,6 @@ pub trait InetAddressExt: IsA<InetAddress> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "is-mc-link-local")]
     fn connect_is_mc_link_local_notify<F: Fn(&Self) + Send + Sync + 'static>(
         &self,
         f: F,
@@ -337,7 +418,6 @@ pub trait InetAddressExt: IsA<InetAddress> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "is-mc-node-local")]
     fn connect_is_mc_node_local_notify<F: Fn(&Self) + Send + Sync + 'static>(
         &self,
         f: F,
@@ -366,7 +446,6 @@ pub trait InetAddressExt: IsA<InetAddress> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "is-mc-org-local")]
     fn connect_is_mc_org_local_notify<F: Fn(&Self) + Send + Sync + 'static>(
         &self,
         f: F,
@@ -395,7 +474,6 @@ pub trait InetAddressExt: IsA<InetAddress> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "is-mc-site-local")]
     fn connect_is_mc_site_local_notify<F: Fn(&Self) + Send + Sync + 'static>(
         &self,
         f: F,
@@ -424,7 +502,6 @@ pub trait InetAddressExt: IsA<InetAddress> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "is-multicast")]
     fn connect_is_multicast_notify<F: Fn(&Self) + Send + Sync + 'static>(
         &self,
         f: F,
@@ -453,7 +530,6 @@ pub trait InetAddressExt: IsA<InetAddress> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "is-site-local")]
     fn connect_is_site_local_notify<F: Fn(&Self) + Send + Sync + 'static>(
         &self,
         f: F,
@@ -482,5 +558,3 @@ pub trait InetAddressExt: IsA<InetAddress> + sealed::Sealed + 'static {
         }
     }
 }
-
-impl<O: IsA<InetAddress>> InetAddressExt for O {}

@@ -161,25 +161,25 @@ pub use self::event_box::EventBox;
 mod event_controller;
 pub use self::event_controller::EventController;
 
-#[cfg(feature = "v3_24")]
-#[cfg_attr(docsrs, doc(cfg(feature = "v3_24")))]
+#[cfg(any(feature = "v3_24", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v3_24")))]
 mod event_controller_key;
-#[cfg(feature = "v3_24")]
-#[cfg_attr(docsrs, doc(cfg(feature = "v3_24")))]
+#[cfg(any(feature = "v3_24", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v3_24")))]
 pub use self::event_controller_key::EventControllerKey;
 
-#[cfg(feature = "v3_24")]
-#[cfg_attr(docsrs, doc(cfg(feature = "v3_24")))]
+#[cfg(any(feature = "v3_24", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v3_24")))]
 mod event_controller_motion;
-#[cfg(feature = "v3_24")]
-#[cfg_attr(docsrs, doc(cfg(feature = "v3_24")))]
+#[cfg(any(feature = "v3_24", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v3_24")))]
 pub use self::event_controller_motion::EventControllerMotion;
 
-#[cfg(feature = "v3_24")]
-#[cfg_attr(docsrs, doc(cfg(feature = "v3_24")))]
+#[cfg(any(feature = "v3_24", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v3_24")))]
 mod event_controller_scroll;
-#[cfg(feature = "v3_24")]
-#[cfg_attr(docsrs, doc(cfg(feature = "v3_24")))]
+#[cfg(any(feature = "v3_24", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v3_24")))]
 pub use self::event_controller_scroll::EventControllerScroll;
 
 mod expander;
@@ -194,17 +194,21 @@ pub use self::file_chooser_button::FileChooserButton;
 mod file_chooser_dialog;
 pub use self::file_chooser_dialog::FileChooserDialog;
 
+#[cfg(any(feature = "v3_20", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
 mod file_chooser_native;
+#[cfg(any(feature = "v3_20", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
 pub use self::file_chooser_native::FileChooserNative;
 
 mod file_chooser_widget;
 pub use self::file_chooser_widget::FileChooserWidget;
 
-#[cfg(feature = "v3_24_30")]
-#[cfg_attr(docsrs, doc(cfg(feature = "v3_24_30")))]
+#[cfg(any(feature = "v3_24_30", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v3_24_30")))]
 mod file_chooser_widget_accessible;
-#[cfg(feature = "v3_24_30")]
-#[cfg_attr(docsrs, doc(cfg(feature = "v3_24_30")))]
+#[cfg(any(feature = "v3_24_30", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v3_24_30")))]
 pub use self::file_chooser_widget_accessible::FileChooserWidgetAccessible;
 
 mod file_filter;
@@ -258,11 +262,11 @@ pub use self::gesture_rotate::GestureRotate;
 mod gesture_single;
 pub use self::gesture_single::GestureSingle;
 
-#[cfg(feature = "v3_24")]
-#[cfg_attr(docsrs, doc(cfg(feature = "v3_24")))]
+#[cfg(any(feature = "v3_24", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v3_24")))]
 mod gesture_stylus;
-#[cfg(feature = "v3_24")]
-#[cfg_attr(docsrs, doc(cfg(feature = "v3_24")))]
+#[cfg(any(feature = "v3_24", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v3_24")))]
 pub use self::gesture_stylus::GestureStylus;
 
 mod gesture_swipe;
@@ -277,11 +281,11 @@ pub use self::grid::Grid;
 mod header_bar;
 pub use self::header_bar::HeaderBar;
 
-#[cfg(feature = "v3_24_11")]
-#[cfg_attr(docsrs, doc(cfg(feature = "v3_24_11")))]
+#[cfg(any(feature = "v3_24_11", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v3_24_11")))]
 mod header_bar_accessible;
-#[cfg(feature = "v3_24_11")]
-#[cfg_attr(docsrs, doc(cfg(feature = "v3_24_11")))]
+#[cfg(any(feature = "v3_24_11", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v3_24_11")))]
 pub use self::header_bar_accessible::HeaderBarAccessible;
 
 mod im_context;
@@ -365,7 +369,11 @@ pub use self::model_button::ModelButton;
 mod mount_operation;
 pub use self::mount_operation::MountOperation;
 
+#[cfg(any(feature = "v3_20", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
 mod native_dialog;
+#[cfg(any(feature = "v3_20", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
 pub use self::native_dialog::NativeDialog;
 
 mod notebook;
@@ -380,7 +388,11 @@ pub use self::orientable::Orientable;
 mod overlay;
 pub use self::overlay::Overlay;
 
+#[cfg(any(feature = "v3_22", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
 mod pad_controller;
+#[cfg(any(feature = "v3_22", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
 pub use self::pad_controller::PadController;
 
 mod page_setup;
@@ -392,22 +404,22 @@ pub use self::paned::Paned;
 mod places_sidebar;
 pub use self::places_sidebar::PlacesSidebar;
 
-#[cfg(gdk_backend = "x11")]
-#[cfg_attr(docsrs, doc(cfg(gdk_backend = "x11")))]
+#[cfg(any(gdk_backend = "x11", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(gdk_backend = "x11")))]
 mod plug;
-#[cfg(gdk_backend = "x11")]
-#[cfg_attr(docsrs, doc(cfg(gdk_backend = "x11")))]
+#[cfg(any(gdk_backend = "x11", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(gdk_backend = "x11")))]
 pub use self::plug::Plug;
 
-#[cfg(gdk_backend = "x11")]
-#[cfg_attr(docsrs, doc(cfg(gdk_backend = "x11")))]
-#[cfg(feature = "v3_24_30")]
-#[cfg_attr(docsrs, doc(cfg(feature = "v3_24_30")))]
+#[cfg(any(gdk_backend = "x11", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(gdk_backend = "x11")))]
+#[cfg(any(feature = "v3_24_30", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v3_24_30")))]
 mod plug_accessible;
-#[cfg(gdk_backend = "x11")]
-#[cfg_attr(docsrs, doc(cfg(gdk_backend = "x11")))]
-#[cfg(feature = "v3_24_30")]
-#[cfg_attr(docsrs, doc(cfg(feature = "v3_24_30")))]
+#[cfg(any(gdk_backend = "x11", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(gdk_backend = "x11")))]
+#[cfg(any(feature = "v3_24_30", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v3_24_30")))]
 pub use self::plug_accessible::PlugAccessible;
 
 mod popover;
@@ -497,40 +509,60 @@ pub use self::separator_tool_item::SeparatorToolItem;
 mod settings;
 pub use self::settings::Settings;
 
+#[cfg(any(feature = "v3_22", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
 mod shortcut_label;
+#[cfg(any(feature = "v3_22", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
 pub use self::shortcut_label::ShortcutLabel;
 
+#[cfg(any(feature = "v3_20", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
 mod shortcuts_group;
+#[cfg(any(feature = "v3_20", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
 pub use self::shortcuts_group::ShortcutsGroup;
 
+#[cfg(any(feature = "v3_20", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
 mod shortcuts_section;
+#[cfg(any(feature = "v3_20", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
 pub use self::shortcuts_section::ShortcutsSection;
 
+#[cfg(any(feature = "v3_20", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
 mod shortcuts_shortcut;
+#[cfg(any(feature = "v3_20", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
 pub use self::shortcuts_shortcut::ShortcutsShortcut;
 
+#[cfg(any(feature = "v3_20", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
 mod shortcuts_window;
+#[cfg(any(feature = "v3_20", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
 pub use self::shortcuts_window::ShortcutsWindow;
 
 mod size_group;
 pub use self::size_group::SizeGroup;
 
-#[cfg(gdk_backend = "x11")]
-#[cfg_attr(docsrs, doc(cfg(gdk_backend = "x11")))]
+#[cfg(any(gdk_backend = "x11", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(gdk_backend = "x11")))]
 mod socket;
-#[cfg(gdk_backend = "x11")]
-#[cfg_attr(docsrs, doc(cfg(gdk_backend = "x11")))]
+#[cfg(any(gdk_backend = "x11", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(gdk_backend = "x11")))]
 pub use self::socket::Socket;
 
-#[cfg(gdk_backend = "x11")]
-#[cfg_attr(docsrs, doc(cfg(gdk_backend = "x11")))]
-#[cfg(feature = "v3_24_30")]
-#[cfg_attr(docsrs, doc(cfg(feature = "v3_24_30")))]
+#[cfg(any(gdk_backend = "x11", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(gdk_backend = "x11")))]
+#[cfg(any(feature = "v3_24_30", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v3_24_30")))]
 mod socket_accessible;
-#[cfg(gdk_backend = "x11")]
-#[cfg_attr(docsrs, doc(cfg(gdk_backend = "x11")))]
-#[cfg(feature = "v3_24_30")]
-#[cfg_attr(docsrs, doc(cfg(feature = "v3_24_30")))]
+#[cfg(any(gdk_backend = "x11", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(gdk_backend = "x11")))]
+#[cfg(any(feature = "v3_24_30", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v3_24_30")))]
 pub use self::socket_accessible::SocketAccessible;
 
 mod spin_button;
@@ -725,11 +757,15 @@ pub use self::enums::NumberUpLayout;
 pub use self::enums::Orientation;
 pub use self::enums::PackDirection;
 pub use self::enums::PackType;
+#[cfg(any(feature = "v3_22", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
 pub use self::enums::PadActionType;
 pub use self::enums::PageOrientation;
 pub use self::enums::PageSet;
 pub use self::enums::PanDirection;
 pub use self::enums::PolicyType;
+#[cfg(any(feature = "v3_20", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
 pub use self::enums::PopoverConstraint;
 pub use self::enums::PositionType;
 pub use self::enums::PrintDuplex;
@@ -752,6 +788,8 @@ pub use self::enums::ScrollablePolicy;
 pub use self::enums::SelectionMode;
 pub use self::enums::SensitivityType;
 pub use self::enums::ShadowType;
+#[cfg(any(feature = "v3_20", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
 pub use self::enums::ShortcutType;
 pub use self::enums::SizeGroupMode;
 pub use self::enums::SizeRequestMode;
@@ -780,12 +818,12 @@ pub use self::flags::CalendarDisplayOptions;
 pub use self::flags::CellRendererState;
 pub use self::flags::DestDefaults;
 pub use self::flags::DialogFlags;
-#[cfg(feature = "v3_24")]
-#[cfg_attr(docsrs, doc(cfg(feature = "v3_24")))]
+#[cfg(any(feature = "v3_24", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v3_24")))]
 pub use self::flags::EventControllerScrollFlags;
 pub use self::flags::FileFilterFlags;
-#[cfg(feature = "v3_24")]
-#[cfg_attr(docsrs, doc(cfg(feature = "v3_24")))]
+#[cfg(any(feature = "v3_24", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v3_24")))]
 pub use self::flags::FontChooserLevel;
 pub use self::flags::IconLookupFlags;
 pub use self::flags::InputHints;
@@ -794,6 +832,8 @@ pub use self::flags::PlacesOpenFlags;
 pub use self::flags::RecentFilterFlags;
 pub use self::flags::RegionFlags;
 pub use self::flags::StateFlags;
+#[cfg(any(feature = "v3_20", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
 pub use self::flags::StyleContextPrintFlags;
 pub use self::flags::TargetFlags;
 pub use self::flags::TextSearchFlags;
@@ -803,6 +843,8 @@ pub use self::flags::TreeModelFlags;
 pub mod functions;
 
 mod constants;
+#[cfg(any(feature = "v3_20", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
 pub use self::constants::LEVEL_BAR_OFFSET_FULL;
 pub use self::constants::LEVEL_BAR_OFFSET_HIGH;
 pub use self::constants::LEVEL_BAR_OFFSET_LOW;
@@ -939,6 +981,10 @@ pub use self::constants::STYLE_PROPERTY_COLOR;
 pub use self::constants::STYLE_PROPERTY_FONT;
 pub use self::constants::STYLE_PROPERTY_MARGIN;
 pub use self::constants::STYLE_PROPERTY_PADDING;
+pub use self::constants::STYLE_REGION_COLUMN;
+pub use self::constants::STYLE_REGION_COLUMN_HEADER;
+pub use self::constants::STYLE_REGION_ROW;
+pub use self::constants::STYLE_REGION_TAB;
 
 #[doc(hidden)]
 pub mod traits {
@@ -1031,20 +1077,22 @@ pub mod traits {
     pub use super::menu_shell::MenuShellExt;
     pub use super::menu_tool_button::MenuToolButtonExt;
     pub use super::message_dialog::MessageDialogExt;
-    pub use super::mount_operation::GtkMountOperationExt;
+    pub use super::mount_operation::MountOperationExt;
+    #[cfg(any(feature = "v3_20", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
     pub use super::native_dialog::NativeDialogExt;
     pub use super::notebook::NotebookExt;
     pub use super::offscreen_window::OffscreenWindowExt;
     pub use super::orientable::OrientableExt;
     pub use super::overlay::OverlayExt;
     pub use super::paned::PanedExt;
-    #[cfg(gdk_backend = "x11")]
-    #[cfg_attr(docsrs, doc(cfg(gdk_backend = "x11")))]
+    #[cfg(any(gdk_backend = "x11", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(gdk_backend = "x11")))]
     pub use super::plug::PlugExt;
-    #[cfg(gdk_backend = "x11")]
-    #[cfg_attr(docsrs, doc(cfg(gdk_backend = "x11")))]
-    #[cfg(feature = "v3_24_30")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "v3_24_30")))]
+    #[cfg(any(gdk_backend = "x11", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(gdk_backend = "x11")))]
+    #[cfg(any(feature = "v3_24_30", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_24_30")))]
     pub use super::plug_accessible::PlugAccessibleExt;
     pub use super::popover::PopoverExt;
     pub use super::print_operation::PrintOperationExt;
@@ -1065,16 +1113,18 @@ pub mod traits {
     pub use super::search_bar::SearchBarExt;
     pub use super::search_entry::SearchEntryExt;
     pub use super::separator_tool_item::SeparatorToolItemExt;
-    pub use super::settings::GtkSettingsExt;
+    pub use super::settings::SettingsExt;
+    #[cfg(any(feature = "v3_20", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
     pub use super::shortcuts_window::ShortcutsWindowExt;
     pub use super::size_group::SizeGroupExt;
-    #[cfg(gdk_backend = "x11")]
-    #[cfg_attr(docsrs, doc(cfg(gdk_backend = "x11")))]
+    #[cfg(any(gdk_backend = "x11", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(gdk_backend = "x11")))]
     pub use super::socket::GtkSocketExt;
-    #[cfg(gdk_backend = "x11")]
-    #[cfg_attr(docsrs, doc(cfg(gdk_backend = "x11")))]
-    #[cfg(feature = "v3_24_30")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "v3_24_30")))]
+    #[cfg(any(gdk_backend = "x11", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(gdk_backend = "x11")))]
+    #[cfg(any(feature = "v3_24_30", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_24_30")))]
     pub use super::socket_accessible::SocketAccessibleExt;
     pub use super::spin_button::SpinButtonExt;
     pub use super::spinner::SpinnerExt;
@@ -1157,6 +1207,8 @@ pub mod builders {
     pub use super::expander::ExpanderBuilder;
     pub use super::file_chooser_button::FileChooserButtonBuilder;
     pub use super::file_chooser_dialog::FileChooserDialogBuilder;
+    #[cfg(any(feature = "v3_20", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
     pub use super::file_chooser_native::FileChooserNativeBuilder;
     pub use super::file_chooser_widget::FileChooserWidgetBuilder;
     pub use super::fixed::FixedBuilder;
@@ -1176,8 +1228,8 @@ pub mod builders {
     pub use super::gl_area::GLAreaBuilder;
     pub use super::grid::GridBuilder;
     pub use super::header_bar::HeaderBarBuilder;
-    #[cfg(feature = "v3_24_11")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "v3_24_11")))]
+    #[cfg(any(feature = "v3_24_11", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_24_11")))]
     pub use super::header_bar_accessible::HeaderBarAccessibleBuilder;
     pub use super::icon_view::IconViewBuilder;
     pub use super::im_context_simple::IMContextSimpleBuilder;
@@ -1202,16 +1254,18 @@ pub mod builders {
     pub use super::notebook::NotebookBuilder;
     pub use super::offscreen_window::OffscreenWindowBuilder;
     pub use super::overlay::OverlayBuilder;
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
     pub use super::pad_controller::PadControllerBuilder;
     pub use super::paned::PanedBuilder;
     pub use super::places_sidebar::PlacesSidebarBuilder;
-    #[cfg(gdk_backend = "x11")]
-    #[cfg_attr(docsrs, doc(cfg(gdk_backend = "x11")))]
+    #[cfg(any(gdk_backend = "x11", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(gdk_backend = "x11")))]
     pub use super::plug::PlugBuilder;
-    #[cfg(gdk_backend = "x11")]
-    #[cfg_attr(docsrs, doc(cfg(gdk_backend = "x11")))]
-    #[cfg(feature = "v3_24_30")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "v3_24_30")))]
+    #[cfg(any(gdk_backend = "x11", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(gdk_backend = "x11")))]
+    #[cfg(any(feature = "v3_24_30", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_24_30")))]
     pub use super::plug_accessible::PlugAccessibleBuilder;
     pub use super::popover::PopoverBuilder;
     pub use super::popover_menu::PopoverMenuBuilder;
@@ -1234,18 +1288,29 @@ pub mod builders {
     pub use super::separator::SeparatorBuilder;
     pub use super::separator_menu_item::SeparatorMenuItemBuilder;
     pub use super::separator_tool_item::SeparatorToolItemBuilder;
+    #[cfg(any(feature = "v3_22", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_22")))]
+    pub use super::shortcut_label::ShortcutLabelBuilder;
+    #[cfg(any(feature = "v3_20", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
     pub use super::shortcuts_group::ShortcutsGroupBuilder;
+    #[cfg(any(feature = "v3_20", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
     pub use super::shortcuts_section::ShortcutsSectionBuilder;
+    #[cfg(any(feature = "v3_20", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
     pub use super::shortcuts_shortcut::ShortcutsShortcutBuilder;
+    #[cfg(any(feature = "v3_20", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_20")))]
     pub use super::shortcuts_window::ShortcutsWindowBuilder;
     pub use super::size_group::SizeGroupBuilder;
-    #[cfg(gdk_backend = "x11")]
-    #[cfg_attr(docsrs, doc(cfg(gdk_backend = "x11")))]
+    #[cfg(any(gdk_backend = "x11", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(gdk_backend = "x11")))]
     pub use super::socket::SocketBuilder;
-    #[cfg(gdk_backend = "x11")]
-    #[cfg_attr(docsrs, doc(cfg(gdk_backend = "x11")))]
-    #[cfg(feature = "v3_24_30")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "v3_24_30")))]
+    #[cfg(any(gdk_backend = "x11", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(gdk_backend = "x11")))]
+    #[cfg(any(feature = "v3_24_30", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v3_24_30")))]
     pub use super::socket_accessible::SocketAccessibleBuilder;
     pub use super::spin_button::SpinButtonBuilder;
     pub use super::spinner::SpinnerBuilder;

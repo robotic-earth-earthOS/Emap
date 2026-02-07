@@ -50,14 +50,13 @@ impl Backend {
     }
 }
 
-mod sealed {
-    pub trait Sealed {}
-    impl<T: glib::IsA<crate::Display>> Sealed for T {}
-}
-
-pub trait DisplayExtManual: IsA<Display> + sealed::Sealed + 'static {
+pub trait DisplayExtManual: 'static {
     // rustdoc-stripper-ignore-next
     /// Get the currently used display backend
+    fn backend(&self) -> Backend;
+}
+
+impl<O: IsA<Display>> DisplayExtManual for O {
     fn backend(&self) -> Backend {
         match self.as_ref().type_().name() {
             "GdkWaylandDisplay" => Backend::Wayland,
@@ -65,9 +64,7 @@ pub trait DisplayExtManual: IsA<Display> + sealed::Sealed + 'static {
             "GdkQuartzDisplay" => Backend::MacOS,
             "GdkWin32Display" => Backend::Win32,
             "GdkBroadwayDisplay" => Backend::Broadway,
-            e => panic!("Unsupported display backend {e}"),
+            e => panic!("Unsupported display backend {}", e),
         }
     }
 }
-
-impl<O: IsA<Display>> DisplayExtManual for O {}

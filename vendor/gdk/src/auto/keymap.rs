@@ -2,13 +2,17 @@
 // from gir-files (https://github.com/gtk-rs/gir-files)
 // DO NOT EDIT
 
-use crate::{Display, ModifierIntent, ModifierType};
-use glib::{
-    prelude::*,
-    signal::{connect_raw, SignalHandlerId},
-    translate::*,
-};
-use std::{boxed::Box as Box_, fmt, mem, mem::transmute};
+use crate::Display;
+use crate::ModifierIntent;
+use crate::ModifierType;
+use glib::object::ObjectType as ObjectType_;
+use glib::signal::connect_raw;
+use glib::signal::SignalHandlerId;
+use glib::translate::*;
+use std::boxed::Box as Box_;
+use std::fmt;
+use std::mem;
+use std::mem::transmute;
 
 glib::wrapper! {
     #[doc(alias = "GdkKeymap")]
@@ -88,17 +92,29 @@ impl Keymap {
                 level.as_mut_ptr(),
                 consumed_modifiers.as_mut_ptr(),
             ));
+            let keyval = keyval.assume_init();
+            let effective_group = effective_group.assume_init();
+            let level = level.assume_init();
+            let consumed_modifiers = consumed_modifiers.assume_init();
             if ret {
                 Some((
-                    keyval.assume_init(),
-                    effective_group.assume_init(),
-                    level.assume_init(),
-                    from_glib(consumed_modifiers.assume_init()),
+                    keyval,
+                    effective_group,
+                    level,
+                    from_glib(consumed_modifiers),
                 ))
             } else {
                 None
             }
         }
+    }
+
+    #[cfg_attr(feature = "v3_22", deprecated = "Since 3.22")]
+    #[doc(alias = "gdk_keymap_get_default")]
+    #[doc(alias = "get_default")]
+    pub fn default() -> Option<Keymap> {
+        assert_initialized_main_thread!();
+        unsafe { from_glib_none(ffi::gdk_keymap_get_default()) }
     }
 
     #[doc(alias = "gdk_keymap_get_for_display")]

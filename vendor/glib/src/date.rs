@@ -1,8 +1,14 @@
 // Take a look at the license at the top of the repository in the LICENSE file.
 
-use std::{cmp, fmt, hash};
-
-use crate::{translate::*, BoolError, DateDay, DateMonth, DateWeekday, DateYear};
+use crate::translate::*;
+use crate::BoolError;
+use crate::DateDay;
+use crate::DateMonth;
+use crate::DateWeekday;
+use crate::DateYear;
+use std::cmp;
+use std::fmt;
+use std::hash;
 
 wrapper! {
     #[doc(alias = "GDate")]
@@ -341,7 +347,7 @@ impl Date {
 
     #[doc(alias = "g_date_strftime")]
     pub fn strftime(s: &str, format: &str, date: &Date) -> usize {
-        let slen = s.len() as _;
+        let slen = s.len() as usize;
         unsafe {
             ffi::g_date_strftime(
                 s.to_glib_none().0,
@@ -395,7 +401,7 @@ impl Eq for Date {}
 impl PartialOrd for Date {
     #[inline]
     fn partial_cmp(&self, other: &Self) -> Option<cmp::Ordering> {
-        Some(self.cmp(other))
+        self.compare(other).partial_cmp(&0)
     }
 }
 

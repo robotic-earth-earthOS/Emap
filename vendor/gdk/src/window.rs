@@ -161,13 +161,42 @@ impl Window {
     }
 }
 
-mod sealed {
-    pub trait Sealed {}
-    impl<T: glib::IsA<crate::Window>> Sealed for T {}
+pub trait WindowExtManual: 'static {
+    #[doc(alias = "gdk_window_set_user_data")]
+    unsafe fn set_user_data<T>(&self, user_data: &mut T);
+
+    #[allow(clippy::mut_from_ref)]
+    #[doc(alias = "gdk_window_get_user_data")]
+    #[doc(alias = "get_user_data")]
+    unsafe fn user_data<T>(&self) -> &mut T;
+
+    #[doc(alias = "gdk_get_default_root_window")]
+    #[doc(alias = "get_default_root_window")]
+    fn default_root_window() -> Window;
+
+    #[doc(alias = "gdk_offscreen_window_set_embedder")]
+    fn offscreen_window_set_embedder(&self, embedder: &Window);
+
+    #[doc(alias = "gdk_offscreen_window_get_embedder")]
+    fn offscreen_window_get_embedder(&self) -> Option<Window>;
+
+    #[doc(alias = "gdk_offscreen_window_get_surface")]
+    fn offscreen_window_get_surface(&self) -> Option<Surface>;
+
+    #[doc(alias = "gdk_pixbuf_get_from_window")]
+    #[doc(alias = "get_pixbuf")]
+    fn pixbuf(&self, src_x: i32, src_y: i32, width: i32, height: i32)
+        -> Option<gdk_pixbuf::Pixbuf>;
+
+    #[doc(alias = "gdk_window_get_background_pattern")]
+    #[doc(alias = "get_background_pattern")]
+    fn background_pattern(&self) -> Option<cairo::Pattern>;
+
+    #[doc(alias = "gdk_window_set_background_pattern")]
+    fn set_background_pattern(&self, pattern: Option<&cairo::Pattern>);
 }
 
-pub trait WindowExtManual: IsA<Window> + sealed::Sealed + 'static {
-    #[doc(alias = "gdk_window_set_user_data")]
+impl<O: IsA<Window>> WindowExtManual for O {
     unsafe fn set_user_data<T>(&self, user_data: &mut T) {
         ffi::gdk_window_set_user_data(
             self.as_ref().to_glib_none().0,
@@ -175,23 +204,17 @@ pub trait WindowExtManual: IsA<Window> + sealed::Sealed + 'static {
         )
     }
 
-    #[allow(clippy::mut_from_ref)]
-    #[doc(alias = "gdk_window_get_user_data")]
-    #[doc(alias = "get_user_data")]
     unsafe fn user_data<T>(&self) -> &mut T {
         let mut pointer = ::std::ptr::null_mut();
         ffi::gdk_window_get_user_data(self.as_ref().to_glib_none().0, &mut pointer);
         &mut *(pointer as *mut T)
     }
 
-    #[doc(alias = "gdk_get_default_root_window")]
-    #[doc(alias = "get_default_root_window")]
     fn default_root_window() -> Window {
         assert_initialized_main_thread!();
         unsafe { from_glib_none(ffi::gdk_get_default_root_window()) }
     }
 
-    #[doc(alias = "gdk_offscreen_window_set_embedder")]
     fn offscreen_window_set_embedder(&self, embedder: &Window) {
         unsafe {
             ffi::gdk_offscreen_window_set_embedder(
@@ -201,7 +224,6 @@ pub trait WindowExtManual: IsA<Window> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gdk_offscreen_window_get_embedder")]
     fn offscreen_window_get_embedder(&self) -> Option<Window> {
         unsafe {
             from_glib_none(ffi::gdk_offscreen_window_get_embedder(
@@ -210,7 +232,6 @@ pub trait WindowExtManual: IsA<Window> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gdk_offscreen_window_get_surface")]
     fn offscreen_window_get_surface(&self) -> Option<Surface> {
         skip_assert_initialized!();
         unsafe {
@@ -220,8 +241,6 @@ pub trait WindowExtManual: IsA<Window> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gdk_pixbuf_get_from_window")]
-    #[doc(alias = "get_pixbuf")]
     fn pixbuf(
         &self,
         src_x: i32,
@@ -241,8 +260,6 @@ pub trait WindowExtManual: IsA<Window> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gdk_window_get_background_pattern")]
-    #[doc(alias = "get_background_pattern")]
     fn background_pattern(&self) -> Option<cairo::Pattern> {
         unsafe {
             let ret = ffi::gdk_window_get_background_pattern(self.as_ref().to_glib_none().0);
@@ -254,7 +271,6 @@ pub trait WindowExtManual: IsA<Window> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gdk_window_set_background_pattern")]
     fn set_background_pattern(&self, pattern: Option<&cairo::Pattern>) {
         unsafe {
             let ptr = if let Some(pattern) = pattern {
@@ -266,5 +282,3 @@ pub trait WindowExtManual: IsA<Window> + sealed::Sealed + 'static {
         }
     }
 }
-
-impl<O: IsA<Window>> WindowExtManual for O {}

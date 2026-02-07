@@ -1,16 +1,15 @@
 // Take a look at the license at the top of the repository in the LICENSE file.
 
-use std::{
-    any::Any,
-    io::{Read, Seek},
-};
+use crate::prelude::*;
+use crate::subclass::prelude::*;
+use crate::InputStream;
 
-use crate::{prelude::*, subclass::prelude::*, InputStream};
+use std::any::Any;
+use std::io::{Read, Seek};
 
 mod imp {
-    use std::cell::RefCell;
-
     use super::*;
+    use std::cell::RefCell;
 
     pub(super) enum Reader {
         Read(AnyReader),
@@ -35,6 +34,7 @@ mod imp {
     impl InputStreamImpl for ReadInputStream {
         fn read(
             &self,
+            _stream: &Self::Type,
             buffer: &mut [u8],
             _cancellable: Option<&crate::Cancellable>,
         ) -> Result<usize, glib::Error> {
@@ -58,14 +58,18 @@ mod imp {
             }
         }
 
-        fn close(&self, _cancellable: Option<&crate::Cancellable>) -> Result<(), glib::Error> {
+        fn close(
+            &self,
+            _stream: &Self::Type,
+            _cancellable: Option<&crate::Cancellable>,
+        ) -> Result<(), glib::Error> {
             let _ = self.read.take();
             Ok(())
         }
     }
 
     impl SeekableImpl for ReadInputStream {
-        fn tell(&self) -> i64 {
+        fn tell(&self, _seekable: &Self::Type) -> i64 {
             // XXX: stream_position is not stable yet
             // let mut read = self.read.borrow_mut();
             // match *read {
@@ -77,13 +81,14 @@ mod imp {
             -1
         }
 
-        fn can_seek(&self) -> bool {
+        fn can_seek(&self, _seekable: &Self::Type) -> bool {
             let read = self.read.borrow();
             matches!(*read, Some(Reader::ReadSeek(_)))
         }
 
         fn seek(
             &self,
+            _seekable: &Self::Type,
             offset: i64,
             type_: glib::SeekType,
             _cancellable: Option<&crate::Cancellable>,
@@ -123,12 +128,13 @@ mod imp {
             }
         }
 
-        fn can_truncate(&self) -> bool {
+        fn can_truncate(&self, _seekable: &Self::Type) -> bool {
             false
         }
 
         fn truncate(
             &self,
+            _seekable: &Self::Type,
             _offset: i64,
             _cancellable: Option<&crate::Cancellable>,
         ) -> Result<(), glib::Error> {
@@ -146,7 +152,7 @@ glib::wrapper! {
 
 impl ReadInputStream {
     pub fn new<R: Read + Send + 'static>(read: R) -> ReadInputStream {
-        let obj: Self = glib::Object::new();
+        let obj: Self = glib::Object::new(&[]).expect("Failed to create read input stream");
 
         *obj.imp().read.borrow_mut() = Some(imp::Reader::Read(AnyReader::new(read)));
 
@@ -154,7 +160,7 @@ impl ReadInputStream {
     }
 
     pub fn new_seekable<R: Read + Seek + Send + 'static>(read: R) -> ReadInputStream {
-        let obj: Self = glib::Object::new();
+        let obj: Self = glib::Object::new(&[]).expect("Failed to create read input stream");
 
         *obj.imp().read.borrow_mut() = Some(imp::Reader::ReadSeek(AnyReader::new_seekable(read)));
 
@@ -316,7 +322,7 @@ pub(crate) fn std_error_to_gio_error<T>(
                 ))),
                 ErrorKind::WriteZero | _ => Some(Err(glib::Error::new(
                     crate::IOErrorEnum::Failed,
-                    format!("Unknown error: {err:?}").as_str(),
+                    format!("Unknown error: {:?}", err).as_str(),
                 ))),
             }
         }
@@ -325,9 +331,8 @@ pub(crate) fn std_error_to_gio_error<T>(
 
 #[cfg(test)]
 mod tests {
-    use std::io::Cursor;
-
     use super::*;
+    use std::io::Cursor;
 
     #[test]
     fn test_read() {

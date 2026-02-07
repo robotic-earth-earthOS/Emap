@@ -6,6 +6,10 @@ use std::fs;
 use std::path::{Path, PathBuf};
 use display_info::DisplayInfo;
 use uuid::Uuid;
+use actix_files::Files;
+use std::thread;
+use gtk::prelude::*;
+use webkit2gtk::{WebView, WebViewExt, SettingsExt};
 
 #[get("/")]
 async fn index() -> impl Responder {
@@ -510,89 +514,135 @@ fn load_project_internal(data: &AppState, id: &str) -> bool {
     }
 }
 
-#[actix_web::main]
-async fn main() -> std::io::Result<()> {
-    // Create assets directory
-    fs::create_dir_all("assets")?;
-    fs::create_dir_all("projects")?;
+fn main() {
+    // Fix for gray screen issues on Linux (forces software compositing)
+    // This is often necessary when GPU drivers or WebKitGTK hardware acceleration are unstable.
+    // std::env::set_var("WEBKIT_DISABLE_COMPOSITING_MODE", "1");
 
-    // Initialize Global Database
-    let conn = Connection::open("emap.db").expect("Failed to open database");
-    
-    // Projects Table
-    conn.execute(
-        "CREATE TABLE IF NOT EXISTS projects (
-            id TEXT PRIMARY KEY,
-            name TEXT,
-            created_at TEXT
-        )",
-        [],
-    ).expect("Failed to create projects table");
+    // Create a channel to signal when the server is ready
+    let (server_tx, server_rx) = std::sync::mpsc::channel();
 
-    // System Data (Global Config)
-    conn.execute(
-        "CREATE TABLE IF NOT EXISTS system_data (
-            key TEXT PRIMARY KEY,
-            value TEXT
-        )",
-        [],
-    ).expect("Failed to create system_data table");
+    // 1. Start the local web server in a separate thread.
+    thread::spawn(move || {
+        let sys = actix_web::rt::System::new();
+        sys.block_on(async {
+            // Ensure directories exist
+            let _ = fs::create_dir_all("assets");
+            let _ = fs::create_dir_all("projects");
 
-    let app_state = web::Data::new(AppState {
-        global_db: Mutex::new(conn),
-        project_db: Mutex::new(None),
-        active_project_id: Mutex::new(None),
+            // Initialize Global Database
+            let conn = Connection::open("emap.db").expect("Failed to open database");
+            
+            // Projects Table
+            conn.execute(
+                "CREATE TABLE IF NOT EXISTS projects (
+                    id TEXT PRIMARY KEY,
+                    name TEXT,
+                    created_at TEXT
+                )",
+                [],
+            ).expect("Failed to create projects table");
+
+            // System Data (Global Config)
+            conn.execute(
+                "CREATE TABLE IF NOT EXISTS system_data (
+                    key TEXT PRIMARY KEY,
+                    value TEXT
+                )",
+                [],
+            ).expect("Failed to create system_data table");
+
+            let app_state = web::Data::new(AppState {
+                global_db: Mutex::new(conn),
+                project_db: Mutex::new(None),
+                active_project_id: Mutex::new(None),
+            });
+
+            // Try load last project
+            {
+                let global = app_state.global_db.lock().unwrap();
+                let last_id: Result<String, _> = global.query_row(
+                    "SELECT value FROM system_data WHERE key = 'last_project_id'", 
+                    [], 
+                    |r| r.get(0)
+                );
+                drop(global); 
+
+                if let Ok(id) = last_id {
+                    println!("Loading last project: {}", id);
+                    load_project_internal(&app_state, &id);
+                }
+            }
+
+            println!("Starting server on http://127.0.0.1:8080");
+
+            let server = HttpServer::new(move || {
+                App::new()
+                    .app_data(web::PayloadConfig::new(1024 * 1024 * 1024))
+                    .app_data(app_state.clone())
+                    .service(index)
+                    .service(dashboard)
+                    .service(projection)
+                    .service(babel)
+                    .service(tailwind)
+                    .service(react)
+                    .service(react_dom)
+                    .service(logo)
+                    .service(get_monitors)
+                    .service(save_monitor_config)
+                    .service(list_projects)
+                    .service(delete_project)
+                    .service(create_project)
+                    .service(load_project)
+                    .service(get_active_project)
+                    .service(get_kv)
+                    .service(save_kv)
+                    .service(list_assets)
+                    .service(list_files)
+                    .service(import_asset)
+                    .service(save_asset)
+                    .service(get_asset)
+                    .service(delete_asset)
+                    .service(Files::new("/", "./html").index_file("Emap.html"))
+            })
+            .bind(("127.0.0.1", 8080))
+            .expect("Can not bind to port 8080");
+
+            // Notify main thread that server is bound and ready
+            let _ = server_tx.send(());
+
+            server.run().await.expect("Server error");
+        });
     });
 
-    // Try load last project
-    {
-        let global = app_state.global_db.lock().unwrap();
-        let last_id: Result<String, _> = global.query_row(
-            "SELECT value FROM system_data WHERE key = 'last_project_id'", 
-            [], 
-            |r| r.get(0)
-        );
-        drop(global); // unlock before calling load_project_internal
+    // Wait for the server to start before showing the window
+    println!("Waiting for server to start...");
+    let _ = server_rx.recv();
+    println!("Server started, launching window...");
 
-        if let Ok(id) = last_id {
-            println!("Loading last project: {}", id);
-            load_project_internal(&app_state, &id);
-        }
+    // Initialize GTK
+    gtk::init().expect("Failed to initialize GTK");
+
+    // Create the Main Window
+    let window = gtk::Window::new(gtk::WindowType::Toplevel);
+    window.set_title("Emap Projection System");
+    window.fullscreen();
+
+    // Create the WebView
+    let webview = WebView::new();
+    webview.load_uri("http://127.0.0.1:8080");
+    
+    if let Some(settings) = WebViewExt::settings(&webview) {
+        SettingsExt::set_enable_developer_extras(&settings, true);
     }
 
-    println!("Starting server on http://127.0.0.1:8080");
-    println!("Open http://127.0.0.1:8080 in your browser.");
+    window.add(&webview);
+    window.show_all();
 
-    HttpServer::new(move || {
-        App::new()
-            // Increase upload limit to 1GB
-            .app_data(web::PayloadConfig::new(1024 * 1024 * 1024))
-            .app_data(app_state.clone())
-            .service(index)
-            .service(dashboard)
-            .service(projection)
-            .service(babel)
-            .service(tailwind)
-            .service(react)
-            .service(react_dom)
-            .service(logo)
-            .service(get_monitors)
-            .service(save_monitor_config)
-            .service(list_projects)
-            .service(delete_project)
-            .service(create_project)
-            .service(load_project)
-            .service(get_active_project)
-            .service(get_kv)
-            .service(save_kv)
-            .service(list_assets)
-            .service(list_files)
-            .service(import_asset)
-            .service(save_asset)
-            .service(get_asset)
-            .service(delete_asset)
-    })
-    .bind(("127.0.0.1", 8080))?
-    .run()
-    .await
+    window.connect_delete_event(|_, _| {
+        gtk::main_quit();
+        gtk::Inhibit(false)
+    });
+
+    gtk::main();
 }

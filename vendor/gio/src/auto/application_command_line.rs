@@ -2,13 +2,17 @@
 // from gir-files (https://github.com/gtk-rs/gir-files)
 // DO NOT EDIT
 
-use crate::{File, InputStream};
-use glib::{
-    prelude::*,
-    signal::{connect_raw, SignalHandlerId},
-    translate::*,
-};
-use std::{boxed::Box as Box_, fmt, mem, mem::transmute};
+use crate::File;
+use crate::InputStream;
+use glib::object::Cast;
+use glib::object::IsA;
+use glib::signal::connect_raw;
+use glib::signal::SignalHandlerId;
+use glib::translate::*;
+use std::boxed::Box as Box_;
+use std::fmt;
+use std::mem;
+use std::mem::transmute;
 
 glib::wrapper! {
     #[doc(alias = "GApplicationCommandLine")]
@@ -23,15 +27,59 @@ impl ApplicationCommandLine {
     pub const NONE: Option<&'static ApplicationCommandLine> = None;
 }
 
-mod sealed {
-    pub trait Sealed {}
-    impl<T: super::IsA<super::ApplicationCommandLine>> Sealed for T {}
+pub trait ApplicationCommandLineExt: 'static {
+    #[doc(alias = "g_application_command_line_create_file_for_arg")]
+    fn create_file_for_arg(&self, arg: impl AsRef<std::ffi::OsStr>) -> File;
+
+    #[doc(alias = "g_application_command_line_get_arguments")]
+    #[doc(alias = "get_arguments")]
+    fn arguments(&self) -> Vec<std::ffi::OsString>;
+
+    #[doc(alias = "g_application_command_line_get_cwd")]
+    #[doc(alias = "get_cwd")]
+    fn cwd(&self) -> Option<std::path::PathBuf>;
+
+    #[doc(alias = "g_application_command_line_get_environ")]
+    #[doc(alias = "get_environ")]
+    fn environ(&self) -> Vec<std::ffi::OsString>;
+
+    #[doc(alias = "g_application_command_line_get_exit_status")]
+    #[doc(alias = "get_exit_status")]
+    fn exit_status(&self) -> i32;
+
+    #[doc(alias = "g_application_command_line_get_is_remote")]
+    #[doc(alias = "get_is_remote")]
+    fn is_remote(&self) -> bool;
+
+    #[doc(alias = "g_application_command_line_get_options_dict")]
+    #[doc(alias = "get_options_dict")]
+    fn options_dict(&self) -> glib::VariantDict;
+
+    #[doc(alias = "g_application_command_line_get_platform_data")]
+    #[doc(alias = "get_platform_data")]
+    fn platform_data(&self) -> Option<glib::Variant>;
+
+    #[doc(alias = "g_application_command_line_get_stdin")]
+    #[doc(alias = "get_stdin")]
+    fn stdin(&self) -> Option<InputStream>;
+
+    #[doc(alias = "g_application_command_line_getenv")]
+    fn getenv(&self, name: impl AsRef<std::ffi::OsStr>) -> Option<glib::GString>;
+
+    //#[doc(alias = "g_application_command_line_print")]
+    //fn print(&self, format: &str, : /*Unknown conversion*//*Unimplemented*/Fundamental: VarArgs);
+
+    //#[doc(alias = "g_application_command_line_printerr")]
+    //fn printerr(&self, format: &str, : /*Unknown conversion*//*Unimplemented*/Fundamental: VarArgs);
+
+    #[doc(alias = "g_application_command_line_set_exit_status")]
+    fn set_exit_status(&self, exit_status: i32);
+
+    #[doc(alias = "is-remote")]
+    fn connect_is_remote_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
 }
 
-pub trait ApplicationCommandLineExt:
-    IsA<ApplicationCommandLine> + sealed::Sealed + 'static
-{
-    #[doc(alias = "g_application_command_line_create_file_for_arg")]
+impl<O: IsA<ApplicationCommandLine>> ApplicationCommandLineExt for O {
     fn create_file_for_arg(&self, arg: impl AsRef<std::ffi::OsStr>) -> File {
         unsafe {
             from_glib_full(ffi::g_application_command_line_create_file_for_arg(
@@ -41,8 +89,6 @@ pub trait ApplicationCommandLineExt:
         }
     }
 
-    #[doc(alias = "g_application_command_line_get_arguments")]
-    #[doc(alias = "get_arguments")]
     fn arguments(&self) -> Vec<std::ffi::OsString> {
         unsafe {
             let mut argc = mem::MaybeUninit::uninit();
@@ -51,14 +97,12 @@ pub trait ApplicationCommandLineExt:
                     self.as_ref().to_glib_none().0,
                     argc.as_mut_ptr(),
                 ),
-                argc.assume_init() as _,
+                argc.assume_init() as usize,
             );
             ret
         }
     }
 
-    #[doc(alias = "g_application_command_line_get_cwd")]
-    #[doc(alias = "get_cwd")]
     fn cwd(&self) -> Option<std::path::PathBuf> {
         unsafe {
             from_glib_none(ffi::g_application_command_line_get_cwd(
@@ -67,8 +111,6 @@ pub trait ApplicationCommandLineExt:
         }
     }
 
-    #[doc(alias = "g_application_command_line_get_environ")]
-    #[doc(alias = "get_environ")]
     fn environ(&self) -> Vec<std::ffi::OsString> {
         unsafe {
             FromGlibPtrContainer::from_glib_none(ffi::g_application_command_line_get_environ(
@@ -77,14 +119,10 @@ pub trait ApplicationCommandLineExt:
         }
     }
 
-    #[doc(alias = "g_application_command_line_get_exit_status")]
-    #[doc(alias = "get_exit_status")]
     fn exit_status(&self) -> i32 {
         unsafe { ffi::g_application_command_line_get_exit_status(self.as_ref().to_glib_none().0) }
     }
 
-    #[doc(alias = "g_application_command_line_get_is_remote")]
-    #[doc(alias = "get_is_remote")]
     fn is_remote(&self) -> bool {
         unsafe {
             from_glib(ffi::g_application_command_line_get_is_remote(
@@ -93,8 +131,6 @@ pub trait ApplicationCommandLineExt:
         }
     }
 
-    #[doc(alias = "g_application_command_line_get_options_dict")]
-    #[doc(alias = "get_options_dict")]
     fn options_dict(&self) -> glib::VariantDict {
         unsafe {
             from_glib_none(ffi::g_application_command_line_get_options_dict(
@@ -103,8 +139,6 @@ pub trait ApplicationCommandLineExt:
         }
     }
 
-    #[doc(alias = "g_application_command_line_get_platform_data")]
-    #[doc(alias = "get_platform_data")]
     fn platform_data(&self) -> Option<glib::Variant> {
         unsafe {
             from_glib_full(ffi::g_application_command_line_get_platform_data(
@@ -113,8 +147,6 @@ pub trait ApplicationCommandLineExt:
         }
     }
 
-    #[doc(alias = "g_application_command_line_get_stdin")]
-    #[doc(alias = "get_stdin")]
     fn stdin(&self) -> Option<InputStream> {
         unsafe {
             from_glib_full(ffi::g_application_command_line_get_stdin(
@@ -123,7 +155,6 @@ pub trait ApplicationCommandLineExt:
         }
     }
 
-    #[doc(alias = "g_application_command_line_getenv")]
     fn getenv(&self, name: impl AsRef<std::ffi::OsStr>) -> Option<glib::GString> {
         unsafe {
             from_glib_none(ffi::g_application_command_line_getenv(
@@ -133,17 +164,14 @@ pub trait ApplicationCommandLineExt:
         }
     }
 
-    //#[doc(alias = "g_application_command_line_print")]
-    //fn print(&self, format: &str, : /*Unknown conversion*//*Unimplemented*/Basic: VarArgs) {
+    //fn print(&self, format: &str, : /*Unknown conversion*//*Unimplemented*/Fundamental: VarArgs) {
     //    unsafe { TODO: call ffi:g_application_command_line_print() }
     //}
 
-    //#[doc(alias = "g_application_command_line_printerr")]
-    //fn printerr(&self, format: &str, : /*Unknown conversion*//*Unimplemented*/Basic: VarArgs) {
+    //fn printerr(&self, format: &str, : /*Unknown conversion*//*Unimplemented*/Fundamental: VarArgs) {
     //    unsafe { TODO: call ffi:g_application_command_line_printerr() }
     //}
 
-    #[doc(alias = "g_application_command_line_set_exit_status")]
     fn set_exit_status(&self, exit_status: i32) {
         unsafe {
             ffi::g_application_command_line_set_exit_status(
@@ -153,7 +181,6 @@ pub trait ApplicationCommandLineExt:
         }
     }
 
-    #[doc(alias = "is-remote")]
     fn connect_is_remote_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe extern "C" fn notify_is_remote_trampoline<
             P: IsA<ApplicationCommandLine>,
@@ -179,8 +206,6 @@ pub trait ApplicationCommandLineExt:
         }
     }
 }
-
-impl<O: IsA<ApplicationCommandLine>> ApplicationCommandLineExt for O {}
 
 impl fmt::Display for ApplicationCommandLine {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {

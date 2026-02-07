@@ -2,13 +2,21 @@
 // from gir-files (https://github.com/gtk-rs/gir-files)
 // DO NOT EDIT
 
-use crate::{Cancellable, DBusAuthObserver, DBusConnection, DBusServerFlags, Initable};
-use glib::{
-    prelude::*,
-    signal::{connect_raw, SignalHandlerId},
-    translate::*,
-};
-use std::{boxed::Box as Box_, fmt, mem::transmute, ptr};
+use crate::Cancellable;
+use crate::DBusAuthObserver;
+use crate::DBusConnection;
+use crate::DBusServerFlags;
+use crate::Initable;
+use glib::object::IsA;
+use glib::object::ObjectType as ObjectType_;
+use glib::signal::connect_raw;
+use glib::signal::SignalHandlerId;
+use glib::translate::*;
+use glib::StaticType;
+use std::boxed::Box as Box_;
+use std::fmt;
+use std::mem::transmute;
+use std::ptr;
 
 glib::wrapper! {
     #[doc(alias = "GDBusServer")]
@@ -84,12 +92,12 @@ impl DBusServer {
     }
 
     pub fn address(&self) -> Option<glib::GString> {
-        ObjectExt::property(self, "address")
+        glib::ObjectExt::property(self, "address")
     }
 
     #[doc(alias = "authentication-observer")]
     pub fn authentication_observer(&self) -> Option<DBusAuthObserver> {
-        ObjectExt::property(self, "authentication-observer")
+        glib::ObjectExt::property(self, "authentication-observer")
     }
 
     #[doc(alias = "new-connection")]

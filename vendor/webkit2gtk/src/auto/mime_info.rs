@@ -17,7 +17,6 @@ glib::wrapper! {
 
 impl MimeInfo {
   #[cfg_attr(feature = "v2_32", deprecated = "Since 2.32")]
-  #[allow(deprecated)]
   #[doc(alias = "webkit_mime_info_get_description")]
   #[doc(alias = "get_description")]
   pub fn description(&self) -> Option<glib::GString> {
@@ -25,7 +24,6 @@ impl MimeInfo {
   }
 
   #[cfg_attr(feature = "v2_32", deprecated = "Since 2.32")]
-  #[allow(deprecated)]
   #[doc(alias = "webkit_mime_info_get_extensions")]
   #[doc(alias = "get_extensions")]
   pub fn extensions(&self) -> Vec<glib::GString> {
@@ -37,7 +35,6 @@ impl MimeInfo {
   }
 
   #[cfg_attr(feature = "v2_32", deprecated = "Since 2.32")]
-  #[allow(deprecated)]
   #[doc(alias = "webkit_mime_info_get_mime_type")]
   #[doc(alias = "get_mime_type")]
   pub fn mime_type(&self) -> Option<glib::GString> {

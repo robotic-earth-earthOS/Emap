@@ -1,10 +1,8 @@
 // Take a look at the license at the top of the repository in the LICENSE file.
 
-use std::fmt;
-
-use glib::translate::*;
-
 use crate::{Matrix, Rectangle};
+use glib::translate::*;
+use std::fmt;
 
 impl Matrix {
     pub fn new(xx: f64, xy: f64, yx: f64, yy: f64, x0: f64, y0: f64) -> Self {

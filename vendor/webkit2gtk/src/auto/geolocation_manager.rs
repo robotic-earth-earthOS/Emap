@@ -2,13 +2,29 @@
 // from gir-files (https://github.com/tauri-apps/gir-files)
 // DO NOT EDIT
 
+#[cfg(any(feature = "v2_26", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v2_26")))]
 use crate::GeolocationPosition;
-use glib::{
-  prelude::*,
-  signal::{connect_raw, SignalHandlerId},
-  translate::*,
-};
+#[cfg(any(feature = "v2_26", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v2_26")))]
+use glib::object::Cast;
+use glib::object::IsA;
+#[cfg(any(feature = "v2_26", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v2_26")))]
+use glib::signal::connect_raw;
+#[cfg(any(feature = "v2_26", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v2_26")))]
+use glib::signal::SignalHandlerId;
+#[cfg(any(feature = "v2_26", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v2_26")))]
+use glib::translate::*;
+#[cfg(any(feature = "v2_26", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v2_26")))]
 use std::boxed::Box as Box_;
+use std::fmt;
+#[cfg(any(feature = "v2_26", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v2_26")))]
+use std::mem::transmute;
 
 glib::wrapper! {
     #[doc(alias = "WebKitGeolocationManager")]
@@ -23,13 +39,42 @@ impl GeolocationManager {
   pub const NONE: Option<&'static GeolocationManager> = None;
 }
 
-mod sealed {
-  pub trait Sealed {}
-  impl<T: super::IsA<super::GeolocationManager>> Sealed for T {}
+pub trait GeolocationManagerExt: 'static {
+  #[cfg(any(feature = "v2_26", feature = "dox"))]
+  #[cfg_attr(feature = "dox", doc(cfg(feature = "v2_26")))]
+  #[doc(alias = "webkit_geolocation_manager_failed")]
+  fn failed(&self, error_message: &str);
+
+  #[cfg(any(feature = "v2_26", feature = "dox"))]
+  #[cfg_attr(feature = "dox", doc(cfg(feature = "v2_26")))]
+  #[doc(alias = "webkit_geolocation_manager_get_enable_high_accuracy")]
+  #[doc(alias = "get_enable_high_accuracy")]
+  fn enables_high_accuracy(&self) -> bool;
+
+  #[cfg(any(feature = "v2_26", feature = "dox"))]
+  #[cfg_attr(feature = "dox", doc(cfg(feature = "v2_26")))]
+  #[doc(alias = "webkit_geolocation_manager_update_position")]
+  fn update_position(&self, position: &mut GeolocationPosition);
+
+  #[cfg(any(feature = "v2_26", feature = "dox"))]
+  #[cfg_attr(feature = "dox", doc(cfg(feature = "v2_26")))]
+  #[doc(alias = "start")]
+  fn connect_start<F: Fn(&Self) -> bool + 'static>(&self, f: F) -> SignalHandlerId;
+
+  #[cfg(any(feature = "v2_26", feature = "dox"))]
+  #[cfg_attr(feature = "dox", doc(cfg(feature = "v2_26")))]
+  #[doc(alias = "stop")]
+  fn connect_stop<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
+
+  #[cfg(any(feature = "v2_26", feature = "dox"))]
+  #[cfg_attr(feature = "dox", doc(cfg(feature = "v2_26")))]
+  #[doc(alias = "enable-high-accuracy")]
+  fn connect_enable_high_accuracy_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId;
 }
 
-pub trait GeolocationManagerExt: IsA<GeolocationManager> + sealed::Sealed + 'static {
-  #[doc(alias = "webkit_geolocation_manager_failed")]
+impl<O: IsA<GeolocationManager>> GeolocationManagerExt for O {
+  #[cfg(any(feature = "v2_26", feature = "dox"))]
+  #[cfg_attr(feature = "dox", doc(cfg(feature = "v2_26")))]
   fn failed(&self, error_message: &str) {
     unsafe {
       ffi::webkit_geolocation_manager_failed(
@@ -39,8 +84,8 @@ pub trait GeolocationManagerExt: IsA<GeolocationManager> + sealed::Sealed + 'sta
     }
   }
 
-  #[doc(alias = "webkit_geolocation_manager_get_enable_high_accuracy")]
-  #[doc(alias = "get_enable_high_accuracy")]
+  #[cfg(any(feature = "v2_26", feature = "dox"))]
+  #[cfg_attr(feature = "dox", doc(cfg(feature = "v2_26")))]
   fn enables_high_accuracy(&self) -> bool {
     unsafe {
       from_glib(ffi::webkit_geolocation_manager_get_enable_high_accuracy(
@@ -49,7 +94,8 @@ pub trait GeolocationManagerExt: IsA<GeolocationManager> + sealed::Sealed + 'sta
     }
   }
 
-  #[doc(alias = "webkit_geolocation_manager_update_position")]
+  #[cfg(any(feature = "v2_26", feature = "dox"))]
+  #[cfg_attr(feature = "dox", doc(cfg(feature = "v2_26")))]
   fn update_position(&self, position: &mut GeolocationPosition) {
     unsafe {
       ffi::webkit_geolocation_manager_update_position(
@@ -59,9 +105,8 @@ pub trait GeolocationManagerExt: IsA<GeolocationManager> + sealed::Sealed + 'sta
     }
   }
 
-  #[cfg(feature = "v2_26")]
-  #[cfg_attr(docsrs, doc(cfg(feature = "v2_26")))]
-  #[doc(alias = "start")]
+  #[cfg(any(feature = "v2_26", feature = "dox"))]
+  #[cfg_attr(feature = "dox", doc(cfg(feature = "v2_26")))]
   fn connect_start<F: Fn(&Self) -> bool + 'static>(&self, f: F) -> SignalHandlerId {
     unsafe extern "C" fn start_trampoline<
       P: IsA<GeolocationManager>,
@@ -78,7 +123,7 @@ pub trait GeolocationManagerExt: IsA<GeolocationManager> + sealed::Sealed + 'sta
       connect_raw(
         self.as_ptr() as *mut _,
         b"start\0".as_ptr() as *const _,
-        Some(std::mem::transmute::<_, unsafe extern "C" fn()>(
+        Some(transmute::<_, unsafe extern "C" fn()>(
           start_trampoline::<Self, F> as *const (),
         )),
         Box_::into_raw(f),
@@ -86,9 +131,8 @@ pub trait GeolocationManagerExt: IsA<GeolocationManager> + sealed::Sealed + 'sta
     }
   }
 
-  #[cfg(feature = "v2_26")]
-  #[cfg_attr(docsrs, doc(cfg(feature = "v2_26")))]
-  #[doc(alias = "stop")]
+  #[cfg(any(feature = "v2_26", feature = "dox"))]
+  #[cfg_attr(feature = "dox", doc(cfg(feature = "v2_26")))]
   fn connect_stop<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
     unsafe extern "C" fn stop_trampoline<P: IsA<GeolocationManager>, F: Fn(&P) + 'static>(
       this: *mut ffi::WebKitGeolocationManager,
@@ -102,7 +146,7 @@ pub trait GeolocationManagerExt: IsA<GeolocationManager> + sealed::Sealed + 'sta
       connect_raw(
         self.as_ptr() as *mut _,
         b"stop\0".as_ptr() as *const _,
-        Some(std::mem::transmute::<_, unsafe extern "C" fn()>(
+        Some(transmute::<_, unsafe extern "C" fn()>(
           stop_trampoline::<Self, F> as *const (),
         )),
         Box_::into_raw(f),
@@ -110,9 +154,8 @@ pub trait GeolocationManagerExt: IsA<GeolocationManager> + sealed::Sealed + 'sta
     }
   }
 
-  #[cfg(feature = "v2_26")]
-  #[cfg_attr(docsrs, doc(cfg(feature = "v2_26")))]
-  #[doc(alias = "enable-high-accuracy")]
+  #[cfg(any(feature = "v2_26", feature = "dox"))]
+  #[cfg_attr(feature = "dox", doc(cfg(feature = "v2_26")))]
   fn connect_enable_high_accuracy_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
     unsafe extern "C" fn notify_enable_high_accuracy_trampoline<
       P: IsA<GeolocationManager>,
@@ -130,7 +173,7 @@ pub trait GeolocationManagerExt: IsA<GeolocationManager> + sealed::Sealed + 'sta
       connect_raw(
         self.as_ptr() as *mut _,
         b"notify::enable-high-accuracy\0".as_ptr() as *const _,
-        Some(std::mem::transmute::<_, unsafe extern "C" fn()>(
+        Some(transmute::<_, unsafe extern "C" fn()>(
           notify_enable_high_accuracy_trampoline::<Self, F> as *const (),
         )),
         Box_::into_raw(f),
@@ -139,4 +182,8 @@ pub trait GeolocationManagerExt: IsA<GeolocationManager> + sealed::Sealed + 'sta
   }
 }
 
-impl<O: IsA<GeolocationManager>> GeolocationManagerExt for O {}
+impl fmt::Display for GeolocationManager {
+  fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    f.write_str("GeolocationManager")
+  }
+}

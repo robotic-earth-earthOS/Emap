@@ -29,6 +29,9 @@ pub use self::layout::Layout;
 mod renderer;
 pub use self::renderer::Renderer;
 
+mod attr_iterator;
+pub use self::attr_iterator::AttrIterator;
+
 mod attr_list;
 pub use self::attr_list::AttrList;
 
@@ -47,14 +50,14 @@ pub use self::font_metrics::FontMetrics;
 mod glyph_item;
 pub use self::glyph_item::GlyphItem;
 
+mod glyph_item_iter;
+pub use self::glyph_item_iter::GlyphItemIter;
+
 mod glyph_string;
 pub use self::glyph_string::GlyphString;
 
 mod item;
 pub use self::item::Item;
-
-mod language;
-pub use self::language::Language;
 
 mod layout_iter;
 pub use self::layout_iter::LayoutIter;
@@ -71,29 +74,28 @@ pub use self::tab_array::TabArray;
 mod enums;
 pub use self::enums::Alignment;
 pub use self::enums::AttrType;
-#[cfg(feature = "v1_50")]
-#[cfg_attr(docsrs, doc(cfg(feature = "v1_50")))]
+#[cfg(any(feature = "v1_50", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v1_50")))]
 pub use self::enums::BaselineShift;
-#[allow(deprecated)]
 pub use self::enums::BidiType;
 pub use self::enums::CoverageLevel;
 pub use self::enums::Direction;
 pub use self::enums::EllipsizeMode;
-#[cfg(feature = "v1_50")]
-#[cfg_attr(docsrs, doc(cfg(feature = "v1_50")))]
+#[cfg(any(feature = "v1_50", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v1_50")))]
 pub use self::enums::FontScale;
 pub use self::enums::Gravity;
 pub use self::enums::GravityHint;
-#[cfg(feature = "v1_46")]
-#[cfg_attr(docsrs, doc(cfg(feature = "v1_46")))]
+#[cfg(any(feature = "v1_46", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v1_46")))]
 pub use self::enums::Overline;
 pub use self::enums::RenderPart;
 pub use self::enums::Script;
 pub use self::enums::Stretch;
 pub use self::enums::Style;
 pub use self::enums::TabAlign;
-#[cfg(feature = "v1_50")]
-#[cfg_attr(docsrs, doc(cfg(feature = "v1_50")))]
+#[cfg(any(feature = "v1_50", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v1_50")))]
 pub use self::enums::TextTransform;
 pub use self::enums::Underline;
 pub use self::enums::Variant;
@@ -102,17 +104,17 @@ pub use self::enums::WrapMode;
 
 mod flags;
 pub use self::flags::FontMask;
-#[cfg(feature = "v1_50")]
-#[cfg_attr(docsrs, doc(cfg(feature = "v1_50")))]
+#[cfg(any(feature = "v1_50", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v1_50")))]
 pub use self::flags::LayoutDeserializeFlags;
-#[cfg(feature = "v1_50")]
-#[cfg_attr(docsrs, doc(cfg(feature = "v1_50")))]
+#[cfg(any(feature = "v1_50", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v1_50")))]
 pub use self::flags::LayoutSerializeFlags;
-#[cfg(feature = "v1_44")]
-#[cfg_attr(docsrs, doc(cfg(feature = "v1_44")))]
+#[cfg(any(feature = "v1_44", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v1_44")))]
 pub use self::flags::ShapeFlags;
-#[cfg(feature = "v1_44")]
-#[cfg_attr(docsrs, doc(cfg(feature = "v1_44")))]
+#[cfg(any(feature = "v1_44", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v1_44")))]
 pub use self::flags::ShowFlags;
 
 mod alias;

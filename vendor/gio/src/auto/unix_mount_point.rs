@@ -5,8 +5,8 @@
 use crate::Icon;
 use glib::translate::*;
 use std::cmp;
-#[cfg(feature = "v2_66")]
-#[cfg_attr(docsrs, doc(cfg(feature = "v2_66")))]
+#[cfg(any(feature = "v2_66", feature = "dox"))]
+#[cfg_attr(feature = "dox", doc(cfg(feature = "v2_66")))]
 use std::mem;
 
 glib::wrapper! {
@@ -134,8 +134,8 @@ impl UnixMountPoint {
         }
     }
 
-    #[cfg(feature = "v2_66")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "v2_66")))]
+    #[cfg(any(feature = "v2_66", feature = "dox"))]
+    #[cfg_attr(feature = "dox", doc(cfg(feature = "v2_66")))]
     #[doc(alias = "g_unix_mount_point_at")]
     pub fn at(mount_path: impl AsRef<std::path::Path>) -> (Option<UnixMountPoint>, u64) {
         unsafe {
@@ -144,7 +144,8 @@ impl UnixMountPoint {
                 mount_path.as_ref().to_glib_none().0,
                 time_read.as_mut_ptr(),
             ));
-            (ret, time_read.assume_init())
+            let time_read = time_read.assume_init();
+            (ret, time_read)
         }
     }
 }
@@ -161,7 +162,7 @@ impl Eq for UnixMountPoint {}
 impl PartialOrd for UnixMountPoint {
     #[inline]
     fn partial_cmp(&self, other: &Self) -> Option<cmp::Ordering> {
-        Some(self.cmp(other))
+        self.compare(other).partial_cmp(&0)
     }
 }
 

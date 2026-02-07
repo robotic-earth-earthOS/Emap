@@ -1,19 +1,29 @@
 // Take a look at the license at the top of the repository in the LICENSE file.
 
-#[cfg(feature = "use_glib")]
-use std::marker::PhantomData;
-use std::{ffi::CString, fmt, mem::MaybeUninit, ops, ptr, slice};
-
+use crate::font::{
+    FontExtents, FontFace, FontOptions, Glyph, ScaledFont, TextCluster, TextExtents,
+};
+use crate::matrices::Matrix;
+use crate::paths::Path;
+use crate::Rectangle;
+use crate::{
+    Antialias, Content, FillRule, FontSlant, FontWeight, LineCap, LineJoin, Operator,
+    TextClusterFlags,
+};
 #[cfg(feature = "use_glib")]
 use glib::translate::*;
+use libc::c_int;
+use std::ffi::CString;
+use std::fmt;
+use std::ops;
+use std::ptr;
+use std::slice;
 
-use crate::{
-    ffi::{cairo_rectangle_list_t, cairo_t},
-    utils::status_to_result,
-    Antialias, Content, Error, FillRule, FontExtents, FontFace, FontOptions, FontSlant, FontWeight,
-    Glyph, LineCap, LineJoin, Matrix, Operator, Path, Pattern, Rectangle, ScaledFont, Surface,
-    TextCluster, TextClusterFlags, TextExtents,
-};
+use crate::error::Error;
+use crate::ffi::{cairo_rectangle_list_t, cairo_t};
+use crate::patterns::Pattern;
+use crate::surface::Surface;
+use crate::utils::status_to_result;
 
 pub struct RectangleList {
     ptr: *mut cairo_rectangle_list_t,
@@ -22,7 +32,6 @@ pub struct RectangleList {
 impl ops::Deref for RectangleList {
     type Target = [Rectangle];
 
-    #[inline]
     fn deref(&self) -> &[Rectangle] {
         unsafe {
             let ptr = (*self.ptr).rectangles as *mut Rectangle;
@@ -38,7 +47,6 @@ impl ops::Deref for RectangleList {
 }
 
 impl Drop for RectangleList {
-    #[inline]
     fn drop(&mut self) {
         unsafe {
             ffi::cairo_rectangle_list_destroy(self.ptr);
@@ -64,22 +72,12 @@ impl fmt::Display for RectangleList {
 pub struct Context(ptr::NonNull<cairo_t>);
 
 #[cfg(feature = "use_glib")]
-#[cfg_attr(docsrs, doc(cfg(feature = "use_glib")))]
-impl IntoGlibPtr<*mut ffi::cairo_t> for Context {
-    #[inline]
-    unsafe fn into_glib_ptr(self) -> *mut ffi::cairo_t {
-        (&*std::mem::ManuallyDrop::new(self)).to_glib_none().0
-    }
-}
-
-#[cfg(feature = "use_glib")]
-#[cfg_attr(docsrs, doc(cfg(feature = "use_glib")))]
 impl<'a> ToGlibPtr<'a, *mut ffi::cairo_t> for &'a Context {
-    type Storage = PhantomData<&'a Context>;
+    type Storage = &'a Context;
 
     #[inline]
     fn to_glib_none(&self) -> Stash<'a, *mut ffi::cairo_t, &'a Context> {
-        Stash(self.0.as_ptr(), PhantomData)
+        Stash(self.0.as_ptr(), *self)
     }
 
     #[inline]
@@ -89,7 +87,6 @@ impl<'a> ToGlibPtr<'a, *mut ffi::cairo_t> for &'a Context {
 }
 
 #[cfg(feature = "use_glib")]
-#[cfg_attr(docsrs, doc(cfg(feature = "use_glib")))]
 impl FromGlibPtrNone<*mut ffi::cairo_t> for Context {
     #[inline]
     unsafe fn from_glib_none(ptr: *mut ffi::cairo_t) -> Context {
@@ -98,7 +95,6 @@ impl FromGlibPtrNone<*mut ffi::cairo_t> for Context {
 }
 
 #[cfg(feature = "use_glib")]
-#[cfg_attr(docsrs, doc(cfg(feature = "use_glib")))]
 impl FromGlibPtrBorrow<*mut ffi::cairo_t> for Context {
     #[inline]
     unsafe fn from_glib_borrow(ptr: *mut ffi::cairo_t) -> crate::Borrowed<Context> {
@@ -107,7 +103,6 @@ impl FromGlibPtrBorrow<*mut ffi::cairo_t> for Context {
 }
 
 #[cfg(feature = "use_glib")]
-#[cfg_attr(docsrs, doc(cfg(feature = "use_glib")))]
 impl FromGlibPtrFull<*mut ffi::cairo_t> for Context {
     #[inline]
     unsafe fn from_glib_full(ptr: *mut ffi::cairo_t) -> Context {
@@ -123,14 +118,12 @@ gvalue_impl!(
 );
 
 impl Clone for Context {
-    #[inline]
     fn clone(&self) -> Context {
         unsafe { Self::from_raw_none(self.to_raw_none()) }
     }
 }
 
 impl Drop for Context {
-    #[inline]
     fn drop(&mut self) {
         unsafe {
             ffi::cairo_destroy(self.0.as_ptr());
@@ -141,37 +134,35 @@ impl Drop for Context {
 impl Context {
     #[inline]
     pub unsafe fn from_raw_none(ptr: *mut ffi::cairo_t) -> Context {
-        debug_assert!(!ptr.is_null());
+        assert!(!ptr.is_null());
         ffi::cairo_reference(ptr);
         Context(ptr::NonNull::new_unchecked(ptr))
     }
 
     #[inline]
     pub unsafe fn from_raw_borrow(ptr: *mut ffi::cairo_t) -> crate::Borrowed<Context> {
-        debug_assert!(!ptr.is_null());
+        assert!(!ptr.is_null());
         crate::Borrowed::new(Context(ptr::NonNull::new_unchecked(ptr)))
     }
 
     #[inline]
     pub unsafe fn from_raw_full(ptr: *mut ffi::cairo_t) -> Context {
-        debug_assert!(!ptr.is_null());
+        assert!(!ptr.is_null());
         Context(ptr::NonNull::new_unchecked(ptr))
     }
 
-    #[inline]
     pub fn to_raw_none(&self) -> *mut ffi::cairo_t {
         self.0.as_ptr()
     }
 
     #[doc(alias = "cairo_status")]
-    #[inline]
     pub fn status(&self) -> Result<(), Error> {
         let status = unsafe { ffi::cairo_status(self.0.as_ptr()) };
         status_to_result(status)
     }
 
-    pub fn new(target: impl AsRef<Surface>) -> Result<Context, Error> {
-        let ctx = unsafe { Self::from_raw_full(ffi::cairo_create(target.as_ref().to_raw_none())) };
+    pub fn new(target: &Surface) -> Result<Context, Error> {
+        let ctx = unsafe { Self::from_raw_full(ffi::cairo_create(target.to_raw_none())) };
         ctx.status().map(|_| ctx)
     }
 
@@ -232,8 +223,7 @@ impl Context {
     }
 
     #[doc(alias = "cairo_set_source")]
-    pub fn set_source(&self, source: impl AsRef<Pattern>) -> Result<(), Error> {
-        let source = source.as_ref();
+    pub fn set_source(&self, source: &Pattern) -> Result<(), Error> {
         source.status()?;
         unsafe {
             ffi::cairo_set_source(self.0.as_ptr(), source.to_raw_none());
@@ -248,13 +238,7 @@ impl Context {
     }
 
     #[doc(alias = "cairo_set_source_surface")]
-    pub fn set_source_surface(
-        &self,
-        surface: impl AsRef<Surface>,
-        x: f64,
-        y: f64,
-    ) -> Result<(), Error> {
-        let surface = surface.as_ref();
+    pub fn set_source_surface(&self, surface: &Surface, x: f64, y: f64) -> Result<(), Error> {
         surface.status()?;
         unsafe {
             ffi::cairo_set_source_surface(self.0.as_ptr(), surface.to_raw_none(), x, y);
@@ -361,21 +345,6 @@ impl Context {
     #[doc(alias = "cairo_get_line_width")]
     pub fn line_width(&self) -> f64 {
         unsafe { ffi::cairo_get_line_width(self.0.as_ptr()) }
-    }
-
-    #[cfg(feature = "v1_18")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "v1_18")))]
-    #[doc(alias = "cairo_set_hairline")]
-    pub fn set_hairline(&self, set_hairline: bool) {
-        unsafe { ffi::cairo_set_hairline(self.0.as_ptr(), set_hairline.into()) }
-    }
-
-    #[cfg(feature = "v1_18")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "v1_18")))]
-    #[doc(alias = "get_hairline")]
-    #[doc(alias = "cairo_get_hairline")]
-    pub fn hairline(&self) -> bool {
-        unsafe { ffi::cairo_get_hairline(self.0.as_ptr()) }.as_bool()
     }
 
     #[doc(alias = "cairo_set_miter_limit")]
@@ -492,16 +461,14 @@ impl Context {
     }
 
     #[doc(alias = "cairo_mask")]
-    pub fn mask(&self, pattern: impl AsRef<Pattern>) -> Result<(), Error> {
-        let pattern = pattern.as_ref();
+    pub fn mask(&self, pattern: &Pattern) -> Result<(), Error> {
         pattern.status()?;
         unsafe { ffi::cairo_mask(self.0.as_ptr(), pattern.to_raw_none()) };
         self.status()
     }
 
     #[doc(alias = "cairo_mask_surface")]
-    pub fn mask_surface(&self, surface: impl AsRef<Surface>, x: f64, y: f64) -> Result<(), Error> {
-        let surface = surface.as_ref();
+    pub fn mask_surface(&self, surface: &Surface, x: f64, y: f64) -> Result<(), Error> {
         surface.status()?;
         unsafe {
             ffi::cairo_mask_surface(self.0.as_ptr(), surface.to_raw_none(), x, y);
@@ -731,13 +698,7 @@ impl Context {
 
     #[doc(alias = "cairo_show_glyphs")]
     pub fn show_glyphs(&self, glyphs: &[Glyph]) -> Result<(), Error> {
-        unsafe {
-            ffi::cairo_show_glyphs(
-                self.0.as_ptr(),
-                glyphs.as_ptr() as *const _,
-                glyphs.len() as _,
-            )
-        };
+        unsafe { ffi::cairo_show_glyphs(self.0.as_ptr(), glyphs.as_ptr(), glyphs.len() as c_int) };
         self.status()
     }
 
@@ -755,10 +716,10 @@ impl Context {
                 self.0.as_ptr(),
                 text.as_ptr(),
                 -1_i32, //NULL terminated
-                glyphs.as_ptr() as *const _,
-                glyphs.len() as _,
-                clusters.as_ptr() as *const _,
-                clusters.len() as _,
+                glyphs.as_ptr(),
+                glyphs.len() as c_int,
+                clusters.as_ptr(),
+                clusters.len() as c_int,
                 cluster_flags.into(),
             )
         };
@@ -767,42 +728,60 @@ impl Context {
 
     #[doc(alias = "cairo_font_extents")]
     pub fn font_extents(&self) -> Result<FontExtents, Error> {
-        let mut extents = MaybeUninit::<FontExtents>::uninit();
+        let mut extents = FontExtents {
+            ascent: 0.0,
+            descent: 0.0,
+            height: 0.0,
+            max_x_advance: 0.0,
+            max_y_advance: 0.0,
+        };
 
         unsafe {
-            ffi::cairo_font_extents(self.0.as_ptr(), extents.as_mut_ptr() as *mut _);
-            self.status().map(|_| extents.assume_init() as _)
+            ffi::cairo_font_extents(self.0.as_ptr(), &mut extents);
         }
+
+        self.status().map(|_| extents)
     }
 
     #[doc(alias = "cairo_text_extents")]
     pub fn text_extents(&self, text: &str) -> Result<TextExtents, Error> {
-        let mut extents = MaybeUninit::<TextExtents>::uninit();
+        let mut extents = TextExtents {
+            x_bearing: 0.0,
+            y_bearing: 0.0,
+            width: 0.0,
+            height: 0.0,
+            x_advance: 0.0,
+            y_advance: 0.0,
+        };
 
         unsafe {
             let text = CString::new(text).unwrap();
-            ffi::cairo_text_extents(
-                self.0.as_ptr(),
-                text.as_ptr(),
-                extents.as_mut_ptr() as *mut _,
-            );
-            self.status().map(|_| extents.assume_init())
+            ffi::cairo_text_extents(self.0.as_ptr(), text.as_ptr(), &mut extents);
         }
+        self.status().map(|_| extents)
     }
 
     #[doc(alias = "cairo_glyph_extents")]
     pub fn glyph_extents(&self, glyphs: &[Glyph]) -> Result<TextExtents, Error> {
-        let mut extents = MaybeUninit::<TextExtents>::uninit();
+        let mut extents = TextExtents {
+            x_bearing: 0.0,
+            y_bearing: 0.0,
+            width: 0.0,
+            height: 0.0,
+            x_advance: 0.0,
+            y_advance: 0.0,
+        };
 
         unsafe {
             ffi::cairo_glyph_extents(
                 self.0.as_ptr(),
-                glyphs.as_ptr() as *const _,
-                glyphs.len() as _,
-                extents.as_mut_ptr() as *mut _,
+                glyphs.as_ptr(),
+                glyphs.len() as c_int,
+                &mut extents,
             );
-            self.status().map(|_| extents.assume_init())
         }
+
+        self.status().map(|_| extents)
     }
 
     // paths stuff
@@ -896,13 +875,7 @@ impl Context {
 
     #[doc(alias = "cairo_glyph_path")]
     pub fn glyph_path(&self, glyphs: &[Glyph]) {
-        unsafe {
-            ffi::cairo_glyph_path(
-                self.0.as_ptr(),
-                glyphs.as_ptr() as *const _,
-                glyphs.len() as _,
-            )
-        }
+        unsafe { ffi::cairo_glyph_path(self.0.as_ptr(), glyphs.as_ptr(), glyphs.len() as i32) }
     }
 
     #[doc(alias = "cairo_rel_curve_to")]
@@ -933,8 +906,7 @@ impl Context {
         self.status().map(|_| (x1, y1, x2, y2))
     }
 
-    #[cfg(feature = "v1_16")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "v1_16")))]
+    #[cfg(any(feature = "v1_16", feature = "dox"))]
     #[doc(alias = "cairo_tag_begin")]
     pub fn tag_begin(&self, tag_name: &str, attributes: &str) {
         unsafe {
@@ -944,8 +916,7 @@ impl Context {
         }
     }
 
-    #[cfg(feature = "v1_16")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "v1_16")))]
+    #[cfg(any(feature = "v1_16", feature = "dox"))]
     #[doc(alias = "cairo_tag_end")]
     pub fn tag_end(&self, tag_name: &str) {
         unsafe {
@@ -963,10 +934,10 @@ impl fmt::Display for Context {
 
 #[cfg(test)]
 mod tests {
-    use float_eq::float_eq;
-
     use super::*;
-    use crate::{enums::Format, image_surface::ImageSurface, patterns::LinearGradient};
+    use crate::enums::Format;
+    use crate::image_surface::ImageSurface;
+    use crate::patterns::LinearGradient;
 
     fn create_ctx() -> Context {
         let surface = ImageSurface::create(Format::ARgb32, 10, 10).unwrap();
@@ -1009,11 +980,10 @@ mod tests {
         let rect = ctx
             .copy_clip_rectangle_list()
             .expect("Failed to copy rectangle list");
-        let first_rect = rect[0];
-        assert!(float_eq!(first_rect.x(), 0.0, abs <= 0.000_1));
-        assert!(float_eq!(first_rect.y(), 0.0, abs <= 0.000_1));
-        assert!(float_eq!(first_rect.width(), 10.0, abs <= 0.000_1));
-        assert!(float_eq!(first_rect.height(), 10.0, abs <= 0.000_1));
+        assert_eq!(
+            format!("{:?}", rect),
+            "RectangleList([Rectangle { x: 0.0, y: 0.0, width: 10.0, height: 10.0 }])"
+        );
         assert_eq!(rect.to_string(), "RectangleList");
     }
 }

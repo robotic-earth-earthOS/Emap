@@ -1,68 +1,63 @@
 [options]
-deprecate_by_min_version = true
-girs_directories = ["gir-files/"]
 library = "JavaScriptCore"
-min_cfg_version = "2.24"
-single_version_file = true
+version = "4.0"
 target_path = "."
-version = "4.1"
+min_cfg_version = "2.24"
 work_mode = "normal"
+girs_directories = ["gir-files/"]
+deprecate_by_min_version = true
+single_version_file = true
 
 external_libraries = ["GLib", "GObject"]
 
 generate = [
-  "JavaScriptCore.CheckSyntaxMode",
-  "JavaScriptCore.CheckSyntaxResult",
-  "JavaScriptCore.Class",
-  "JavaScriptCore.ClassDeletePropertyFunction",
-  "JavaScriptCore.ClassEnumeratePropertiesFunction",
-  "JavaScriptCore.ClassGetPropertyFunction",
-  "JavaScriptCore.ClassHasPropertyFunction",
-  "JavaScriptCore.ClassSetPropertyFunction",
-  # "JavaScriptCore.ClassVTable",
-  "JavaScriptCore.Exception",
-  "JavaScriptCore.ExceptionHandler",
-  "JavaScriptCore.OptionsFunc",
-  "JavaScriptCore.OptionType",
-  "JavaScriptCore.TypedArrayType",
-  "JavaScriptCore.ValuePropertyFlags",
-  "JavaScriptCore.VirtualMachine",
+    "JavaScriptCore.CheckSyntaxMode",
+    "JavaScriptCore.CheckSyntaxResult",
+    "JavaScriptCore.Class",
+    "JavaScriptCore.ClassDeletePropertyFunction",
+    "JavaScriptCore.ClassEnumeratePropertiesFunction",
+    "JavaScriptCore.ClassGetPropertyFunction",
+    "JavaScriptCore.ClassHasPropertyFunction",
+    "JavaScriptCore.ClassSetPropertyFunction",
+    "JavaScriptCore.ClassVariadicFunction",
+    "JavaScriptCore.Constructor",
+    "JavaScriptCore.Exception",
+    "JavaScriptCore.ExceptionHandler",
+    "JavaScriptCore.Getter",
+    "JavaScriptCore.OptionsFunc",
+    "JavaScriptCore.OptionType",
+    "JavaScriptCore.PropertyGetter",
+    "JavaScriptCore.PropertySetter",
+    "JavaScriptCore.Setter",
+    "JavaScriptCore.ValuePropertyFlags",
+    "JavaScriptCore.VariadicFunction",
+    "JavaScriptCore.VirtualMachine",
 ]
 
 manual = [
-  "GLib.Bytes",
-  "GLib.DestroyNotify",
-  "GLib.OptionGroup",
-  "GObject.Callback",
+    "GLib.Bytes",
+    "GLib.DestroyNotify",
+    "GLib.OptionGroup",
+    "GObject.Callback",
+    "JavaScriptCore.StringRef",
+    "JavaScriptCore.GlobalContextRef",
 ]
 
 [[object]]
-generate_builder = true
 name = "JavaScriptCore.Context"
 status = "generate"
+generate_builder = true
 
 [[object]]
-generate_builder = true
 name = "JavaScriptCore.Value"
 status = "generate"
-    [[object.function]]
-    name = "new_array"
-    ignore = true
-    [[object.function]]
-    name = "new_array_buffer"
-    manual = true
-    [[object.function]]
-    name = "array_buffer_get_data"
-    manual = true
-    [[object.function]]
-    name = "typed_array_get_data"
-    manual = true
+generate_builder = true
 
-# [[object.function]]
-# ignore = true
-# name = "object_define_property_accessor"
+[[object.function]]
+name = "object_define_property_accessor"
+ignore = true
 
 [[object]]
-generate_builder = true
 name = "JavaScriptCore.WeakValue"
 status = "generate"
+generate_builder = true

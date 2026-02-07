@@ -2,8 +2,10 @@
 // from gir-files (https://github.com/gtk-rs/gir-files)
 // DO NOT EDIT
 
-use crate::{DBusInterfaceInfo, DBusObject};
-use glib::{prelude::*, translate::*};
+use crate::DBusInterfaceInfo;
+use crate::DBusObject;
+use glib::object::IsA;
+use glib::translate::*;
 use std::fmt;
 
 glib::wrapper! {
@@ -19,14 +21,20 @@ impl DBusInterface {
     pub const NONE: Option<&'static DBusInterface> = None;
 }
 
-mod sealed {
-    pub trait Sealed {}
-    impl<T: super::IsA<super::DBusInterface>> Sealed for T {}
-}
-
-pub trait DBusInterfaceExt: IsA<DBusInterface> + sealed::Sealed + 'static {
+pub trait DBusInterfaceExt: 'static {
     #[doc(alias = "g_dbus_interface_dup_object")]
     #[doc(alias = "dup_object")]
+    fn get(&self) -> Option<DBusObject>;
+
+    #[doc(alias = "g_dbus_interface_get_info")]
+    #[doc(alias = "get_info")]
+    fn info(&self) -> DBusInterfaceInfo;
+
+    #[doc(alias = "g_dbus_interface_set_object")]
+    fn set_object(&self, object: Option<&impl IsA<DBusObject>>);
+}
+
+impl<O: IsA<DBusInterface>> DBusInterfaceExt for O {
     fn get(&self) -> Option<DBusObject> {
         unsafe {
             from_glib_full(ffi::g_dbus_interface_dup_object(
@@ -35,8 +43,6 @@ pub trait DBusInterfaceExt: IsA<DBusInterface> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_dbus_interface_get_info")]
-    #[doc(alias = "get_info")]
     fn info(&self) -> DBusInterfaceInfo {
         unsafe {
             from_glib_none(ffi::g_dbus_interface_get_info(
@@ -45,7 +51,6 @@ pub trait DBusInterfaceExt: IsA<DBusInterface> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "g_dbus_interface_set_object")]
     fn set_object(&self, object: Option<&impl IsA<DBusObject>>) {
         unsafe {
             ffi::g_dbus_interface_set_object(
@@ -55,8 +60,6 @@ pub trait DBusInterfaceExt: IsA<DBusInterface> + sealed::Sealed + 'static {
         }
     }
 }
-
-impl<O: IsA<DBusInterface>> DBusInterfaceExt for O {}
 
 impl fmt::Display for DBusInterface {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {

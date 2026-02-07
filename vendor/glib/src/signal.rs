@@ -3,13 +3,13 @@
 // rustdoc-stripper-ignore-next
 //! `IMPL` Low level signal support.
 
-use std::{mem, num::NonZeroU64};
-
-use ffi::gpointer;
+use crate::object::ObjectType;
+use crate::translate::{from_glib, FromGlib, IntoGlib, ToGlibPtr};
+use ffi::{gboolean, gpointer};
 use gobject_ffi::{self, GCallback};
 use libc::{c_char, c_ulong, c_void};
-
-use crate::{prelude::*, translate::*};
+use std::mem;
+use std::num::NonZeroU64;
 
 // rustdoc-stripper-ignore-next
 /// The id of a signal that is returned by `connect`.
@@ -60,8 +60,35 @@ impl SignalHandlerId {
 impl FromGlib<c_ulong> for SignalHandlerId {
     #[inline]
     unsafe fn from_glib(val: c_ulong) -> Self {
-        debug_assert_ne!(val, 0);
-        Self(NonZeroU64::new_unchecked(val as _))
+        assert_ne!(val, 0);
+        Self(NonZeroU64::new_unchecked(val as u64))
+    }
+}
+
+// rustdoc-stripper-ignore-next
+/// Whether to propagate the signal to the default handler.
+///
+/// Don't inhibit default handlers without a reason, they're usually helpful.
+#[derive(Clone, Copy, Debug, Default, Eq, PartialEq)]
+pub struct Inhibit(pub bool);
+
+#[doc(hidden)]
+impl IntoGlib for Inhibit {
+    type GlibType = gboolean;
+
+    #[inline]
+    fn into_glib(self) -> gboolean {
+        self.0.into_glib()
+    }
+}
+
+impl crate::ToValue for Inhibit {
+    fn to_value(&self) -> crate::Value {
+        self.0.to_value()
+    }
+
+    fn value_type(&self) -> crate::Type {
+        <bool as crate::StaticType>::static_type()
     }
 }
 
@@ -73,10 +100,10 @@ pub unsafe fn connect_raw<F>(
 ) -> SignalHandlerId {
     unsafe extern "C" fn destroy_closure<F>(ptr: *mut c_void, _: *mut gobject_ffi::GClosure) {
         // destroy
-        let _ = Box::<F>::from_raw(ptr as *mut _);
+        Box::<F>::from_raw(ptr as *mut _);
     }
-    debug_assert_eq!(mem::size_of::<*mut F>(), mem::size_of::<gpointer>());
-    debug_assert!(trampoline.is_some());
+    assert_eq!(mem::size_of::<*mut F>(), mem::size_of::<gpointer>());
+    assert!(trampoline.is_some());
     let handle = gobject_ffi::g_signal_connect_data(
         receiver,
         signal_name,
@@ -85,7 +112,7 @@ pub unsafe fn connect_raw<F>(
         Some(destroy_closure::<F>),
         0,
     );
-    debug_assert!(handle > 0);
+    assert!(handle > 0);
     from_glib(handle)
 }
 
@@ -144,83 +171,5 @@ pub fn signal_has_handler_pending<T: ObjectType>(
             detail.map_or(0, |d| d.into_glib()),
             may_be_blocked.into_glib(),
         ))
-    }
-}
-
-// rustdoc-stripper-ignore-next
-/// Whether to invoke the other event handlers.
-#[derive(Copy, Clone, Debug, PartialEq, Eq)]
-pub enum Propagation {
-    // Stop other handlers from being invoked for the event.
-    Stop,
-    // Propagate the event further.
-    Proceed,
-}
-
-impl Propagation {
-    // rustdoc-stripper-ignore-next
-    /// Returns `true` if this is a `Stop` variant.
-    pub fn is_stop(&self) -> bool {
-        matches!(self, Self::Stop)
-    }
-
-    // rustdoc-stripper-ignore-next
-    /// Returns `true` if this is a `Proceed` variant.
-    pub fn is_proceed(&self) -> bool {
-        matches!(self, Self::Proceed)
-    }
-}
-
-impl From<bool> for Propagation {
-    fn from(value: bool) -> Self {
-        if value {
-            Self::Stop
-        } else {
-            Self::Proceed
-        }
-    }
-}
-
-impl From<Propagation> for bool {
-    fn from(c: Propagation) -> Self {
-        match c {
-            Propagation::Stop => true,
-            Propagation::Proceed => false,
-        }
-    }
-}
-
-#[doc(hidden)]
-impl IntoGlib for Propagation {
-    type GlibType = ffi::gboolean;
-
-    #[inline]
-    fn into_glib(self) -> ffi::gboolean {
-        bool::from(self).into_glib()
-    }
-}
-
-#[doc(hidden)]
-impl FromGlib<ffi::gboolean> for Propagation {
-    #[inline]
-    unsafe fn from_glib(value: ffi::gboolean) -> Self {
-        bool::from_glib(value).into()
-    }
-}
-
-impl crate::ToValue for Propagation {
-    fn to_value(&self) -> crate::Value {
-        bool::from(*self).to_value()
-    }
-
-    fn value_type(&self) -> crate::Type {
-        <bool as crate::StaticType>::static_type()
-    }
-}
-
-impl From<Propagation> for crate::Value {
-    #[inline]
-    fn from(v: Propagation) -> Self {
-        bool::from(v).into()
     }
 }

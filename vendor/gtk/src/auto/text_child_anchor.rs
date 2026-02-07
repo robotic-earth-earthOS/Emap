@@ -3,7 +3,8 @@
 // DO NOT EDIT
 
 use crate::Widget;
-use glib::{prelude::*, translate::*};
+use glib::object::IsA;
+use glib::translate::*;
 use std::fmt;
 
 glib::wrapper! {
@@ -31,14 +32,17 @@ impl Default for TextChildAnchor {
     }
 }
 
-mod sealed {
-    pub trait Sealed {}
-    impl<T: super::IsA<super::TextChildAnchor>> Sealed for T {}
-}
-
-pub trait TextChildAnchorExt: IsA<TextChildAnchor> + sealed::Sealed + 'static {
+pub trait TextChildAnchorExt: 'static {
     #[doc(alias = "gtk_text_child_anchor_get_deleted")]
     #[doc(alias = "get_deleted")]
+    fn is_deleted(&self) -> bool;
+
+    #[doc(alias = "gtk_text_child_anchor_get_widgets")]
+    #[doc(alias = "get_widgets")]
+    fn widgets(&self) -> Vec<Widget>;
+}
+
+impl<O: IsA<TextChildAnchor>> TextChildAnchorExt for O {
     fn is_deleted(&self) -> bool {
         unsafe {
             from_glib(ffi::gtk_text_child_anchor_get_deleted(
@@ -47,8 +51,6 @@ pub trait TextChildAnchorExt: IsA<TextChildAnchor> + sealed::Sealed + 'static {
         }
     }
 
-    #[doc(alias = "gtk_text_child_anchor_get_widgets")]
-    #[doc(alias = "get_widgets")]
     fn widgets(&self) -> Vec<Widget> {
         unsafe {
             FromGlibPtrContainer::from_glib_container(ffi::gtk_text_child_anchor_get_widgets(
@@ -57,8 +59,6 @@ pub trait TextChildAnchorExt: IsA<TextChildAnchor> + sealed::Sealed + 'static {
         }
     }
 }
-
-impl<O: IsA<TextChildAnchor>> TextChildAnchorExt for O {}
 
 impl fmt::Display for TextChildAnchor {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
